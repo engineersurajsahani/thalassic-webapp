@@ -1,0 +1,701 @@
+/* Booking Portal Styles */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css');
+
+/* Reset and Base */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Sidebar Styles */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -300px;
+  width: 300px;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(10px);
+  z-index: 2000;
+  transition: left 0.3s ease;
+  overflow-y: auto;
+}
+
+.sidebar-open {
+  left: 0;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-close {
+  background: none;
+  border: none;
+  color: #fff;
+  font-size: 2rem;
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 80%;
+  transition: background-color 0.3s ease;
+}
+
+.sidebar-close:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-nav {
+  padding: 1rem 0;
+}
+
+.sidebar-menu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-item {
+  margin: 0;
+}
+
+.sidebar-item.active .sidebar-link {
+  background-color: rgba(255, 255, 255, 0.1);
+  border-right: 3px solid #00bcd4;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  color: #fff;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border-right: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding-left: 2rem;
+}
+
+.sidebar-icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  filter: brightness(0) invert(1); /* Makes PNG icons white */
+  transition: filter 0.3s ease;
+}
+
+.sidebar-text {
+  font-size: 1rem;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1500;
+}
+
+.booking-portal-page {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: 'Inter', sans-serif;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Booking Portal Navbar */
+.booking-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: #fff;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+  width: 100%;
+  margin: 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.booking-navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.booking-menu-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #333;
+}
+
+.booking-navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 18px;
+  color: #0f3c4c;
+}
+
+.booking-navbar-logo img {
+  height: 35px;
+}
+
+.booking-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.booking-navbar-time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  color: #555;
+}
+
+.booking-notification-btn {
+  background: none;
+  border: none;
+  font-size: 18px;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Main Content */
+.booking-main {
+  padding: 40px 20px;
+  width: 100%;
+  min-height: calc(100vh - 70px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.course-selection {
+  background: white;
+  border-radius: 15px;
+  padding: 50px 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border: 1px solid #e9ecef;
+  margin: 0;
+  max-width: 800px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.course-icon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #4a90a4, #357a8a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 30px;
+  box-shadow: 0 4px 15px rgba(74, 144, 164, 0.3);
+  transition: transform 0.3s ease;
+}
+
+.course-icon:hover {
+  transform: scale(1.05);
+}
+
+.course-icon i {
+  font-size: 36px;
+  color: white;
+}
+
+.course-selection h2 {
+  font-size: 32px;
+  font-weight: 600;
+  color: #2d3748;
+  margin-bottom: 12px;
+}
+
+.course-selection p {
+  font-size: 16px;
+  color: #6c757d;
+  margin-bottom: 45px;
+  line-height: 1.5;
+}
+
+/* Form Styles */
+.course-form {
+  text-align: left;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 25px;
+  margin-bottom: 25px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+}
+
+.form-group label i {
+  font-size: 14px;
+  color: #718096;
+}
+
+.form-select {
+  padding: 16px 18px;
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  font-size: 15px;
+  color: #495057;
+  background: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 400;
+  width: 100%;
+}
+
+.form-select:focus {
+  outline: none;
+  border-color: #4a90a4;
+  box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+}
+
+.form-select:hover:not(:disabled) {
+  border-color: #adb5bd;
+}
+
+.form-select:disabled {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  cursor: not-allowed;
+  border-color: #e9ecef;
+}
+
+.form-select option {
+  padding: 8px;
+}
+/* Course Information Section */
+.course-info-section {
+  background: white;
+  border-radius: 15px;
+  padding: 50px 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border: 1px solid #e9ecef;
+  margin: 40px auto 0;
+  max-width: 800px;
+  width: 100%;
+}
+
+.course-info-header-area {
+  margin-bottom: 40px;
+}
+
+.course-info-header-top-border {
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #4a90a4, #357a8a);
+  border-radius: 2px;
+  margin-bottom: 30px;
+}
+
+.course-info-header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.course-info-header-icon-container {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #4a90a4, #357a8a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(74, 144, 164, 0.3);
+}
+
+.course-info-header-icon-container i {
+  font-size: 36px;
+  color: white;
+}
+
+.course-info-header-title {
+  font-size: 32px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.course-info-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 25px;
+}
+
+.course-info-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+}
+
+.course-info-row:last-child {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.course-card {
+  background: #f8f9fa;
+  border-radius: 12px;
+  padding: 25px;
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+  min-height: 150px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+
+.course-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.course-card-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 18px;
+  margin-bottom: 15px;
+}
+
+.course-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 10px 0;
+}
+
+.course-card-content {
+  font-size: 14px;
+  color: #6c757d;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.course-card-content ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.course-card-content li {
+  padding: 4px 0;
+  border-bottom: 1px solid #e9ecef;
+  position: relative;
+  padding-left: 16px;
+}
+
+.course-card-content li:last-child {
+  border-bottom: none;
+}
+
+.course-card-content li::before {
+  content: '•';
+  color: #4a90a4;
+  font-weight: bold;
+  position: absolute;
+  left: 0;
+}
+
+/* Personal Info Section */
+.personal-info-section {
+  background: white;
+  border-radius: 15px;
+  padding: 50px 40px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  text-align: center;
+  border: 1px solid #e9ecef;
+  margin: 40px auto 0;
+  max-width: 800px;
+  width: 100%;
+}
+
+.personal-info-header {
+  padding: 0;
+  margin: 0;
+}
+
+.personal-info-header-area {
+  margin-bottom: 40px;
+}
+
+.personal-info-header-top-border {
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #4a90a4, #357a8a);
+  border-radius: 2px;
+  margin-bottom: 30px;
+}
+
+.personal-info-header-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.personal-info-header-icon-container {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #4a90a4, #357a8a);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 15px rgba(74, 144, 164, 0.3);
+}
+
+.personal-info-header-icon-container i {
+  font-size: 36px;
+  color: white;
+}
+
+.personal-info-header-title {
+  font-size: 32px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+.personal-info-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group label i {
+  color: #4a90a4;
+  width: 16px;
+}
+
+.form-input {
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: all 0.3s ease;
+  background: #f8f9fa;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4a90a4;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(74, 144, 164, 0.1);
+}
+
+.form-input::placeholder {
+  color: #adb5bd;
+}
+
+.booking-actions {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.btn-add-to-cart {
+  background: linear-gradient(135deg, #4a90a4, #357a8a);
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(74, 144, 164, 0.3);
+}
+
+.btn-add-to-cart:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(74, 144, 164, 0.4);
+  background: linear-gradient(135deg, #357a8a, #2d6a7a);
+}
+
+.btn-add-to-cart:active {
+  transform: translateY(0);
+}
+
+.btn-book-now {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: white;
+  border: none;
+  padding: 14px 40px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+}
+
+.btn-book-now:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  background: linear-gradient(135deg, #16a34a, #15803d);
+}
+
+.btn-book-now:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .booking-header {
+    padding: 20px;
+  }
+
+  .booking-header h1 {
+    font-size: 24px;
+  }
+
+  .booking-card {
+    padding: 20px;
+    margin: 10px;
+  }
+
+  .course-info-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .course-info-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .course-card {
+    min-height: auto;
+  }
+
+  /* Personal Info Responsive */
+  .personal-info-section {
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .personal-info-header h2 {
+    font-size: 24px;
+  }
+
+  .personal-info-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 20px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .btn-book-now {
+    padding: 12px 30px;
+    font-size: 14px;
+    width: 60px;
+    height: 60px;
+    margin-bottom: 20px;
+  }
+  
+  .course-icon i {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .header-left {
+    gap: 10px;
+  }
+  
+  .header-right {
+    gap: 10px;
+  }
+  
+  .course-selection {
+    padding: 25px 15px;
+  }
+  
+  .course-selection h2 {
+    font-size: 22px;
+  }
+  
+  .course-selection p {
+    font-size: 14px;
+  }
+}
