@@ -6,6 +6,7 @@ import Document from './components/pages/Document';
 import Education from './components/pages/Education';
 import Training from './components/pages/Training';
 import SeaService from './components/pages/SeaService';
+import AdminDashboard from './components/pages/AdminDashboard';
 
 const AppRoutes = () => {
   return (
@@ -19,6 +20,7 @@ const AppRoutes = () => {
         <Route path="/education" element={<Education />} />
         <Route path="/training" element={<Training />} />
         <Route path="/sea-service" element={<SeaService />} />
+        <Route path="/admin" element={<AdminDashboard />} />
       </Routes>
     </Router>
   );

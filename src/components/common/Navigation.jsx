@@ -1,18 +1,19 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { OverviewIcon, ProfileIcon, DocumentIcon, EducationIcon, TrainingIcon, SeaServiceIcon } from '../ui/Icons';
 
 const Navigation = ({ className = '' }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
   const menuItems = [
-    { name: 'Overview', icon: '/images/img_svg_white_a700.svg', path: '/overview' },
-    { name: 'Profile', icon: '/images/img_svg_white_a700_20x20.svg', path: '/profile' },
-    { name: 'Document', icon: '/images/img_svg_20x20.svg', path: '/document' },
-    { name: 'Education', icon: '/images/img_svg_gray_50.svg', path: '/education' },
-    { name: 'Training', icon: '/images/img_svg_1.svg', path: '/training' },
-    { name: 'Sea Service', icon: '/images/img_svg_2.svg', path: '/sea-service' }
+    { name: 'Overview', Icon: OverviewIcon, path: '/overview' },
+    { name: 'Profile', Icon: ProfileIcon, path: '/profile' },
+    { name: 'Document', Icon: DocumentIcon, path: '/document' },
+    { name: 'Education', Icon: EducationIcon, path: '/education' },
+    { name: 'Training', Icon: TrainingIcon, path: '/training' },
+    { name: 'Sea Service', Icon: SeaServiceIcon, path: '/sea-service' }
   ];
 
   const isActive = (path) => {
@@ -37,11 +38,9 @@ const Navigation = ({ className = '' }) => {
             }`}
           >
             <div className={`flex items-center justify-center w-[28px] h-[28px] lg:w-[32px] lg:h-[32px] rounded-[6px] bg-global-3`}>
-              <img
-                src={item?.icon}
-                alt={item?.name}
-                className="w-[16px] h-[16px] lg:w-[20px] lg:h-[20px]"
-              />
+              {item?.Icon ? (
+                <item.Icon className="w-[16px] h-[16px] lg:w-[20px] lg:h-[20px] text-global-1" />
+              ) : null}
             </div>
             <span className={`text-[20px] sm:text-[22px] lg:text-[24px] font-josefin font-medium leading-[22px] lg:leading-[25px] ${
               isActive(item.path) ? 'text-global-5' : 'text-global-1'

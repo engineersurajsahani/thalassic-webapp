@@ -4,6 +4,7 @@ import Sidebar from '../common/Sidebar';
 import Button from '../ui/Button';
 import FormInput from '../ui/FormInput';
 import FormSection from '../ui/FormSection';
+import { BasicDetailsIcon, SaveIcon, NextIcon } from '../ui/Icons';
 
 const Profile = () => {
   const [formData, setFormData] = useState({
@@ -53,7 +54,7 @@ const Profile = () => {
           <form onSubmit={handleSubmit}>
             <FormSection
               title="Basic Details"
-              icon="👤"
+              icon={<BasicDetailsIcon className="w-5 h-5 text-blue-600" />}
               bgColor="bg-global-10"
               className="mb-6"
             >
@@ -185,7 +186,11 @@ const Profile = () => {
               size="large"
               className="!px-8 !py-3 !text-lg font-medium"
             >
-              Save & Next
+              <div className="flex items-center gap-2">
+                <SaveIcon className="w-5 h-5" />
+                <span>Save & Next</span>
+                <NextIcon className="w-4 h-4" />
+              </div>
             </Button>
           </form>
         </div>

@@ -2,6 +2,14 @@ import React, { useState } from 'react';
 import Header from '../common/Header';
 import Sidebar from '../common/Sidebar';
 import Button from '../ui/Button';
+import { 
+  SeaExperienceIcon, 
+  CertificationsIcon, 
+  DocumentsIcon, 
+  ProfileScoreIcon,
+  ActivityIcon,
+  DocumentIcon
+} from '../ui/Icons';
 
 const Dashboard = () => {
 
@@ -9,25 +17,25 @@ const Dashboard = () => {
     {
       title: 'Sea Experience',
       value: '6 Months',
-      icon: '/images/img_background.svg',
+      Icon: SeaExperienceIcon,
       bgColor: 'bg-global-4'
     },
     {
       title: 'Certifications',
       value: '12',
-      icon: '/images/img_background_green_700.svg',
+      Icon: CertificationsIcon,
       bgColor: 'bg-global-5'
     },
     {
       title: 'Documents',
       value: 'Valid',
-      icon: '/images/img_background_deep_purple_a200.svg',
+      Icon: DocumentsIcon,
       bgColor: 'bg-global-7'
     },
     {
       title: 'Profile Score',
       value: 'A+',
-      icon: '/images/img_background_orange_800.svg',
+      Icon: ProfileScoreIcon,
       bgColor: 'bg-global-9'
     }
   ];
@@ -68,21 +76,24 @@ const Dashboard = () => {
                 </p>
                 <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-6 lg:gap-8">
                   <div className="flex items-center gap-2">
-                    <img
-                      src="/images/img_svg_2.svg"
-                      alt="Third Officer"
-                      className="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px]"
-                    />
+                    <div className="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px] bg-global-5 rounded-sm flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-3 h-3 lg:w-4 lg:h-4 text-global-10" fill="currentColor">
+                        <path d="M12 2l3 6 6 1-4.5 4.4L18 20l-6-3-6 3 1.5-6.6L3 9l6-1 3-6z"/>
+                      </svg>
+                    </div>
                     <span className="text-[16px] lg:text-[18px] font-inter font-normal leading-[20px] lg:leading-[23px] text-global-5">
                       Third Officer
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <img
-                      src="/images/img_svg_3.svg"
-                      alt="DG Shipping Certified"
-                      className="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px]"
-                    />
+                    <div className="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px] bg-global-5 rounded-sm flex items-center justify-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-3 h-3 lg:w-4 lg:h-4 text-global-10" fill="currentColor">
+                        <path d="M9 12l2 2 4-4"/>
+                        <path d="M21 12c-1 0-2-1-2-2s1-2 2-2 2 1 2 2-1 2-2 2z"/>
+                        <path d="M3 12c1 0 2-1 2-2s-1-2-2-2-2 1-2 2 1 2 2 2z"/>
+                        <path d="M12 3c0 1-1 2-2 2s-2 1-2 2 1 2 2 2 2 1 2 2 1-2 2-2 2-1 2-2-1-2-2-2-2-1-2-2z"/>
+                      </svg>
+                    </div>
                     <span className="text-[16px] lg:text-[18px] font-inter font-normal leading-[20px] lg:leading-[23px] text-global-5">
                       DG Shipping Certified
                     </span>
@@ -116,11 +127,9 @@ const Dashboard = () => {
                     </p>
                   </div>
                   <div className={`${card?.bgColor} rounded-[8px] p-3 lg:p-[14px]`}>
-                    <img
-                      src={card?.icon}
-                      alt={card?.title}
-                      className="w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] lg:w-[28px] lg:h-[28px]"
-                    />
+                    {card?.Icon ? (
+                      <card.Icon className="w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] lg:w-[28px] lg:h-[28px] text-global-10" />
+                    ) : null}
                   </div>
                 </div>
               </div>
@@ -132,11 +141,7 @@ const Dashboard = () => {
             {/* Document Status */}
             <div className="w-full lg:w-[44%] bg-global-10 rounded-[24px] p-6 sm:p-8 lg:p-[40px]">
               <div className="flex items-center gap-3 lg:gap-[8px] mb-6 lg:mb-[46px]">
-                <img
-                  src="/images/img_svg_blue_a700.svg"
-                  alt="Document Status"
-                  className="w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] lg:w-[30px] lg:h-[28px]"
-                />
+                <DocumentIcon className="w-[24px] h-[24px] sm:w-[26px] sm:h-[26px] lg:w-[30px] lg:h-[28px] text-global-2" />
                 <h3 className="text-[20px] sm:text-[22px] lg:text-[24px] font-inter font-bold leading-[26px] lg:leading-[30px] text-global-2">
                   Document Status
                 </h3>
@@ -169,11 +174,7 @@ const Dashboard = () => {
             {/* Recent Activity */}
             <div className="w-full lg:w-[34%] bg-global-10 rounded-[24px] p-6 sm:p-8 lg:p-[40px]">
               <div className="flex items-center gap-2 lg:gap-[8px] mb-6 lg:mb-[28px]">
-                <img
-                  src="/images/img_svg_blue_a700_20x20.svg"
-                  alt="Recent Activity"
-                  className="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px]"
-                />
+                <ActivityIcon className="w-[18px] h-[18px] lg:w-[20px] lg:h-[20px] text-global-2" />
                 <h3 className="text-[15px] sm:text-[16px] lg:text-[17px] font-inter font-bold leading-[19px] lg:leading-[21px] text-global-2">
                   Recent Activity
                 </h3>

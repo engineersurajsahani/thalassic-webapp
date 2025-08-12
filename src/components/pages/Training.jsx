@@ -4,6 +4,7 @@ import Sidebar from '../common/Sidebar';
 import Button from '../ui/Button';
 import FormInput from '../ui/FormInput';
 import FormSection from '../ui/FormSection';
+import { TrainingIcon, UploadIcon, SaveIcon, NextIcon } from '../ui/Icons';
 
 const Training = () => {
   const [preSeaTraining, setPreSeaTraining] = useState({
@@ -115,7 +116,7 @@ const Training = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <FormSection
               title="Training & Course Details"
-              icon="🎓"
+              icon={<TrainingIcon className="w-5 h-5 text-blue-600" />}
               bgColor="bg-global-10"
             >
               {/* Pre Sea Training */}
@@ -166,7 +167,10 @@ const Training = () => {
                 </div>
                 <div className="mt-4 flex justify-end">
                   <Button variant="secondary" size="small" type="button">
-                    📤 Upload
+                    <div className="flex items-center gap-2">
+                      <UploadIcon className="w-4 h-4" />
+                      <span>Upload</span>
+                    </div>
                   </Button>
                 </div>
               </div>
@@ -219,7 +223,10 @@ const Training = () => {
                 </div>
                 <div className="mt-4 flex justify-end">
                   <Button variant="secondary" size="small" type="button">
-                    📤 Upload
+                    <div className="flex items-center gap-2">
+                      <UploadIcon className="w-4 h-4" />
+                      <span>Upload</span>
+                    </div>
                   </Button>
                 </div>
               </div>
@@ -249,7 +256,10 @@ const Training = () => {
                 </div>
                 <div className="mt-4 flex justify-end">
                   <Button variant="secondary" size="small" type="button">
-                    📤 Upload
+                    <div className="flex items-center gap-2">
+                      <UploadIcon className="w-4 h-4" />
+                      <span>Upload</span>
+                    </div>
                   </Button>
                 </div>
               </div>
@@ -302,7 +312,10 @@ const Training = () => {
                 </div>
                 <div className="mt-4 flex justify-end">
                   <Button variant="secondary" size="small" type="button">
-                    📤 Upload
+                    <div className="flex items-center gap-2">
+                      <UploadIcon className="w-4 h-4" />
+                      <span>Upload</span>
+                    </div>
                   </Button>
                 </div>
               </div>
@@ -355,7 +368,10 @@ const Training = () => {
                 </div>
                 <div className="mt-4 flex justify-end">
                   <Button variant="secondary" size="small" type="button">
-                    📤 Upload
+                    <div className="flex items-center gap-2">
+                      <UploadIcon className="w-4 h-4" />
+                      <span>Upload</span>
+                    </div>
                   </Button>
                 </div>
               </div>
@@ -416,7 +432,10 @@ const Training = () => {
                 </div>
                 <div className="mt-4 flex justify-end">
                   <Button variant="secondary" size="small" type="button">
-                    📤 Upload
+                    <div className="flex items-center gap-2">
+                      <UploadIcon className="w-4 h-4" />
+                      <span>Upload</span>
+                    </div>
                   </Button>
                 </div>
               </div>
@@ -428,7 +447,11 @@ const Training = () => {
               size="large"
               className="!px-8 !py-3 !text-lg font-medium"
             >
-              Save & Next
+              <div className="flex items-center gap-2">
+                <SaveIcon className="w-5 h-5" />
+                <span>Save & Next</span>
+                <NextIcon className="w-4 h-4" />
+              </div>
             </Button>
           </form>
         </div>

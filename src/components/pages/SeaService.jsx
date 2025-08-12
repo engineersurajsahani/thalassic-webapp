@@ -4,6 +4,7 @@ import Sidebar from '../common/Sidebar';
 import Button from '../ui/Button';
 import FormInput from '../ui/FormInput';
 import FormSection from '../ui/FormSection';
+import { SeaServiceIcon, UploadIcon, SaveIcon, NextIcon } from '../ui/Icons';
 
 const SeaService = () => {
   const [seaServiceData, setSeaServiceData] = useState({
@@ -54,7 +55,7 @@ const SeaService = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <FormSection
               title="Sea Service Experience"
-              icon="🚢"
+              icon={<SeaServiceIcon className="w-5 h-5 text-green-600" />}
               bgColor="bg-global-10"
             >
               {/* Sea Service Experience (Only Master Checker Approved) */}
@@ -161,7 +162,10 @@ const SeaService = () => {
 
                   <div className="mt-6 flex justify-end">
                     <Button variant="secondary" size="small" type="button">
-                      📤 Upload
+                      <div className="flex items-center gap-2">
+                        <UploadIcon className="w-4 h-4" />
+                        <span>Upload</span>
+                      </div>
                     </Button>
                   </div>
                 </div>
@@ -257,7 +261,10 @@ const SeaService = () => {
 
                   <div className="mt-6 flex justify-end">
                     <Button variant="secondary" size="small" type="button">
-                      📤 Upload
+                      <div className="flex items-center gap-2">
+                        <UploadIcon className="w-4 h-4" />
+                        <span>Upload</span>
+                      </div>
                     </Button>
                   </div>
                 </div>
@@ -270,7 +277,11 @@ const SeaService = () => {
               size="large"
               className="!px-8 !py-3 !text-lg font-medium"
             >
-              Save & Next
+              <div className="flex items-center gap-2">
+                <SaveIcon className="w-5 h-5" />
+                <span>Save & Next</span>
+                <NextIcon className="w-4 h-4" />
+              </div>
             </Button>
           </form>
         </div>

@@ -4,6 +4,7 @@ import Sidebar from '../common/Sidebar';
 import Button from '../ui/Button';
 import FormInput from '../ui/FormInput';
 import FormSection from '../ui/FormSection';
+import { PassportIcon, IndosIcon, CdcIcon, SaveIcon, NextIcon } from '../ui/Icons';
 
 const Document = () => {
   const [passportData, setPassportData] = useState({
@@ -66,7 +67,7 @@ const Document = () => {
             {/* Passport Details */}
             <FormSection
               title="Passport Details"
-              icon="📘"
+              icon={<PassportIcon className="w-5 h-5 text-blue-600" />}
               bgColor="bg-blue-50"
               showUpload={true}
               onUpload={() => console.log('Upload passport')}
@@ -115,7 +116,7 @@ const Document = () => {
             {/* INDOS Details */}
             <FormSection
               title="INDOS Details"
-              icon="⚓"
+              icon={<IndosIcon className="w-5 h-5 text-purple-600" />}
               bgColor="bg-purple-50"
             >
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -162,7 +163,7 @@ const Document = () => {
             {/* CDC Details */}
             <FormSection
               title="CDC Details"
-              icon="📋"
+              icon={<CdcIcon className="w-5 h-5 text-green-600" />}
               bgColor="bg-green-50"
               showUpload={true}
               onUpload={() => console.log('Upload CDC')}
@@ -214,7 +215,11 @@ const Document = () => {
               size="large"
               className="!px-8 !py-3 !text-lg font-medium"
             >
-              Save & Next
+              <div className="flex items-center gap-2">
+                <SaveIcon className="w-5 h-5" />
+                <span>Save & Next</span>
+                <NextIcon className="w-4 h-4" />
+              </div>
             </Button>
           </form>
         </div>

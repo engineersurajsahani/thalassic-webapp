@@ -4,6 +4,7 @@ import Sidebar from '../common/Sidebar';
 import Button from '../ui/Button';
 import FormInput from '../ui/FormInput';
 import FormSection from '../ui/FormSection';
+import { EducationIcon, UploadIcon, SaveIcon, NextIcon } from '../ui/Icons';
 
 const Education = () => {
   const [tenthStandard, setTenthStandard] = useState({
@@ -74,7 +75,7 @@ const Education = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <FormSection
               title="Educational Details"
-              icon="📚"
+              icon={<EducationIcon className="w-5 h-5 text-blue-600" />}
               bgColor="bg-global-10"
             >
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -109,7 +110,10 @@ const Education = () => {
                       type="button"
                       className="w-full"
                     >
-                      📤 Upload
+                      <div className="flex items-center gap-2">
+                        <UploadIcon className="w-4 h-4" />
+                        <span>Upload</span>
+                      </div>
                     </Button>
                   </div>
                 </div>
@@ -145,7 +149,10 @@ const Education = () => {
                       type="button"
                       className="w-full"
                     >
-                      📤 Upload
+                      <div className="flex items-center gap-2">
+                        <UploadIcon className="w-4 h-4" />
+                        <span>Upload</span>
+                      </div>
                     </Button>
                   </div>
                 </div>
@@ -187,7 +194,10 @@ const Education = () => {
                       type="button"
                       className="w-full"
                     >
-                      📤 Upload
+                      <div className="flex items-center gap-2">
+                        <UploadIcon className="w-4 h-4" />
+                        <span>Upload</span>
+                      </div>
                     </Button>
                   </div>
                 </div>
@@ -229,7 +239,10 @@ const Education = () => {
                       type="button"
                       className="w-full"
                     >
-                      📤 Upload
+                      <div className="flex items-center gap-2">
+                        <UploadIcon className="w-4 h-4" />
+                        <span>Upload</span>
+                      </div>
                     </Button>
                   </div>
                 </div>
@@ -255,7 +268,11 @@ const Education = () => {
               size="large"
               className="!px-8 !py-3 !text-lg font-medium"
             >
-              Save & Next
+              <div className="flex items-center gap-2">
+                <SaveIcon className="w-5 h-5" />
+                <span>Save & Next</span>
+                <NextIcon className="w-4 h-4" />
+              </div>
             </Button>
           </form>
         </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import Button from './Button';
+import { UploadIcon } from './Icons';
 
 const FormSection = ({ 
   title, 
@@ -35,7 +36,10 @@ const FormSection = ({
             onClick={onUpload}
             className="!px-4 !py-2 !text-sm"
           >
-            📤 Upload
+            <div className="flex items-center gap-2">
+              <UploadIcon className="w-4 h-4" />
+              <span>Upload</span>
+            </div>
           </Button>
         )}
       </div>
