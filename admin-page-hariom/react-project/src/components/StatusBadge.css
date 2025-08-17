@@ -1,0 +1,39 @@
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem; /* py-1 px-2.5 */
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border: 1px solid;
+}
+
+.variant-confirmed {
+  background-color: hsla(var(--status-confirmed), 0.1);
+  color: hsl(var(--status-confirmed));
+  border-color: hsla(var(--status-confirmed), 0.2);
+}
+
+.variant-pending {
+  background-color: hsla(var(--status-pending), 0.1);
+  color: hsl(var(--status-pending));
+  border-color: hsla(var(--status-pending), 0.2);
+}
+
+.variant-scheduled {
+  background-color: hsla(var(--status-scheduled), 0.1);
+  color: hsl(var(--status-scheduled));
+  border-color: hsla(var(--status-scheduled), 0.2);
+}
+
+.variant-not-started {
+  background-color: hsla(var(--status-not-started), 0.1);
+  color: hsl(var(--status-not-started));
+  border-color: hsla(var(--status-not-started), 0.2);
+}
+
+.variant-default {
+  background-color: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border-color: hsl(var(--border));
+}
