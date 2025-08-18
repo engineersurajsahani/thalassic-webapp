@@ -1,0 +1,27 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&display=swap');
+
+/* Custom styles for verification components */
+.verification-card {
+  box-shadow: 25px 25px 20px 0 #DDE9EA;
+}
+
+.auth-btn-transition {
+  transition: all 0.3s ease;
+}
+
+.auth-btn-gradient {
+  background: linear-gradient(to right, #243F42, #5CA0A8);
+  color: white;
+}
+
+.auth-btn-gradient:hover {
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* OTP Input focus styles */
+.otp-input:focus {
+  border-color: #5CA0A8;
+  box-shadow: 0 0 0 3px rgba(92, 160, 168, 0.1);
+}
+
+/* Scoped auth styles - removed global resets to prevent conflicts */

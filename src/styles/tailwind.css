@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Global Colors */
+    --global-bg-1: #22c55e;
+    --global-bg-2: #3b82f6;
+    --global-bg-3: #567578;
+    --global-bg-4: #dbeafe;
+    --global-bg-5: #dcfce7;
+    --global-bg-6: #ecfdff;
+    --global-bg-7: #f3e8ff;
+    --global-bg-8: #f59e0b;
+    --global-bg-9: #fef3c7;
+    --global-bg-10: #ffffff;
+    --global-bg-11: #ffffff33;
+    
+    --global-text-1: #000000;
+    --global-text-2: #111827;
+    --global-text-3: #4b5563;
+    --global-text-4: #dbeafe;
+    --global-text-5: #ffffff;
+
+    /* Header Colors */
+    --header-text-1: #00262a;
+
+    /* Button Colors */
+    --button-bg-1: #f0fdf4;
+    --button-text-1: #16a34a;
+  }
+}
+
+@layer utilities {
+  /* Global */
+  .bg-global-1 {
+    background-color: var(--global-bg-1);
+  }
+  .bg-global-2 {
+    background-color: var(--global-bg-2);
+  }
+  .bg-global-3 {
+    background-color: var(--global-bg-3);
+  }
+  .bg-global-4 {
+    background-color: var(--global-bg-4);
+  }
+  .bg-global-5 {
+    background-color: var(--global-bg-5);
+  }
+  .bg-global-6 {
+    background-color: var(--global-bg-6);
+  }
+  .bg-global-7 {
+    background-color: var(--global-bg-7);
+  }
+  .bg-global-8 {
+    background-color: var(--global-bg-8);
+  }
+  .bg-global-9 {
+    background-color: var(--global-bg-9);
+  }
+  .bg-global-10 {
+    background-color: var(--global-bg-10);
+  }
+  .bg-global-11 {
+    background-color: var(--global-bg-11);
+  }
+  
+  .text-global-1 {
+    color: var(--global-text-1);
+  }
+  .text-global-2 {
+    color: var(--global-text-2);
+  }
+  .text-global-3 {
+    color: var(--global-text-3);
+  }
+  .text-global-4 {
+    color: var(--global-text-4);
+  }
+  .text-global-5 {
+    color: var(--global-text-5);
+  }
+
+  /* Header */
+  .text-header-1 {
+    color: var(--header-text-1);
+  }
+
+  /* Button */
+  .bg-button-1 {
+    background-color: var(--button-bg-1);
+  }
+  .text-button-1 {
+    color: var(--button-text-1);
+  }
+}
