@@ -1,51 +1,86 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Navbar() {
   return (
-    <header className="site-header">
-      <div className="container header-inner">
+    <header className="fixed top-0 left-0 w-full z-50 bg-[#0A2540] shadow-md">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-8 py-4">
 
         {/* Logo */}
-        <Link href="/" className="brand">
+        <Link href="/" className="flex items-center gap-3">
+
           <Image
-         src="/logo.jpeg"
-         alt="Hari Om Thalassic"
-         width={50}
-         height={50}
-         className="brand-logo"
-         />
+            src="/logo.jpeg"
+            alt="Hari Om Thalassic"
+            width={50}
+            height={50}
+            className="rounded-full"
+          />
 
-          <div className="brand-copy">
-            <span className="brand-name">
+          <div>
+            <h2 className="text-white font-bold text-lg">
               Hari Om Thalassic
-            </span>
+            </h2>
 
-            <span className="brand-tag">
+            <p className="text-gray-300 text-sm">
               Maritime Career Partners
-            </span>
+            </p>
           </div>
+
         </Link>
 
         {/* Navigation */}
-        <nav className="site-nav">
-          <Link href="/">Home</Link>
-          <Link href="/courses">Courses</Link>
-          <Link href="/placements">Placements</Link>
-          <Link href="/about">About</Link>
+        <nav className="hidden md:flex items-center gap-8">
+
+          <Link
+            href="/"
+            className="text-white hover:text-cyan-400 transition"
+          >
+            Home
+          </Link>
+
+          <Link
+            href="/courses"
+            className="text-white hover:text-cyan-400 transition"
+          >
+            Courses
+          </Link>
+
+          <Link
+            href="/placements"
+            className="text-white hover:text-cyan-400 transition"
+          >
+            Placements
+          </Link>
+
+          <Link
+            href="/about"
+            className="text-white hover:text-cyan-400 transition"
+          >
+            About
+          </Link>
+
         </nav>
 
         {/* Buttons */}
-        <div className="header-actions">
-          <Link href="/login" className="button button-secondary">
+        <div className="hidden md:flex gap-4">
+
+          <Link
+            href="/login"
+            className="px-5 py-2 border border-white rounded-lg text-white hover:bg-white hover:text-[#0A2540] transition"
+          >
             Login
           </Link>
 
-          <Link href="/register" className="button">
+          <Link
+            href="/register"
+            className="px-5 py-2 rounded-lg bg-cyan-500 text-white hover:bg-cyan-600 transition"
+          >
             Register
           </Link>
+
         </div>
 
       </div>
