@@ -1,0 +1,370 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { User, Mail, Phone, ChevronDown, Check, UserCheck, Shield, Anchor, Plus } from "lucide-react";
+import AuthInput from "./AuthInput";
+import PasswordInput from "./PasswordInput";
+import { useTheme } from "@/providers/theme-provider";
+
+interface RoleOption {
+  value: string;
+  label: string;
+  description: string;
+  icon: any;
+}
+
+const ROLES: RoleOption[] = [
+  {
+    value: "seafarer",
+    label: "Seafarer",
+    description: "Browse courses, upload CDC/documents & track certification",
+    icon: Anchor,
+  },
+  {
+    value: "company-admin",
+    label: "Company Admin",
+    description: "Manage bookings, view invoices & coordinate crew training",
+    icon: UserCheck,
+  },
+  {
+    value: "master",
+    label: "Master / Admin",
+    description: "Administrative access for system logs & approvals",
+    icon: Shield,
+  },
+];
+
+export default function RegisterForm() {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    password: "",
+    confirmPassword: "",
+  });
+
+  const [role, setRole] = useState("");
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [agreed, setAgreed] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+
+  const selectedRoleOption = ROLES.find((r) => r.value === role);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (errors[name]) {
+      setErrors((prev) => {
+        const copy = { ...prev };
+        delete copy[name];
+        return copy;
+      });
+    }
+  };
+
+  const handleRegister = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newErrors: Record<string, string> = {};
+
+    if (!formData.name) newErrors.name = "Full name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
+    
+    if (!formData.phone) newErrors.phone = "Phone number is required";
+    
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 8) newErrors.password = "Password must be at least 8 characters";
+
+    if (formData.password !== formData.confirmPassword) {
+      newErrors.confirmPassword = "Passwords do not match";
+    }
+
+    if (!role) {
+      newErrors.role = "Please select a user type";
+    }
+
+    if (!agreed) {
+      newErrors.agree = "You must agree to the Terms of Service";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
+    // Simulate API registration call
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsSuccess(true);
+    }, 2000);
+  };
+
+  if (isSuccess) {
+    return (
+      <div className="text-center py-6 animate-fadeIn">
+        <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-5 ${
+          isDark 
+            ? "bg-cyan-500/10 border border-cyan-500/30 shadow-[0_0_15px_rgba(6,182,212,0.2)]" 
+            : "bg-blue-50 border border-blue-200 shadow-sm"
+        }`}>
+          <Check className={`w-7 h-7 ${isDark ? "text-cyan-400" : "text-[#3b71cb]"}`} />
+        </div>
+        <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-800"}`}>Registration Successful!</h3>
+        <p className={`mb-6 max-w-sm mx-auto text-xs ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+          Welcome to Hari Om Thalassic. An activation link has been sent to <span className={`${isDark ? "text-cyan-400" : "text-[#3b71cb] font-semibold"}`}>{formData.email}</span>.
+        </p>
+        <Link
+          href="/login"
+          className={`
+            inline-block w-full py-3 font-semibold rounded-xl text-xs text-center shadow-md transition-all duration-300 transform hover:scale-[1.01]
+            ${
+              isDark 
+                ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white" 
+                : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+            }
+          `}
+        >
+          Proceed to Login
+        </Link>
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleRegister} className="space-y-3.5">
+      {/* Full Name */}
+      <AuthInput
+        label="Full Name"
+        name="name"
+        placeholder="Enter your full name"
+        icon={User}
+        value={formData.name}
+        onChange={handleChange}
+        error={errors.name}
+        required
+      />
+
+      {/* Email & Phone Number - Side by Side on Desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <AuthInput
+          label="Email Address"
+          name="email"
+          type="email"
+          placeholder="name@example.com"
+          icon={Mail}
+          value={formData.email}
+          onChange={handleChange}
+          error={errors.email}
+          required
+        />
+
+        <AuthInput
+          label="Phone Number"
+          name="phone"
+          type="tel"
+          placeholder="Phone number"
+          icon={Phone}
+          value={formData.phone}
+          onChange={handleChange}
+          error={errors.phone}
+          required
+        />
+      </div>
+
+      {/* Custom User Type Dropdown */}
+      <div className="relative">
+        <label className={`block text-sm font-semibold mb-1.5 tracking-wide ${isDark ? "text-gray-300" : "text-slate-700"}`}>
+          User Type
+        </label>
+        
+        <button
+          type="button"
+          onClick={() => setDropdownOpen((prev) => !prev)}
+          className={`
+            w-full flex items-center justify-between text-left rounded-xl border px-4 py-2.5 text-sm outline-none transition-all duration-300
+            ${
+              isDark 
+                ? `bg-[#051625] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]
+                   ${errors.role ? "border-red-500/80" : dropdownOpen ? "border-cyan-500" : "border-gray-800"}
+                   ${dropdownOpen ? "shadow-[0_0_15px_rgba(6,182,212,0.15)]" : ""}`
+                : `bg-white
+                   ${errors.role ? "border-red-500" : dropdownOpen ? "border-[#3b71cb]" : "border-slate-300"}`
+            }
+          `}
+        >
+          {selectedRoleOption ? (
+            <div className="flex items-center gap-3">
+              <selectedRoleOption.icon className={`h-5 w-5 ${isDark ? "text-cyan-400" : "text-[#3b71cb]"}`} />
+              <span className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{selectedRoleOption.label}</span>
+            </div>
+          ) : (
+            <span className={isDark ? "text-gray-500" : "text-slate-400"}>Select your user role</span>
+          )}
+          <ChevronDown className={`h-5 w-5 text-slate-400 transition-transform ${dropdownOpen ? "rotate-180 text-cyan-400" : ""}`} />
+        </button>
+
+        {dropdownOpen && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
+            <div className={`absolute z-20 w-full mt-1 border rounded-xl shadow-xl overflow-hidden p-1 animate-fadeIn ${
+              isDark ? "bg-[#051c2f] border-gray-800" : "bg-white border-slate-200"
+            }`}>
+              {ROLES.map((option) => {
+                const IconComp = option.icon;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setRole(option.value);
+                      setDropdownOpen(false);
+                      if (errors.role) {
+                        setErrors((prev) => {
+                          const copy = { ...prev };
+                          delete copy.role;
+                          return copy;
+                        });
+                      }
+                    }}
+                    className={`
+                      w-full flex items-start gap-3.5 p-2.5 rounded-lg text-left transition-colors duration-200 cursor-pointer
+                      ${
+                        isDark 
+                          ? role === option.value ? "bg-cyan-500/10 text-cyan-400" : "text-gray-300 hover:bg-gray-800/50"
+                          : role === option.value ? "bg-blue-50 text-[#3b71cb]" : "text-slate-600 hover:bg-slate-50"
+                      }
+                    `}
+                  >
+                    <div className={`mt-0.5 p-1 rounded ${
+                      isDark 
+                        ? role === option.value ? "bg-cyan-500/20 text-cyan-400" : "bg-gray-800 text-gray-400"
+                        : role === option.value ? "bg-blue-100 text-[#3b71cb]" : "bg-slate-100 text-slate-400"
+                    }`}>
+                      <IconComp className="h-4.5 w-4.5" />
+                    </div>
+                    <div>
+                      <div className="font-semibold text-sm">{option.label}</div>
+                      <div className={`text-xs mt-0.5 leading-normal ${isDark ? "text-gray-400" : "text-slate-500"}`}>{option.description}</div>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+        
+        {errors.role && (
+          <p className={`mt-1.5 text-xs font-medium flex items-center gap-1 ${isDark ? "text-red-400" : "text-red-500"}`}>
+            <span className={`w-1.5 h-1.5 rounded-full bg-red-400 inline-block ${isDark ? "bg-red-400" : "bg-red-500"}`} />
+            {errors.role}
+          </p>
+        )}
+      </div>
+
+      {/* Passwords - Side by Side on Desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <PasswordInput
+          label="Password"
+          name="password"
+          placeholder="••••••••"
+          showStrength
+          value={formData.password}
+          onChange={handleChange}
+          error={errors.password}
+          required
+        />
+
+        <PasswordInput
+          label="Confirm Password"
+          name="confirmPassword"
+          placeholder="••••••••"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          error={errors.confirmPassword}
+          required
+        />
+      </div>
+
+      {/* Terms & Conditions Checkbox */}
+      <div>
+        <label className="flex items-start gap-3 cursor-pointer group select-none">
+          <input
+            type="checkbox"
+            checked={agreed}
+            onChange={(e) => {
+              setAgreed(e.target.checked);
+              if (errors.agree) {
+                setErrors((prev) => {
+                  const copy = { ...prev };
+                  delete copy.agree;
+                  return copy;
+                });
+              }
+            }}
+            className="sr-only"
+          />
+          <div className={`
+            mt-0.5 w-5 h-5 rounded border flex items-center justify-center transition-all duration-300
+            ${
+              isDark 
+                ? agreed ? "bg-cyan-600 border-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "border-gray-800 bg-[#051625] group-hover:border-gray-700"
+                : agreed ? "bg-[#3b71cb] border-[#3b71cb] shadow-sm" : "border-slate-300 bg-white group-hover:border-slate-400"
+            }
+          `}>
+            {agreed && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
+          </div>
+          <span className={`text-xs leading-normal transition-colors ${
+            isDark ? "text-gray-400 group-hover:text-gray-300" : "text-slate-500 group-hover:text-slate-600"
+          }`}>
+            I agree to the <Link href="/terms" className={`font-semibold ${isDark ? "text-cyan-400 hover:underline" : "text-[#3b71cb] hover:underline"}`}>Terms of Service</Link> and{" "}
+            <Link href="/privacy" className={`font-semibold ${isDark ? "text-cyan-400 hover:underline" : "text-[#3b71cb] hover:underline"}`}>Privacy Policy</Link>
+          </span>
+        </label>
+        
+        {errors.agree && (
+          <p className={`mt-1.5 text-xs font-medium flex items-center gap-1 ${isDark ? "text-red-400" : "text-red-500"}`}>
+            <span className={`w-1.5 h-1.5 rounded-full inline-block ${isDark ? "bg-red-400" : "bg-red-500"}`} />
+            {errors.agree}
+          </p>
+        )}
+      </div>
+
+      {/* Register Button */}
+      <button
+        type="submit"
+        disabled={isLoading}
+        className={`
+          w-full mt-3 py-3 font-semibold rounded-xl shadow-md transition-all duration-300 transform hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed text-sm
+          ${
+            isDark 
+              ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white" 
+              : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+          }
+        `}
+      >
+        {isLoading ? (
+          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+        ) : (
+          <>
+            <Plus className="w-4.5 h-4.5" />
+            Register
+          </>
+        )}
+      </button>
+
+      <p className={`text-center text-xs mt-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+        Already have an account?{" "}
+        <Link href="/login" className={`font-semibold transition-colors ${isDark ? "text-cyan-400 hover:text-cyan-300" : "text-[#3b71cb] hover:text-blue-700"}`}>
+          Login
+        </Link>
+      </p>
+    </form>
+  );
+}
