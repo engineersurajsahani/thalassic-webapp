@@ -1,0 +1,166 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Inter:wght@100..900&display=swap');
+
+/* Font family utilities */
+.font-josefin {
+  font-family: 'Josefin Sans', sans-serif;
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Animation for floating bubbles */
+@keyframes float {
+  0% {
+    transform: translateY(0px) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-1000px) rotate(360deg);
+    opacity: 0;
+  }
+}
+
+/* Custom scrollbar for modal */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Ensure proper backdrop blur support */
+.backdrop-blur-sm {
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+/* Custom gradient text support */
+.bg-clip-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Ensure proper transform support */
+.transform {
+  transform: translateZ(0);
+}
+
+/* Custom shadow utilities */
+.custom-shadow-light {
+  box-shadow: 0 10px 40px 0 rgba(0, 0, 0, 0.08);
+}
+
+.custom-shadow-medium {
+  box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.12);
+}
+
+.custom-shadow-dark {
+  box-shadow: 0 10px 40px 0 rgba(36, 63, 66, 0.20);
+}
+
+/* Ensure proper border radius support */
+.rounded-20 {
+  border-radius: 20px;
+}
+
+.rounded-15 {
+  border-radius: 15px;
+}
+
+.rounded-12 {
+  border-radius: 12px;
+}
+
+.rounded-10 {
+  border-radius: 10px;
+}
+
+/* Custom color utilities */
+.text-primary {
+  color: #243F42;
+}
+
+.text-secondary {
+  color: #64748B;
+}
+
+.text-muted {
+  color: #475569;
+}
+
+.text-blue-primary {
+  color: #0369A1;
+}
+
+.text-gray-light {
+  color: #94A3B8;
+}
+
+.bg-gray-50 {
+  background-color: #F1F5F9;
+}
+
+.bg-gray-25 {
+  background-color: #F8FAFC;
+}
+
+.bg-blue-50 {
+  background-color: #F0F9FF;
+}
+
+.border-gray-200 {
+  border-color: #E2E8F0;
+}
+
+.border-blue-200 {
+  border-color: #BAE6FD;
+}
+
+.border-blue-400 {
+  border-color: #64B5F6;
+}
+
+/* Responsive design utilities */
+@media (max-width: 768px) {
+  .text-6xl {
+    font-size: 3rem;
+  }
+  
+  .text-7xl {
+    font-size: 4rem;
+  }
+  
+  .text-8xl {
+    font-size: 5rem;
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
