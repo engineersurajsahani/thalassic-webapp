@@ -9,7 +9,8 @@ function Hero() {
   const isDark = theme === "dark";
 
   return (
-    <section className={`min-h-screen flex items-center pt-24 transition-colors duration-500 relative overflow-hidden ${
+   <section
+  className={`min-h-screen flex items-center transition-colors duration-500 relative overflow-hidden ${
       isDark ? "bg-[#0A2540] text-white" : "bg-slate-50 text-slate-900"
     }`}>
       

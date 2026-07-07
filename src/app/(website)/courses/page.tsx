@@ -107,7 +107,7 @@ export default function CourseCatalogPage() {
      {/* ================= HERO ================= */}
 
 <section
-  className={`relative border-b ${
+  className={`relative pt-6 lg:pt-10 border-b ${
     isDark
       ? "bg-[#041827] border-gray-800"
       : "bg-white border-slate-200"
