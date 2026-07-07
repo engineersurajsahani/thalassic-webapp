@@ -104,49 +104,147 @@ export default function CourseCatalogPage() {
       isDark ? "bg-[#031525] text-white" : "bg-slate-50 text-slate-900"
     }`}>
       
-      {/* Premium Hero Banner (Coursera-Inspired) */}
-      <section className={`relative py-16 px-6 overflow-hidden border-b ${
-        isDark ? "bg-gradient-to-r from-[#02101d] via-[#051c2f] to-[#0A2540] border-gray-800" : "bg-gradient-to-r from-blue-50 via-[#f1f5f9] to-[#e2e8f0] border-slate-200"
-      }`}>
-        <div className="absolute inset-0 z-0 pointer-events-none opacity-20">
-          <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-blue-500 blur-[120px]" />
-          <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-cyan-500 blur-[120px]" />
+     {/* ================= HERO ================= */}
+
+<section
+  className={`relative border-b ${
+    isDark
+      ? "bg-[#041827] border-gray-800"
+      : "bg-white border-slate-200"
+  }`}
+>
+  <div className="max-w-7xl mx-auto px-6 py-10">
+
+    {/* Breadcrumb */}
+
+    <div className="flex items-center text-sm text-slate-400 mb-5">
+
+      <Link
+        href="/"
+        className="hover:text-blue-500 transition"
+      >
+        Home
+      </Link>
+
+      <span className="mx-2">/</span>
+
+      <span className="text-blue-500 font-medium">
+        Courses
+      </span>
+
+    </div>
+
+    {/* Heading */}
+
+    <h1
+      className={`text-4xl font-black mb-3 ${
+        isDark ? "text-white" : "text-slate-900"
+      }`}
+    >
+      Professional Maritime Courses
+    </h1>
+
+    <p
+      className={`max-w-3xl text-base leading-7 ${
+        isDark ? "text-slate-400" : "text-slate-600"
+      }`}
+    >
+      Learn industry-recognized maritime skills with
+      DGS-approved certifications, simulator training,
+      safety programs and refresher courses taught by
+      experienced instructors.
+    </p>
+
+    {/* Search */}
+
+    <div className="mt-8 relative max-w-3xl">
+
+      <Search
+        className="absolute left-5 top-1/2 -translate-y-1/2 text-slate-400 w-5 h-5"
+      />
+
+      <input
+        type="text"
+        placeholder="Search courses, certifications or course code..."
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        className={`w-full pl-14 pr-5 py-4 rounded-2xl border text-sm transition-all shadow-lg ${
+          isDark
+            ? "bg-[#071f33] border-gray-700 text-white placeholder:text-slate-500 focus:border-blue-500"
+            : "bg-white border-slate-200 text-slate-900 focus:border-blue-500"
+        }`}
+      />
+
+    </div>
+
+    {/* Category Pills */}
+
+    <div className="flex flex-wrap gap-3 mt-7">
+
+      {Object.entries(categoryLabels).map(([key, label]) => (
+
+        <button
+          key={key}
+          onClick={() => handleCategoryToggle(key)}
+          className={`px-4 py-2 rounded-full text-sm font-semibold transition-all ${
+            selectedCategories.includes(key)
+              ? "bg-blue-600 text-white"
+              : isDark
+              ? "bg-[#0A2338] border border-gray-700 hover:border-blue-500"
+              : "bg-slate-100 hover:bg-slate-200"
+          }`}
+        >
+          {label}
+        </button>
+
+      ))}
+
+    </div>
+
+    {/* Stats */}
+
+    <div className="flex gap-8 mt-8">
+
+      <div>
+
+        <div className="text-3xl font-black text-blue-500">
+          {filteredCourses.length}
         </div>
 
-        <div className="max-w-7xl mx-auto text-center relative z-10 space-y-6">
-          <span className={`inline-block px-4.5 py-1.5 border rounded-full text-xs font-bold uppercase tracking-wider ${
-            isDark ? "bg-cyan-500/10 border-cyan-500/25 text-cyan-400" : "bg-blue-50 border-blue-200 text-blue-600"
-          }`}>
-            Maritime Training Center
-          </span>
-          <h1 className={`text-4xl md:text-5xl font-black tracking-tight ${
-            isDark ? "text-white" : "text-slate-800"
-          }`}>
-            Professional Courses & Certifications
-          </h1>
-          <p className={`text-sm md:text-base max-w-2xl mx-auto leading-relaxed ${
-            isDark ? "text-gray-300" : "text-slate-600"
-          }`}>
-            DGS-approved simulator courses, safety trainings, and refresher upgrades. Filter and secure your slot with transparent online bookings.
-          </p>
-
-          {/* Search bar inside hero banner */}
-          <div className="max-w-xl mx-auto relative mt-4 shadow-lg rounded-2xl overflow-hidden">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5.5 h-5.5 text-slate-400" />
-            <input
-              type="text"
-              placeholder="Search by course name, code, or keyword..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className={`w-full pl-12 pr-4 py-3.5 text-sm font-medium outline-none transition-all ${
-                isDark 
-                  ? "bg-[#071f33] border border-gray-800 text-white placeholder-slate-400 focus:border-blue-500/60" 
-                  : "bg-white border border-slate-200 text-slate-850 placeholder-slate-400 focus:border-blue-500"
-              }`}
-            />
-          </div>
+        <div className="text-sm text-slate-400">
+          Courses
         </div>
-      </section>
+
+      </div>
+
+      <div>
+
+        <div className="text-3xl font-black text-blue-500">
+          100%
+        </div>
+
+        <div className="text-sm text-slate-400">
+          Certified
+        </div>
+
+      </div>
+
+      <div>
+
+        <div className="text-3xl font-black text-blue-500">
+          4.8★
+        </div>
+
+        <div className="text-sm text-slate-400">
+          Average Rating
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
       {/* Main Catalog Section */}
       <section className="max-w-7xl mx-auto px-6 py-12">
@@ -228,7 +326,7 @@ export default function CourseCatalogPage() {
 
           {/* Right Panel: Course Grid & Sort Menu */}
           <div className="lg:col-span-3 space-y-6">
-
+            
             {/* Sort Bar / Status */}
             <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center p-4 border rounded-2xl gap-4 ${
               isDark ? "bg-[#071f33] border-gray-800" : "bg-white border-slate-200 shadow-sm"
