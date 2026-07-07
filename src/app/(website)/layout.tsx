@@ -1,4 +1,5 @@
 import Navbar from "@/components/layout/navbar/navbar";
+import Footer from "./footer"; 
 
 export default function WebsiteLayout({
   children,
@@ -6,9 +7,12 @@ export default function WebsiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <Navbar />
-      <main>{children}</main>
-    </>
+    <div className="min-h-screen flex flex-col justify-between bg-[#031525]">
+      <div>
+        <Navbar />
+        <main>{children}</main>
+      </div>
+      <Footer />
+    </div>
   );
 }
