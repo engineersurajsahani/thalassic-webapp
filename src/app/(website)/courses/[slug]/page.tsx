@@ -58,7 +58,7 @@ export default function CourseDetailsPage() {
   };
 
   return (
-    <div className={`min-h-screen font-sans pb-20 transition-colors duration-500 ${
+    <div className={`min-h-screen font-sans pt-28 pb-20 transition-colors duration-500 ${
       isDark ? "bg-[#031525] text-white" : "bg-slate-50 text-slate-900"
     }`}>
       
@@ -247,7 +247,7 @@ export default function CourseDetailsPage() {
         </div>
 
         {/* Right 1 Column: Sticky Details Card & Purchase Panel */}
-        <div className="space-y-6">
+        <div className="space-y-6 lg:sticky lg:top-28 self-start">
           
           {/* Purchase Details Panel */}
           <div className={`p-6 border rounded-3xl space-y-6 shadow-xl ${

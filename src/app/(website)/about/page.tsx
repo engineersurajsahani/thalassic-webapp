@@ -12,10 +12,10 @@ export default function AboutUsPage() {
     <div className={`${isDark ? "bg-[#031525] text-white" : "bg-slate-50 text-slate-900"} min-h-screen font-sans`}>
       
       {/* Hero Header Section */}
-      <section className="relative max-w-7xl mx-auto px-6 pt-[64px] md:pt-[72px] lg:pt-[80px] pb-16 text-center md:text-left">
+      <section className="relative max-w-7xl mx-auto px-6 pt-[100px] pb-16 text-center md:text-left">
         <span className={`inline-block px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase mb-4 border ${
           isDark 
-            ? "bg-blue-600/20 text-blue-400 border-blue-500/30" 
+            ? "bg-blue-600/20 text-cyan-300 border-blue-500/30" 
             : "bg-blue-50 text-blue-600 border-blue-200"
         }`}>
           About Our Platform
@@ -30,7 +30,7 @@ export default function AboutUsPage() {
         <p className={`text-lg md:text-xl max-w-3xl leading-relaxed ${
           isDark ? "text-gray-300" : "text-slate-600"
         }`}>
-          Hari Om Thalassic is a web-based maritime training platform designed to simplify how seafarers discover, purchase, and manage professional maritime training courses. We provide a centralized digital experience for seafarers while enabling efficient operational management through dedicated administrative dashboards.
+          We believe booking maritime courses and updating credentials shouldn't be a headache. Hari Om Thalassic was created to make seafarer training, CDC documentation, and placement assistance smooth and simple. We provide a single digital home where seafarers can find courses, track their certificates, and get certified guidance from experienced captains.
         </p>
       </section>
 
@@ -55,9 +55,9 @@ export default function AboutUsPage() {
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
-          <h2 className={`text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Product Vision</h2>
+          <h2 className={`text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Our Vision</h2>
           <p className={`leading-relaxed ${isDark ? "text-gray-300" : "text-slate-600"}`}>
-            To become a trusted digital platform for maritime training by providing seafarers with a simple, secure, and professional experience while enabling efficient operational management for the organization.
+            To build the most reliable and easy-to-use digital home for seafarers. We want to save your time spent on paperwork and registration queues, so you can focus on your training and career at sea.
           </p>
         </div>
 
@@ -81,7 +81,7 @@ export default function AboutUsPage() {
           </div>
           <h2 className={`text-2xl font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>Our Mission</h2>
           <p className={`leading-relaxed ${isDark ? "text-gray-300" : "text-slate-600"}`}>
-            The current training process relies heavily on manual interactions for registrations, course enrollment, document handling, and operational management. Hari Om Thalassic aims to completely digitize these legacy processes through a unified platform that delivers a seamless experience for both seafarers and internal staff, eliminating bottlenecks and maximizing administrative scalability.
+            Legacy maritime processes rely heavily on running from one office to another for CDC stamps, visa approvals, and course certificates. Our mission is to digitize these manual hurdles. We guide seafarers through the entire lifecycle—from preparatory training and document validation to global placements.
           </p>
         </div>
       </section>
@@ -100,10 +100,10 @@ export default function AboutUsPage() {
                 <svg className="w-7 h-7 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 5V19M5 12H19M12 5a3 3 0 110-6 3 3 0 010 6Z" />
                 </svg> 
-                Maritime Training Experience
+                Built by Mariners, for Mariners
               </h2>
               <p className={`leading-relaxed mb-4 ${isDark ? "text-gray-300" : "text-slate-600"}`}>
-                Built with deep industry alignment, our platform transforms high-friction, traditional administrative operations into modern workflow pipelines. By bridging the gap between rigorous merchant navy training demands and streamlined digital tools, we offer unrivaled efficiency for professional development at sea.
+                Our platform is built in alignment with international Directorate General of Shipping (DGS) guidelines. We bridge the gap between merchant navy requirements and user-friendly digital tools, helping deck officers, cadets, and engine crew prepare for competency exams and safety standards with absolute confidence.
               </p>
             </div>
             <div className={`p-6 rounded-xl border text-center ${
@@ -128,20 +128,22 @@ export default function AboutUsPage() {
         <div className={`rounded-2xl p-8 border flex flex-col md:flex-row justify-between items-start md:items-center gap-6 ${
           isDark
             ? "bg-gradient-to-br from-[#071f33] to-[#041727] border-gray-800"
-            : "bg-gradient-to-br from-slate-100 to-slate-50 border-slate-200"
+            : "bg-gradient-to-br from-blue-600 to-indigo-600 border-blue-500 text-white shadow-lg"
         }`}>
           <div>
             <h3 className={`text-xl font-bold mb-2 ${isDark ? "text-white" : "text-slate-900"}`}>Ready to advance your maritime career?</h3>
-            <p className={`text-sm ${isDark ? "text-gray-400" : "text-slate-600"}`}>Explore authenticated professional courses managed flawlessly by our Master dashboard tracking systems.</p>
+            <p className={`text-sm ${isDark ? "text-cyan-100" : "text-blue-100"}`}>Explore DGS-approved courses and get professional guidance to advance your career at sea.</p>
           </div>
           <div className="flex gap-4 w-full md:w-auto">
-            <Link href="/courses" className="w-full md:w-auto px-6 py-3 bg-blue-600 hover:bg-blue-500 text-center text-sm font-semibold rounded-lg transition-all shadow-md text-white">
+            <Link href="/courses" className={`w-full md:w-auto px-6 py-3 text-center text-sm font-semibold rounded-lg transition-all shadow-md ${
+              isDark ? "bg-blue-600 hover:bg-blue-500 text-white" : "bg-white hover:bg-slate-50 text-blue-600"
+            }`}>
               Browse Courses
             </Link>
             <Link href="/contact" className={`w-full md:w-auto px-6 py-3 text-center text-sm font-semibold rounded-lg transition-all border ${
               isDark
                 ? "bg-gray-800 hover:bg-gray-700 border-gray-700 text-white"
-                : "bg-white hover:bg-slate-50 border-slate-300 text-slate-900"
+                : "bg-transparent hover:bg-white/10 text-white border-white/40"
             }`}>
               Contact Support
             </Link>
