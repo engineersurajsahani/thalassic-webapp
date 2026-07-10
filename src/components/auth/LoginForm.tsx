@@ -6,10 +6,14 @@ import { Mail, Check, LogIn } from "lucide-react";
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
 import { useTheme } from "@/providers/theme-provider";
+import { useAuth } from "@/providers/auth-provider";
+import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { login } = useAuth();
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -37,16 +41,31 @@ export default function LoginForm() {
     }
 
     setIsLoading(true);
-    // Simulate API login call
-    setTimeout(() => {
-      setIsLoading(false);
-      // Redirect or state update would happen here
-      alert("Successfully logged in (Simulation)");
-    }, 2000);
+    login({ email, password })
+      .then((user) => {
+        if (user.role === "seafarer" || user.role === "seafearer") {
+          router.push("/seafearer/dashboard");
+        } else if (user.role === "company-admin") {
+          router.push("/company-admin/dashboard");
+        } else {
+          router.push("/master/dashboard");
+        }
+      })
+      .catch((err) => {
+        setErrors({ submit: err.message || "Invalid email or password" });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   return (
     <form onSubmit={handleLogin} className="space-y-6">
+      {errors.submit && (
+        <div className={`p-3 rounded-lg text-xs font-semibold ${isDark ? "bg-red-950/40 border border-red-500/30 text-red-400" : "bg-red-50 border border-red-200 text-red-600"}`}>
+          {errors.submit}
+        </div>
+      )}
       {/* Email Address */}
       <AuthInput
         label="Email Address"
