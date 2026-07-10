@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
+import { fetchAPI } from "@/lib/api";
 import { 
   Users, 
   Search, 
@@ -113,32 +114,119 @@ export default function UsersPage() {
   const isDark = theme === "dark";
 
   // State Management
-  const [users, setUsers] = useState(initialUsers);
+  const [users, setUsers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRole, setSelectedRole] = useState("all");
-  const [selectedUser, setSelectedUser] = useState<typeof initialUsers[0] | null>(null);
+
+  // Audit Drawer State
+  const [auditUser, setAuditUser] = useState<any>(null);
+  const [auditDetails, setAuditDetails] = useState<any>(null);
+  const [loadingProfile, setLoadingProfile] = useState(false);
+
+  // Fetch Users List
+  const loadUsers = () => {
+    setLoading(true);
+    fetchAPI('/master/users')
+      .then(res => {
+        const mapped = res.map((u: any) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          phone: u.phone,
+          role: u.role === 'SEAFARER' ? 'Seafarer' : u.role === 'COMPANY_ADMIN' ? 'Company Admin' : 'Master',
+          date: new Date(u.created_at).toLocaleDateString(),
+          status: u.status === 'Pending Audit' ? 'Pending Audit' : u.status === 'Active' ? 'Verified' : u.status,
+          initial: u.name ? u.name.charAt(0).toUpperCase() : "?",
+          color: u.role === 'SEAFARER' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400',
+        }));
+        setUsers(mapped);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load users:", err);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  // Fetch details of specific user profile for auditing
+  const handleAuditProfile = (user: any) => {
+    setAuditUser(user);
+    setLoadingProfile(true);
+    setAuditDetails(null);
+    fetchAPI(`/master/users/${user.id}/profile`)
+      .then(res => {
+        const p = res.profile || {};
+        const mappedDetails = {
+          givenName: user.name.split(" ")[0] || "N/A",
+          surname: user.name.split(" ").slice(1).join(" ") || "N/A",
+          dob: p.dob ? new Date(p.dob).toISOString().split('T')[0] : "N/A",
+          birthPlace: p.birth_place || "N/A",
+          fatherName: p.father_name || "N/A",
+          phone: user.phone || "+91 99887 76655",
+          passport: {
+            num: p.passport_num || "N/A",
+            issue: p.passport_issue ? new Date(p.passport_issue).toISOString().split('T')[0] : "N/A",
+            expiry: p.passport_expiry ? new Date(p.passport_expiry).toISOString().split('T')[0] : "N/A",
+            place: p.passport_place || "N/A"
+          },
+          indos: {
+            num: p.indos_num || "N/A",
+            issue: p.indos_issue ? new Date(p.indos_issue).toISOString().split('T')[0] : "N/A",
+            status: p.indos_status || "Pending"
+          },
+          cdc: {
+            num: p.cdc_num || "N/A",
+            issue: p.cdc_issue ? new Date(p.cdc_issue).toISOString().split('T')[0] : "N/A",
+            expiry: p.cdc_expiry ? new Date(p.cdc_expiry).toISOString().split('T')[0] : "N/A",
+            place: p.cdc_place || "N/A"
+          },
+          education: p.education || "N/A",
+          seaService: (res.seaService || []).map((s: any) => ({
+            rpsl: s.rpsl,
+            vessel: s.vessel,
+            type: s.vessel_type || "N/A",
+            imo: s.imo || "N/A",
+            rank: s.rank,
+            on: s.sign_on ? new Date(s.sign_on).toISOString().split('T')[0] : "N/A",
+            off: s.sign_off ? new Date(s.sign_off).toISOString().split('T')[0] : "N/A"
+          }))
+        };
+        setAuditDetails(mappedDetails);
+        setLoadingProfile(false);
+      })
+      .catch(err => {
+        console.error("Failed to load audit profile details:", err);
+        setLoadingProfile(false);
+      });
+  };
 
   // Filters
   const filteredUsers = users.filter((user) => {
     const matchesSearch = 
-      user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchQuery.toLowerCase());
+      (user.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (user.email || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = selectedRole === "all" || user.role === selectedRole;
     return matchesSearch && matchesRole;
   });
 
   // Verify Handler
   const handleVerifyUser = (id: string) => {
-    setUsers(users.map((u) => {
-      if (u.id === id) {
-        const updated = { ...u, status: "Verified" };
-        if (selectedUser?.id === id) {
-          setSelectedUser(updated);
-        }
-        return updated;
-      }
-      return u;
-    }));
+    fetchAPI(`/master/users/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: 'Active' })
+    })
+      .then(() => {
+        loadUsers(); // reload main users list
+        setAuditUser((prev: any) => prev ? { ...prev, status: "Verified" } : null);
+      })
+      .catch(err => {
+        alert("Failed to verify user: " + err.message);
+      });
   };
 
   // Glassmorphic Styles
@@ -252,7 +340,7 @@ export default function UsersPage() {
                     <td className="p-4.5 text-right">
                       {user.role === "Seafarer" && (
                         <button
-                          onClick={() => setSelectedUser(user)}
+                          onClick={() => handleAuditProfile(user)}
                           className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer ${
                             isDark 
                               ? "border-slate-800 hover:bg-slate-800 hover:text-cyan-400 text-slate-300" 
@@ -279,7 +367,8 @@ export default function UsersPage() {
       </div>
 
       {/* Audit Drawer Side-Over Panel */}
-      {selectedUser && selectedUser.profile && (
+      {/* Audit Drawer Side-Over Panel */}
+      {auditUser && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex justify-end">
           <div className={`w-full max-w-xl h-full border-l p-6 space-y-6 overflow-y-auto animate-slideLeft ${
             isDark ? "bg-[#0b1d30] border-gray-800 text-white" : "bg-white border-slate-200 text-slate-900 shadow-2xl"
@@ -292,175 +381,189 @@ export default function UsersPage() {
                   <ShieldCheck className="w-5.5 h-5.5 text-cyan-400" /> Audit Seafarer Profile
                 </h3>
                 <p className={`text-[10px] uppercase font-extrabold ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                  Reviewing: {selectedUser.name}
+                  Reviewing: {auditUser.name}
                 </p>
               </div>
               <button 
-                onClick={() => setSelectedUser(null)}
+                onClick={() => setAuditUser(null)}
                 className={`p-1.5 rounded-lg border cursor-pointer hover:bg-slate-800/40 ${isDark ? "border-slate-800" : "border-slate-200"}`}
               >
                 <X className="w-4.5 h-4.5" />
               </button>
             </div>
 
-            {/* Basic Info */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                <Users className="w-4 h-4" /> Basic Information
-              </h4>
-              <div className={`grid grid-cols-2 gap-4 p-4 rounded-xl border text-xs font-semibold ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
-                <div>
-                  <span className="text-slate-450 block text-[9px] uppercase font-bold">Given Name</span>
-                  <span className="font-extrabold text-sm">{selectedUser.profile.givenName}</span>
-                </div>
-                <div>
-                  <span className="text-slate-450 block text-[9px] uppercase font-bold">Surname</span>
-                  <span className="font-extrabold text-sm">{selectedUser.profile.surname}</span>
-                </div>
-                <div>
-                  <span className="text-slate-450 block text-[9px] uppercase font-bold">Date of Birth</span>
-                  <span>{selectedUser.profile.dob}</span>
-                </div>
-                <div>
-                  <span className="text-slate-450 block text-[9px] uppercase font-bold">Father's Name</span>
-                  <span>{selectedUser.profile.fatherName}</span>
-                </div>
-                <div className="col-span-2">
-                  <span className="text-slate-450 block text-[9px] uppercase font-bold">Birth Place</span>
-                  <span>{selectedUser.profile.birthPlace}</span>
-                </div>
+            {loadingProfile ? (
+              <div className="py-16 text-center text-xs text-slate-500 font-bold uppercase animate-pulse">
+                Fetching profile credentials from secure database...
               </div>
-            </div>
-
-            {/* Document Audits */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                <FileText className="w-4 h-4" /> Uploaded Document Details
-              </h4>
-              <div className="space-y-3">
-                {/* Passport */}
-                <div className={`p-4 rounded-xl border space-y-2.5 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
-                  <div className="flex justify-between items-center border-b pb-1.5 border-slate-800/40">
-                    <span className="font-black text-xs text-blue-500 uppercase tracking-wide">Passport Details</span>
-                    <span className="text-[10px] text-green-500 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Provided</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
+            ) : auditDetails ? (
+              <>
+                {/* Basic Info */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                    <Users className="w-4 h-4" /> Basic Information
+                  </h4>
+                  <div className={`grid grid-cols-2 gap-4 p-4 rounded-xl border text-xs font-semibold ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
                     <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Passport Number</span>
-                      <span className="font-black text-slate-300">{selectedUser.profile.passport.num}</span>
+                      <span className="text-slate-450 block text-[9px] uppercase font-bold">Given Name</span>
+                      <span className="font-extrabold text-sm">{auditDetails.givenName}</span>
                     </div>
                     <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Place of Issue</span>
-                      <span>{selectedUser.profile.passport.place}</span>
+                      <span className="text-slate-450 block text-[9px] uppercase font-bold">Surname</span>
+                      <span className="font-extrabold text-sm">{auditDetails.surname}</span>
                     </div>
                     <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Issue Date</span>
-                      <span>{selectedUser.profile.passport.issue}</span>
+                      <span className="text-slate-450 block text-[9px] uppercase font-bold">Date of Birth</span>
+                      <span>{auditDetails.dob}</span>
                     </div>
                     <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Expiry Date</span>
-                      <span>{selectedUser.profile.passport.expiry}</span>
+                      <span className="text-slate-450 block text-[9px] uppercase font-bold">Father's Name</span>
+                      <span>{auditDetails.fatherName}</span>
+                    </div>
+                    <div className="col-span-2">
+                      <span className="text-slate-450 block text-[9px] uppercase font-bold">Birth Place</span>
+                      <span>{auditDetails.birthPlace}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* INDOS */}
-                <div className={`p-4 rounded-xl border space-y-2.5 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
-                  <div className="flex justify-between items-center border-b pb-1.5 border-slate-800/40">
-                    <span className="font-black text-xs text-blue-500 uppercase tracking-wide">INDOS Number</span>
-                    <span className={`text-[10px] flex items-center gap-1 ${
-                      selectedUser.profile.indos.status === "Verified" ? "text-green-500" : "text-yellow-500 animate-pulse"
-                    }`}>
-                      <CheckCircle className="w-3.5 h-3.5" /> {selectedUser.profile.indos.status}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">INDOS Number</span>
-                      <span className="font-black text-slate-300">{selectedUser.profile.indos.num}</span>
+                {/* Document Audits */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                    <FileText className="w-4 h-4" /> Uploaded Document Details
+                  </h4>
+                  <div className="space-y-3">
+                    {/* Passport */}
+                    <div className={`p-4 rounded-xl border space-y-2.5 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                      <div className="flex justify-between items-center border-b pb-1.5 border-slate-800/40">
+                        <span className="font-black text-xs text-blue-500 uppercase tracking-wide">Passport Details</span>
+                        <span className="text-[10px] text-green-500 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Provided</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Passport Number</span>
+                          <span className="font-black text-slate-300">{auditDetails.passport.num}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Place of Issue</span>
+                          <span>{auditDetails.passport.place}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Issue Date</span>
+                          <span>{auditDetails.passport.issue}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Expiry Date</span>
+                          <span>{auditDetails.passport.expiry}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Issue Date</span>
-                      <span>{selectedUser.profile.indos.issue}</span>
+
+                    {/* INDOS */}
+                    <div className={`p-4 rounded-xl border space-y-2.5 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                      <div className="flex justify-between items-center border-b pb-1.5 border-slate-800/40">
+                        <span className="font-black text-xs text-blue-500 uppercase tracking-wide">INDOS Number</span>
+                        <span className={`text-[10px] flex items-center gap-1 ${
+                          auditDetails.indos.status === "Verified" ? "text-green-500" : "text-yellow-500 animate-pulse"
+                        }`}>
+                          <CheckCircle className="w-3.5 h-3.5" /> {auditDetails.indos.status}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">INDOS Number</span>
+                          <span className="font-black text-slate-300">{auditDetails.indos.num}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Issue Date</span>
+                          <span>{auditDetails.indos.issue}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* CDC */}
+                    <div className={`p-4 rounded-xl border space-y-2.5 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                      <div className="flex justify-between items-center border-b pb-1.5 border-slate-800/40">
+                        <span className="font-black text-xs text-blue-500 uppercase tracking-wide">Continuous Discharge Book (CDC)</span>
+                        <span className="text-[10px] text-green-500 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Provided</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">CDC Number</span>
+                          <span className="font-black text-slate-300">{auditDetails.cdc.num}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Place of Issue</span>
+                          <span>{auditDetails.cdc.place}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Issue Date</span>
+                          <span>{auditDetails.cdc.issue}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Expiry Date</span>
+                          <span>{auditDetails.cdc.expiry}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
 
-                {/* CDC */}
-                <div className={`p-4 rounded-xl border space-y-2.5 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
-                  <div className="flex justify-between items-center border-b pb-1.5 border-slate-800/40">
-                    <span className="font-black text-xs text-blue-500 uppercase tracking-wide">Continuous Discharge Book (CDC)</span>
-                    <span className="text-[10px] text-green-500 flex items-center gap-1"><CheckCircle className="w-3.5 h-3.5" /> Provided</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">CDC Number</span>
-                      <span className="font-black text-slate-300">{selectedUser.profile.cdc.num}</span>
+                {/* Sea Service Experience */}
+                <div className="space-y-4">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
+                    <Anchor className="w-4 h-4" /> Sea Service Records (Master Checker approved)
+                  </h4>
+                  {auditDetails.seaService.length === 0 ? (
+                    <div className="text-xs text-slate-500">No sea service records found</div>
+                  ) : auditDetails.seaService.map((ship: any, index: number) => (
+                    <div key={index} className={`p-4 rounded-xl border space-y-2.5 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                      <div className="flex justify-between items-center border-b pb-1.5 border-slate-800/40">
+                        <span className="font-black text-xs text-slate-300 uppercase tracking-wide">{ship.vessel}</span>
+                        <span className="text-[10px] text-slate-450 font-bold uppercase">RPSL: {ship.rpsl}</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Rank Served</span>
+                          <span className="font-extrabold">{ship.rank}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Vessel IMO</span>
+                          <span>{ship.imo}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Sign On Date</span>
+                          <span>{ship.on}</span>
+                        </div>
+                        <div>
+                          <span className="text-slate-450 block text-[9px] uppercase">Sign Off Date</span>
+                          <span>{ship.off}</span>
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Place of Issue</span>
-                      <span>{selectedUser.profile.cdc.place}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Issue Date</span>
-                      <span>{selectedUser.profile.cdc.issue}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Expiry Date</span>
-                      <span>{selectedUser.profile.cdc.expiry}</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
+              </>
+            ) : (
+              <div className="py-16 text-center text-xs text-red-400 font-bold uppercase">
+                Error loading seafarer records profiles details.
               </div>
-            </div>
-
-            {/* Sea Service Experience */}
-            <div className="space-y-4">
-              <h4 className="text-xs font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1.5">
-                <Anchor className="w-4 h-4" /> Sea Service Records (Master Checker approved)
-              </h4>
-              {selectedUser.profile.seaService.map((ship, index) => (
-                <div key={index} className={`p-4 rounded-xl border space-y-2.5 ${isDark ? "bg-slate-900 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
-                  <div className="flex justify-between items-center border-b pb-1.5 border-slate-800/40">
-                    <span className="font-black text-xs text-slate-300 uppercase tracking-wide">{ship.vessel}</span>
-                    <span className="text-[10px] text-slate-450 font-bold uppercase">RPSL: {ship.rpsl}</span>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3 text-xs font-semibold">
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Rank Served</span>
-                      <span className="font-extrabold">{ship.rank}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Vessel IMO</span>
-                      <span>{ship.imo}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Sign On Date</span>
-                      <span>{ship.on}</span>
-                    </div>
-                    <div>
-                      <span className="text-slate-450 block text-[9px] uppercase">Sign Off Date</span>
-                      <span>{ship.off}</span>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            )}
 
             {/* Verification action panel */}
             <div className="pt-4 border-t border-slate-800/40 flex gap-4">
               <button
                 type="button"
-                onClick={() => setSelectedUser(null)}
+                onClick={() => setAuditUser(null)}
                 className={`flex-1 py-3.5 rounded-xl font-bold uppercase text-center border transition-all cursor-pointer text-xs ${
                   isDark ? "border-slate-800 hover:bg-slate-800/60" : "border-slate-200 hover:bg-slate-50"
                 }`}
               >
                 Close Audit
               </button>
-              {selectedUser.status !== "Verified" && (
+              {auditUser && auditUser.status !== "Verified" && (
                 <button
-                  onClick={() => handleVerifyUser(selectedUser.id)}
+                  onClick={() => handleVerifyUser(auditUser.id)}
                   className="flex-1 py-3.5 rounded-xl font-black uppercase text-center text-white cursor-pointer text-xs bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 shadow-md shadow-emerald-500/20"
                 >
                   Verify and Approve Seafarer
