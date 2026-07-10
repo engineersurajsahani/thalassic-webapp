@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
+import { fetchAPI } from "@/lib/api";
 import { 
   BookOpen, 
   Plus, 
@@ -32,7 +33,8 @@ export default function CoursesPage() {
   const isDark = theme === "dark";
 
   // State Management
-  const [courses, setCourses] = useState(initialCourses);
+  const [courses, setCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -48,11 +50,29 @@ export default function CoursesPage() {
     status: "Active"
   });
 
+  // Fetch Courses list
+  const loadCourses = () => {
+    setLoading(true);
+    fetchAPI('/master/courses')
+      .then(res => {
+        setCourses(res);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load courses:", err);
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    loadCourses();
+  }, []);
+
   // Filter & Search Logic
   const filteredCourses = courses.filter((course) => {
     const matchesSearch = 
-      course.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      course.code.toLowerCase().includes(searchQuery.toLowerCase());
+      (course.name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (course.code || "").toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || course.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -64,37 +84,59 @@ export default function CoursesPage() {
       alert("Please fill in all required fields!");
       return;
     }
-    const created = {
-      id: String(courses.length + 1),
+    const payload = {
       ...newCourse,
       fees: newCourse.fees.startsWith("₹") ? newCourse.fees : `₹${newCourse.fees}`
     };
-    setCourses([created, ...courses]);
-    setIsAddModalOpen(false);
-    setNewCourse({
-      code: "",
-      name: "",
-      category: "basic",
-      duration: "",
-      fees: "",
-      description: "",
-      status: "Active"
-    });
+
+    fetchAPI('/master/courses', {
+      method: 'POST',
+      body: JSON.stringify(payload)
+    })
+      .then(() => {
+        loadCourses();
+        setIsAddModalOpen(false);
+        setNewCourse({
+          code: "",
+          name: "",
+          category: "basic",
+          duration: "",
+          fees: "",
+          description: "",
+          status: "Active"
+        });
+      })
+      .catch(err => {
+        alert("Failed to create course: " + err.message);
+      });
   };
 
   const handleDeleteCourse = (id: string) => {
     if (confirm("Are you sure you want to delete this course module?")) {
-      setCourses(courses.filter((c) => c.id !== id));
+      fetchAPI(`/master/courses/${id}`, {
+        method: 'DELETE'
+      })
+        .then(() => {
+          loadCourses();
+        })
+        .catch(err => {
+          alert("Failed to delete course: " + err.message);
+        });
     }
   };
 
-  const handleToggleStatus = (id: string) => {
-    setCourses(courses.map((c) => {
-      if (c.id === id) {
-        return { ...c, status: c.status === "Active" ? "Draft" : "Active" };
-      }
-      return c;
-    }));
+  const handleToggleStatus = (id: string, currentStatus: string) => {
+    const newStatus = currentStatus === "Active" ? "Draft" : "Active";
+    fetchAPI(`/master/courses/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: newStatus })
+    })
+      .then(() => {
+        loadCourses();
+      })
+      .catch(err => {
+        alert("Failed to toggle status: " + err.message);
+      });
   };
 
   // Glassmorphic Style classes
@@ -207,7 +249,7 @@ export default function CoursesPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={() => handleToggleStatus(course.id)}
+                    onClick={() => handleToggleStatus(course.id, course.status)}
                     title={course.status === "Active" ? "Set to Draft" : "Publish"}
                     className={`p-2 rounded-lg border transition-all ${
                       isDark 

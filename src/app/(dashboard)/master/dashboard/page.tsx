@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
+import { fetchAPI } from "@/lib/api";
 import {
   Users,
   BookOpen,
@@ -425,10 +426,64 @@ export default function MasterDashboard() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchAPI('/master/dashboard')
+      .then(res => {
+        setData(res);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load dashboard data:", err);
+        setLoading(false);
+      });
+  }, []);
+
   // Glassmorphic background and borders styles
   const glassCardStyle = isDark
     ? "bg-slate-900/60 border-slate-800/80 backdrop-blur-xl hover:border-slate-700/60"
     : "bg-white border-slate-200/80 shadow-md shadow-slate-100 hover:shadow-lg";
+
+  const stats = [
+    {
+      title: "Registered Seafarers",
+      value: loading ? "..." : (data?.totalSeafarers ?? 0).toLocaleString(),
+      change: "+12.4%",
+      icon: Users,
+      color: "blue",
+      grad: "from-blue-500 to-cyan-400",
+      shadow: "shadow-blue-500/10",
+    },
+    {
+      title: "Total Courses Available",
+      value: loading ? "..." : (data?.totalCourses ?? 0).toString(),
+      change: "+3 New",
+      icon: BookOpen,
+      color: "green",
+      grad: "from-emerald-500 to-teal-400",
+      shadow: "shadow-emerald-500/10",
+    },
+    {
+      title: "Course Bookings",
+      value: loading ? "..." : (data?.totalPurchases ?? 0).toLocaleString(),
+      change: "+8.2%",
+      icon: ShoppingCart,
+      color: "purple",
+      grad: "from-purple-500 to-indigo-400",
+      shadow: "shadow-purple-500/10",
+    },
+    {
+      title: "Platform Revenue",
+      value: loading ? "..." : (data?.totalRevenue ?? "₹24.5L"),
+      change: "+15.8%",
+      icon: TrendingUp,
+      color: "orange",
+      grad: "from-orange-500 to-amber-400",
+      shadow: "shadow-orange-500/10",
+    },
+  ];
 
   return (
     <div className="space-y-8 pb-12">
@@ -457,7 +512,7 @@ export default function MasterDashboard() {
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {statistics.map((stat, idx) => {
+        {stats.map((stat, idx) => {
           const Icon = stat.icon;
           return (
             <div
@@ -516,7 +571,7 @@ export default function MasterDashboard() {
             <h3 className={`text-base font-bold mb-1 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`}>
               <BarIcon className="w-4.5 h-4.5 text-blue-500" /> Seafarer Ranks
             </h3>
-            <p className={`text-[11px] mb-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <p className={`text-[11px] mb-4 ${isDark ? "text-gray-400" : "text-slate-550"}`}>
               Registered profiles categorized by ranks.
             </p>
             <CustomBarChart isDark={isDark} />
@@ -527,7 +582,7 @@ export default function MasterDashboard() {
             <h3 className={`text-base font-bold mb-1 flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`}>
               <PieIcon className="w-4.5 h-4.5 text-teal-500" /> Course Share
             </h3>
-            <p className={`text-[11px] mb-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+            <p className={`text-[11px] mb-4 ${isDark ? "text-gray-400" : "text-slate-555"}`}>
               Segment purchase share metrics.
             </p>
             <CustomDonutChart />
@@ -545,20 +600,34 @@ export default function MasterDashboard() {
             Recent Registrations
           </h3>
           <div className="space-y-4.5">
-            {recentRegistrations.map((reg) => (
-              <div key={reg.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm ${reg.color}`}>
-                    {reg.initial}
+            {loading ? (
+              <div className="text-xs text-slate-500">Loading registrations...</div>
+            ) : (data?.recentRegistrations || []).length === 0 ? (
+              <div className="text-xs text-slate-500">No recent registrations</div>
+            ) : (data.recentRegistrations || []).map((reg: any, idx: number) => {
+              const colors = [
+                "bg-blue-500/20 text-blue-400",
+                "bg-emerald-500/20 text-emerald-400",
+                "bg-purple-500/20 text-purple-400",
+                "bg-amber-500/20 text-amber-400"
+              ];
+              const colorClass = colors[idx % colors.length];
+              const initial = reg.name ? reg.name.charAt(0).toUpperCase() : "?";
+              return (
+                <div key={reg.id || idx} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm ${colorClass}`}>
+                      {initial}
+                    </div>
+                    <div>
+                      <p className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{reg.name}</p>
+                      <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-550"}`}>{reg.email}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{reg.name}</p>
-                    <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{reg.email}</p>
-                  </div>
+                  <span className={`text-[10px] font-bold ${isDark ? "text-slate-550" : "text-slate-400"}`}>{reg.date}</span>
                 </div>
-                <span className={`text-[10px] font-bold ${isDark ? "text-slate-550" : "text-slate-400"}`}>{reg.date}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -568,13 +637,17 @@ export default function MasterDashboard() {
             Recent Purchases
           </h3>
           <div className="space-y-4.5">
-            {recentPurchases.map((purchase) => (
-              <div key={purchase.id} className="flex items-center justify-between">
+            {loading ? (
+              <div className="text-xs text-slate-500">Loading purchases...</div>
+            ) : (data?.recentPurchases || []).length === 0 ? (
+              <div className="text-xs text-slate-500">No recent purchases</div>
+            ) : (data.recentPurchases || []).map((purchase: any, idx: number) => (
+              <div key={purchase.id || idx} className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm font-bold truncate max-w-[180px] ${isDark ? "text-white" : "text-slate-800"}`}>
                     {purchase.course}
                   </p>
-                  <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{purchase.user}</p>
+                  <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-550"}`}>{purchase.user}</p>
                 </div>
                 <div className="text-right">
                   <p className={`text-sm font-black ${isDark ? "text-green-400" : "text-green-600"}`}>{purchase.amount}</p>

@@ -104,7 +104,7 @@ ON CONFLICT (code) DO NOTHING;
 INSERT INTO public.users (id, email, name, phone, role, status)
 VALUES 
 ('a0000000-0000-0000-0000-000000000001', 'raj@example.com', 'Raj Kumar', '+91 98765 43210', 'SEAFARER', 'Pending Audit'),
-('a0000000-0000-0000-0000-000000000002', 'priya@example.com', 'Priya Singh', '+91 99887 76655', 'SEAFARER', 'Verified'),
+('a0000000-0000-0000-0000-000000000002', 'priya@example.com', 'Priya Singh', '+91 99887 76655', 'SEAFARER', 'Active'),
 ('a0000000-0000-0000-0000-000000000003', 'amit@example.com', 'Amit Patel', '+91 98989 89898', 'SEAFARER', 'Pending Audit')
 ON CONFLICT (email) DO NOTHING;
 

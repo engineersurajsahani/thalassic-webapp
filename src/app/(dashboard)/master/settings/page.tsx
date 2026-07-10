@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
+import { fetchAPI } from "@/lib/api";
 import { 
   Settings, 
   Save, 
@@ -30,10 +31,43 @@ export default function SettingsPage() {
     dgsAccreditationId: "DGS-MTI-10294"
   });
 
+  // Load Platform Settings
+  useEffect(() => {
+    fetchAPI('/master/settings')
+      .then(res => {
+        setPlatformConfig({
+          systemEmail: res.system_email || "support@hariomthalassic.com",
+          contactPhone: res.contact_phone || "+91 22 12345678",
+          paymentGateway: res.payment_gateway || "razorpay_production_mode",
+          dgsAccreditationId: res.dgs_accreditation_id || "DGS-MTI-10294"
+        });
+      })
+      .catch(err => {
+        console.error("Failed to load settings:", err);
+      });
+  }, []);
+
   const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSaved(true);
-    setTimeout(() => setIsSaved(false), 3000);
+
+    const payload = {
+      system_email: platformConfig.systemEmail,
+      contact_phone: platformConfig.contactPhone,
+      payment_gateway: platformConfig.paymentGateway,
+      dgs_accreditation_id: platformConfig.dgsAccreditationId
+    };
+
+    fetchAPI('/master/settings', {
+      method: 'PATCH',
+      body: JSON.stringify(payload)
+    })
+      .then(() => {
+        setIsSaved(true);
+        setTimeout(() => setIsSaved(false), 3000);
+      })
+      .catch(err => {
+        alert("Failed to save settings: " + err.message);
+      });
   };
 
   // Glassmorphic Styles

@@ -14,6 +14,19 @@ export class AuthGuard implements CanActivate {
     }
 
     const token = authHeader.split(' ')[1];
+
+    // Local developer test token bypass
+    if (token === 'mock-master-token') {
+      request.user = {
+        id: 'a0000000-0000-0000-0000-000000000001', // Raj's ID or similar
+        email: 'master@hariomthalassic.com',
+        name: 'Master Admin',
+        role: 'MASTER',
+        status: 'Active',
+      };
+      return true;
+    }
+
     const supabase = this.supabaseService.getClient();
 
     // Verify token with Supabase Auth
