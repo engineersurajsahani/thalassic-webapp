@@ -6,6 +6,8 @@ import { User, Mail, Phone, ChevronDown, Check, UserCheck, Shield, Anchor, Plus 
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
 import { useTheme } from "@/providers/theme-provider";
+import { useAuth } from "@/providers/auth-provider";
+import { useRouter } from "next/navigation";
 
 interface RoleOption {
   value: string;
@@ -38,6 +40,8 @@ const ROLES: RoleOption[] = [
 export default function RegisterForm() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const { register } = useAuth();
+  const router = useRouter();
 
   const [formData, setFormData] = useState({
     name: "",
@@ -99,11 +103,22 @@ export default function RegisterForm() {
     }
 
     setIsLoading(true);
-    // Simulate API registration call
-    setTimeout(() => {
-      setIsLoading(false);
-      setIsSuccess(true);
-    }, 2000);
+    register({
+      email: formData.email,
+      password: formData.password,
+      name: formData.name,
+      phone: formData.phone,
+      role: role,
+    })
+      .then((user) => {
+        setIsSuccess(true);
+      })
+      .catch((err) => {
+        setErrors({ submit: err.message || "Registration failed" });
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
   };
 
   if (isSuccess) {
@@ -139,6 +154,11 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleRegister} className="space-y-3.5">
+      {errors.submit && (
+        <div className={`p-3 rounded-lg text-xs font-semibold ${isDark ? "bg-red-950/40 border border-red-500/30 text-red-400" : "bg-red-50 border border-red-200 text-red-600"}`}>
+          {errors.submit}
+        </div>
+      )}
       {/* Full Name */}
       <AuthInput
         label="Full Name"
