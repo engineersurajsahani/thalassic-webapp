@@ -13,6 +13,11 @@ export class MasterController {
     return this.masterService.getDashboardData();
   }
 
+  @Get('reports')
+  getReports() {
+    return this.masterService.getReportsData();
+  }
+
   // --- 2. Course Management APIs ---
   @Get('courses')
   getCourses() {

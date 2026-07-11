@@ -77,6 +77,54 @@ export class MasterService {
     };
   }
 
+  async getReportsData() {
+    const supabase = this.getSupabase();
+
+    // Fetch courses
+    const { data: courses, error: err1 } = await supabase
+      .from('Course')
+      .select('id, name, fees, rating');
+
+    // Fetch enrollments
+    const { data: enrollments, error: err2 } = await supabase
+      .from('Enrollment')
+      .select('courseId, status');
+
+    if (err1 || err2) {
+      console.error("Reports loading error:", { err1, err2 });
+    }
+
+    const courseList = courses || [];
+    const enrollmentList = enrollments || [];
+
+    const reports = courseList.map((c: any, index: number) => {
+      const courseBookingsList = enrollmentList.filter((e: any) => e.courseId === c.id);
+      const bookingsCount = courseBookingsList.length;
+
+      // Parse fee amount (e.g. "₹12,000" -> 12000)
+      const cleanFee = parseFloat((c.fees || "").replace(/[^\d]/g, "")) || 0;
+      const revenueAmount = bookingsCount * cleanFee;
+
+      // Format revenue (e.g. 3625000 -> "₹36.25L" or standard format)
+      let formattedRevenue = "₹0";
+      if (revenueAmount >= 100000) {
+        formattedRevenue = `₹${(revenueAmount / 100000).toFixed(2)}L`;
+      } else if (revenueAmount > 0) {
+        formattedRevenue = `₹${revenueAmount.toLocaleString('en-IN')}`;
+      }
+
+      return {
+        id: c.id || String(index + 1),
+        course: c.name,
+        bookings: bookingsCount,
+        revenue: formattedRevenue,
+        rating: c.rating ? String(c.rating) : "4.8",
+      };
+    });
+
+    return reports;
+  }
+
   // --- 2. Course Management ---
   async getCourses() {
     const { data, error } = await this.getSupabase()

@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
+import { fetchAPI } from "@/lib/api";
 import { 
   BarChart3, 
   Download, 
@@ -14,20 +15,28 @@ import {
   AlertCircle
 } from "lucide-react";
 
-// Mock reports data
-const salesReport = [
-  { id: "1", course: "Medical Care on Board Ships", bookings: 145, revenue: "₹36.25L", rating: "4.9" },
-  { id: "2", course: "Basic Safety Training", bookings: 312, revenue: "₹37.44L", rating: "4.8" },
-  { id: "3", course: "Advanced Fire Fighting", bookings: 98, revenue: "₹7.05L", rating: "4.7" },
-  { id: "4", course: "Oil and Chemical Tanker Cargo", bookings: 88, revenue: "₹5.28L", rating: "4.8" },
-];
-
 export default function ReportsPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
   // State Management
   const [selectedRange, setSelectedRange] = useState("30days");
+  const [salesReport, setSalesReport] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch Reports list from backend
+  useEffect(() => {
+    setLoading(true);
+    fetchAPI('/master/reports')
+      .then(res => {
+        setSalesReport(res);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Failed to load reports:", err);
+        setLoading(false);
+      });
+  }, []);
 
   // Glassmorphic Styles
   const glassStyle = isDark
@@ -104,24 +113,38 @@ export default function ReportsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-850/40">
-              {salesReport.map((row) => (
-                <tr key={row.id} className={isDark ? "hover:bg-slate-900/30" : "hover:bg-slate-50/50"}>
-                  <td className="p-4">
-                    <div className="flex items-center gap-2.5">
-                      <BookOpen className="w-4.5 h-4.5 text-blue-500 shrink-0" />
-                      <span className={`text-sm font-black ${isDark ? "text-white" : "text-slate-800"}`}>{row.course}</span>
-                    </div>
-                  </td>
-                  <td className={`p-4 text-center ${isDark ? "text-slate-300" : "text-slate-700"}`}>{row.bookings}</td>
-                  <td className="p-4 text-center text-cyan-400 font-extrabold">{row.revenue}</td>
-                  <td className="p-4 text-center text-yellow-500 font-extrabold">{row.rating} ★</td>
-                  <td className="p-4 text-right">
-                    <span className="text-[10px] text-green-500 flex items-center gap-1 justify-end font-extrabold uppercase">
-                      <CheckCircle className="w-3.5 h-3.5" /> High Demand
-                    </span>
+              {loading ? (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-slate-500 font-bold uppercase tracking-wider animate-pulse">
+                    Calculating financial records and transactions...
                   </td>
                 </tr>
-              ))}
+              ) : salesReport.length > 0 ? (
+                salesReport.map((row) => (
+                  <tr key={row.id} className={isDark ? "hover:bg-slate-900/30" : "hover:bg-slate-50/50"}>
+                    <td className="p-4">
+                      <div className="flex items-center gap-2.5">
+                        <BookOpen className="w-4.5 h-4.5 text-blue-500 shrink-0" />
+                        <span className={`text-sm font-black ${isDark ? "text-white" : "text-slate-800"}`}>{row.course}</span>
+                      </div>
+                    </td>
+                    <td className={`p-4 text-center ${isDark ? "text-slate-300" : "text-slate-700"}`}>{row.bookings}</td>
+                    <td className="p-4 text-center text-cyan-400 font-extrabold">{row.revenue}</td>
+                    <td className="p-4 text-center text-yellow-500 font-extrabold">{row.rating} ★</td>
+                    <td className="p-4 text-right">
+                      <span className="text-[10px] text-green-500 flex items-center gap-1 justify-end font-extrabold uppercase">
+                        <CheckCircle className="w-3.5 h-3.5" /> High Demand
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan={5} className="p-8 text-center text-slate-500 font-bold uppercase tracking-wider">
+                    No sales transaction records found.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
