@@ -129,17 +129,21 @@ export default function UsersPage() {
     setLoading(true);
     fetchAPI('/master/users')
       .then(res => {
-        const mapped = res.map((u: any) => ({
-          id: u.id,
-          name: u.name,
-          email: u.email,
-          phone: u.phone,
-          role: u.role === 'SEAFARER' ? 'Seafarer' : u.role === 'COMPANY_ADMIN' ? 'Company Admin' : 'Master',
-          date: new Date(u.created_at).toLocaleDateString(),
-          status: u.status === 'Pending Audit' ? 'Pending Audit' : u.status === 'Active' ? 'Verified' : u.status,
-          initial: u.name ? u.name.charAt(0).toUpperCase() : "?",
-          color: u.role === 'SEAFARER' ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400',
-        }));
+        const mapped = res.map((u: any) => {
+          const isSeafarer = u.role?.toUpperCase() === 'SEAFARER';
+          const isCompany = u.role?.toUpperCase() === 'COMPANY_ADMIN';
+          return {
+            id: u.id,
+            name: u.name,
+            email: u.email,
+            phone: u.phone,
+            role: isSeafarer ? 'Seafarer' : isCompany ? 'Company Admin' : 'Master',
+            date: new Date(u.createdAt || u.created_at || Date.now()).toLocaleDateString(),
+            status: u.status ? (u.status === 'Active' ? 'Verified' : u.status) : 'Verified',
+            initial: u.name ? u.name.charAt(0).toUpperCase() : "?",
+            color: isSeafarer ? 'bg-blue-500/20 text-blue-400' : 'bg-orange-500/20 text-orange-400',
+          };
+        });
         setUsers(mapped);
         setLoading(false);
       })
@@ -162,38 +166,38 @@ export default function UsersPage() {
       .then(res => {
         const p = res.profile || {};
         const mappedDetails = {
-          givenName: user.name.split(" ")[0] || "N/A",
-          surname: user.name.split(" ").slice(1).join(" ") || "N/A",
-          dob: p.dob ? new Date(p.dob).toISOString().split('T')[0] : "N/A",
-          birthPlace: p.birth_place || "N/A",
-          fatherName: p.father_name || "N/A",
+          givenName: p.givenName || user.name.split(" ")[0] || "N/A",
+          surname: p.surname || user.name.split(" ").slice(1).join(" ") || "N/A",
+          dob: p.dob || "N/A",
+          birthPlace: p.birthPlace || p.birth_place || "N/A",
+          fatherName: p.fatherName || p.father_name || "N/A",
           phone: user.phone || "+91 99887 76655",
           passport: {
-            num: p.passport_num || "N/A",
-            issue: p.passport_issue ? new Date(p.passport_issue).toISOString().split('T')[0] : "N/A",
-            expiry: p.passport_expiry ? new Date(p.passport_expiry).toISOString().split('T')[0] : "N/A",
-            place: p.passport_place || "N/A"
+            num: p.passport?.num || "N/A",
+            issue: p.passport?.issue || "N/A",
+            expiry: p.passport?.expiry || "N/A",
+            place: p.passport?.place || "N/A"
           },
           indos: {
-            num: p.indos_num || "N/A",
-            issue: p.indos_issue ? new Date(p.indos_issue).toISOString().split('T')[0] : "N/A",
-            status: p.indos_status || "Pending"
+            num: p.indos?.num || "N/A",
+            issue: p.indos?.issue || "N/A",
+            status: p.indos?.status || "Pending"
           },
           cdc: {
-            num: p.cdc_num || "N/A",
-            issue: p.cdc_issue ? new Date(p.cdc_issue).toISOString().split('T')[0] : "N/A",
-            expiry: p.cdc_expiry ? new Date(p.cdc_expiry).toISOString().split('T')[0] : "N/A",
-            place: p.cdc_place || "N/A"
+            num: p.cdc?.num || "N/A",
+            issue: p.cdc?.issue || "N/A",
+            expiry: p.cdc?.expiry || "N/A",
+            place: p.cdc?.place || "N/A"
           },
           education: p.education || "N/A",
           seaService: (res.seaService || []).map((s: any) => ({
             rpsl: s.rpsl,
             vessel: s.vessel,
-            type: s.vessel_type || "N/A",
+            type: s.vessel_type || s.type || "N/A",
             imo: s.imo || "N/A",
             rank: s.rank,
-            on: s.sign_on ? new Date(s.sign_on).toISOString().split('T')[0] : "N/A",
-            off: s.sign_off ? new Date(s.sign_off).toISOString().split('T')[0] : "N/A"
+            on: s.sign_on || s.on || "N/A",
+            off: s.sign_off || s.off || "N/A"
           }))
         };
         setAuditDetails(mappedDetails);
