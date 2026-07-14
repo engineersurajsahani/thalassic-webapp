@@ -40,14 +40,14 @@ const statistics = [
   },
 ];
 
-// Mock EDA data
-const revenueTrend = [
-  { month: "Jan", revenue: 4.2, bookings: 120 },
-  { month: "Feb", revenue: 6.8, bookings: 180 },
-  { month: "Mar", revenue: 9.5, bookings: 240 },
-  { month: "Apr", revenue: 12.0, bookings: 310 },
-  { month: "May", revenue: 18.5, bookings: 420 },
-  { month: "Jun", revenue: 24.5, bookings: 580 },
+// Mock EDA data comparing years
+const yearlyRevenueTrend = [
+  { month: "Jan", r2024: 3.1, r2025: 4.5, r2026: 5.2, b2024: 100, b2025: 120, b2026: 140 },
+  { month: "Feb", r2024: 4.5, r2025: 5.8, r2026: 6.8, b2024: 120, b2025: 145, b2026: 180 },
+  { month: "Mar", r2024: 6.2, r2025: 7.4, r2026: 9.5, b2024: 140, b2025: 180, b2026: 240 },
+  { month: "Apr", r2024: 7.8, r2025: 9.2, r2026: 12.0, b2024: 165, b2025: 220, b2026: 310 },
+  { month: "May", r2024: 9.5, r2025: 13.1, r2026: 18.5, b2024: 190, b2025: 280, b2026: 420 },
+  { month: "Jun", r2024: 12.4, r2025: 17.8, r2026: 24.5, b2024: 240, b2025: 390, b2026: 580 },
 ];
 
 const ranksData = [
@@ -101,24 +101,58 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
   const chartHeight = height - paddingTop - paddingBottom;
   const maxVal = 30;
 
-  const points = revenueTrend.map((d, index) => {
-    const x = paddingLeft + (index / (revenueTrend.length - 1)) * chartWidth;
-    const y = height - paddingBottom - (d.revenue / maxVal) * chartHeight;
-    return { x, y, val: d.revenue, label: d.month };
+  const points2024 = yearlyRevenueTrend.map((d, index) => {
+    const x = paddingLeft + (index / (yearlyRevenueTrend.length - 1)) * chartWidth;
+    const y = height - paddingBottom - (d.r2024 / maxVal) * chartHeight;
+    return { x, y, val: d.r2024, label: d.month, bookings: d.b2024 };
   });
 
-  const pathD = points.reduce((acc, p, i) => {
-    return i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`;
-  }, "");
+  const points2025 = yearlyRevenueTrend.map((d, index) => {
+    const x = paddingLeft + (index / (yearlyRevenueTrend.length - 1)) * chartWidth;
+    const y = height - paddingBottom - (d.r2025 / maxVal) * chartHeight;
+    return { x, y, val: d.r2025, label: d.month, bookings: d.b2025 };
+  });
 
-  const fillD = points.length > 0 
-    ? `${pathD} L ${points[points.length - 1].x} ${height - paddingBottom} L ${points[0].x} ${height - paddingBottom} Z`
+  const points2026 = yearlyRevenueTrend.map((d, index) => {
+    const x = paddingLeft + (index / (yearlyRevenueTrend.length - 1)) * chartWidth;
+    const y = height - paddingBottom - (d.r2026 / maxVal) * chartHeight;
+    return { x, y, val: d.r2026, label: d.month, bookings: d.b2026 };
+  });
+
+  const getPathD = (points: any[]) => {
+    return points.reduce((acc, p, i) => {
+      return i === 0 ? `M ${p.x} ${p.y}` : `${acc} L ${p.x} ${p.y}`;
+    }, "");
+  };
+
+  const path2024D = getPathD(points2024);
+  const path2025D = getPathD(points2025);
+  const path2026D = getPathD(points2026);
+
+  const fill2026D = points2026.length > 0 
+    ? `${path2026D} L ${points2026[points2026.length - 1].x} ${height - paddingBottom} L ${points2026[0].x} ${height - paddingBottom} Z`
     : "";
 
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
   return (
     <div className="relative w-full">
+      {/* Premium Dashboard Legend */}
+      <div className="flex items-center gap-6 mb-4 text-xs font-bold select-none">
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-slate-500" />
+          <span className={isDark ? "text-slate-400" : "text-slate-600"}>Year 2024</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+          <span className={isDark ? "text-slate-400" : "text-slate-600"}>Year 2025</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
+          <span className={isDark ? "text-slate-350" : "text-slate-800"}>Year 2026 (Live)</span>
+        </div>
+      </div>
+
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible select-none">
         <defs>
           {/* Neon Glow Filter */}
@@ -130,15 +164,9 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
             </feMerge>
           </filter>
 
-          <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#3b82f6" />
-            <stop offset="50%" stopColor="#06b6d4" />
-            <stop offset="100%" stopColor="#8b5cf6" />
-          </linearGradient>
-
           <linearGradient id="fillGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#06b6d4" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
+            <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
           </linearGradient>
         </defs>
 
@@ -168,7 +196,7 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
         })}
 
         {/* X Axis Labels */}
-        {points.map((p, index) => (
+        {points2026.map((p, index) => (
           <text
             key={index}
             x={p.x}
@@ -180,12 +208,18 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
           </text>
         ))}
 
-        {/* Path Fill & Stroke */}
-        <path d={fillD} fill="url(#fillGrad)" />
-        <path d={pathD} fill="none" stroke="url(#lineGrad)" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" filter="url(#neonGlow)" />
+        {/* Year 2024 Path (Slate dashed) */}
+        <path d={path2024D} fill="none" stroke="#64748b" strokeWidth={2} strokeDasharray="4 4" strokeLinecap="round" opacity={0.6} />
+
+        {/* Year 2025 Path (Indigo solid) */}
+        <path d={path2025D} fill="none" stroke="#6366f1" strokeWidth={2.5} strokeLinecap="round" opacity={0.7} />
+
+        {/* Year 2026 Path (Cyan glowing gradient) */}
+        <path d={fill2026D} fill="url(#fillGrad)" />
+        <path d={path2026D} fill="none" stroke="#22d3ee" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" filter="url(#neonGlow)" />
 
         {/* Interactive hover guides */}
-        {points.map((p, index) => (
+        {points2026.map((p, index) => (
           <g 
             key={index} 
             onMouseEnter={() => setHoverIdx(index)} 
@@ -198,7 +232,7 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
               cy={p.y} 
               r={hoverIdx === index ? 7 : 5} 
               fill={isDark ? "#081325" : "#ffffff"} 
-              stroke={hoverIdx === index ? "#22d3ee" : "#3b82f6"} 
+              stroke={hoverIdx === index ? "#22d3ee" : "#06b6d4"} 
               strokeWidth={3.5} 
               className="transition-all duration-150"
             />
@@ -206,11 +240,11 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
         ))}
 
         {/* Guide line */}
-        {hoverIdx !== null && points[hoverIdx] && (
+        {hoverIdx !== null && points2026[hoverIdx] && (
           <line
-            x1={points[hoverIdx].x}
+            x1={points2026[hoverIdx].x}
             y1={paddingTop}
-            x2={points[hoverIdx].x}
+            x2={points2026[hoverIdx].x}
             y2={height - paddingBottom}
             stroke="#22d3ee"
             strokeWidth={1.5}
@@ -220,23 +254,35 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
         )}
       </svg>
 
-      {/* Glossy Tooltip Card */}
-      {hoverIdx !== null && points[hoverIdx] && (
+      {/* Glossy Tooltip Card comparing 2024, 2025, 2026 */}
+      {hoverIdx !== null && points2026[hoverIdx] && (
         <div 
           style={{ 
-            left: `${(points[hoverIdx].x / width) * 100}%`,
-            top: `${(points[hoverIdx].y / height) * 100 - 24}%` 
+            left: `${(points2026[hoverIdx].x / width) * 100}%`,
+            top: `${(points2026[hoverIdx].y / height) * 100 - 24}%` 
           }}
-          className={`absolute transform -translate-x-1/2 -translate-y-full p-3.5 rounded-2xl border text-xs font-black shadow-2xl pointer-events-none transition-all duration-150 z-20 backdrop-blur-xl ${
+          className={`absolute transform -translate-x-1/2 -translate-y-full p-4 rounded-2xl border text-xs font-black shadow-2xl pointer-events-none transition-all duration-150 z-20 backdrop-blur-xl w-44 ${
             isDark ? "bg-[#091b30]/90 border-cyan-500/30 text-white" : "bg-white/95 border-slate-200 text-slate-800"
           }`}
         >
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex items-center gap-1.5 mb-2 border-b border-slate-750 pb-1.5">
             <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
-            <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">{points[hoverIdx].label} stats</p>
+            <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">{points2026[hoverIdx].label} YoY Analytics</p>
           </div>
-          <p className="text-base font-black text-cyan-400">₹{points[hoverIdx].val} Lakhs</p>
-          <p className="text-[10px] text-slate-400 mt-0.5 font-bold">Total Bookings: {revenueTrend[hoverIdx].bookings}</p>
+          <div className="space-y-1.5 text-[11px]">
+            <div className="flex justify-between">
+              <span className="text-slate-400 font-bold">2026:</span>
+              <span className="text-cyan-400 font-black">₹{points2026[hoverIdx].val}L ({points2026[hoverIdx].bookings} book)</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-400 font-bold">2025:</span>
+              <span className="text-indigo-400 font-black">₹{points2025[hoverIdx].val}L ({points2025[hoverIdx].bookings} book)</span>
+            </div>
+            <div className="flex justify-between text-slate-500">
+              <span className="font-bold">2024:</span>
+              <span className="font-black">₹{points2024[hoverIdx].val}L ({points2024[hoverIdx].bookings} book)</span>
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -530,10 +576,10 @@ export default function MasterDashboard() {
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className={`text-lg font-bold flex items-center gap-2 ${isDark ? "text-white" : "text-slate-900"}`}>
-                <LineIcon className="w-5 h-5 text-cyan-400" /> Platform Revenue & Booking Growth
+                <LineIcon className="w-5 h-5 text-cyan-400" /> Platform Revenue: YoY Comparison
               </h3>
               <p className={`text-xs mt-0.5 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-                Exploratory data analysis of modular course purchase conversions.
+                Year-over-year exploratory data analysis of platform booking revenue.
               </p>
             </div>
             <div className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold ${
