@@ -124,6 +124,17 @@ export default function UsersPage() {
   const [auditDetails, setAuditDetails] = useState<any>(null);
   const [loadingProfile, setLoadingProfile] = useState(false);
 
+  // Add User Modal State
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [addUserForm, setAddUserForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "seafarer"
+  });
+  const [addingUser, setAddingUser] = useState(false);
+  const [addError, setAddError] = useState("");
+
   // Fetch Users List
   const loadUsers = () => {
     setLoading(true);
@@ -233,6 +244,37 @@ export default function UsersPage() {
       });
   };
 
+  // Add User Submit Handler
+  const handleAddUserSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!addUserForm.name || !addUserForm.email || !addUserForm.password) {
+      setAddError("Please fill out all fields.");
+      return;
+    }
+    setAddingUser(true);
+    setAddError("");
+
+    fetchAPI('/master/users', {
+      method: 'POST',
+      body: JSON.stringify(addUserForm)
+    })
+      .then(() => {
+        setAddingUser(false);
+        setShowAddModal(false);
+        setAddUserForm({
+          name: "",
+          email: "",
+          password: "",
+          role: "seafarer"
+        });
+        loadUsers(); // reload users
+      })
+      .catch(err => {
+        setAddingUser(false);
+        setAddError(err.message || "Failed to create user");
+      });
+  };
+
   // Glassmorphic Styles
   const glassStyle = isDark
     ? "bg-slate-900/60 border-slate-800/80 backdrop-blur-xl"
@@ -242,13 +284,27 @@ export default function UsersPage() {
     <div className="space-y-6 pb-12 relative">
       
       {/* Header Panel */}
-      <div className="border-b pb-6 border-slate-800/40">
-        <h1 className={`text-3xl font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
-          User Management
-        </h1>
-        <p className={`text-xs mt-0.5 font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          Monitor registered seafarers, view their uploaded documents, and approve their audit profiles.
-        </p>
+      <div className="border-b pb-6 border-slate-800/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className={`text-3xl font-black tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
+            User Management
+          </h1>
+          <p className={`text-xs mt-0.5 font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+            Monitor registered seafarers, view their uploaded documents, and approve their audit profiles.
+          </p>
+        </div>
+        <div>
+          <button
+            onClick={() => setShowAddModal(true)}
+            className={`px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wide transition-all border cursor-pointer ${
+              isDark
+                ? "bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700/80"
+                : "bg-zinc-950 border-zinc-950 text-white hover:bg-zinc-900"
+            }`}
+          >
+            + Add New User
+          </button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -575,6 +631,121 @@ export default function UsersPage() {
               )}
             </div>
 
+          </div>
+        </div>
+      )}
+      {/* Add User Modal */}
+      {showAddModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className={`w-full max-w-md rounded-2xl border p-6 shadow-xl transition-all ${
+            isDark ? "bg-[#09090b] border-zinc-800 text-white" : "bg-white border-zinc-200 text-zinc-900"
+          }`}>
+            <div className="flex items-center justify-between border-b border-zinc-850 pb-4 mb-4">
+              <h3 className="text-base font-bold">Add New User Profile</h3>
+              <button 
+                onClick={() => setShowAddModal(false)}
+                className={`p-1.5 rounded-lg border transition-colors ${
+                  isDark ? "border-zinc-800 hover:bg-zinc-850" : "border-zinc-200 hover:bg-zinc-50"
+                }`}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {addError && (
+              <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-medium flex items-center gap-2">
+                <AlertCircle className="w-4 h-4" /> {addError}
+              </div>
+            )}
+
+            <form onSubmit={handleAddUserSubmit} className="space-y-4 text-xs font-semibold">
+              <div>
+                <label className={`block mb-1.5 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Full Name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. John Doe"
+                  value={addUserForm.name}
+                  onChange={(e) => setAddUserForm(prev => ({ ...prev, name: e.target.value }))}
+                  className={`w-full p-2.5 rounded-xl border outline-none transition-all ${
+                    isDark
+                      ? "bg-zinc-950 border-zinc-800 focus:border-zinc-700 text-white"
+                      : "bg-zinc-50 border-zinc-200 focus:border-zinc-300 text-zinc-850"
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`block mb-1.5 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Email Address</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="e.g. john@company.com"
+                  value={addUserForm.email}
+                  onChange={(e) => setAddUserForm(prev => ({ ...prev, email: e.target.value }))}
+                  className={`w-full p-2.5 rounded-xl border outline-none transition-all ${
+                    isDark
+                      ? "bg-zinc-950 border-zinc-800 focus:border-zinc-700 text-white"
+                      : "bg-zinc-50 border-zinc-200 focus:border-zinc-300 text-zinc-850"
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`block mb-1.5 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>Account Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Minimum 6 characters"
+                  value={addUserForm.password}
+                  onChange={(e) => setAddUserForm(prev => ({ ...prev, password: e.target.value }))}
+                  className={`w-full p-2.5 rounded-xl border outline-none transition-all ${
+                    isDark
+                      ? "bg-zinc-950 border-zinc-800 focus:border-zinc-700 text-white"
+                      : "bg-zinc-50 border-zinc-200 focus:border-zinc-300 text-zinc-850"
+                  }`}
+                />
+              </div>
+
+              <div>
+                <label className={`block mb-1.5 ${isDark ? "text-zinc-400" : "text-zinc-500"}`}>System Role</label>
+                <select
+                  value={addUserForm.role}
+                  onChange={(e) => setAddUserForm(prev => ({ ...prev, role: e.target.value }))}
+                  className={`w-full p-2.5 rounded-xl border outline-none cursor-pointer transition-all ${
+                    isDark
+                      ? "bg-zinc-950 border-zinc-800 focus:border-zinc-700 text-white"
+                      : "bg-zinc-50 border-zinc-200 focus:border-zinc-300 text-zinc-855"
+                  }`}
+                >
+                  <option value="seafarer">Seafarer (Crew)</option>
+                  <option value="company_admin">Company Admin (Maritime Academy / Recruiter)</option>
+                </select>
+              </div>
+
+              <div className="pt-2 flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className={`flex-1 py-2.5 rounded-xl border font-bold uppercase transition-all cursor-pointer ${
+                    isDark ? "border-zinc-800 hover:bg-zinc-850 text-zinc-300" : "border-zinc-200 hover:bg-zinc-50 text-zinc-700"
+                  }`}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={addingUser}
+                  className={`flex-1 py-2.5 rounded-xl font-bold uppercase text-white cursor-pointer transition-all ${
+                    addingUser
+                      ? "bg-zinc-800 border-zinc-800 text-zinc-500 cursor-not-allowed"
+                      : "bg-zinc-950 border-zinc-950 hover:bg-zinc-900"
+                  }`}
+                >
+                  {addingUser ? "Adding..." : "Add User"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}

@@ -45,6 +45,11 @@ export class MasterController {
     return this.masterService.getUsers(role);
   }
 
+  @Post('users')
+  createUser(@Body() dto: any) {
+    return this.masterService.createUser(dto);
+  }
+
   @Get('users/:id/profile')
   getUserProfile(@Param('id') id: string) {
     return this.masterService.getUserProfile(id);

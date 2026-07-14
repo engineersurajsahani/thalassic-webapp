@@ -198,6 +198,40 @@ export class MasterService {
     return data;
   }
 
+  async createUser(dto: any) {
+    const bcrypt = require('bcrypt');
+    const hashedPassword = await bcrypt.hash(dto.password || 'password123', 10);
+
+    const payload = {
+      name: dto.name,
+      email: dto.email,
+      password: hashedPassword,
+      role: dto.role || 'seafarer',
+      status: 'Active',
+    };
+
+    const { data, error } = await this.getSupabase()
+      .from('User')
+      .insert([payload])
+      .select()
+      .single();
+
+    if (error) throw new InternalServerErrorException('Error creating user: ' + error.message);
+
+    // If role is seafarer, seed profile record so profiles detail query succeeds
+    if (data && data.role === 'seafarer') {
+      await this.getSupabase()
+        .from('SeafarerProfile')
+        .insert([{
+          userId: data.id,
+          status: 'Pending Audit',
+          nationality: 'Indian',
+        }]);
+    }
+
+    return data;
+  }
+
   async getUserProfile(userId: string) {
     const supabase = this.getSupabase();
 
