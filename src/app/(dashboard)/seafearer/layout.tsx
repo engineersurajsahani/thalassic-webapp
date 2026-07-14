@@ -1,15 +1,23 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
 import SeafearerSidebar from "@/components/seafearer/sidebar";
 import SeafearerTopbar from "@/components/seafearer/topbar";
 import { useAuth } from "@/providers/auth-provider";
 import { useTheme } from "@/providers/theme-provider";
+import { useRouter } from "next/navigation";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
   const { theme } = useTheme();
+  const router = useRouter();
   const isDark = theme === "dark";
+
+  useEffect(() => {
+    if (!isLoading && (!user || (user.role !== "seafarer" && user.role !== "seafearer"))) {
+      router.push("/login");
+    }
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
