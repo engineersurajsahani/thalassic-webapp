@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import {
   LayoutDashboard,
@@ -25,9 +25,16 @@ export default function MasterSidebar() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const pathname = usePathname();
+  const router = useRouter();
 
   const isActive = (href: string) => {
     return pathname === href || pathname.startsWith(href + "/");
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    router.push("/login");
   };
 
   return (
@@ -93,6 +100,7 @@ export default function MasterSidebar() {
       {/* Logout */}
       <div className="p-3 border-t border-gray-800/40">
         <button
+          onClick={handleLogout}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
             isDark
               ? "text-gray-300 hover:bg-red-600/10 hover:text-red-400"
