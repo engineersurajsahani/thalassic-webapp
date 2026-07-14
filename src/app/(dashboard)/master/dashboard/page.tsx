@@ -83,9 +83,9 @@ const recentCourses = [
 ];
 
 const quickActions = [
-  { label: "Add New Course", icon: "+", desc: "List deck/engine prep modules" },
-  { label: "Verify Documents", icon: "👥", desc: "Audit INDOS, passport, CDC" },
-  { label: "Financial Reports", icon: "📊", desc: "Extract revenue & tax stats" },
+  { label: "Add New Course", icon: BookOpen, desc: "List deck/engine prep modules" },
+  { label: "Verify Documents", icon: Users, desc: "Audit INDOS, passport, CDC" },
+  { label: "Financial Reports", icon: TrendingUp, desc: "Extract revenue & tax stats" },
 ];
 
 // --- 1. Custom SVG Line Chart with Glow Effects ---
@@ -611,10 +611,10 @@ export default function MasterDashboard() {
       });
   }, []);
 
-  // Glassmorphic background and borders styles
+  // Professional SaaS flat background and border styles
   const glassCardStyle = isDark
-    ? "bg-slate-900/60 border-slate-800/80 backdrop-blur-xl hover:border-slate-700/60"
-    : "bg-white border-slate-200/80 shadow-md shadow-slate-100 hover:shadow-lg";
+    ? "bg-[#09090b] border-zinc-800 hover:border-zinc-700/80 shadow-sm"
+    : "bg-white border-zinc-200 shadow-sm hover:shadow-md transition-all";
 
   const stats = [
     {
@@ -662,8 +662,8 @@ export default function MasterDashboard() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-6 border-slate-800/40">
         <div>
           <div className="flex items-center gap-2">
-            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
-              isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-blue-600 border border-blue-100"
+            <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+              isDark ? "bg-zinc-800/80 text-zinc-300 border border-zinc-700/60" : "bg-zinc-100 text-zinc-700 border border-zinc-200"
             }`}>
               Master Control
             </span>
@@ -671,7 +671,7 @@ export default function MasterDashboard() {
               <Activity className="w-3.5 h-3.5 text-green-500" /> Database Online
             </span>
           </div>
-          <h1 className={`text-3xl font-black tracking-tight mt-1.5 ${isDark ? "text-white" : "text-slate-850"}`}>
+          <h1 className={`text-2xl font-semibold tracking-tight mt-1.5 ${isDark ? "text-white" : "text-slate-900"}`}>
             Welcome back, Administrator
           </h1>
           <p className={`text-xs mt-0.5 font-medium ${isDark ? "text-slate-400" : "text-slate-500"}`}>
@@ -687,22 +687,24 @@ export default function MasterDashboard() {
           return (
             <div
               key={idx}
-              className={`p-6 rounded-2xl border transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${glassCardStyle} ${stat.shadow}`}
+              className={`p-6 rounded-2xl border transition-all duration-300 ${glassCardStyle}`}
             >
               <div className="flex items-start justify-between mb-4">
-                <div className={`p-3 rounded-2xl bg-gradient-to-br ${stat.grad} text-white shadow-md`}>
-                  <Icon className="w-6 h-6" />
+                <div className={`p-2.5 rounded-xl border ${
+                  isDark ? "bg-zinc-850 text-zinc-300 border-zinc-800" : "bg-zinc-100 text-zinc-700 border-zinc-200"
+                }`}>
+                  <Icon className="w-5 h-5" />
                 </div>
-                <span className={`text-xs font-black px-2 py-0.5 rounded-lg ${
-                  isDark ? "bg-green-500/10 text-green-400 border border-green-500/20" : "bg-green-50 text-green-600 border border-green-100"
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-md ${
+                  isDark ? "bg-emerald-500/10 text-emerald-450 border border-emerald-500/20" : "bg-emerald-50 text-emerald-700 border border-emerald-100"
                 }`}>
                   {stat.change}
                 </span>
               </div>
-              <p className={`text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-450" : "text-slate-500"}`}>
+              <p className={`text-[11px] font-bold tracking-wider uppercase ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
                 {stat.title}
               </p>
-              <p className={`text-3xl font-black mt-2 tracking-tight bg-gradient-to-r ${stat.grad} bg-clip-text text-transparent`}>
+              <p className={`text-2xl font-semibold tracking-tight mt-1.5 ${isDark ? "text-white" : "text-zinc-900"}`}>
                 {stat.value}
               </p>
             </div>
@@ -866,35 +868,38 @@ export default function MasterDashboard() {
           Quick Operations Control
         </h3>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {quickActions.map((action, idx) => (
-            <button
-              key={idx}
-              className={`p-5 rounded-2xl border-2 border-dashed transition-all hover:border-solid cursor-pointer text-left ${
-                isDark
-                  ? "border-slate-800 hover:bg-slate-900/40 hover:border-cyan-500/40"
-                  : "border-slate-350 hover:bg-slate-100 hover:border-blue-500 shadow-sm"
-              }`}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={`w-11 h-11 rounded-xl flex items-center justify-center font-black text-xl ${
-                    isDark ? "bg-slate-800/80 text-cyan-400" : "bg-slate-200/80 text-blue-600"
-                  }`}>
-                    {action.icon}
+          {quickActions.map((action, idx) => {
+            const ActionIcon = action.icon;
+            return (
+              <button
+                key={idx}
+                className={`p-4.5 rounded-xl border transition-all duration-200 cursor-pointer text-left ${
+                  isDark
+                    ? "bg-[#09090b] border-zinc-800 hover:border-zinc-750 hover:bg-zinc-900/20"
+                    : "bg-white border-zinc-200 hover:border-zinc-300 hover:bg-zinc-50 shadow-sm"
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className={`p-2.5 rounded-lg border ${
+                      isDark ? "bg-zinc-850 text-zinc-300 border-zinc-800" : "bg-zinc-100 text-zinc-700 border-zinc-200"
+                    }`}>
+                      <ActionIcon className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className={`block font-bold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>
+                        {action.label}
+                      </span>
+                      <span className={`block text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                        {action.desc}
+                      </span>
+                    </div>
                   </div>
-                  <div>
-                    <span className={`block font-bold text-sm ${isDark ? "text-white" : "text-slate-800"}`}>
-                      {action.label}
-                    </span>
-                    <span className={`block text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                      {action.desc}
-                    </span>
-                  </div>
+                  <ArrowRight className={`w-4 h-4 ${isDark ? "text-zinc-500" : "text-zinc-400"}`} />
                 </div>
-                <ArrowRight className={`w-4.5 h-4.5 ${isDark ? "text-gray-500" : "text-slate-400"}`} />
-              </div>
-            </button>
-          ))}
+              </button>
+            );
+          })}
         </div>
       </div>
     </div>
