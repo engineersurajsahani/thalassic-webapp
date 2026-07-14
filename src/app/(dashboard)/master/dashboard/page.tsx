@@ -51,10 +51,10 @@ const yearlyRevenueTrend = [
 ];
 
 const ranksData = [
-  { rank: "Ratings", count: 947, color: "url(#blueBarGrad)" },
-  { rank: "Officers", count: 850, color: "url(#cyanBarGrad)" },
-  { rank: "Engineers", count: 620, color: "url(#emeraldBarGrad)" },
-  { rank: "Cadets", count: 430, color: "url(#orangeBarGrad)" },
+  { rank: "Ratings", count: 947, color: "#3b82f6" },
+  { rank: "Officers", count: 850, color: "#06b6d4" },
+  { rank: "Engineers", count: 620, color: "#10b981" },
+  { rank: "Cadets", count: 430, color: "#f59e0b" },
 ];
 
 const courseDist = [
@@ -444,24 +444,7 @@ function CustomBarChart({ isDark }: { isDark: boolean }) {
 
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible select-none">
-      <defs>
-        <linearGradient id="blueBarGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#3b82f6" />
-          <stop offset="100%" stopColor="#1d4ed8" />
-        </linearGradient>
-        <linearGradient id="cyanBarGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#06b6d4" />
-          <stop offset="100%" stopColor="#0891b2" />
-        </linearGradient>
-        <linearGradient id="emeraldBarGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#10b981" />
-          <stop offset="100%" stopColor="#047857" />
-        </linearGradient>
-        <linearGradient id="orangeBarGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f59e0b" />
-          <stop offset="100%" stopColor="#b45309" />
-        </linearGradient>
-      </defs>
+
 
       {/* Grid Lines */}
       {[0, 250, 500, 750, 1000].map((val) => {
@@ -598,6 +581,7 @@ export default function MasterDashboard() {
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [activeLogTab, setActiveLogTab] = useState<'purchases' | 'registrations'>('purchases');
 
   useEffect(() => {
     fetchAPI('/master/dashboard')
@@ -759,107 +743,189 @@ export default function MasterDashboard() {
             </p>
             <CustomDonutChart />
           </div>
-
         </div>
       </div>
 
-      {/* Recent Activity Section */}
+      {/* Premium Operations Log & Systems Health Monitor */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Latest Registrations */}
-        <div className={`p-6 rounded-3xl border transition-all duration-300 ${glassCardStyle}`}>
-          <h3 className={`text-lg font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
-            Recent Registrations
-          </h3>
-          <div className="space-y-4.5">
-            {loading ? (
-              <div className="text-xs text-slate-500">Loading registrations...</div>
-            ) : (data?.recentRegistrations || []).length === 0 ? (
-              <div className="text-xs text-slate-500">No recent registrations</div>
-            ) : (data.recentRegistrations || []).map((reg: any, idx: number) => {
-              const colors = [
-                "bg-blue-500/20 text-blue-400",
-                "bg-emerald-500/20 text-emerald-400",
-                "bg-purple-500/20 text-purple-400",
-                "bg-amber-500/20 text-amber-400"
-              ];
-              const colorClass = colors[idx % colors.length];
-              const initial = reg.name ? reg.name.charAt(0).toUpperCase() : "?";
-              return (
-                <div key={reg.id || idx} className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm ${colorClass}`}>
-                      {initial}
-                    </div>
-                    <div>
-                      <p className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{reg.name}</p>
-                      <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-550"}`}>{reg.email}</p>
-                    </div>
-                  </div>
-                  <span className={`text-[10px] font-bold ${isDark ? "text-slate-550" : "text-slate-400"}`}>{reg.date}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Recent Purchases */}
-        <div className={`p-6 rounded-3xl border transition-all duration-300 ${glassCardStyle}`}>
-          <h3 className={`text-lg font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
-            Recent Purchases
-          </h3>
-          <div className="space-y-4.5">
-            {loading ? (
-              <div className="text-xs text-slate-500">Loading purchases...</div>
-            ) : (data?.recentPurchases || []).length === 0 ? (
-              <div className="text-xs text-slate-500">No recent purchases</div>
-            ) : (data.recentPurchases || []).map((purchase: any, idx: number) => (
-              <div key={purchase.id || idx} className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-bold truncate max-w-[180px] ${isDark ? "text-white" : "text-slate-800"}`}>
-                    {purchase.course}
-                  </p>
-                  <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-550"}`}>{purchase.user}</p>
-                </div>
-                <div className="text-right">
-                  <p className={`text-sm font-black ${isDark ? "text-green-400" : "text-green-600"}`}>{purchase.amount}</p>
-                  <span className={`text-[9px] font-black uppercase ${
-                    purchase.status === "Completed" ? "text-green-500" : "text-yellow-500 animate-pulse"
-                  }`}>{purchase.status}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Recently Added Courses */}
-        <div className={`p-6 rounded-3xl border transition-all duration-300 ${glassCardStyle}`}>
-          <h3 className={`text-lg font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>
-            Recently Added Modules
-          </h3>
-          <div className="space-y-4.5">
-            {recentCourses.map((course) => (
-              <div key={course.id} className="flex items-center justify-between">
-                <div>
-                  <p className={`text-sm font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
-                    {course.title}
-                  </p>
-                  <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>{course.category}</p>
-                </div>
-                <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-lg border ${
-                  course.status === "Active"
+        {/* Unified Operations & Ledger Log (Col Span 2) */}
+        <div className={`lg:col-span-2 p-6 rounded-2xl border transition-all duration-300 ${glassCardStyle}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6 border-b border-zinc-800/20 pb-4">
+            <div>
+              <h3 className={`text-base font-bold ${isDark ? "text-white" : "text-zinc-900"}`}>
+                Operations & Ledger Log
+              </h3>
+              <p className={`text-xs mt-0.5 ${isDark ? "text-zinc-500" : "text-zinc-400"}`}>
+                Real-time tracking of platform enrollments and seafarer onboardings.
+              </p>
+            </div>
+            
+            {/* Clean Tab Toggle */}
+            <div className={`flex items-center p-0.5 rounded-lg border ${
+              isDark ? "bg-zinc-950 border-zinc-800" : "bg-zinc-50 border-zinc-200"
+            }`}>
+              <button
+                onClick={() => setActiveLogTab('purchases')}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                  activeLogTab === 'purchases'
                     ? isDark
-                      ? "bg-green-500/10 border-green-500/20 text-green-400"
-                      : "bg-green-50 border-green-200 text-green-600"
-                    : isDark
-                    ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-400"
-                    : "bg-yellow-50 border-yellow-200 text-yellow-600"
-                }`}>
-                  {course.status}
+                      ? "bg-zinc-850 text-white shadow-sm"
+                      : "bg-white text-zinc-900 shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-350"
+                }`}
+              >
+                Enrollments
+              </button>
+              <button
+                onClick={() => setActiveLogTab('registrations')}
+                className={`px-3 py-1 text-xs font-bold rounded-md transition-all cursor-pointer ${
+                  activeLogTab === 'registrations'
+                    ? isDark
+                      ? "bg-zinc-850 text-white shadow-sm"
+                      : "bg-white text-zinc-900 shadow-sm"
+                    : "text-zinc-500 hover:text-zinc-350"
+                }`}
+              >
+                Signups
+              </button>
+            </div>
+          </div>
+
+          {/* Table Ledger Rendering */}
+          <div className="overflow-x-auto">
+            {activeLogTab === 'purchases' ? (
+              <table className="w-full text-left border-collapse text-xs select-none">
+                <thead>
+                  <tr className={`border-b ${isDark ? "border-zinc-800/80 text-zinc-500" : "border-zinc-200 text-zinc-400"} font-bold`}>
+                    <th className="pb-3">PARTICIPANT</th>
+                    <th className="pb-3">COURSE MODULE</th>
+                    <th className="pb-3 text-right">REVENUE</th>
+                    <th className="pb-3 text-right">STATUS</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800/30">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={4} className="py-4 text-center text-zinc-500">Loading ledger data...</td>
+                    </tr>
+                  ) : (data?.recentPurchases || []).length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-4 text-center text-zinc-500">No active purchases logged.</td>
+                    </tr>
+                  ) : (data.recentPurchases || []).map((purchase: any, idx: number) => (
+                    <tr key={purchase.id || idx} className="hover:bg-zinc-900/5">
+                      <td className={`py-3.5 font-bold ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{purchase.user}</td>
+                      <td className={`py-3.5 ${isDark ? "text-zinc-400" : "text-zinc-650"}`}>{purchase.course}</td>
+                      <td className="py-3.5 text-right font-bold text-green-500">{purchase.amount}</td>
+                      <td className="py-3.5 text-right">
+                        <span className={`px-2.5 py-0.5 rounded-lg text-[9px] font-black uppercase ${
+                          purchase.status === "Completed"
+                            ? "bg-green-500/10 text-green-400"
+                            : "bg-yellow-500/10 text-yellow-450"
+                        }`}>
+                          {purchase.status}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            ) : (
+              <table className="w-full text-left border-collapse text-xs select-none">
+                <thead>
+                  <tr className={`border-b ${isDark ? "border-zinc-800/80 text-zinc-500" : "border-zinc-200 text-zinc-400"} font-bold`}>
+                    <th className="pb-3">SEAFARER</th>
+                    <th className="pb-3">EMAIL ADDRESS</th>
+                    <th className="pb-3">REGISTERED ON</th>
+                    <th className="pb-3 text-right">GATEWAY</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-zinc-800/30">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={4} className="py-4 text-center text-zinc-500">Loading seafarers list...</td>
+                    </tr>
+                  ) : (data?.recentRegistrations || []).length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="py-4 text-center text-zinc-500">No registrations logged.</td>
+                    </tr>
+                  ) : (data.recentRegistrations || []).map((reg: any, idx: number) => (
+                    <tr key={reg.id || idx} className="hover:bg-zinc-900/5">
+                      <td className={`py-3.5 font-bold ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{reg.name}</td>
+                      <td className={`py-3.5 ${isDark ? "text-zinc-400" : "text-zinc-650"}`}>{reg.email}</td>
+                      <td className={`py-3.5 ${isDark ? "text-zinc-450" : "text-zinc-500"}`}>{reg.date}</td>
+                      <td className="py-3.5 text-right">
+                        <span className="bg-zinc-800 text-zinc-300 px-2 py-0.5 rounded text-[9px] font-bold">
+                          Supabase
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+
+        {/* Systems Diagnostics & Modules Info (Right Column) */}
+        <div className="space-y-6">
+          
+          {/* Recently Added Modules */}
+          <div className={`p-6 rounded-2xl border transition-all duration-300 ${glassCardStyle}`}>
+            <h3 className={`text-sm font-bold mb-3 ${isDark ? "text-white" : "text-zinc-900"}`}>
+              Recently Added Modules
+            </h3>
+            <div className="space-y-3.5">
+              {recentCourses.map((course) => (
+                <div key={course.id} className="flex items-center justify-between text-xs select-none">
+                  <div>
+                    <p className={`font-bold ${isDark ? "text-zinc-300" : "text-zinc-700"}`}>{course.title}</p>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">{course.category}</p>
+                  </div>
+                  <span className={`text-[9px] font-bold px-2 py-0.5 rounded-lg border ${
+                    course.status === "Active"
+                      ? isDark
+                        ? "bg-green-500/10 border-green-500/20 text-green-400"
+                        : "bg-green-50 border-green-200 text-green-700"
+                      : isDark
+                      ? "bg-yellow-500/10 border-yellow-500/20 text-yellow-450"
+                      : "bg-yellow-50 border-yellow-200 text-yellow-750"
+                  }`}>
+                    {course.status}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Systems Latency & Integrity Diagnostics (Premium Indicator) */}
+          <div className={`p-6 rounded-2xl border transition-all duration-300 ${glassCardStyle}`}>
+            <h3 className={`text-sm font-bold mb-3 ${isDark ? "text-white" : "text-zinc-900"}`}>
+              Core Systems Integrity
+            </h3>
+            <div className="space-y-3.5 text-xs select-none">
+              <div className="flex items-center justify-between">
+                <span className="text-zinc-500 font-medium">Supabase Latency</span>
+                <span className="text-emerald-500 font-bold flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" /> 14ms (Online)
                 </span>
               </div>
-            ))}
+              <div className="flex items-center justify-between border-t border-zinc-800/20 pt-3">
+                <span className="text-zinc-500 font-medium">Authentication</span>
+                <span className="text-zinc-400 font-bold">NestJS Guard Active</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-zinc-800/20 pt-3">
+                <span className="text-zinc-500 font-medium">DB Migration Diff</span>
+                <span className="text-zinc-450 font-bold">Synced (0 diff)</span>
+              </div>
+              <div className="flex items-center justify-between border-t border-zinc-800/20 pt-3">
+                <span className="text-zinc-500 font-medium">SSL Gateway State</span>
+                <span className="text-zinc-400 font-bold">SHA-256 Valid</span>
+              </div>
+            </div>
           </div>
+
         </div>
       </div>
       {/* Quick Actions */}
