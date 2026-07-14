@@ -437,6 +437,7 @@ export default function MasterDashboard() {
       color: "blue",
       grad: "from-blue-500 to-cyan-400",
       shadow: "shadow-blue-500/10",
+    },
     {
       title: "Total Courses Available",
       value: loading ? "..." : (data?.totalCourses ?? 0).toString(),
