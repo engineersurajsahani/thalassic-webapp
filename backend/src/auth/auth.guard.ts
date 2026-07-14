@@ -27,6 +27,24 @@ export class AuthGuard implements CanActivate {
       return true;
     }
 
+    // Try verifying as NestJS local JWT first
+    try {
+      const jwt = require('jsonwebtoken');
+      const secret = process.env.JWT_SECRET || 'your-secret-key';
+      const decoded = jwt.verify(token, secret) as any;
+      if (decoded && decoded.role) {
+        request.user = {
+          id: decoded.sub,
+          email: decoded.email,
+          role: decoded.role.toUpperCase(),
+          status: 'Active',
+        };
+        return true;
+      }
+    } catch (e) {
+      // Not a valid NestJS JWT, proceed to Supabase check
+    }
+
     const supabase = this.supabaseService.getClient();
 
     // Verify token with Supabase Auth
