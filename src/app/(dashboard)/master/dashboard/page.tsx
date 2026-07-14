@@ -30,24 +30,6 @@ const statistics = [
     shadow: "shadow-blue-500/10",
   },
   {
-    title: "Total Courses Available",
-    value: "48",
-    change: "+3 New",
-    icon: BookOpen,
-    color: "green",
-    grad: "from-emerald-500 to-teal-400",
-    shadow: "shadow-emerald-500/10",
-  },
-  {
-    title: "Course Bookings",
-    value: "5,234",
-    change: "+8.2%",
-    icon: ShoppingCart,
-    color: "purple",
-    grad: "from-purple-500 to-indigo-400",
-    shadow: "shadow-purple-500/10",
-  },
-  {
     title: "Platform Revenue",
     value: "₹24.5L",
     change: "+15.8%",
@@ -455,7 +437,6 @@ export default function MasterDashboard() {
       color: "blue",
       grad: "from-blue-500 to-cyan-400",
       shadow: "shadow-blue-500/10",
-    },
     {
       title: "Total Courses Available",
       value: loading ? "..." : (data?.totalCourses ?? 0).toString(),
@@ -690,7 +671,6 @@ export default function MasterDashboard() {
           </div>
         </div>
       </div>
-
       {/* Quick Actions */}
       <div>
         <h3 className={`text-lg font-bold mb-4 ${isDark ? "text-white" : "text-slate-900"}`}>

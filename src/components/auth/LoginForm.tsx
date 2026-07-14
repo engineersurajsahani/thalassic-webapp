@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Mail, Check, LogIn } from "lucide-react";
+import { useRouter } from "next/navigation";
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
 import { useTheme } from "@/providers/theme-provider";
@@ -10,14 +11,16 @@ import { useTheme } from "@/providers/theme-provider";
 export default function LoginForm() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const router = useRouter();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<string>("");
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
@@ -37,16 +40,56 @@ export default function LoginForm() {
     }
 
     setIsLoading(true);
-    // Simulate API login call
-    setTimeout(() => {
+    setApiError("");
+
+    try {
+      const response = await fetch("http://localhost:4000/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || "Invalid email or password");
+      }
+
+      // Store token in localStorage
+      localStorage.setItem("token", data.token);
+
+      // Redirect based on role
+      if (data.role === "master") {
+        router.push("/master/dashboard");
+      } else {
+        // Default redirect for other roles
+        router.push("/dashboard");
+      }
+    } catch (error) {
+      setApiError("Invalid email or password");
+    } finally {
       setIsLoading(false);
-      // Redirect or state update would happen here
-      alert("Successfully logged in (Simulation)");
-    }, 2000);
+    }
   };
 
   return (
     <form onSubmit={handleLogin} className="space-y-6">
+      {/* API Error Message */}
+      {apiError && (
+        <div className={`p-3 rounded-lg text-sm font-medium ${
+          isDark 
+            ? "bg-red-500/10 text-red-400 border border-red-500/20" 
+            : "bg-red-50 text-red-600 border border-red-200"
+        }`}>
+          {apiError}
+        </div>
+      )}
+
       {/* Email Address */}
       <AuthInput
         label="Email Address"
@@ -62,6 +105,9 @@ export default function LoginForm() {
               delete copy.email;
               return copy;
             });
+          }
+          if (apiError) {
+            setApiError("");
           }
         }}
         error={errors.email}
@@ -81,6 +127,9 @@ export default function LoginForm() {
               delete copy.password;
               return copy;
             });
+          }
+          if (apiError) {
+            setApiError("");
           }
         }}
         error={errors.password}
