@@ -101,6 +101,8 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
   const chartHeight = height - paddingTop - paddingBottom;
   const maxVal = 30;
 
+  const [selectedYear, setSelectedYear] = useState<'all' | '2024' | '2025' | '2026'>('all');
+
   const points2024 = yearlyRevenueTrend.map((d, index) => {
     const x = paddingLeft + (index / (yearlyRevenueTrend.length - 1)) * chartWidth;
     const y = height - paddingBottom - (d.r2024 / maxVal) * chartHeight;
@@ -135,22 +137,96 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
 
   const [hoverIdx, setHoverIdx] = useState<number | null>(null);
 
+  // Annual highlights details text config
+  const annualDetails = {
+    "2024": {
+      title: "Year 2024: Foundation & Infrastructure Bootstrapping",
+      revenue: "₹12.4 Lakhs",
+      bookings: "990 completions",
+      badge: "Platform Launch",
+      color: "border-slate-500/30 text-slate-400 bg-slate-500/5",
+      highlights: [
+        "First launch of the digital maritime preparation portal with 5 core modules.",
+        "Set up centralized database systems mapping seafarer profiles with college registries.",
+        "Onboarded initial 3 partner colleges for deck cadet placements."
+      ]
+    },
+    "2025": {
+      title: "Year 2025: Compliance Automation & Scaling Phase",
+      revenue: "₹17.8 Lakhs",
+      bookings: "1,560 completions",
+      badge: "45% Growth Rate",
+      color: "border-indigo-500/30 text-indigo-400 bg-indigo-500/5",
+      highlights: [
+        "Implemented automatic INDoS and CDC verification using Supabase auth tables.",
+        "Introduced high-fidelity simulator practice module checkouts on the platform.",
+        "Active student user registrations successfully crossed 850 seafarers."
+      ]
+    },
+    "2026": {
+      title: "Year 2026: Real-time Analytics & Unified Operations",
+      revenue: "₹24.5 Lakhs (H1)",
+      bookings: "1,840 active enrollments",
+      badge: "Peak Performance",
+      color: "border-cyan-500/30 text-cyan-400 bg-cyan-500/5",
+      highlights: [
+        "Migrated to Next.js 16 and NestJS structure for high speed dashboard updates.",
+        "Launched the automated compliance audit modules with document-specific checklists.",
+        "Revenue crossed H1 projection milestone with 580 bookings in June alone."
+      ]
+    }
+  };
+
   return (
-    <div className="relative w-full">
-      {/* Premium Dashboard Legend */}
-      <div className="flex items-center gap-6 mb-4 text-xs font-bold select-none">
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-slate-500" />
-          <span className={isDark ? "text-slate-400" : "text-slate-600"}>Year 2024</span>
+    <div className="relative w-full space-y-4">
+      {/* Interactive Legend with toggle filter */}
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-4 text-xs font-bold select-none">
+          <button 
+            onClick={() => setSelectedYear(selectedYear === '2024' ? 'all' : '2024')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+              selectedYear === '2024' 
+                ? "bg-slate-500/20 border-slate-400/50 text-white" 
+                : "border-transparent hover:bg-slate-800/40 text-slate-400"
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-slate-500" />
+            <span>Year 2024</span>
+          </button>
+
+          <button 
+            onClick={() => setSelectedYear(selectedYear === '2025' ? 'all' : '2025')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+              selectedYear === '2025' 
+                ? "bg-indigo-500/20 border-indigo-400/50 text-indigo-300" 
+                : "border-transparent hover:bg-slate-800/40 text-slate-400"
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
+            <span>Year 2025</span>
+          </button>
+
+          <button 
+            onClick={() => setSelectedYear(selectedYear === '2026' ? 'all' : '2026')}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl border transition-all duration-200 cursor-pointer ${
+              selectedYear === '2026' 
+                ? "bg-cyan-500/20 border-cyan-400/50 text-cyan-300 animate-pulse" 
+                : "border-transparent hover:bg-slate-800/40 text-slate-400"
+            }`}
+          >
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+            <span>Year 2026 (Live)</span>
+          </button>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-indigo-500" />
-          <span className={isDark ? "text-slate-400" : "text-slate-600"}>Year 2025</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
-          <span className={isDark ? "text-slate-350" : "text-slate-800"}>Year 2026 (Live)</span>
-        </div>
+
+        {selectedYear !== 'all' && (
+          <button 
+            onClick={() => setSelectedYear('all')}
+            className="text-[10px] uppercase tracking-wider font-extrabold text-cyan-400 bg-cyan-500/10 px-2.5 py-1 rounded-lg border border-cyan-500/20 hover:bg-cyan-500/20 transition-all cursor-pointer"
+          >
+            Reset view
+          </button>
+        )}
       </div>
 
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible select-none">
@@ -209,14 +285,33 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
         ))}
 
         {/* Year 2024 Path (Slate dashed) */}
-        <path d={path2024D} fill="none" stroke="#64748b" strokeWidth={2} strokeDasharray="4 4" strokeLinecap="round" opacity={0.6} />
+        <path 
+          d={path2024D} 
+          fill="none" 
+          stroke="#64748b" 
+          strokeWidth={2} 
+          strokeDasharray="4 4" 
+          strokeLinecap="round" 
+          opacity={selectedYear === 'all' || selectedYear === '2024' ? 0.6 : 0.05} 
+          className="transition-all duration-300"
+        />
 
         {/* Year 2025 Path (Indigo solid) */}
-        <path d={path2025D} fill="none" stroke="#6366f1" strokeWidth={2.5} strokeLinecap="round" opacity={0.7} />
+        <path 
+          d={path2025D} 
+          fill="none" 
+          stroke="#6366f1" 
+          strokeWidth={2.5} 
+          strokeLinecap="round" 
+          opacity={selectedYear === 'all' || selectedYear === '2025' ? 0.7 : 0.05} 
+          className="transition-all duration-300"
+        />
 
         {/* Year 2026 Path (Cyan glowing gradient) */}
-        <path d={fill2026D} fill="url(#fillGrad)" />
-        <path d={path2026D} fill="none" stroke="#22d3ee" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" filter="url(#neonGlow)" />
+        <g opacity={selectedYear === 'all' || selectedYear === '2026' ? 1.0 : 0.05} className="transition-all duration-300">
+          <path d={fill2026D} fill="url(#fillGrad)" />
+          <path d={path2026D} fill="none" stroke="#22d3ee" strokeWidth={4} strokeLinecap="round" strokeLinejoin="round" filter="url(#neonGlow)" />
+        </g>
 
         {/* Interactive hover guides */}
         {points2026.map((p, index) => (
@@ -266,7 +361,7 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
           }`}
         >
           <div className="flex items-center gap-1.5 mb-2 border-b border-slate-750 pb-1.5">
-            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse" />
             <p className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider">{points2026[hoverIdx].label} YoY Analytics</p>
           </div>
           <div className="space-y-1.5 text-[11px]">
@@ -285,6 +380,53 @@ function CustomLineChart({ isDark }: { isDark: boolean }) {
           </div>
         </div>
       )}
+
+      {/* Dynamic Milestones Panel (Interactive Click Feedback) */}
+      <div className="mt-4 transition-all duration-300">
+        {selectedYear === 'all' ? (
+          <div className={`p-4 rounded-2xl text-center text-xs font-semibold select-none ${
+            isDark ? "bg-slate-900/30 border border-slate-800/60 text-slate-400" : "bg-slate-50 border border-slate-200 text-slate-500"
+          }`}>
+            💡 <span className="text-cyan-400 font-bold">Tip:</span> Click on any year in the legend above to filter the graph lines and explore annual achievements!
+          </div>
+        ) : (
+          <div className={`p-5 rounded-2xl border transition-all duration-300 ${
+            isDark ? "bg-[#08172c]/50 border-slate-800" : "bg-slate-50 border-slate-200"
+          }`}>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <div>
+                <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${annualDetails[selectedYear].color}`}>
+                  {annualDetails[selectedYear].badge}
+                </span>
+                <h4 className={`text-sm font-black mt-2 ${isDark ? "text-white" : "text-slate-800"}`}>
+                  {annualDetails[selectedYear].title}
+                </h4>
+              </div>
+              <div className="text-right">
+                <p className={`text-base font-black ${
+                  selectedYear === '2026' ? 'text-cyan-400' : selectedYear === '2025' ? 'text-indigo-400' : 'text-slate-400'
+                }`}>
+                  {annualDetails[selectedYear].revenue}
+                </p>
+                <p className="text-[10px] font-bold text-slate-400">{annualDetails[selectedYear].bookings}</p>
+              </div>
+            </div>
+            
+            <ul className="space-y-2">
+              {annualDetails[selectedYear].highlights.map((highlight, idx) => (
+                <li key={idx} className="flex items-start gap-2.5 text-xs text-slate-400">
+                  <span className={`mt-0.5 flex-shrink-0 w-4 h-4 rounded-full flex items-center justify-center text-[10px] font-black ${
+                    selectedYear === '2026' ? 'bg-cyan-500/10 text-cyan-400' : selectedYear === '2025' ? 'bg-indigo-500/10 text-indigo-450' : 'bg-slate-800 text-slate-450'
+                  }`}>
+                    ✓
+                  </span>
+                  <span className={isDark ? "text-slate-350" : "text-slate-600"}>{highlight}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
