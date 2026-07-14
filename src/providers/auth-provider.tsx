@@ -69,13 +69,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           // Token expired or invalid
           deleteCookie("auth_token");
           deleteCookie("user_role");
+          router.push("/login");
         }
       }
       setIsLoading(false);
     };
 
     bootstrapSession();
-  }, []);
+  }, [router]);
 
   const login = async (credentials: any) => {
     setIsLoading(true);
