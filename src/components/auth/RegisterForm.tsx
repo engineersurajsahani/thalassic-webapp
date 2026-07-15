@@ -51,8 +51,7 @@ export default function RegisterForm() {
     confirmPassword: "",
   });
 
-  const [role, setRole] = useState("");
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [role, setRole] = useState("seafarer");
   const [agreed, setAgreed] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -89,9 +88,7 @@ export default function RegisterForm() {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
-    if (!role) {
-      newErrors.role = "Please select a user type";
-    }
+
 
     if (!agreed) {
       newErrors.agree = "You must agree to the Terms of Service";
@@ -198,95 +195,7 @@ export default function RegisterForm() {
         />
       </div>
 
-      {/* Custom User Type Dropdown */}
-      <div className="relative">
-        <label className={`block text-sm font-semibold mb-1.5 tracking-wide ${isDark ? "text-gray-300" : "text-slate-700"}`}>
-          User Type
-        </label>
-        
-        <button
-          type="button"
-          onClick={() => setDropdownOpen((prev) => !prev)}
-          className={`
-            w-full flex items-center justify-between text-left rounded-xl border px-4 py-2.5 text-sm outline-none transition-all duration-300
-            ${
-              isDark 
-                ? `bg-[#051625] shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]
-                   ${errors.role ? "border-red-500/80" : dropdownOpen ? "border-cyan-500" : "border-gray-800"}
-                   ${dropdownOpen ? "shadow-[0_0_15px_rgba(6,182,212,0.15)]" : ""}`
-                : `bg-white
-                   ${errors.role ? "border-red-500" : dropdownOpen ? "border-[#3b71cb]" : "border-slate-300"}`
-            }
-          `}
-        >
-          {selectedRoleOption ? (
-            <div className="flex items-center gap-3">
-              <selectedRoleOption.icon className={`h-5 w-5 ${isDark ? "text-cyan-400" : "text-[#3b71cb]"}`} />
-              <span className={`font-medium ${isDark ? "text-white" : "text-slate-800"}`}>{selectedRoleOption.label}</span>
-            </div>
-          ) : (
-            <span className={isDark ? "text-gray-500" : "text-slate-400"}>Select your user role</span>
-          )}
-          <ChevronDown className={`h-5 w-5 text-slate-400 transition-transform ${dropdownOpen ? "rotate-180 text-cyan-400" : ""}`} />
-        </button>
 
-        {dropdownOpen && (
-          <>
-            <div className="fixed inset-0 z-10" onClick={() => setDropdownOpen(false)} />
-            <div className={`absolute z-20 w-full mt-1 border rounded-xl shadow-xl overflow-hidden p-1 animate-fadeIn ${
-              isDark ? "bg-[#051c2f] border-gray-800" : "bg-white border-slate-200"
-            }`}>
-              {ROLES.map((option) => {
-                const IconComp = option.icon;
-                return (
-                  <button
-                    key={option.value}
-                    type="button"
-                    onClick={() => {
-                      setRole(option.value);
-                      setDropdownOpen(false);
-                      if (errors.role) {
-                        setErrors((prev) => {
-                          const copy = { ...prev };
-                          delete copy.role;
-                          return copy;
-                        });
-                      }
-                    }}
-                    className={`
-                      w-full flex items-start gap-3.5 p-2.5 rounded-lg text-left transition-colors duration-200 cursor-pointer
-                      ${
-                        isDark 
-                          ? role === option.value ? "bg-cyan-500/10 text-cyan-400" : "text-gray-300 hover:bg-gray-800/50"
-                          : role === option.value ? "bg-blue-50 text-[#3b71cb]" : "text-slate-600 hover:bg-slate-50"
-                      }
-                    `}
-                  >
-                    <div className={`mt-0.5 p-1 rounded ${
-                      isDark 
-                        ? role === option.value ? "bg-cyan-500/20 text-cyan-400" : "bg-gray-800 text-gray-400"
-                        : role === option.value ? "bg-blue-100 text-[#3b71cb]" : "bg-slate-100 text-slate-400"
-                    }`}>
-                      <IconComp className="h-4.5 w-4.5" />
-                    </div>
-                    <div>
-                      <div className="font-semibold text-sm">{option.label}</div>
-                      <div className={`text-xs mt-0.5 leading-normal ${isDark ? "text-gray-400" : "text-slate-500"}`}>{option.description}</div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </>
-        )}
-        
-        {errors.role && (
-          <p className={`mt-1.5 text-xs font-medium flex items-center gap-1 ${isDark ? "text-red-400" : "text-red-500"}`}>
-            <span className={`w-1.5 h-1.5 rounded-full bg-red-400 inline-block ${isDark ? "bg-red-400" : "bg-red-500"}`} />
-            {errors.role}
-          </p>
-        )}
-      </div>
 
       {/* Passwords - Side by Side on Desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">

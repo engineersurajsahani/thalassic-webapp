@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import Navbar from "@/components/layout/navbar/navbar";
 import { useTheme } from "@/providers/theme-provider";
 import { 
   BookOpen, 
@@ -63,86 +64,10 @@ export default function AuthLayout({
       isDark ? "bg-[#031525]" : "bg-white"
     }`}>
       
-      {/* Top Header Navbar */}
-      <header className="h-16 w-full bg-[#0A2540] px-6 md:px-12 flex items-center z-30 shadow-md">
-        <div className="w-full max-w-7xl mx-auto flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative w-10 h-10 rounded-full overflow-hidden border border-white/20 group-hover:border-white/40 transition-all duration-300">
-              <Image
-                src="/logo.jpeg"
-                alt="Hari Om Thalassic logo"
-                fill
-                sizes="44px"
-                priority
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-            <div>
-              <h2 className="text-white font-extrabold text-sm tracking-wide leading-none group-hover:text-cyan-200 transition-colors">
-                Hari Om Thalassic
-              </h2>
-            </div>
-          </Link>
-
-          <div className="flex items-center gap-3.5">
-            {/* Theme Toggle Button */}
-            <button
-              onClick={toggleTheme}
-              className={`p-2 rounded-xl border transition-all cursor-pointer shadow-sm flex items-center justify-center ${
-                isDark 
-                  ? "bg-white/10 hover:bg-white/20 border-white/15 text-white" 
-                  : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
-              }`}
-              aria-label="Toggle theme mode"
-            >
-              {isDark ? (
-                <Sun className="w-4 h-4 text-yellow-300 stroke-[2.5]" />
-              ) : (
-                <Moon className="w-4 h-4 text-slate-700 stroke-[2.5]" />
-              )}
-            </button>
-
-            <div className="w-px h-5 bg-white/20" />
-
-            <Link
-              href="/"
-              className="px-4 py-1.5 text-xs font-bold rounded-lg tracking-wider uppercase transition-all duration-300 border border-transparent text-white/80 hover:bg-white/5 hover:text-white"
-            >
-              Home
-            </Link>
-
-            <Link
-              href="/login"
-              className={`
-                px-4 py-1.5 text-xs font-bold rounded-lg tracking-wider uppercase transition-all duration-300 border
-                ${
-                  pathname === "/login"
-                    ? "bg-white/10 border-white/40 text-white"
-                    : "border-white/20 text-white/80 hover:bg-white/5 hover:text-white"
-                }
-              `}
-            >
-              Login
-            </Link>
-            <Link
-              href="/register"
-              className={`
-                px-4 py-1.5 text-xs font-bold rounded-lg tracking-wider uppercase transition-all duration-300 border
-                ${
-                  pathname === "/register"
-                    ? "bg-white/10 border-white/40 text-white"
-                    : "border-white/20 text-white/80 hover:bg-white/5 hover:text-white"
-                }
-              `}
-            >
-              Register
-            </Link>
-          </div>
-        </div>
-      </header>
+      <Navbar />
 
       {/* Main Split Layout */}
-      <main className="flex-1 grid lg:grid-cols-2 relative w-full overflow-hidden">
+      <main className="flex-1 grid lg:grid-cols-2 relative w-full overflow-hidden pt-[72px] lg:pt-[80px]">
         
         {/* Left Panel: Roadmap Stepper (Hidden on Mobile) */}
         <div className={`hidden lg:flex flex-col justify-between relative bg-gradient-to-br ${bgGradient} px-12 py-10 overflow-hidden border-r ${borderTheme} transition-all duration-500`}>
