@@ -319,11 +319,11 @@ export default function DocumentsPage() {
                     <td className="py-4 pr-4 font-black uppercase tracking-wider text-cyan-400 text-[10px]">
                       {doc.type}
                     </td>
-                    <td className="py-4 pr-4 max-w-[200px] truncate font-semibold" title={doc.name}>
-                      {doc.name}
+                    <td className="py-4 pr-4 max-w-[200px] truncate font-semibold" title={doc.label}>
+                      {doc.label || "—"}
                     </td>
                     <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
-                      {new Date(doc.uploadDate).toLocaleDateString()}
+                      {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "—"}
                     </td>
                     <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
                       {doc.expiryDate ? new Date(doc.expiryDate).toLocaleDateString() : "--"}
