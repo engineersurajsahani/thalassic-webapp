@@ -43,9 +43,10 @@ export default function LoginForm() {
     setIsLoading(true);
     login({ email, password })
       .then((user) => {
-        if (user.role === "seafarer" || user.role === "seafearer") {
+        const role = user.role?.toLowerCase();
+        if (role === "seafarer" || role === "seafearer") {
           router.push("/seafearer/dashboard");
-        } else if (user.role === "company-admin") {
+        } else if (role === "company_admin" || role === "company-admin") {
           router.push("/company-admin/dashboard");
         } else {
           router.push("/master/dashboard");

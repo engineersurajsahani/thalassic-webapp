@@ -4,6 +4,13 @@ import React, { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 import { useTheme } from "@/providers/theme-provider";
 import { Clock, Award, Star, Shield, Users, Globe, Building, ArrowRight, Check, Compass, Eye, Activity, ShieldCheck } from "lucide-react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useGSAP } from "@gsap/react";
+
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger, useGSAP);
+}
 
 // --- SCROLL REVEAL COMPONENT WITH SPRING BOUNCE PHYSICS ---
 function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
@@ -123,90 +130,181 @@ const SHIELD_PARTNERS = [
 // --- WORLD-CLASS CINEMATIC HERO ---
 function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [currentFrame, setCurrentFrame] = useState(1);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const textGroupRef = useRef<HTMLDivElement>(null);
 
-  const totalFrames = 104;
+  const totalFrames = 121;
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const container = containerRef.current;
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const totalHeight = rect.height - window.innerHeight;
-      if (totalHeight > 0) {
-        const progress = Math.max(0, Math.min(1, -rect.top / totalHeight));
-        setScrollProgress(progress);
+  useGSAP(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const images: HTMLImageElement[] = [];
+    const frameData = { frame: 1 };
+
+    const render = (index: number) => {
+      const img = images[index];
+      if (!img) return;
+      if (img.complete) {
+        // Handle canvas sizing and aspect ratio to cover like object-fit: cover
+        const canvasAspect = canvas.width / canvas.height;
+        const imgAspect = img.width / img.height;
+        let renderWidth, renderHeight, xOffset, yOffset;
+
+        if (canvasAspect > imgAspect) {
+          renderWidth = canvas.width;
+          renderHeight = canvas.width / imgAspect;
+          xOffset = 0;
+          yOffset = (canvas.height - renderHeight) / 2;
+        } else {
+          renderHeight = canvas.height;
+          renderWidth = canvas.height * imgAspect;
+          yOffset = 0;
+          xOffset = (canvas.width - renderWidth) / 2;
+        }
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.globalAlpha = 0.9; // Base opacity
+        ctx.drawImage(img, xOffset, yOffset, renderWidth, renderHeight);
+      } else {
+        // Fallback: draw when loaded if the user is still on this frame
+        img.onload = () => {
+          const currentFrameIndex = Math.round(frameData.frame) - 1;
+          if (currentFrameIndex === index) {
+            render(index);
+          }
+        };
       }
     };
 
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      render(Math.round(frameData.frame) - 1);
+    };
 
-  useEffect(() => {
-    // Preload loop frames
+    // Load images
+    let loadedCount = 0;
     for (let i = 1; i <= totalFrames; i++) {
       const img = new Image();
       const frameStr = String(i).padStart(3, "0");
       img.src = `/hero-images/ezgif-frame-${frameStr}.jpg`;
+      img.onload = () => {
+        loadedCount++;
+        const currentFrameIndex = Math.round(frameData.frame) - 1;
+        if (currentFrameIndex === i - 1) {
+          render(currentFrameIndex);
+        }
+      };
+      images.push(img);
     }
 
-    let lastTime = 0;
-    const fps = 24;
-    const interval = 1000 / fps;
-    let animationFrameId: number;
+    window.addEventListener("resize", resizeCanvas);
+    
+    // Initial size setup
+    resizeCanvas();
 
-    const animate = (time: number) => {
-      if (!lastTime) lastTime = time;
-      const delta = time - lastTime;
+    // Initial state setup for story chapters
+    gsap.set(".story-ch1", { opacity: 1, y: 0, filter: "blur(0px)" });
+    gsap.set(".story-ch1-inner", { opacity: 0 });
+    gsap.set(".story-ch2", { opacity: 0, x: 80, filter: "blur(6px)" });
+    gsap.set(".story-ch3", { opacity: 0, y: 40, filter: "blur(6px)" });
+    gsap.set(".story-ch4", { opacity: 0, scale: 0.3, filter: "blur(8px)" });
+    gsap.set(".story-ch5", { opacity: 0, x: -80, filter: "blur(6px)" });
+    gsap.set(".story-ch6", { opacity: 0, x: 80, filter: "blur(6px)" });
+    gsap.set(".story-ch7", { opacity: 0, y: 40, filter: "blur(6px)" });
+    gsap.set(".story-ch8", { opacity: 0, scale: 0.3, filter: "blur(8px)" });
+    gsap.set(".story-ch9", { opacity: 0, y: 40, filter: "blur(6px)" });
+    
+    gsap.set(".final-hero", { opacity: 0 });
+    gsap.set(".final-hero-badge", { opacity: 0, y: 20, filter: "blur(4px)" });
+    gsap.set(".final-hero-title", { opacity: 0, y: 30, filter: "blur(6px)" });
+    gsap.set(".final-hero-sub", { opacity: 0, y: 20, filter: "blur(4px)" });
+    gsap.set(".final-hero-cta", { opacity: 0, y: 15, filter: "blur(3px)" });
 
-      if (delta >= interval) {
-        setCurrentFrame((prev) => (prev % totalFrames) + 1);
-        lastTime = time - (delta % interval);
+    // Entrance Animation on Load (Chapter 1 Inner)
+    gsap.fromTo(".story-ch1-inner", 
+      { opacity: 0, y: 15, filter: "blur(6px)" }, 
+      { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.6, ease: "power3.out", delay: 0.4 }
+    );
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: containerRef.current,
+        start: "top top",
+        end: "+=700%", // 700% slows down the pacing significantly
+        scrub: 1.5,
+        pin: true,
       }
-      animationFrameId = requestAnimationFrame(animate);
+    });
+
+    // 1. Animate image sequence
+    tl.to(frameData, {
+      frame: totalFrames,
+      snap: "frame",
+      ease: "none",
+      duration: 1,
+      onUpdate: () => render(Math.round(frameData.frame) - 1),
+    }, 0);
+
+    // Chapter 1 (0.00 - 0.08 scroll): Fade out opening message
+    tl.to(".story-ch1", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.06, ease: "power2.inOut" }, 0.02);
+
+    // Chapter 2 (0.08 - 0.18 scroll): Horizon - enters from right, leaves upward
+    tl.to(".story-ch2", { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.08);
+    tl.to(".story-ch2", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.04, ease: "power2.in" }, 0.14);
+
+    // Chapter 3 (0.18 - 0.28 scroll): Preparing - comes slightly upward
+    tl.to(".story-ch3", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.18);
+    tl.to(".story-ch3", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.04, ease: "power2.in" }, 0.24);
+
+    // Chapter 4 (0.28 - 0.38 scroll): Medicals - scales in from distance
+    tl.to(".story-ch4", { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.28);
+    tl.to(".story-ch4", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.04, ease: "power2.in" }, 0.34);
+
+    // Chapter 5 (0.38 - 0.48 scroll): Certifications - enters from left
+    tl.to(".story-ch5", { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.38);
+    tl.to(".story-ch5", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.04, ease: "power2.in" }, 0.44);
+
+    // Chapter 6 (0.48 - 0.58 scroll): Visa & Docs - enters from right
+    tl.to(".story-ch6", { opacity: 1, x: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.48);
+    tl.to(".story-ch6", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.04, ease: "power2.in" }, 0.54);
+
+    // Chapter 7 (0.58 - 0.68 scroll): Placement - comes slightly upward
+    tl.to(".story-ch7", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.58);
+    tl.to(".story-ch7", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.04, ease: "power2.in" }, 0.64);
+
+    // Chapter 8 (0.68 - 0.78 scroll): Join Ship - scales in from distance
+    tl.to(".story-ch8", { opacity: 1, scale: 1, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.68);
+    tl.to(".story-ch8", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.04, ease: "power2.in" }, 0.74);
+
+    // Chapter 9 (0.78 - 0.88 scroll): Welcome - comes slightly upward
+    tl.to(".story-ch9", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.78);
+    tl.to(".story-ch9", { opacity: 0, y: -40, filter: "blur(6px)", duration: 0.04, ease: "power2.in" }, 0.84);
+
+    // Final Brand Reveal & CTA (starts at 0.90, CTA buttons at 1.02, pinned until 1.15)
+    tl.to(".final-hero", { opacity: 1, duration: 0.02 }, 0.90);
+    tl.to(".final-hero-badge", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.92);
+    tl.to(".final-hero-title", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.95);
+    tl.to(".final-hero-sub", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.98);
+    
+    // CTA appears exactly as the ship animation concludes
+    tl.to(".final-hero-cta", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.05, ease: "power2.out" }, 1.02);
+    
+    // Trigger global navbar reveal
+    tl.call(() => {
+      window.dispatchEvent(new CustomEvent("reveal-navbar"));
+    }, [], 0.78);
+
+    return () => {
+      window.removeEventListener("resize", resizeCanvas);
     };
-
-    animationFrameId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationFrameId);
-  }, []);
-
-  const clamp = (val: number, min: number, max: number) => Math.max(min, Math.min(max, val));
-  const easeOutQuad = (t: number) => t * (2 - t);
-
-  // --- STAGE-LINKED ANIMATIONS (Apple Scroll-Linked Reveal Style) ---
-  // Background fades in from 15% opacity to full as user scrolls (no circle mask)
-  const bgOpacity = 0.15 + easeOutQuad(clamp(scrollProgress / 0.55, 0, 1)) * 0.85;
-
-  // Fast, sequential text fades as the bg reveals (fully highlighted at 100% by 0.44 progress)
-  // Text elements begin with a light, elegant base opacity (20% for badge/title, 15% for description, 5% for CTAs)
-  // Subheading Badge (appears from scroll 0.02 to 0.22)
-  const badgeProgress = easeOutQuad(clamp((scrollProgress - 0.02) / 0.20, 0, 1));
-  const badgeOpacity = 0.20 + badgeProgress * 0.80;
-  const badgeTranslateY = 15 * (1 - badgeProgress);
-
-  // Main Heading (appears from scroll 0.08 to 0.28)
-  const titleProgress = easeOutQuad(clamp((scrollProgress - 0.08) / 0.20, 0, 1));
-  const titleOpacity = 0.20 + titleProgress * 0.80;
-  const titleTranslateY = 15 * (1 - titleProgress);
-
-  // Description (appears from scroll 0.15 to 0.35)
-  const descProgress = easeOutQuad(clamp((scrollProgress - 0.15) / 0.20, 0, 1));
-  const descOpacity = 0.15 + descProgress * 0.85;
-  const descTranslateY = 12 * (1 - descProgress);
-
-  // CTA Buttons (appear from scroll 0.24 to 0.44)
-  const ctaProgress = easeOutQuad(clamp((scrollProgress - 0.24) / 0.20, 0, 1));
-  const ctaOpacity = 0.05 + ctaProgress * 0.95;
-  const ctaTranslateY = 10 * (1 - ctaProgress);
-
-  const activeFrameStr = String(currentFrame).padStart(3, "0");
-  const videoFramePath = `/hero-images/ezgif-frame-${activeFrameStr}.jpg`;
+  }, { scope: containerRef });
 
   return (
-    <section ref={containerRef} className="h-[155vh] relative w-full overflow-visible font-outfit select-none bg-[#050a14]">
+    <section ref={containerRef} className="h-screen relative w-full overflow-hidden font-outfit select-none bg-[#050a14]">
       <style dangerouslySetInnerHTML={{ __html: `
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
         .font-outfit { font-family: 'Outfit', sans-serif; }
@@ -225,106 +323,150 @@ function Hero() {
         .animate-rotate-sunbeams { animation: rotateSunbeams 32s ease-in-out infinite; }
       ` }} />
 
-      {/* Sticky Viewport Pane */}
-      <div className="w-full h-screen sticky top-0 overflow-hidden flex flex-col justify-center items-center px-6 z-10 bg-[#050a14]">
-        
-        {/* --- FULLSCREEN ANIMATED BACKDROP — SMOOTH OPACITY FADE-IN ON SCROLL --- */}
-        <div 
-          className="absolute inset-0 w-full h-full overflow-hidden z-0"
-          style={{
-            opacity: bgOpacity,
-            transition: "opacity 0.06s ease-out"
-          }}
-        >
-          {/* Continuously Animating Image Loop */}
-          <img 
-            src={videoFramePath} 
-            alt="Fullscreen Cinematic Background Loop" 
-            className="w-full h-full object-cover opacity-90" 
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#050a14] via-[#050a14]/20 to-[#050a14]/50 pointer-events-none" />
-        </div>
+      {/* GSAP Managed Canvas Background */}
+      <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-[#050a14]">
+        <canvas 
+          ref={canvasRef} 
+          className="w-full h-full object-cover pointer-events-none" 
+        />
+        {/* Premium Multi-stop Gradient Overlay for Readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#050a14] via-[#050a14]/60 to-[#050a14]/10 pointer-events-none" />
+      </div>
 
-        {/* Cinematic atmospheric overlays on top of background animation */}
-        <div className="absolute inset-0 pointer-events-none z-0">
-          <div className="absolute top-[-30%] left-[-20%] w-[140%] h-[140%] bg-[conic-gradient(from_0deg_at_50%_50%,rgba(96,165,250,0.03)_0deg,transparent_45deg,rgba(255,255,255,0.01)_90deg,transparent_135deg,rgba(96,165,250,0.03)_180deg,transparent_225deg,rgba(255,255,255,0.01)_270deg,transparent_315deg)] animate-rotate-sunbeams origin-center" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.02)_0%,transparent_60%)] animate-drift-fog" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(96,165,250,0.01)_0%,transparent_65%)] animate-drift-fog" style={{ animationDelay: "-5s" }} />
-          <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-30" />
-          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-30" />
-        </div>
+      {/* Cinematic atmospheric overlays on top of background animation */}
+      <div className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-30%] left-[-20%] w-[140%] h-[140%] bg-[conic-gradient(from_0deg_at_50%_50%,rgba(96,165,250,0.03)_0deg,transparent_45deg,rgba(255,255,255,0.01)_90deg,transparent_135deg,rgba(96,165,250,0.03)_180deg,transparent_225deg,rgba(255,255,255,0.01)_270deg,transparent_315deg)] animate-rotate-sunbeams origin-center" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_30%,rgba(255,255,255,0.02)_0%,transparent_60%)] animate-drift-fog" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_70%,rgba(96,165,250,0.01)_0%,transparent_65%)] animate-drift-fog" style={{ animationDelay: "-5s" }} />
+        <div className="absolute top-0 inset-x-0 h-28 bg-gradient-to-b from-black/60 to-transparent pointer-events-none z-30" />
+        <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-black/60 to-transparent pointer-events-none z-30" />
+      </div>
 
-        {/* SCROLL TRIGGERED SEQUENTIAL TEXT LAYOUT OVERLAY */}
-        <div className="absolute inset-0 flex flex-col justify-center items-center z-20 pointer-events-none select-none text-center px-4 max-w-4xl mx-auto">
+      {/* SCROLL TRIGGERED TEXT LAYOUT OVERLAY */}
+      <div className="absolute inset-0 flex flex-col justify-center items-center z-20 pointer-events-none select-none text-center px-4 max-w-4xl mx-auto">
+        <div ref={textGroupRef} className="relative w-full h-[60vh] max-w-5xl mx-auto flex items-center justify-center pointer-events-none">
           
-          {/* Subheading Badging */}
-          <div 
-            style={{
-              opacity: badgeOpacity,
-              transform: `translateY(${badgeTranslateY}px)`,
-              transition: "transform 0.05s ease-out, opacity 0.05s ease-out"
-            }}
-            className="mb-5"
-          >
-            <span className="inline-block px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase bg-slate-900/80 border border-slate-700/30 text-blue-300 backdrop-blur-lg shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
-              Trusted Maritime Career Partner
-            </span>
+          {/* Chapter 1: The Beginning (Dream) - Left aligned */}
+          <div className="story-ch1 absolute left-4 md:left-12 text-left max-w-md pointer-events-none">
+            <div className="story-ch1-inner opacity-0">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.2em] text-slate-200/90 font-outfit uppercase leading-relaxed">
+                Every Great Voyage
+                <br />
+                <span className="font-semibold text-white">Begins With A Dream.</span>
+              </h2>
+              <p className="text-[10px] font-semibold tracking-[0.3em] uppercase text-slate-550 mt-12 flex items-center gap-4 font-outfit">
+                <span>SCROLL TO BEGIN</span>
+                <span className="inline-block animate-bounce text-xs">↓</span>
+              </p>
+            </div>
           </div>
 
-          {/* Main Title Heading */}
-          <h1 
-            style={{
-              opacity: titleOpacity,
-              transform: `translateY(${titleTranslateY}px)`,
-              transition: "transform 0.05s ease-out, opacity 0.05s ease-out"
-            }}
-            className="text-4xl sm:text-6xl md:text-7xl font-black leading-tight tracking-tight text-white mb-6 font-outfit"
-          >
-            A Complete
-            <br />
-            <span className="text-transparent bg-gradient-to-r from-blue-300 via-slate-200 to-slate-400 bg-clip-text drop-shadow-sm">
-              Seafarer's Home
-            </span>
-          </h1>
-
-          {/* Description Text */}
-          <p 
-            style={{
-              opacity: descOpacity,
-              transform: `translateY(${descTranslateY}px)`,
-              transition: "transform 0.05s ease-out, opacity 0.05s ease-out"
-            }}
-            className="text-sm sm:text-lg md:text-xl text-gray-305 leading-relaxed max-w-2xl mb-10 drop-shadow-[0_4px_16px_rgba(0,0,0,0.9)] font-medium"
-          >
-            From DGS preparatory training and documentation to global placements and travel assistance, we guide seafarers through every step of their professional journey.
-          </p>
-
-          {/* CTA Action Buttons */}
-          <div 
-            style={{
-              opacity: ctaOpacity,
-              transform: `translateY(${ctaTranslateY}px)`,
-              transition: "transform 0.05s ease-out, opacity 0.05s ease-out"
-            }}
-            className="flex flex-wrap gap-5 justify-center pointer-events-auto"
-          >
-            <Link
-              href="/courses"
-              className="px-8 py-4 rounded-xl font-bold bg-gradient-to-r from-blue-600 via-sky-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white transition-all shadow-xl shadow-blue-950/40 transform hover:scale-[1.03] active:scale-[0.98] border border-blue-500/20"
-            >
-              Explore Courses
-            </Link>
-
-            <Link
-              href="/contact"
-              className="px-8 py-4 rounded-xl font-bold border border-white/10 text-white bg-white/5 hover:bg-white/10 hover:border-white/20 transition-all backdrop-blur-md transform hover:scale-[1.03] active:scale-[0.98]"
-            >
-              Contact Us
-            </Link>
+          {/* Chapter 2: Horizon - Right aligned */}
+          <div className="story-ch2 absolute right-4 md:right-12 text-right max-w-md pointer-events-none opacity-0">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-light tracking-[0.15em] text-slate-350 font-outfit uppercase leading-relaxed">
+              Dream Beyond
+              <br />
+              <span className="font-bold text-transparent bg-gradient-to-r from-blue-300 to-cyan-100 bg-clip-text">The Horizon.</span>
+            </h2>
           </div>
 
+          {/* Chapter 3: Preparation - Centered directly below navbar */}
+          <div className="story-ch3 absolute top-28 md:top-32 text-center max-w-xl pointer-events-none opacity-0">
+            <h2 className="text-xl sm:text-2xl tracking-[0.2em] uppercase text-slate-400 font-light font-outfit">
+              Step 1: <span className="font-bold text-cyan-300">Start Preparing.</span>
+            </h2>
+          </div>
+
+          {/* Chapter 4: Medicals - Large center, scales in from distance */}
+          <div className="story-ch4 absolute text-center max-w-2xl pointer-events-none opacity-0">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-black tracking-[0.15em] uppercase text-white font-outfit">
+              Complete Your Medicals.
+            </h2>
+            <p className="text-xs tracking-widest text-slate-450 uppercase mt-4 font-medium">
+              Ensuring you are fit for the challenges at sea
+            </p>
+          </div>
+
+          {/* Chapter 5: Certifications - Left aligned */}
+          <div className="story-ch5 absolute left-4 md:left-12 text-left max-w-md pointer-events-none opacity-0">
+            <h2 className="text-xl sm:text-3xl md:text-4xl font-light tracking-[0.2em] text-slate-300 font-outfit uppercase leading-relaxed">
+              Obtain Mandatory
+              <br />
+              <span className="font-bold text-cyan-300">Certifications.</span>
+            </h2>
+          </div>
+
+          {/* Chapter 6: Visa & Docs - Right aligned */}
+          <div className="story-ch6 absolute right-4 md:right-12 text-right max-w-md pointer-events-none opacity-0">
+            <h2 className="text-xl sm:text-3xl md:text-4xl font-light tracking-[0.2em] text-slate-300 font-outfit uppercase leading-relaxed">
+              Documentation
+              <br />
+              <span className="font-bold text-blue-300">& Visa.</span>
+            </h2>
+          </div>
+
+          {/* Chapter 7: Placement - Centered directly below navbar */}
+          <div className="story-ch7 absolute top-28 md:top-32 text-center max-w-xl pointer-events-none opacity-0">
+            <h2 className="text-xl sm:text-2xl tracking-[0.2em] uppercase text-slate-400 font-light font-outfit">
+              Step 5: <span className="font-bold text-indigo-400">Placement Assistance.</span>
+            </h2>
+          </div>
+
+          {/* Chapter 8: Join Ship - Large center, scales in */}
+          <div className="story-ch8 absolute text-center max-w-2xl pointer-events-none opacity-0">
+            <h2 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-[0.2em] uppercase text-white font-outfit leading-tight">
+              Join Your
+              <br />
+              First Ship.
+            </h2>
+          </div>
+
+          {/* Chapter 9: Welcome - Center */}
+          <div className="story-ch9 absolute text-center max-w-2xl pointer-events-none opacity-0">
+            <h2 className="text-2xl sm:text-4xl md:text-5xl font-light tracking-[0.2em] uppercase text-slate-300 font-outfit leading-relaxed">
+              Welcome to
+              <br />
+              <span className="font-black text-transparent bg-gradient-to-r from-blue-300 to-white bg-clip-text">Hari Om Thalassic.</span>
+            </h2>
+          </div>
+
+          {/* FINAL HERO REVEAL: Brand Details & Action CTA */}
+          <div className="final-hero absolute flex flex-col items-center opacity-0 w-full pointer-events-none">
+            {/* Trust badge */}
+            <div className="final-hero-badge mb-6 opacity-0">
+              <span className="inline-block px-5 py-2 rounded-full text-[10px] font-black tracking-[0.2em] uppercase bg-white/5 border border-white/10 text-cyan-300 backdrop-blur-xl shadow-[0_4px_25px_rgba(0,0,0,0.6)]">
+                Trusted Maritime Career Partner
+              </span>
+            </div>
+
+            {/* Main Brand Headline */}
+            <h1 className="final-hero-title text-5xl sm:text-7xl md:text-8xl font-black leading-[1.1] tracking-tight text-white mb-6 font-outfit opacity-0">
+              Hari Om Thalassic
+            </h1>
+            
+            {/* Brand Subheading */}
+            <p className="final-hero-sub text-lg sm:text-2xl font-light tracking-[0.2em] uppercase text-slate-300 font-outfit mb-12 opacity-0">
+              A Complete Seafarer's Home
+            </p>
+
+            {/* Action buttons */}
+            <div className="final-hero-cta flex flex-wrap gap-6 items-center justify-center pointer-events-auto opacity-0">
+              <Link
+                href="/courses"
+                className="px-8 py-4 rounded-full font-bold bg-white text-black hover:bg-gray-200 transition-all shadow-xl shadow-white/10 transform hover:scale-105 active:scale-95"
+              >
+                Begin Your Maritime Career
+              </Link>
+
+              <Link
+                href="/contact"
+                className="px-6 py-4 font-bold text-slate-300 hover:text-white transition-colors underline-offset-8 hover:underline"
+              >
+                Contact Us
+              </Link>
+            </div>
+          </div>
         </div>
-
       </div>
     </section>
   );
@@ -334,14 +476,61 @@ function Hero() {
 export default function HomePage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const stripRef = useRef<HTMLDivElement>(null);
 
-  // Counter metric data
+  // Counter metric data for telemetry console
   const metrics = [
-    { value: "10,000+", label: "Trained Seafarers", num: "01", icon: Users, desc: "Successfully certified globally" },
-    { value: "98.7%", label: "Success Rate", num: "02", icon: Award, desc: "DGS Examination passes" },
-    { value: "25+", label: "Master Trainers", num: "03", icon: Building, desc: "Captains & Chief Engineers" },
-    { value: "45+", label: "Approved Programs", num: "04", icon: Shield, desc: "DGS certified qualifications" },
+    { value: "10,000+", label: "Certified Seafarers", tech: "STATUS: ACTIVE" },
+    { value: "98.7%", label: "Success Rate", tech: "DGS CERTIFIED" },
+    { value: "25+", label: "Master Trainers", tech: "SINCE 2004" },
+    { value: "45+", label: "Approved Programs", tech: "GLOBAL NETWORK" },
   ];
+
+  useGSAP(() => {
+    if (!stripRef.current) return;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: stripRef.current,
+        start: "top 85%",
+        toggleActions: "play none none none",
+      }
+    });
+
+    // 1. Expand console strip container horizontally from center
+    tl.fromTo(".console-strip-container",
+      { scaleX: 0, opacity: 0 },
+      { scaleX: 1, opacity: 1, duration: 1.0, ease: "power4.inOut" }
+    );
+
+    // 2. Expand accent line borders
+    tl.fromTo(".console-accent-line",
+      { scaleX: 0, opacity: 0 },
+      { scaleX: 1, opacity: 1, duration: 0.8, ease: "power3.out" },
+      "-=0.6"
+    );
+
+    // 3. Draw vertical divider lines (scale Y)
+    tl.fromTo(".console-divider-y",
+      { scaleY: 0, opacity: 0 },
+      { scaleY: 1, opacity: 1, duration: 0.6, ease: "power2.out", stagger: 0.1 },
+      "-=0.4"
+    );
+
+    // 4. Draw horizontal divider lines (scale X)
+    tl.fromTo(".console-divider-x",
+      { scaleX: 0, opacity: 0 },
+      { scaleX: 1, opacity: 1, duration: 0.6, ease: "power2.out", stagger: 0.1 },
+      "-=0.4"
+    );
+
+    // 5. Stagger reveal metric contents (fade/slide up)
+    tl.fromTo(".console-metric-item",
+      { y: 25, opacity: 0 },
+      { y: 0, opacity: 1, duration: 0.7, ease: "power3.out", stagger: 0.15 },
+      "-=0.5"
+    );
+  }, { scope: stripRef });
 
   return (
     <div className={`overflow-x-hidden font-outfit transition-colors duration-300 ${
@@ -366,23 +555,6 @@ export default function HomePage() {
         .brand-pill {
           transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .metric-pipeline {
-          position: relative;
-        }
-        .metric-pipeline::after {
-          content: '';
-          position: absolute;
-          top: 50%;
-          left: 10%;
-          right: -90%;
-          height: 1px;
-          background: linear-gradient(to right, rgba(255, 255, 255, 0.08), transparent);
-          z-index: 0;
-          pointer-events: none;
-        }
-        @media (max-width: 768px) {
-          .metric-pipeline::after { display: none; }
-        }
         
         /* Spin animations for navigation vector compasses */
         @keyframes spinSlow {
@@ -400,57 +572,62 @@ export default function HomePage() {
       {/* 1. Cinematic Scroll Hero Component */}
       <Hero />
 
-      {/* 2. Key Achievements Section with Bouncy Spring Reveals (Pushed up to overlay cleanly and eliminate dark gap) */}
-      <section className="py-12 relative z-20 -mt-[45vh] lg:-mt-[55vh]">
+      {/* 2. Key Achievements Maritime Console Strip */}
+      <section 
+        ref={stripRef}
+        className="relative z-20 bg-[#050a14] py-20 border-t border-white/5 overflow-hidden"
+      >
         <div className="max-w-7xl mx-auto px-6 lg:px-12">
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {metrics.map((item, index) => {
-              const IconComp = item.icon;
-              return (
-                <ScrollReveal key={index} delay={index * 120}>
-                  <div className={`p-7 rounded-3xl relative overflow-hidden transition-all duration-500 metric-pipeline group ${
-                    isDark 
-                      ? "custom-glass hover:border-blue-500/25 text-slate-100" 
-                      : "bg-white border border-slate-200 shadow-sm hover:border-blue-500/30 text-slate-800"
-                  }`}>
-                    <span className="absolute top-4 right-4 text-3xl font-black opacity-5 tracking-widest pointer-events-none select-none text-slate-500">
-                      {item.num}
-                    </span>
+          {/* Main Console Strip */}
+          <div className="console-strip-container origin-center relative border-y border-white/10 bg-[#070f1e]/40 backdrop-blur-md py-12 md:py-16 px-4 md:px-8 shadow-2xl">
+            
+            {/* Top and Bottom Accent Lines */}
+            <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/25 to-transparent console-accent-line origin-center" />
+            <div className="absolute bottom-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-500/25 to-transparent console-accent-line origin-center" />
 
-                    <div className="flex items-center gap-4 mb-4 relative z-10">
-                      <div className={`p-3 rounded-2xl transition-transform duration-300 group-hover:scale-110 ${
-                        isDark ? "bg-slate-900/60 border border-slate-700/20 text-blue-300" : "bg-blue-50 text-blue-600"
-                      }`}>
-                        <IconComp className="w-5 h-5 animate-pulse" />
-                      </div>
-                      <div>
-                        <span className="text-[9px] font-black uppercase tracking-widest text-slate-500 block">SECTOR INDEX</span>
-                        <span className={`text-xs font-bold ${isDark ? "text-slate-400" : "text-slate-500"}`}>18.23° N</span>
-                      </div>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-16 md:gap-y-20 lg:gap-y-0 relative">
+              {metrics.map((item, index) => (
+                <div 
+                  key={index}
+                  className="console-metric-item flex flex-col items-center justify-center text-center px-4 relative opacity-0"
+                >
+                  {/* Technical Label (Above) */}
+                  <span className="font-mono text-[9px] tracking-[0.2em] text-cyan-400/85 mb-4 block">
+                    {item.tech}
+                  </span>
 
-                    <div className="relative z-10 space-y-1">
-                      <h3 className={`text-3xl sm:text-4xl font-black tracking-tight ${
-                        isDark 
-                          ? "bg-gradient-to-r from-white via-blue-100 to-slate-350 bg-clip-text text-transparent" 
-                          : "bg-gradient-to-r from-blue-900 via-slate-850 to-blue-950 bg-clip-text text-transparent"
-                      }`}>
-                        {item.value}
-                      </h3>
-                      <h4 className={`text-xs font-black uppercase tracking-widest ${
-                        isDark ? "text-blue-300" : "text-blue-600"
-                      }`}>
-                        {item.label}
-                      </h4>
-                      <p className="text-[10px] text-slate-500 font-medium">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                </ScrollReveal>
-              );
-            })}
+                  {/* Large Number */}
+                  <h3 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white mb-2.5 font-outfit">
+                    {item.value}
+                  </h3>
+
+                  {/* Core Label (Below) */}
+                  <h4 className="text-[10px] sm:text-xs font-black uppercase tracking-[0.25em] text-slate-400">
+                    {item.label}
+                  </h4>
+
+                  {/* Desktop Dividers: Vertical (between columns) */}
+                  {index < 3 && (
+                    <div className="console-divider-y origin-center absolute right-0 top-1/2 -translate-y-1/2 w-[1px] h-12 bg-white/10 hidden lg:block" />
+                  )}
+
+                  {/* Tablet Dividers: Vertical (between items 1-2 and 3-4) */}
+                  {index % 2 === 0 && (
+                    <div className="console-divider-y origin-center absolute right-0 top-1/2 -translate-y-1/2 w-[1px] h-12 bg-white/10 hidden md:block lg:hidden" />
+                  )}
+
+                  {/* Mobile Dividers: Horizontal (below stacked items) */}
+                  {index < 3 && (
+                    <div className="console-divider-x origin-center absolute bottom-[-32px] left-6 right-6 h-[1px] bg-white/5 block md:hidden" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Tablet Row Divider (Horizontal between Row 1 and Row 2) */}
+            <div className="console-divider-x origin-center absolute left-12 right-12 top-1/2 -translate-y-1/2 h-[1px] bg-white/5 hidden md:block lg:hidden" />
+
           </div>
 
         </div>
@@ -673,7 +850,7 @@ export default function HomePage() {
                 <ScrollReveal key={course.id} delay={index * 150}>
                   <div 
                     className={`border transition-all duration-500 flex flex-col justify-between overflow-hidden group hover:-translate-y-2 hover:shadow-2xl h-full rounded-3xl ${
-                      isDark ? `${course.bgClassDark} ${course.borderClass}` : `${course.bgClassLight} border-slate-200`
+                      isDark ? course.bgClassDark : `${course.bgClassLight} border-slate-200`
                     }`}
                     style={{ 
                       boxShadow: isDark ? "0 15px 40px -10px rgba(0,0,0,0.5)" : "0 15px 30px rgba(0,0,0,0.03)"
