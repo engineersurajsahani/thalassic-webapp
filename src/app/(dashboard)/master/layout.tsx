@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import MasterSidebar from "@/components/master/sidebar";
-import MasterTopbar from "@/components/master/topbar";
+import MasterSidebar from "@/features/master/components/sidebar";
+import MasterTopbar from "@/features/master/components/topbar";
 import { useTheme } from "@/providers/theme-provider";
 
 export default function MasterLayout({

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { courseService } from "@/services/course.service";
+import { courseService } from "@/features/courses/services/course.service";
 import { useTheme } from "@/providers/theme-provider";
 import { 
   Compass, 

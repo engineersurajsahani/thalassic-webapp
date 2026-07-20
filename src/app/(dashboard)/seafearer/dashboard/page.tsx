@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/providers/auth-provider";
 import { useTheme } from "@/providers/theme-provider";
-import { dashboardService } from "@/services/dashboard.service";
+import { dashboardService } from "@/features/dashboard/services/dashboard.service";
 import {
   Compass,
   FileText,

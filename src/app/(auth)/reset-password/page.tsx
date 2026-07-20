@@ -3,8 +3,8 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import { Mail, Check, ArrowLeft } from "lucide-react";
-import AuthLayout from "@/components/auth/AuthLayout";
-import AuthInput from "@/components/auth/AuthInput";
+import AuthLayout from "@/features/auth/components/AuthLayout";
+import AuthInput from "@/features/auth/components/AuthInput";
 
 export default function ResetPasswordPage() {
   const [email, setEmail] = useState("");

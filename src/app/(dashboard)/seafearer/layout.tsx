@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import SeafearerSidebar from "@/components/seafearer/sidebar";
-import SeafearerTopbar from "@/components/seafearer/topbar";
+import SeafearerSidebar from "@/features/seafearer/components/sidebar";
+import SeafearerTopbar from "@/features/seafearer/components/topbar";
 import { useAuth } from "@/providers/auth-provider";
 import { useTheme } from "@/providers/theme-provider";
 import { useRouter } from "next/navigation";
@@ -14,8 +14,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isDark = theme === "dark";
 
   useEffect(() => {
-    const role = user?.role?.toLowerCase();
-    if (!isLoading && (!user || (role !== "seafarer" && role !== "seafearer"))) {
+    if (!isLoading && (!user || (user.role !== "seafarer" && user.role !== "seafearer"))) {
       router.push("/login");
     }
   }, [user, isLoading, router]);
@@ -39,8 +38,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   // Fallback check (although middleware handles route guarding)
-  const role = user?.role?.toLowerCase();
-  if (!user || (role !== "seafarer" && role !== "seafearer")) {
+  if (!user || (user.role !== "seafarer" && user.role !== "seafearer")) {
     return null;
   }
 
