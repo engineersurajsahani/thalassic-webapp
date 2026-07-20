@@ -1,12 +1,20 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
-import { TrendingUp, TrendingDown, Download, BarChart3, Users, BookOpen, ShoppingCart } from "lucide-react";
-import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer,
-} from "recharts";
+import { masterService } from "@/services/master.service";
+import { TrendingUp, TrendingDown, Download, BarChart3, Users, BookOpen, ShoppingCart, Star, ShieldCheck } from "lucide-react";
+import dynamic from "next/dynamic";
+
+const BarChart = dynamic(() => import("recharts").then((m) => m.BarChart), { ssr: false });
+const Bar = dynamic(() => import("recharts").then((m) => m.Bar), { ssr: false });
+const XAxis = dynamic(() => import("recharts").then((m) => m.XAxis), { ssr: false });
+const YAxis = dynamic(() => import("recharts").then((m) => m.YAxis), { ssr: false });
+const CartesianGrid = dynamic(() => import("recharts").then((m) => m.CartesianGrid), { ssr: false });
+const Tooltip = dynamic(() => import("recharts").then((m) => m.Tooltip), { ssr: false });
+const ResponsiveContainer = dynamic(() => import("recharts").then((m) => m.ResponsiveContainer), { ssr: false });
+const AreaChart = dynamic(() => import("recharts").then((m) => m.AreaChart), { ssr: false });
+const Area = dynamic(() => import("recharts").then((m) => m.Area), { ssr: false });
 
 const monthlyRevenue = [
   { month: "Jan", revenue: 180000, target: 200000 },
@@ -29,14 +37,6 @@ const userGrowth = [
   { month: "Sep", seafarers: 750 }, { month: "Oct", seafarers: 840 },
 ];
 
-const topCourses = [
-  { name: "STCW Basic Safety", completions: 387, revenue: "₹19.3L" },
-  { name: "Medical First Aid", completions: 298, revenue: "₹13.4L" },
-  { name: "Advanced Fire Fighting", completions: 241, revenue: "₹17.3L" },
-  { name: "Ship Navigation & Radar", completions: 178, revenue: "₹12.1L" },
-  { name: "Tanker Cargo Ops", completions: 91, revenue: "₹8.5L" },
-];
-
 export default function ReportsPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -48,12 +48,71 @@ export default function ReportsPage() {
   const divider = isDark ? "divide-white/5" : "divide-slate-100";
   const border = isDark ? "border-white/5" : "border-slate-100";
 
-  const kpis = [
-    { label: "Total Revenue", value: "₹24.5L", delta: "+15%", up: true, icon: TrendingUp, color: "text-emerald-500", bg: isDark ? "bg-emerald-500/10" : "bg-emerald-50" },
-    { label: "New Seafarers", value: "840", delta: "+22%", up: true, icon: Users, color: "text-indigo-500", bg: isDark ? "bg-indigo-500/10" : "bg-indigo-50" },
-    { label: "Course Enrolments", value: "5,234", delta: "+8%", up: true, icon: BookOpen, color: "text-amber-500", bg: isDark ? "bg-amber-500/10" : "bg-amber-50" },
-    { label: "Avg. Order Value", value: "₹4,680", delta: "-3%", up: false, icon: ShoppingCart, color: "text-red-400", bg: isDark ? "bg-red-500/10" : "bg-red-50" },
-  ];
+  const [topCourses, setTopCourses] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [averageCompletion, setAverageCompletion] = useState("94.2%");
+  const [refundRate, setRefundRate] = useState("0.32%");
+  const [selectedDays, setSelectedDays] = useState("30");
+
+  const fetchReports = async (days?: string) => {
+    setLoading(true);
+    try {
+      const data = await masterService.getReports(days);
+      if (data && data.courses) {
+        setTopCourses(data.courses);
+        setAverageCompletion(data.averageCompletion);
+        setRefundRate(data.refundRate);
+      } else {
+        setTopCourses(data || []);
+      }
+    } catch (err) {
+      console.error("Failed to load reports data:", err);
+      setTopCourses([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+  useEffect(() => {
+    fetchReports(selectedDays);
+  }, []);
+
+  // Calculate dynamic average rating from top courses data
+  const avgRating = topCourses.length > 0 
+    ? (topCourses.reduce((sum, c) => sum + parseFloat(c.rating || 0), 0) / topCourses.length).toFixed(2)
+    : "4.85";
+
+  // CSV Exporter Handler
+  const handleExport = () => {
+    if (topCourses.length === 0) {
+      alert("No data available to export");
+      return;
+    }
+
+    // Build CSV Content
+    const headers = ["Course", "Completions/Bookings", "Accrued Revenue", "Rating"];
+    const rows = topCourses.map(c => [
+      c.course ?? c.name ?? "N/A",
+      c.bookings ?? c.completions ?? 0,
+      c.revenue ?? "N/A",
+      c.rating ?? "4.8"
+    ]);
+
+    const csvContent = [
+      headers.join(","),
+      ...rows.map(row => row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(","))
+    ].join("\n");
+
+    // Trigger Client-Side Download
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `hari_om_thalassic_courses_report_last_${selectedDays}_days_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="space-y-5">
@@ -62,114 +121,126 @@ export default function ReportsPage() {
           <h1 className={`text-xl font-bold ${headText}`}>Reports & Analytics</h1>
           <p className={`text-sm mt-0.5 ${mutedText}`}>Jan – Oct 2025</p>
         </div>
-        <button className={`flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-lg border transition-colors ${isDark ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}>
-          <Download className="w-4 h-4" /> Export
-        </button>
+        <div className="flex items-center gap-3">
+          <select
+            value={selectedDays}
+            onChange={(e) => {
+              const val = e.target.value;
+              setSelectedDays(val);
+              fetchReports(val);
+            }}
+            className={`text-xs font-bold uppercase tracking-wider px-3.5 py-2.5 rounded-xl border outline-none transition-all cursor-pointer shadow-sm ${
+              isDark 
+                ? "border-slate-800 bg-slate-900/40 text-white/70 hover:bg-slate-800/80" 
+                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <option value="30">Last 30 Days</option>
+            <option value="7">Last 7 Days</option>
+            <option value="2">Last 2 Days</option>
+          </select>
+
+          <button
+            onClick={handleExport}
+            className={`flex items-center gap-2 text-xs font-black uppercase tracking-wider px-4 py-2.5 rounded-xl border transition-all cursor-pointer shadow-sm hover:-translate-y-0.5 ${
+              isDark ? "border-slate-800 bg-slate-900/40 hover:bg-slate-800/80 text-white" : "border-slate-200 bg-white hover:bg-slate-50 text-slate-750"
+            }`}
+          >
+            <Download className="w-4 h-4" /> Export Report (CSV)
+          </button>
+        </div>
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((k) => {
-          const Icon = k.icon;
-          const D = k.up ? TrendingUp : TrendingDown;
-          return (
-            <div key={k.label} className={`${bg} rounded-xl px-5 py-4`}>
-              <div className={`w-9 h-9 rounded-lg ${k.bg} flex items-center justify-center mb-3`}>
-                <Icon className={`w-4 h-4 ${k.color}`} />
-              </div>
-              <p className={`text-xl font-bold ${headText}`}>{k.value}</p>
-              <p className={`text-xs mt-0.5 ${mutedText}`}>{k.label}</p>
-              <div className={`flex items-center gap-1 mt-2 text-xs font-semibold ${k.up ? "text-emerald-500" : "text-red-400"}`}>
-                <D className="w-3 h-3" />{k.delta} vs last year
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Charts row */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
-        <div className={`${bg} rounded-2xl overflow-hidden`}>
-          <div className={`flex items-center justify-between px-6 py-4 border-b ${border}`}>
-            <p className={`text-sm font-semibold ${headText}`}>Revenue vs Target</p>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {/* Card 1: Average Course Rating */}
+        <div className={`${bg} rounded-3xl p-6`}>
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Average Course Rating</p>
+          <div className="flex items-center gap-2 mt-2">
+            <span className="text-3xl font-black text-amber-500">{avgRating}</span>
+            <Star className="w-6 h-6 fill-amber-400 text-amber-400 shrink-0" />
           </div>
-          <div className="p-4">
-            <ResponsiveContainer width="100%" height={200}>
-              <AreaChart data={monthlyRevenue}>
-                <defs>
-                  <linearGradient id="revG" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#6366f1" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="tgtG" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.1} />
-                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} stroke={grid} strokeDasharray="4 0" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: axis }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: axis }} axisLine={false} tickLine={false} width={46} tickFormatter={(v) => `${v / 1000}K`} />
-                <Tooltip formatter={(v: number) => `₹${(v / 1000).toFixed(0)}K`} contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0" }} />
-                <Area type="monotone" dataKey="revenue" name="Revenue" stroke="#6366f1" strokeWidth={2} fill="url(#revG)" />
-                <Area type="monotone" dataKey="target" name="Target" stroke="#10b981" strokeWidth={1.5} strokeDasharray="4 3" fill="url(#tgtG)" />
-              </AreaChart>
-            </ResponsiveContainer>
+          <div className="flex items-center gap-1.5 mt-3 text-xs font-bold text-emerald-400">
+            <TrendingUp className="w-4 h-4" /> Outperforming target 4.5
           </div>
         </div>
 
-        <div className={`${bg} rounded-2xl overflow-hidden`}>
-          <div className={`flex items-center justify-between px-6 py-4 border-b ${border}`}>
-            <p className={`text-sm font-semibold ${headText}`}>Seafarer Growth</p>
+        {/* Card 2: Average Course Completion */}
+        <div className={`${bg} rounded-3xl p-6`}>
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Average Course Completion</p>
+          <div className="flex items-center mt-2">
+            <span className="text-3xl font-black text-cyan-500">{averageCompletion}</span>
           </div>
-          <div className="p-4">
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={userGrowth} barSize={14}>
-                <CartesianGrid vertical={false} stroke={grid} strokeDasharray="4 0" />
-                <XAxis dataKey="month" tick={{ fontSize: 11, fill: axis }} axisLine={false} tickLine={false} />
-                <YAxis tick={{ fontSize: 11, fill: axis }} axisLine={false} tickLine={false} width={36} />
-                <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8, border: "1px solid #e2e8f0" }} />
-                <Bar dataKey="seafarers" name="New Seafarers" fill="#6366f1" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+          <div className="flex items-center gap-1.5 mt-3 text-xs font-bold text-emerald-400">
+            <TrendingUp className="w-4 h-4" /> +2.5% increase this month
+          </div>
+        </div>
+
+        {/* Card 3: Refund Rate */}
+        <div className={`${bg} rounded-3xl p-6`}>
+          <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Refund Rate</p>
+          <div className="flex items-center mt-2">
+            <span className="text-3xl font-black text-red-500">{refundRate}</span>
+          </div>
+          <div className="flex items-center gap-1.5 mt-3 text-xs font-bold text-emerald-400">
+            <TrendingDown className="w-4 h-4" /> Reduced by 0.1%
           </div>
         </div>
       </div>
 
-      {/* Top courses table */}
-      <div className={`${bg} rounded-2xl overflow-hidden`}>
-        <div className={`px-6 py-4 border-b ${border}`}>
-          <p className={`text-sm font-semibold ${headText}`}>Top Performing Courses</p>
+      {/* Course Booking Sales Performance */}
+      <div className={`${bg} rounded-3xl overflow-hidden`}>
+        <div className={`px-6 py-5 border-b flex items-center gap-2 ${border}`}>
+          <BarChart3 className="w-5 h-5 text-indigo-500" />
+          <p className={`text-sm font-black uppercase tracking-wider ${headText}`}>Course Booking Sales Performance</p>
         </div>
-        <table className="w-full text-sm">
-          <thead>
-            <tr className={`border-b ${border}`}>
-              {["Course", "Completions", "Revenue"].map(h => (
-                <th key={h} className={`text-left px-6 py-3 text-[11px] font-semibold uppercase tracking-wider ${mutedText}`}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className={`divide-y ${divider}`}>
-            {topCourses.map((c, i) => (
-              <tr key={c.name} className={isDark ? "hover:bg-white/[0.03]" : "hover:bg-slate-50"}>
-                <td className="px-6 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <span className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold ${i === 0 ? "bg-amber-400 text-white" : isDark ? "bg-white/8 text-white/40" : "bg-slate-100 text-slate-500"}`}>{i + 1}</span>
-                    <span className={`text-[13px] font-medium ${headText}`}>{c.name}</span>
-                  </div>
-                </td>
-                <td className="px-6 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <div className={`h-1.5 rounded-full overflow-hidden w-24 ${isDark ? "bg-white/8" : "bg-slate-100"}`}>
-                      <div className="h-full rounded-full bg-indigo-500" style={{ width: `${(c.completions / 400) * 100}%` }} />
-                    </div>
-                    <span className={`text-[13px] font-semibold ${headText}`}>{c.completions}</span>
-                  </div>
-                </td>
-                <td className={`px-6 py-3.5 text-[13px] font-semibold ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>{c.revenue}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {loading ? (
+          <div className="text-center py-16 animate-pulse">
+            <div className="w-8 h-8 rounded-full border-4 border-indigo-500 border-t-transparent animate-spin mx-auto mb-4" />
+            <p className={`text-xs ${mutedText}`}>Loading sales records...</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className={`border-b ${border}`}>
+                  {["Course Module Name", "Total Bookings", "Total Revenue", "Average Rating", "Status"].map(h => (
+                    <th key={h} className={`text-left px-6 py-4.5 text-[10px] font-black uppercase tracking-wider whitespace-nowrap ${mutedText}`}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody className={`divide-y ${divider}`}>
+                {topCourses.map((c) => (
+                  <tr key={c.course ?? c.name} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50/50"}>
+                    <td className="px-6 py-4.5 whitespace-nowrap">
+                      <div className="flex items-center gap-3">
+                        <BookOpen className="w-4.5 h-4.5 text-indigo-500 shrink-0" />
+                        <span className={`text-[13px] font-black ${headText}`}>{c.course ?? c.name}</span>
+                      </div>
+                    </td>
+                    <td className={`px-6 py-4.5 text-[13px] font-bold tabular-nums ${isDark ? "text-white/70" : "text-slate-700"}`}>
+                      {c.bookings ?? c.completions ?? 0}
+                    </td>
+                    <td className={`px-6 py-4.5 text-[13px] font-black tabular-nums ${isDark ? "text-cyan-400" : "text-cyan-600"}`}>
+                      {c.revenue || "₹0"}
+                    </td>
+                    <td className="px-6 py-4.5 whitespace-nowrap">
+                      <div className="flex items-center gap-1 font-bold">
+                        <span className="text-[13px] text-amber-500">{c.rating || "4.8"}</span>
+                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      </div>
+                    </td>
+                    <td className="px-6 py-4.5 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+                        <ShieldCheck className="w-3.5 h-3.5" /> High Demand
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );

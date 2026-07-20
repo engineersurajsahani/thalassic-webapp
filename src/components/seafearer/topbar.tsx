@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
-import { notificationService } from "@/features/notifications/services/notification.service";
+import { notificationService } from "@/services/notification.service";
 import { Bell, Sun, Moon, Check, MessageSquare, BookOpen, AlertCircle } from "lucide-react";
 import Link from "next/link";
 

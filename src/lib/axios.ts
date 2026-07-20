@@ -1,7 +1,9 @@
 import axios from "axios";
 
-// Determine base API URL (default to localhost:5050 for our NestJS server)
-const API_URL = "http://localhost:5050/api";
+// Determine base API URL (reads from env, defaults to localhost:4000 for our NestJS server)
+const API_URL =
+  (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim()) ||
+  "http://localhost:4000/api";
 
 export const api = axios.create({
   baseURL: API_URL,

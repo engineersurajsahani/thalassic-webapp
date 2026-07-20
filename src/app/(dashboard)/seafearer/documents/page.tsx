@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { documentService } from "@/features/documents/services/document.service";
+import { documentService } from "@/services/document.service";
 import { useTheme } from "@/providers/theme-provider";
 import { 
   FileText, 

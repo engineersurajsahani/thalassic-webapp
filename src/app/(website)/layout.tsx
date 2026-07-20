@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import Navbar from "@/features/layout/components/Navbar";
+import Navbar from "@/components/layout/navbar/navbar";
 import Footer from "./footer";
 
 export default function WebsiteLayout({

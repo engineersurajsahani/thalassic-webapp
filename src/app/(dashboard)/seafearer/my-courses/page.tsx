@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { courseService } from "@/features/courses/services/course.service";
+import { courseService } from "@/services/course.service";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import { BookOpen, Award, CheckCircle, GraduationCap, Play, ShieldCheck, Flame, BookOpenCheck, ArrowLeft, Check, ChevronRight, Printer } from "lucide-react";

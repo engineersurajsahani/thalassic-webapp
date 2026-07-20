@@ -1,4 +1,4 @@
-import { Course } from "@/features/courses/types/course";
+import { Course } from "@/types/course";
 
 export const courseData: Course[] = [
   // Basic Courses

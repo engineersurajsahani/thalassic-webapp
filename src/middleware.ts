@@ -9,7 +9,8 @@ export function middleware(request: NextRequest) {
     const token = request.cookies.get("auth_token")?.value;
     const role = request.cookies.get("user_role")?.value;
 
-    if (!token || (role !== "seafarer" && role !== "seafearer")) {
+    const roleNorm = role?.toLowerCase();
+    if (!token || (roleNorm !== "seafarer" && roleNorm !== "seafearer")) {
       const loginUrl = new URL("/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
