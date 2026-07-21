@@ -291,8 +291,7 @@ function Hero() {
     tl.to(".final-hero-sub", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.98);
     
     // CTA appears exactly as the ship animation concludes
-    tl.to(".final-hero-cta", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.05, ease: "power2.out" }, 1.02);
-    
+    tl.to(".final-hero-cta", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.05, ease: "power2.out" }, 1.02);    
     // Trigger global navbar reveal
     tl.call(() => {
       window.dispatchEvent(new CustomEvent("reveal-navbar"));
