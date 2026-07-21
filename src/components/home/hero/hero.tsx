@@ -230,32 +230,6 @@ function Hero() {
       { opacity: 1, y: 0, filter: "blur(0px)", duration: 1.6, ease: "power3.out", delay: 0.4 }
     );
 
-<<<<<<< HEAD
-    const tl = gsap.timeline({ paused: true });
-
-    let maxProgress = 0;
-    ScrollTrigger.create({
-      trigger: containerRef.current,
-      start: "top top",
-      end: "+=700%",
-      pin: true,
-      onUpdate: (self) => {
-        if (self.progress > maxProgress) {
-          maxProgress = self.progress;
-          gsap.to(tl, {
-            progress: self.progress,
-            duration: 0.8,
-            ease: "power2.out",
-            overwrite: "auto"
-          });
-        }
-      },
-      onLeave: (self) => {
-        const scrollY = window.scrollY;
-        const removedHeight = window.innerHeight * 7;
-        self.kill(true);
-        window.scrollTo(0, scrollY - removedHeight);
-=======
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: containerRef.current,
@@ -263,7 +237,6 @@ function Hero() {
         end: "+=700%", // 700% slows down the pacing significantly
         scrub: 1.5,
         pin: true,
->>>>>>> 9a7ddf93 (Fixed Scroll based animation, Changed Navbar, Fixed some UI bugs and given a premium touch)
       }
     });
 
@@ -318,12 +291,7 @@ function Hero() {
     tl.to(".final-hero-sub", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.98);
     
     // CTA appears exactly as the ship animation concludes
-<<<<<<< HEAD
-    tl.to(".final-hero-cta", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.05, ease: "power2.out" }, 0.98);
-=======
-    tl.to(".final-hero-cta", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.05, ease: "power2.out" }, 1.02);
->>>>>>> 9a7ddf93 (Fixed Scroll based animation, Changed Navbar, Fixed some UI bugs and given a premium touch)
-    
+    tl.to(".final-hero-cta", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.05, ease: "power2.out" }, 1.02);    
     // Trigger global navbar reveal
     tl.call(() => {
       window.dispatchEvent(new CustomEvent("reveal-navbar"));
