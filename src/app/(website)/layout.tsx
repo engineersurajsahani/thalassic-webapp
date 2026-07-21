@@ -13,10 +13,10 @@ export default function WebsiteLayout({
   const isHome = pathname === "/";
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#020b14]">
+    <div className="min-h-screen flex flex-col transition-colors duration-500 bg-white dark:bg-[#020b14]">
       <Navbar />
 
-      <main className={`flex-grow ${isHome ? "" : "pt-[72px] lg:pt-[80px]"}`}>
+      <main className="flex-grow">
         {children}
       </main>
 
