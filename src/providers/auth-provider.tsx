@@ -65,10 +65,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const profileUser = await fetchProfile();
         if (profileUser) {
           setUser(profileUser);
+          if (profileUser.onboardingStatus) {
+            setCookie("onboarding_status", profileUser.onboardingStatus);
+          } else {
+            deleteCookie("onboarding_status");
+          }
         } else {
           // Token expired or invalid
           deleteCookie("auth_token");
           deleteCookie("user_role");
+          deleteCookie("onboarding_status");
           router.push("/login");
         }
       }
@@ -89,8 +95,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Fetch full profile (includes nested seaService logs)
       const fullProfile = await fetchProfile();
-      setUser(fullProfile || loggedUser);
-      return fullProfile || loggedUser;
+      const finalUser = fullProfile || loggedUser;
+      
+      if (finalUser.onboardingStatus) {
+        setCookie("onboarding_status", finalUser.onboardingStatus);
+      } else {
+        deleteCookie("onboarding_status");
+      }
+
+      setUser(finalUser);
+      return finalUser;
     } catch (err: any) {
       throw new Error(err.response?.data?.message || "Login failed");
     } finally {
@@ -108,8 +122,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setCookie("user_role", registeredUser.role);
       
       const fullProfile = await fetchProfile();
-      setUser(fullProfile || registeredUser);
-      return fullProfile || registeredUser;
+      const finalUser = fullProfile || registeredUser;
+
+      if (finalUser.onboardingStatus) {
+        setCookie("onboarding_status", finalUser.onboardingStatus);
+      } else {
+        deleteCookie("onboarding_status");
+      }
+
+      setUser(finalUser);
+      return finalUser;
     } catch (err: any) {
       throw new Error(err.response?.data?.message || "Registration failed");
     } finally {
@@ -126,6 +148,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } finally {
       deleteCookie("auth_token");
       deleteCookie("user_role");
+      deleteCookie("onboarding_status");
       setUser(null);
       setIsLoading(false);
       router.push("/login");
