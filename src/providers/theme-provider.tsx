@@ -12,7 +12,13 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("dark"); // Default to dark as requested
+  const [theme, setTheme] = useState<Theme>(() => {
+    // Read from DOM class set by the blocking inline script — no flash
+    if (typeof window !== "undefined") {
+      return document.documentElement.classList.contains("dark") ? "dark" : "light";
+    }
+    return "dark"; // SSR default
+  });
 
   useEffect(() => {
     const savedTheme = localStorage.getItem("theme") as Theme;
