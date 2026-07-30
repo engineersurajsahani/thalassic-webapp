@@ -73,122 +73,80 @@ export default function AgentAdminDashboard() {
         <p className={`text-xs mt-1.5 ${mutedText}`}>Monitor agent performance, onboarding progress, and commissions.</p>
       </div>
 
-      {/* KPI Sections - Two Columns */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      {/* KPI Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
         
-        {/* Left Column: Referral Metrics */}
-        <div className="space-y-4">
-          <h2 className={`text-sm font-bold border-b pb-2 ${borderB} ${headText}`}>Referral Metrics</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            {/* Card 1: Total Agents */}
-            <div className={card}>
-              <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-semibold tracking-wider uppercase ${mutedText}`}>Total Agents</span>
-                <div className="p-2.5 rounded-2xl bg-cyan-500/10 text-cyan-500">
-                  <Users className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="mt-4 flex items-baseline gap-2">
-                <span className={`text-3xl font-bold tracking-tight ${headText}`}>{kpis.totalAgents}</span>
-                <span className="text-[10px] text-emerald-500 font-semibold flex items-center bg-emerald-500/10 px-1.5 py-0.5 rounded-md">Active: {kpis.activeAgents}</span>
-              </div>
+        {/* Card 1: Total Agents */}
+        <div className={card}>
+          <div className="flex items-center justify-between">
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Total Agents</span>
+            <div className={`p-2 rounded-xl ${isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-cyan-50 text-cyan-600"}`}>
+              <Users className="w-4 h-4" />
             </div>
-
-            {/* Card 2: Referral Leads */}
-            <div className={card}>
-              <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-semibold tracking-wider uppercase ${mutedText}`}>Referral Leads</span>
-                <div className="p-2.5 rounded-2xl bg-indigo-500/10 text-indigo-500">
-                  <FileText className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="mt-4 flex items-baseline gap-2">
-                <span className={`text-3xl font-bold tracking-tight ${headText}`}>{kpis.totalLeads}</span>
-                <span className="text-[10px] text-amber-500 font-semibold flex items-center bg-amber-500/10 px-1.5 py-0.5 rounded-md">Active: {kpis.activeLeads}</span>
-              </div>
-            </div>
-
-            {/* Card 3: Referred Seafarers */}
-            <div className={card}>
-              <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-semibold tracking-wider uppercase ${mutedText}`}>Referred Seafarers</span>
-                <div className="p-2.5 rounded-2xl bg-emerald-500/10 text-emerald-500">
-                  <Users className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className={`text-3xl font-bold tracking-tight ${headText}`}>{kpis.totalReferredSeafarers}</span>
-                <p className={`text-[10px] mt-1 ${mutedText}`}>Via agent referral link</p>
-              </div>
-            </div>
-
-            {/* Card 4: Partner Applications */}
-            <div className={card}>
-              <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-semibold tracking-wider uppercase ${mutedText}`}>Partner Apps</span>
-                <div className="p-2.5 rounded-2xl bg-blue-500/10 text-blue-500">
-                  <Briefcase className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className={`text-3xl font-bold tracking-tight ${headText}`}>{kpis.pendingPartnerApps}</span>
-                <p className={`text-[10px] mt-1 ${mutedText}`}>Pending review</p>
-              </div>
-            </div>
-
+          </div>
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.totalAgents}</span>
+            <span className="text-[9px] text-emerald-500 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-md">
+              {kpis.activeAgents} Active
+            </span>
           </div>
         </div>
 
-        {/* Right Column: Financial Metrics */}
-        <div className="space-y-4">
-          <h2 className={`text-sm font-bold border-b pb-2 ${borderB} ${headText}`}>Financial Metrics</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            
-            {/* Card 5: Total Revenue Earned */}
-            <div className={`${card} sm:col-span-2`}>
-              <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-semibold tracking-wider uppercase ${mutedText}`}>Total Revenue Earned</span>
-                <div className="p-2.5 rounded-2xl bg-purple-500/10 text-purple-500">
-                  <BarChart3 className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className={`text-4xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500`}>
-                  {kpis.totalRevenueEarned}
-                </span>
-                <p className={`text-[11px] mt-1.5 ${mutedText}`}>Generated from successful course bookings</p>
-              </div>
+        {/* Card 2: Referral Leads */}
+        <div className={card}>
+          <div className="flex items-center justify-between">
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Referral Leads</span>
+            <div className={`p-2 rounded-xl ${isDark ? "bg-indigo-500/10 text-indigo-400" : "bg-indigo-50 text-indigo-600"}`}>
+              <FileText className="w-4 h-4" />
             </div>
+          </div>
+          <div className="mt-4 flex items-baseline gap-2">
+            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.totalLeads}</span>
+            <span className="text-[9px] text-amber-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded-md">
+              {kpis.activeLeads} Active
+            </span>
+          </div>
+        </div>
 
-            {/* Card 6: Commission Payable */}
-            <div className={card}>
-              <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-semibold tracking-wider uppercase ${mutedText}`}>Commission Payable</span>
-                <div className="p-2.5 rounded-2xl bg-rose-500/10 text-rose-500">
-                  <DollarSign className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className={`text-2xl font-bold tracking-tight ${headText}`}>{kpis.commissionPayable}</span>
-                <p className={`text-[10px] mt-1 ${mutedText}`}>Pending & approved payouts</p>
-              </div>
+        {/* Card 3: Referred Seafarers */}
+        <div className={card}>
+          <div className="flex items-center justify-between">
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Referred Seafarers</span>
+            <div className={`p-2 rounded-xl ${isDark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-50 text-emerald-600"}`}>
+              <Users className="w-4 h-4" />
             </div>
+          </div>
+          <div className="mt-4">
+            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.totalReferredSeafarers}</span>
+            <p className={`text-[9px] mt-1 ${mutedText}`}>Via referral links</p>
+          </div>
+        </div>
 
-            {/* Card 7: Commission Paid */}
-            <div className={card}>
-              <div className="flex items-center justify-between">
-                <span className={`text-[11px] font-semibold tracking-wider uppercase ${mutedText}`}>Commission Paid</span>
-                <div className="p-2.5 rounded-2xl bg-sky-500/10 text-sky-500">
-                  <DollarSign className="w-5 h-5" />
-                </div>
-              </div>
-              <div className="mt-4">
-                <span className={`text-2xl font-bold tracking-tight ${headText}`}>{kpis.commissionPaid}</span>
-                <p className={`text-[10px] mt-1 ${mutedText}`}>Settled disbursements</p>
-              </div>
+        {/* Card 4: Partner Apps */}
+        <div className={card}>
+          <div className="flex items-center justify-between">
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Partner Apps</span>
+            <div className={`p-2 rounded-xl ${isDark ? "bg-blue-500/10 text-blue-400" : "bg-blue-50 text-blue-600"}`}>
+              <Briefcase className="w-4 h-4" />
             </div>
+          </div>
+          <div className="mt-4">
+            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.pendingPartnerApps}</span>
+            <p className={`text-[9px] mt-1 ${mutedText}`}>Pending review</p>
+          </div>
+        </div>
 
+        {/* Card 5: Total Revenue */}
+        <div className={card}>
+          <div className="flex items-center justify-between">
+            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Total Revenue</span>
+            <div className={`p-2 rounded-xl ${isDark ? "bg-purple-500/10 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
+              <BarChart3 className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.totalRevenueEarned}</span>
+            <p className={`text-[9px] mt-1.5 ${mutedText}`}>From course bookings</p>
           </div>
         </div>
 
@@ -234,7 +192,7 @@ export default function AgentAdminDashboard() {
         </div>
 
         {/* Quick Actions Panel */}
-        <div className={card}>
+        <div className={`${card} self-start`}>
           <h3 className={`text-sm font-bold border-b pb-4 mb-4 ${borderB} ${headText}`}>Quick Operations</h3>
           <div className="space-y-3">
             <Link href="/agent-admin/agents?action=create" className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-xs font-semibold transition-all ${isDark ? "bg-white/5 border-white/5 hover:bg-white/10 text-white" : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"}`}>

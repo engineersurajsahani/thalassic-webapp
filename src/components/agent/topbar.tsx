@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
+import Link from "next/link";
 import { 
   Bell, Sun, Moon, Search, ChevronRight
 } from "lucide-react";
@@ -11,11 +12,12 @@ import {
 const pageNames: Record<string, string> = {
   "/agent/dashboard": "Dashboard",
   "/agent/referral-center": "Referral Center",
-  "/agent/referral-leads": "Referral Leads",
-  "/agent/referred-purchases": "Referred Purchases",
+  "/agent/referral-leads": "Referrals Tracker",
   "/agent/commissions": "Commissions",
+  "/agent/invoices": "Invoices Ledger",
   "/agent/documents": "Verification Documents",
-  "/agent/profile": "Profile Details",
+  "/agent/profile": "Account Settings",
+  "/agent/notifications": "Notifications Inbox",
   "/agent/support": "Support Tickets",
   "/agent/onboarding": "Onboarding Wizard",
 };
@@ -83,15 +85,15 @@ export default function AgentTopbar() {
         </button>
 
         <div className="relative">
-          <button
-            onClick={() => setShowNotifications(!showNotifications)}
+          <Link
+            href="/agent/notifications"
             className={`relative w-8 h-8 flex items-center justify-center rounded-lg transition-colors cursor-pointer ${
               isDark ? "text-white/40 hover:bg-white/8 hover:text-white/70" : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
             }`}
             aria-label="Notifications"
           >
             <Bell className="w-4 h-4" />
-          </button>
+          </Link>
         </div>
 
         <div className={`w-px h-5 mx-1 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />

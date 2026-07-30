@@ -12,8 +12,7 @@ import {
 const pageNames: Record<string, string> = {
   "/agent-admin/dashboard": "Dashboard",
   "/agent-admin/agents":   "Agent Management",
-  "/agent-admin/referral-leads": "Referral Leads",
-  "/agent-admin/seafarers":   "Referred Seafarers",
+  "/agent-admin/referral-leads": "Referrals Tracker",
   "/agent-admin/commissions":  "Commissions",
   "/agent-admin/reports":      "Reports",
   "/agent-admin/audit-logs":   "Audit Logs",

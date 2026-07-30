@@ -5,7 +5,7 @@ import { agentService } from "@/services/agent.service";
 import { api } from "@/lib/axios";
 import { useTheme } from "@/providers/theme-provider";
 import {
-  User, ShieldCheck, Key, CheckCircle2, AlertCircle, Save
+  User, ShieldCheck, Key, CheckCircle2, AlertCircle, Save, Bell
 } from "lucide-react";
 
 export default function AgentProfilePage() {
@@ -37,6 +37,19 @@ export default function AgentProfilePage() {
   const [profileError, setProfileError] = useState("");
   const [passwordSuccess, setPasswordSuccess] = useState("");
   const [passwordError, setPasswordError] = useState("");
+
+  const [notifications, setNotifications] = useState({
+    leadConversion: true,
+    commissionPaid: true,
+    documentAudit: true,
+    systemAnnouncements: false,
+  });
+  const [notifSuccess, setNotifSuccess] = useState("");
+
+  const handleSaveNotifications = () => {
+    setNotifSuccess("Alert preferences saved successfully!");
+    setTimeout(() => setNotifSuccess(""), 3000);
+  };
 
   const loadData = async () => {
     try {
@@ -119,13 +132,13 @@ export default function AgentProfilePage() {
         <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full w-fit ${
           isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
         }`}>
-          👤 Partner Identity
+          ⚙️ Account Config
         </span>
         <h1 className="text-3xl font-extrabold tracking-tight mt-1.5">
-          Profile Settings
+          Account Settings
         </h1>
         <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          Review your registered credentials, update agency contact points, and manage security settings.
+          Manage your agency profile, credentials, and notification alert preferences in one place.
         </p>
       </div>
 
@@ -307,87 +320,173 @@ export default function AgentProfilePage() {
           </form>
         </section>
 
-        {/* Change Password section */}
-        <section className={`rounded-3xl border p-6 md:p-8 shadow-xl flex flex-col justify-between ${
-          isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
-        }`}>
-          <form onSubmit={handlePasswordSubmit} className="space-y-6">
-            <h3 className="text-lg font-black tracking-tight border-b border-slate-800/40 pb-4 flex items-center gap-2">
-              <Key className="w-5 h-5 text-cyan-400" />
-              Change Password
-            </h3>
+        {/* Right Column: Stacked Credentials & Alerts */}
+        <div className="lg:col-span-1 space-y-6 self-start">
+          
+          {/* Change Password Card */}
+          <section className={`rounded-3xl border p-6 md:p-8 shadow-xl ${
+            isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
+          }`}>
+            <form onSubmit={handlePasswordSubmit} className="space-y-6">
+              <h3 className="text-lg font-black tracking-tight border-b border-slate-800/40 pb-4 flex items-center gap-2">
+                <Key className="w-5 h-5 text-cyan-400" />
+                Change Password
+              </h3>
 
-            {passwordSuccess && (
-              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-start gap-3 text-xs">
-                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{passwordSuccess}</span>
-              </div>
-            )}
+              {passwordSuccess && (
+                <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-start gap-3 text-xs animate-fadeIn">
+                  <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{passwordSuccess}</span>
+                </div>
+              )}
 
-            {passwordError && (
-              <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start gap-3 text-xs">
-                <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
-                <span>{passwordError}</span>
-              </div>
-            )}
+              {passwordError && (
+                <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start gap-3 text-xs animate-fadeIn">
+                  <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+                  <span>{passwordError}</span>
+                </div>
+              )}
 
-            <div className="space-y-4">
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">Current Password</label>
-                <input
-                  type="password"
-                  name="oldPassword"
-                  value={passwordData.oldPassword}
-                  onChange={handlePasswordChange}
-                  required
-                  placeholder="••••••••"
-                  className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none ${
-                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-850"
-                  }`}
-                />
+              <div className="space-y-4">
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-400">Current Password</label>
+                  <input
+                    type="password"
+                    name="oldPassword"
+                    value={passwordData.oldPassword}
+                    onChange={handlePasswordChange}
+                    required
+                    placeholder="••••••••"
+                    className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-850 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-400">New Password</label>
+                  <input
+                    type="password"
+                    name="newPassword"
+                    value={passwordData.newPassword}
+                    onChange={handlePasswordChange}
+                    required
+                    placeholder="••••••••"
+                    className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-850 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-xs font-black uppercase tracking-wider text-slate-400">Confirm New Password</label>
+                  <input
+                    type="password"
+                    name="confirmPassword"
+                    value={passwordData.confirmPassword}
+                    onChange={handlePasswordChange}
+                    required
+                    placeholder="••••••••"
+                    className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-850 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
               </div>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">New Password</label>
-                <input
-                  type="password"
-                  name="newPassword"
-                  value={passwordData.newPassword}
-                  onChange={handlePasswordChange}
-                  required
-                  placeholder="••••••••"
-                  className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none ${
-                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-850"
-                  }`}
-                />
-              </div>
+              <button
+                type="submit"
+                className={`w-full py-2.5 rounded-xl font-bold text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer mt-4 transition-all ${
+                  isDark ? "bg-cyan-600 hover:bg-cyan-505 text-white animate-pulse" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+                }`}
+              >
+                <Key className="w-4 h-4" /> Reset Password
+              </button>
+            </form>
+          </section>
 
-              <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">Confirm New Password</label>
-                <input
-                  type="password"
-                  name="confirmPassword"
-                  value={passwordData.confirmPassword}
-                  onChange={handlePasswordChange}
-                  required
-                  placeholder="••••••••"
-                  className={`w-full px-4 py-2.5 text-xs rounded-xl border outline-none ${
-                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-850"
-                  }`}
-                />
-              </div>
+          {/* Alert Preferences Card */}
+          <section className={`rounded-3xl border p-6 md:p-8 shadow-xl ${
+            isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
+          }`}>
+            <div className="flex items-center gap-2 border-b pb-4 mb-6 border-white/5">
+              <Bell className="w-5 h-5 text-cyan-400" />
+              <h3 className="text-sm font-bold">Alert Preferences</h3>
             </div>
 
-            <button
-              type="submit"
-              className={`w-full py-2.5 rounded-xl font-bold text-xs shadow-md flex items-center justify-center gap-1.5 cursor-pointer mt-4 transition-all ${
-                isDark ? "bg-cyan-600 hover:bg-cyan-505 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
-              }`}
-            >
-              <Key className="w-4 h-4" /> Reset Account Password
-            </button>
-          </form>
-        </section>
+            {notifSuccess && (
+              <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-start gap-3 text-xs mb-4 animate-fadeIn">
+                <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5" />
+                <span>{notifSuccess}</span>
+              </div>
+            )}
+
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-bold">Referral Leads Registered</p>
+                  <p className="text-[10px] mt-0.5 text-slate-450 leading-tight">Get notified immediately when seafarers register via your code.</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifications.leadConversion}
+                  onChange={(e) => setNotifications({ ...notifications, leadConversion: e.target.checked })}
+                  className="w-4 h-4 accent-cyan-550 cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                <div>
+                  <p className="text-xs font-bold">Commission Payout Actions</p>
+                  <p className="text-[10px] mt-0.5 text-slate-450 leading-tight">Receive updates regarding commission approvals and payments.</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifications.commissionPaid}
+                  onChange={(e) => setNotifications({ ...notifications, commissionPaid: e.target.checked })}
+                  className="w-4 h-4 accent-cyan-550 cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                <div>
+                  <p className="text-xs font-bold">KYC Document Verification Status</p>
+                  <p className="text-[10px] mt-0.5 text-slate-450 leading-tight">Get alerts on the verification result of your uploaded files.</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifications.documentAudit}
+                  onChange={(e) => setNotifications({ ...notifications, documentAudit: e.target.checked })}
+                  className="w-4 h-4 accent-cyan-550 cursor-pointer"
+                />
+              </div>
+
+              <div className="flex items-center justify-between border-t border-white/5 pt-4">
+                <div>
+                  <p className="text-xs font-bold">System Announcements</p>
+                  <p className="text-[10px] mt-0.5 text-slate-450 leading-tight">Receive emails regarding system changes or scheduled downtime.</p>
+                </div>
+                <input
+                  type="checkbox"
+                  checked={notifications.systemAnnouncements}
+                  onChange={(e) => setNotifications({ ...notifications, systemAnnouncements: e.target.checked })}
+                  className="w-4 h-4 accent-cyan-550 cursor-pointer"
+                />
+              </div>
+
+              <button
+                onClick={handleSaveNotifications}
+                className={`w-full py-2.5 text-xs font-bold rounded-xl mt-6 flex items-center justify-center gap-1.5 shadow-md cursor-pointer transition ${
+                  isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+                }`}
+              >
+                <Save className="w-3.5 h-3.5" />
+                Save Preferences
+              </button>
+            </div>
+          </section>
+
+        </div>
 
       </div>
     </div>

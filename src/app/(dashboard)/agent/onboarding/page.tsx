@@ -43,8 +43,12 @@ export default function OnboardingPage() {
     pan: { file: null as File | null, number: "" },
     cancelledCheque: { file: null as File | null },
     ownerPhoto: { file: null as File | null },
-    officePhotos: { file: null as File | null }
+    officePhotos: { file: null as File | null },
+    officeAddressProof: { file: null as File | null },
+    residentialAddressProof: { file: null as File | null }
   });
+
+  const [termsAgreed, setTermsAgreed] = useState(false);
 
   const handleProfileChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setProfile({
@@ -97,6 +101,10 @@ export default function OnboardingPage() {
 
   const handleCompleteOnboarding = async () => {
     setErrorMsg("");
+    if (!termsAgreed) {
+      setErrorMsg("You must accept the Terms & Conditions to complete your onboarding registration.");
+      return;
+    }
     setLoading(true);
     try {
       const codeClean = referralCode.trim().toUpperCase();
@@ -547,7 +555,65 @@ export default function OnboardingPage() {
                   {documents.ownerPhoto.file && <p className="text-[10px] text-slate-500 truncate">{documents.ownerPhoto.file.name}</p>}
                 </div>
               </div>
+
+              {/* Office Address Proof */}
+              <div className={`p-4 rounded-2xl border flex flex-col justify-between ${isDark ? "bg-slate-950/20 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-extrabold text-xs">Office Address Proof *</span>
+                    {documents.officeAddressProof.file && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                  </div>
+                  <label className="w-full flex items-center justify-center gap-2 py-2 border border-dashed rounded-lg text-xs cursor-pointer hover:bg-cyan-500/5 transition-colors">
+                    <Upload className="w-3.5 h-3.5" /> {documents.officeAddressProof.file ? "Change File" : "Select File"}
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="sr-only"
+                      onChange={(e) => handleDocFileChange("officeAddressProof", e.target.files?.[0] || null)}
+                    />
+                  </label>
+                  {documents.officeAddressProof.file && <p className="text-[10px] text-slate-500 truncate">{documents.officeAddressProof.file.name}</p>}
+                </div>
+              </div>
+
+              {/* Residential Address Proof */}
+              <div className={`p-4 rounded-2xl border flex flex-col justify-between ${isDark ? "bg-slate-950/20 border-slate-800" : "bg-slate-50 border-slate-200"}`}>
+                <div className="space-y-3">
+                  <div className="flex justify-between items-center">
+                    <span className="font-extrabold text-xs">Residential Address Proof *</span>
+                    {documents.residentialAddressProof.file && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                  </div>
+                  <label className="w-full flex items-center justify-center gap-2 py-2 border border-dashed rounded-lg text-xs cursor-pointer hover:bg-cyan-500/5 transition-colors">
+                    <Upload className="w-3.5 h-3.5" /> {documents.residentialAddressProof.file ? "Change File" : "Select File"}
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="sr-only"
+                      onChange={(e) => handleDocFileChange("residentialAddressProof", e.target.files?.[0] || null)}
+                    />
+                  </label>
+                  {documents.residentialAddressProof.file && <p className="text-[10px] text-slate-500 truncate">{documents.residentialAddressProof.file.name}</p>}
+                </div>
+              </div>
+
             </div>
+
+            {/* Terms and Conditions Acceptance */}
+            <div className={`mt-6 p-4 rounded-2xl border flex items-start gap-3 ${
+              isDark ? "bg-cyan-950/10 border-cyan-500/20 text-slate-300" : "bg-cyan-50/40 border-cyan-100 text-slate-700"
+            }`}>
+              <input
+                type="checkbox"
+                id="terms"
+                checked={termsAgreed}
+                onChange={(e) => setTermsAgreed(e.target.checked)}
+                className="mt-1 accent-cyan-500 w-4 h-4 rounded cursor-pointer"
+              />
+              <label htmlFor="terms" className="text-xs leading-relaxed cursor-pointer select-none">
+                I hereby declare that the details and identity/verification documents furnished above are true and correct. I accept the <strong>Hari Om Thalassic Manning Agent Terms of Service</strong>, including commission payout guidelines, compliance standards, and seafarer data privacy rules.
+              </label>
+            </div>
+
           </div>
         )}
 

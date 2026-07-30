@@ -6,22 +6,29 @@ import { api } from "@/lib/axios";
 import { useTheme } from "@/providers/theme-provider";
 import {
   Users, Plus, Search, Filter, Calendar, Edit2, AlertCircle, CheckCircle2,
-  Clock, XCircle, FileText, ChevronRight
+  Clock, XCircle, FileText, ChevronRight, ClipboardList
 } from "lucide-react";
+import Link from "next/link";
 
-export default function ReferralLeadsPage() {
+export default function ReferralsTrackerPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
+  const [activeTab, setActiveTab] = useState<"leads" | "purchases">("leads");
+  const [loading, setLoading] = useState(true);
+
+  // Leads Data
   const [leads, setLeads] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  
-  // Search & Filter
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("all");
+  const [searchTermLeads, setSearchTermLeads] = useState("");
+  const [statusFilterLeads, setStatusFilterLeads] = useState("all");
 
-  // Modal states
+  // Purchases Data
+  const [purchases, setPurchases] = useState<any[]>([]);
+  const [searchTermPurchases, setSearchTermPurchases] = useState("");
+  const [statusFilterPurchases, setStatusFilterPurchases] = useState("all");
+
+  // Modal states for Leads
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<"add" | "edit">("add");
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
@@ -37,22 +44,25 @@ export default function ReferralLeadsPage() {
     status: "New"
   });
 
-  const loadData = async () => {
+  const loadAllData = async () => {
     try {
-      const data = await agentService.getLeads();
-      setLeads(data);
-
-      const courseRes = await api.get("/courses");
+      const [leadsData, purchasesData, courseRes] = await Promise.all([
+        agentService.getLeads(),
+        agentService.getPurchases(),
+        api.get("/courses")
+      ]);
+      setLeads(leadsData);
+      setPurchases(purchasesData);
       setCourses(courseRes.data || []);
     } catch (err) {
-      console.error("Failed to load referral leads:", err);
+      console.error("Failed to load referrals tracker data:", err);
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    loadData();
+    loadAllData();
   }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -109,13 +119,13 @@ export default function ReferralLeadsPage() {
         await agentService.updateLead(selectedLeadId, formData);
       }
       setShowModal(false);
-      await loadData();
+      await loadAllData();
     } catch (err: any) {
       setErrorMsg(err.response?.data?.message || "Failed to submit lead. Please try again.");
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getLeadStatusBadge = (status: string) => {
     switch (status) {
       case "Converted":
         return (
@@ -156,6 +166,21 @@ export default function ReferralLeadsPage() {
     }
   };
 
+  const getPurchaseStatusBadge = (status: string) => {
+    if (status === "Completed") {
+      return (
+        <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+          <CheckCircle2 className="w-3 h-3" /> Completed
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-red-400 bg-red-400/10 px-2.5 py-0.5 rounded-full border border-red-500/20">
+        <XCircle className="w-3 h-3" /> Cancelled
+      </span>
+    );
+  };
+
   const getDaysRemaining = (expiryDate: string, status: string) => {
     if (status === "Converted" || status === "Cancelled" || status === "Expired") return null;
     const now = new Date();
@@ -168,15 +193,30 @@ export default function ReferralLeadsPage() {
     return <span className="text-slate-500 text-[10px]">{diffDays} days left</span>;
   };
 
+  // Filter Leads
   const filteredLeads = leads.filter((lead) => {
     const matchesSearch =
-      lead.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      lead.phone.includes(searchTerm);
+      lead.name.toLowerCase().includes(searchTermLeads.toLowerCase()) ||
+      lead.email.toLowerCase().includes(searchTermLeads.toLowerCase()) ||
+      lead.phone.includes(searchTermLeads);
 
     const matchesStatus =
-      statusFilter === "all" ||
-      lead.status.toLowerCase() === statusFilter.toLowerCase();
+      statusFilterLeads === "all" ||
+      lead.status.toLowerCase() === statusFilterLeads.toLowerCase();
+
+    return matchesSearch && matchesStatus;
+  });
+
+  // Filter Purchases
+  const filteredPurchases = purchases.filter((pur) => {
+    const matchesSearch =
+      pur.seafarerName.toLowerCase().includes(searchTermPurchases.toLowerCase()) ||
+      pur.courseName.toLowerCase().includes(searchTermPurchases.toLowerCase()) ||
+      pur.invoiceNumber.toLowerCase().includes(searchTermPurchases.toLowerCase());
+
+    const matchesStatus =
+      statusFilterPurchases === "all" ||
+      pur.status.toLowerCase() === statusFilterPurchases.toLowerCase();
 
     return matchesSearch && matchesStatus;
   });
@@ -184,149 +224,262 @@ export default function ReferralLeadsPage() {
   if (loading) {
     return (
       <div className="space-y-8 animate-pulse">
-        <div className="h-16 rounded-2xl ${isDark ? 'bg-[#09162c]' : 'bg-slate-100'}" />
-        <div className="h-96 rounded-3xl ${isDark ? 'bg-[#09162c]' : 'bg-slate-100'}" />
+        <div className="h-16 rounded-2xl bg-slate-100 dark:bg-[#09162c]" />
+        <div className="h-96 rounded-3xl bg-slate-100 dark:bg-[#09162c]" />
       </div>
     );
   }
+
+  const borderB = isDark ? "border-slate-800" : "border-slate-100";
+  const labelText = isDark ? "text-slate-500" : "text-slate-400";
+  const inputBg = isDark ? "bg-[#0b182d] border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-800";
 
   return (
     <div className="space-y-8 animate-fadeIn relative pb-10">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
+        <div className="flex flex-col gap-1">
           <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full w-fit ${
             isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
           }`}>
-            👥 Referral Pipeline
+            👥 Referrals Tracker
           </span>
           <h1 className="text-3xl font-extrabold tracking-tight mt-1.5">
-            Referral Leads Directory
+            Referrals Directory
           </h1>
           <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-            Manage prospective seafarers. Submitted leads are locked to your referral account for 45 days.
+            Track prospective leads in pipeline or monitor course bookings completed using your code.
           </p>
         </div>
 
+        {activeTab === "leads" && (
+          <button
+            onClick={openAddModal}
+            className={`px-5 py-3 rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5 cursor-pointer transition-all ${
+              isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-900/15" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white shadow-blue-200"
+            }`}
+          >
+            <Plus className="w-4 h-4" /> Add Referral Lead
+          </button>
+        )}
+      </div>
+
+      {/* Tabs */}
+      <div className={`flex border-b ${isDark ? "border-white/5" : "border-slate-200"}`}>
         <button
-          onClick={openAddModal}
-          className={`px-5 py-3 rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5 cursor-pointer transition-all ${
-            isDark ? "bg-cyan-600 hover:bg-cyan-505 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+          onClick={() => setActiveTab("leads")}
+          className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            activeTab === "leads"
+              ? "border-cyan-500 text-cyan-400 font-extrabold"
+              : "border-transparent text-slate-450 hover:text-slate-250"
           }`}
         >
-          <Plus className="w-4 h-4" /> Add Referral Lead
+          Referral Pipeline (Leads)
+        </button>
+        <button
+          onClick={() => setActiveTab("purchases")}
+          className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            activeTab === "purchases"
+              ? "border-cyan-500 text-cyan-400 font-extrabold"
+              : "border-transparent text-slate-450 hover:text-slate-250"
+          }`}
+        >
+          Referred Purchases (Bookings)
         </button>
       </div>
 
-      {/* Directory Operations Card */}
-      <section className={`rounded-3xl border p-6 md:p-8 shadow-xl relative overflow-hidden ${
-        isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
-      }`}>
-        
-        {/* Search & Filters */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-800/40 pb-5 mb-5">
-          <div className="flex-1 w-full max-w-sm">
-            <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${isDark ? "bg-[#0b182d] border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-850"}`}>
-              <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
-              <input
-                type="text"
-                placeholder="Search leads by name, email, or mobile..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-transparent outline-none w-full text-[13px]"
-              />
-            </label>
+      {activeTab === "leads" ? (
+        <section className={`rounded-3xl border p-6 md:p-8 shadow-xl relative overflow-hidden ${
+          isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
+        }`}>
+          {/* Search & Filters (Leads) */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-800/40 pb-5 mb-5">
+            <div className="flex-1 w-full max-w-sm">
+              <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${inputBg}`}>
+                <Search className="w-3.5 h-3.5 shrink-0 opacity-55" />
+                <input
+                  type="text"
+                  placeholder="Search leads by name, email, or mobile..."
+                  value={searchTermLeads}
+                  onChange={(e) => setSearchTermLeads(e.target.value)}
+                  className="bg-transparent outline-none w-full text-[13px]"
+                />
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
+              <Filter className="w-4 h-4 opacity-55" />
+              <select
+                value={statusFilterLeads}
+                onChange={(e) => setStatusFilterLeads(e.target.value)}
+                className={`p-2.5 text-xs rounded-lg border outline-none cursor-pointer ${inputBg}`}
+              >
+                <option value="all">All Lead Statuses</option>
+                <option value="new">New</option>
+                <option value="contacted">Contacted</option>
+                <option value="registered">Registered</option>
+                <option value="converted">Converted</option>
+                <option value="expired">Expired</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
-            <Filter className="w-4 h-4 opacity-50" />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className={`p-2.5 text-xs rounded-lg border outline-none cursor-pointer ${
-                isDark ? "bg-[#0b182d] border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-800"
-              }`}
-            >
-              <option value="all">All Lead Statuses</option>
-              <option value="new">New</option>
-              <option value="contacted">Contacted</option>
-              <option value="registered">Registered</option>
-              <option value="converted">Converted</option>
-              <option value="expired">Expired</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-        </div>
-
-        {/* Directory Table */}
-        {filteredLeads.length === 0 ? (
-          <div className="text-center py-16 text-slate-500">
-            <Users className="w-10 h-10 mx-auto opacity-30 mb-3" />
-            <h4 className="text-sm font-bold">No referral leads found</h4>
-            <p className="text-xs mt-1">Try modifying your query or click Add Lead on the top right.</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs leading-normal">
-              <thead>
-                <tr className={`font-black border-b uppercase tracking-widest text-[9px] ${
-                  isDark ? "text-slate-500 border-slate-800" : "text-slate-400 border-slate-100"
-                }`}>
-                  <th className="pb-3 pr-4">Seafarer Name</th>
-                  <th className="pb-3 pr-4">Contact Info</th>
-                  <th className="pb-3 pr-4">Interested Course</th>
-                  <th className="pb-3 pr-4">Created Date</th>
-                  <th className="pb-3 pr-4">Validity status</th>
-                  <th className="pb-3 pr-4">Status</th>
-                  <th className="pb-3 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-800/10">
-                {filteredLeads.map((lead) => (
-                  <tr key={lead.id} className={`hover:bg-slate-500/5 transition-colors ${
-                    isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
+          {/* Directory Table (Leads) */}
+          {filteredLeads.length === 0 ? (
+            <div className="text-center py-16 text-slate-500">
+              <Users className="w-10 h-10 mx-auto opacity-30 mb-3" />
+              <h4 className="text-sm font-bold">No referral leads found</h4>
+              <p className="text-xs mt-1">Try modifying your query or click Add Lead on the top right.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs leading-normal">
+                <thead>
+                  <tr className={`font-black border-b uppercase tracking-widest text-[9px] ${
+                    isDark ? "text-slate-500 border-slate-800" : "text-slate-400 border-slate-100"
                   }`}>
-                    <td className="py-4 pr-4 font-black text-sm">
-                      {lead.name}
-                      {lead.city && <span className="block text-[10px] text-slate-500 font-medium">{lead.city}</span>}
-                    </td>
-                    <td className="py-4 pr-4 space-y-0.5">
-                      <span className="block font-bold">{lead.phone}</span>
-                      <span className={`block text-[10px] ${isDark ? "text-slate-450" : "text-slate-500"}`}>{lead.email}</span>
-                    </td>
-                    <td className="py-4 pr-4 font-semibold max-w-[200px] truncate">
-                      {lead.courseName}
-                    </td>
-                    <td className="py-4 pr-4">
-                      {new Date(lead.created_at).toLocaleDateString()}
-                    </td>
-                    <td className="py-4 pr-4 font-semibold">
-                      {getDaysRemaining(lead.expiry_at, lead.status) || "—"}
-                    </td>
-                    <td className="py-4 pr-4">
-                      {getStatusBadge(lead.status)}
-                    </td>
-                    <td className="py-4 text-right flex justify-end">
-                      <button
-                        onClick={() => openEditModal(lead)}
-                        className={`p-2.5 rounded-xl border flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
-                          isDark 
-                            ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800 hover:border-slate-700" 
-                            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                        }`}
-                        title="Edit lead details"
-                      >
-                        <Edit2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
+                    <th className="pb-3 pr-4">Seafarer Name</th>
+                    <th className="pb-3 pr-4">Contact Info</th>
+                    <th className="pb-3 pr-4">Interested Course</th>
+                    <th className="pb-3 pr-4">Created Date</th>
+                    <th className="pb-3 pr-4">Validity status</th>
+                    <th className="pb-3 pr-4">Status</th>
+                    <th className="pb-3 text-right">Actions</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-slate-800/10">
+                  {filteredLeads.map((lead) => (
+                    <tr key={lead.id} className={`hover:bg-slate-500/5 transition-colors ${
+                      isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
+                    }`}>
+                      <td className="py-4 pr-4 font-black text-sm">
+                        {lead.name}
+                        {lead.city && <span className="block text-[10px] text-slate-500 font-medium">{lead.city}</span>}
+                      </td>
+                      <td className="py-4 pr-4 space-y-0.5">
+                        <span className="block font-bold">{lead.phone}</span>
+                        <span className={`block text-[10px] ${labelText}`}>{lead.email}</span>
+                      </td>
+                      <td className="py-4 pr-4 font-semibold max-w-[200px] truncate">
+                        {lead.courseName}
+                      </td>
+                      <td className="py-4 pr-4">
+                        {new Date(lead.created_at).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 pr-4 font-semibold">
+                        {getDaysRemaining(lead.expiry_at, lead.status) || "—"}
+                      </td>
+                      <td className="py-4 pr-4">
+                        {getLeadStatusBadge(lead.status)}
+                      </td>
+                      <td className="py-4 text-right flex justify-end">
+                        <button
+                          onClick={() => openEditModal(lead)}
+                          className={`p-2 rounded-xl border flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+                            isDark 
+                              ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800 hover:border-slate-700" 
+                              : "border-slate-200 bg-slate-50 text-slate-750 hover:bg-slate-100"
+                          }`}
+                          title="Edit lead details"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      ) : (
+        <section className={`rounded-3xl border p-6 md:p-8 shadow-xl relative overflow-hidden ${
+          isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
+        }`}>
+          {/* Search & Filters (Purchases) */}
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-800/40 pb-5 mb-5">
+            <div className="flex-1 w-full max-w-sm">
+              <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${inputBg}`}>
+                <Search className="w-3.5 h-3.5 shrink-0 opacity-55" />
+                <input
+                  type="text"
+                  placeholder="Search by invoice, course, or crew name..."
+                  value={searchTermPurchases}
+                  onChange={(e) => setSearchTermPurchases(e.target.value)}
+                  className="bg-transparent outline-none w-full text-[13px]"
+                />
+              </label>
+            </div>
+
+            <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
+              <Filter className="w-4 h-4 opacity-55" />
+              <select
+                value={statusFilterPurchases}
+                onChange={(e) => setStatusFilterPurchases(e.target.value)}
+                className={`p-2.5 text-xs rounded-lg border outline-none cursor-pointer ${inputBg}`}
+              >
+                <option value="all">All Purchases</option>
+                <option value="completed">Completed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
           </div>
-        )}
-      </section>
+
+          {/* Directory Table (Purchases) */}
+          {filteredPurchases.length === 0 ? (
+            <div className="text-center py-16 text-slate-500">
+              <ClipboardList className="w-10 h-10 mx-auto opacity-30 mb-3" />
+              <h4 className="text-sm font-bold">No purchase records found</h4>
+              <p className="text-xs mt-1">Referred checkouts will display here automatically.</p>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs leading-normal">
+                <thead>
+                  <tr className={`font-black border-b uppercase tracking-widest text-[9px] ${
+                    isDark ? "text-slate-500 border-slate-800" : "text-slate-400 border-slate-100"
+                  }`}>
+                    <th className="pb-3 pr-4">Invoice Number</th>
+                    <th className="pb-3 pr-4">Seafarer Name</th>
+                    <th className="pb-3 pr-4">Course Name</th>
+                    <th className="pb-3 pr-4">Purchase Date</th>
+                    <th className="pb-3 pr-4">Course Fee</th>
+                    <th className="pb-3 text-right">Status</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-800/10">
+                  {filteredPurchases.map((pur, i) => (
+                    <tr key={i} className={`hover:bg-slate-500/5 transition-colors ${
+                      isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
+                    }`}>
+                      <td className="py-4 pr-4 font-black tracking-wider text-cyan-400 text-[10px]">
+                        {pur.invoiceNumber}
+                      </td>
+                      <td className="py-4 pr-4 font-extrabold">
+                        {pur.seafarerName}
+                      </td>
+                      <td className="py-4 pr-4 font-semibold max-w-[250px] truncate">
+                        {pur.courseName}
+                      </td>
+                      <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                        {new Date(pur.purchaseDate).toLocaleDateString()}
+                      </td>
+                      <td className="py-4 pr-4 font-black">
+                        ₹{pur.courseFee?.toLocaleString()}
+                      </td>
+                      <td className="py-4 text-right">
+                        {getPurchaseStatusBadge(pur.status)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
 
       {/* ADD / EDIT LEAD MODAL */}
       {showModal && (
@@ -471,7 +624,7 @@ export default function ReferralLeadsPage() {
                   type="button"
                   onClick={() => setShowModal(false)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
-                    isDark ? "border-slate-800 hover:bg-white/5" : "border-slate-300 hover:bg-slate-50 text-slate-600"
+                    isDark ? "border-slate-800 hover:bg-white/5" : "border-slate-300 hover:bg-slate-50 text-slate-650"
                   }`}
                 >
                   Cancel
@@ -479,7 +632,7 @@ export default function ReferralLeadsPage() {
                 <button
                   type="submit"
                   className={`px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-all ${
-                    isDark ? "bg-cyan-600 hover:bg-cyan-505 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+                    isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
                   }`}
                 >
                   {modalMode === "add" ? "Register Lead" : "Save Changes"}

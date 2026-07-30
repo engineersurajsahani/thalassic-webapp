@@ -25,6 +25,17 @@ export default function AgentManagement() {
   const [showCommissionModal, setShowCommissionModal] = useState(false);
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editName, setEditName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editAgencyName, setEditAgencyName] = useState("");
+  const [editOfficeAddress, setEditOfficeAddress] = useState("");
+  const [editError, setEditError] = useState("");
+  const [editSuccess, setEditSuccess] = useState(false);
+
+  const [verifyingDocId, setVerifyingDocId] = useState<string | null>(null);
+  const [verificationRemarks, setVerificationRemarks] = useState("");
 
   // Selected agent for modals
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
@@ -185,6 +196,53 @@ export default function AgentManagement() {
     setShowQrModal(true);
   };
 
+  const openEditModal = (agent: any) => {
+    setSelectedAgent(agent);
+    setEditName(agent.name || "");
+    setEditEmail(agent.email || "");
+    setEditPhone(agent.phone || "");
+    setEditAgencyName(agent.agencyName || "");
+    setEditOfficeAddress(agent.officeAddress || "");
+    setEditError("");
+    setEditSuccess(false);
+    setShowEditModal(true);
+  };
+
+  const handleEditAgent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setEditError("");
+    setEditSuccess(false);
+    try {
+      await agentAdminService.updateAgentDetails(selectedAgent.id, {
+        name: editName,
+        email: editEmail,
+        phone: editPhone,
+        agencyName: editAgencyName,
+        officeAddress: editOfficeAddress
+      });
+      setEditSuccess(true);
+      fetchAgents();
+      setTimeout(() => {
+        setShowEditModal(false);
+      }, 1500);
+    } catch (err: any) {
+      setEditError(err.message || "Failed to update agent details.");
+    }
+  };
+
+  const handleVerifyDocument = async (agentId: string, docId: string, status: string) => {
+    try {
+      await agentAdminService.verifyAgentDocument(agentId, docId, status, verificationRemarks);
+      const updatedChecklist = await agentAdminService.getAgentOnboarding(agentId);
+      setOnboardingChecklist(updatedChecklist);
+      setVerificationRemarks("");
+      setVerifyingDocId(null);
+      fetchAgents();
+    } catch (err) {
+      console.error("Failed to verify document:", err);
+    }
+  };
+
   // Filters mapping
   const filteredAgents = agents.filter(agent => {
     const matchesSearch = 
@@ -339,6 +397,13 @@ export default function AgentManagement() {
                     {/* Actions */}
                     <td className="py-4 px-2 text-right">
                       <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={() => openEditModal(agent)}
+                          className={`p-1.5 rounded-lg border transition ${isDark ? "border-white/5 hover:bg-white/5 text-white/50 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800"}`}
+                          title="Edit Agent Info"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
                         <button
                           onClick={() => openCommissionModal(agent)}
                           className={`p-1.5 rounded-lg border transition ${isDark ? "border-white/5 hover:bg-white/5 text-white/50 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800"}`}
@@ -570,7 +635,7 @@ export default function AgentManagement() {
       {/* --- ONBOARDING DETAILS MODAL --- */}
       {showOnboardingModal && onboardingChecklist && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-3xl relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-2xl p-6 rounded-3xl relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
             <button 
               onClick={() => setShowOnboardingModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -579,33 +644,203 @@ export default function AgentManagement() {
             </button>
             <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
               <CheckSquare className="w-5 h-5 text-cyan-500" />
-              <h3 className="text-sm font-bold">Onboarding Progress</h3>
+              <h3 className="text-sm font-bold">Onboarding & KYC Verification</h3>
             </div>
             
-            <div className="mb-4">
+            <div className="mb-6">
               <p className={`text-xs font-bold ${isDark ? "text-white/80" : "text-slate-800"}`}>{selectedAgent?.name}</p>
               <p className={`text-[10px] ${labelText}`}>Status: {onboardingChecklist.status}</p>
             </div>
 
-            <div className="space-y-4">
-              {onboardingChecklist.checklist.map((step: any) => (
-                <div key={step.step} className="flex items-start gap-3">
-                  <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
-                    step.status === 'completed'
-                      ? "bg-emerald-500/10 text-emerald-500"
-                      : "bg-white/5 border border-white/10 text-white/30"
-                  }`}>
-                    {step.status === 'completed' ? <Check className="w-3.5 h-3.5" /> : step.step}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Checklist Column */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Checklist Steps</h4>
+                {onboardingChecklist.checklist.map((step: any) => (
+                  <div key={step.step} className="flex items-start gap-3">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
+                      step.status === 'completed'
+                        ? "bg-emerald-500/10 text-emerald-500"
+                        : "bg-white/5 border border-white/10 text-white/30"
+                    }`}>
+                      {step.status === 'completed' ? <Check className="w-3.5 h-3.5" /> : step.step}
+                    </div>
+                    <div>
+                      <p className={`text-xs font-semibold ${step.status === 'completed' ? (isDark ? "text-white" : "text-slate-850") : (isDark ? "text-white/30" : "text-slate-400")}`}>{step.label}</p>
+                      <p className={`text-[10px] mt-0.5 ${step.status === 'completed' ? "text-emerald-500/80" : labelText}`}>
+                        {step.status === 'completed' ? 'Completed' : 'Pending'}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className={`text-xs font-semibold ${step.status === 'completed' ? (isDark ? "text-white" : "text-slate-850") : (isDark ? "text-white/30" : "text-slate-400")}`}>{step.label}</p>
-                    <p className={`text-[10px] mt-0.5 ${step.status === 'completed' ? "text-emerald-500/80" : labelText}`}>
-                      {step.status === 'completed' ? 'Verification Completed' : 'Pending Action'}
-                    </p>
+                ))}
+              </div>
+
+              {/* Documents Verification Column */}
+              <div className="space-y-4">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">KYC Credentials Documents</h4>
+                {(!onboardingChecklist.documents || onboardingChecklist.documents.length === 0) ? (
+                  <p className={`text-xs italic ${mt}`}>No verification credentials uploaded yet.</p>
+                ) : (
+                  <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
+                    {onboardingChecklist.documents.map((doc: any) => (
+                      <div key={doc.id} className={`p-3 rounded-2xl border ${isDark ? "bg-slate-900/40 border-white/5" : "bg-slate-50 border-slate-200"}`}>
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <p className="text-xs font-bold capitalize">{doc.type.replace(/([A-Z])/g, ' $1')}</p>
+                            <a
+                              href={`http://localhost:4000${doc.url}`}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[10px] text-cyan-400 hover:underline mt-0.5 block truncate max-w-[180px]"
+                            >
+                              {doc.name}
+                            </a>
+                          </div>
+                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                            doc.status === 'Verified'
+                              ? "bg-emerald-500/10 text-emerald-500"
+                              : doc.status === 'Rejected'
+                              ? "bg-red-500/10 text-red-500"
+                              : "bg-amber-500/10 text-amber-500"
+                          }`}>
+                            {doc.status}
+                          </span>
+                        </div>
+
+                        {/* Verification Actions */}
+                        {doc.status !== 'Verified' && (
+                          <div className="mt-3 pt-3 border-t border-white/5 flex flex-col gap-2">
+                            {verifyingDocId === doc.id ? (
+                              <div className="space-y-2">
+                                <input
+                                  type="text"
+                                  placeholder="Reason / Remarks (mandatory for reject)"
+                                  value={verificationRemarks}
+                                  onChange={(e) => setVerificationRemarks(e.target.value)}
+                                  className={`w-full px-2.5 py-1.5 rounded-lg border text-[10px] outline-none ${inputBg}`}
+                                />
+                                <div className="flex gap-2 justify-end">
+                                  <button
+                                    onClick={() => setVerifyingDocId(null)}
+                                    className="px-2.5 py-1 rounded bg-slate-800 text-[9px] hover:bg-slate-700 text-white"
+                                  >
+                                    Cancel
+                                  </button>
+                                  <button
+                                    onClick={() => handleVerifyDocument(selectedAgent.id, doc.id, 'Rejected')}
+                                    disabled={!verificationRemarks.trim()}
+                                    className="px-2.5 py-1 rounded bg-red-600 hover:bg-red-500 text-[9px] text-white disabled:opacity-50"
+                                  >
+                                    Reject
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={() => setVerifyingDocId(doc.id)}
+                                  className="px-2.5 py-1 rounded border border-red-500/30 text-red-400 hover:bg-red-500/10 text-[9px]"
+                                >
+                                  Reject
+                                </button>
+                                <button
+                                  onClick={() => handleVerifyDocument(selectedAgent.id, doc.id, 'Verified')}
+                                  className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-[9px] text-white"
+                                >
+                                  Verify
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
-                </div>
-              ))}
+                )}
+              </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- EDIT AGENT MODAL --- */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className={`w-full max-w-md p-6 rounded-3xl relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+            <button 
+              onClick={() => setShowEditModal(false)}
+              className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
+              <Edit2 className="w-5 h-5 text-cyan-500" />
+              <h3 className="text-sm font-bold">Edit Agent Information</h3>
+            </div>
+
+            {editError && <p className="mb-4 text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">{editError}</p>}
+            {editSuccess && <p className="mb-4 text-xs text-emerald-500 bg-emerald-500/10 p-2 rounded-lg">Agent profile updated successfully!</p>}
+
+            <form onSubmit={handleEditAgent} className="space-y-4">
+              <div className="space-y-1">
+                <label className={`text-[10px] font-bold ${labelText}`}>Full Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className={`text-[10px] font-bold ${labelText}`}>Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  value={editEmail}
+                  onChange={(e) => setEditEmail(e.target.value)}
+                  className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className={`text-[10px] font-bold ${labelText}`}>Mobile Number</label>
+                <input
+                  type="text"
+                  value={editPhone}
+                  onChange={(e) => setEditPhone(e.target.value)}
+                  className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className={`text-[10px] font-bold ${labelText}`}>Agency Company Name</label>
+                <input
+                  type="text"
+                  value={editAgencyName}
+                  onChange={(e) => setEditAgencyName(e.target.value)}
+                  className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className={`text-[10px] font-bold ${labelText}`}>Office Premises Address</label>
+                <input
+                  type="text"
+                  value={editOfficeAddress}
+                  onChange={(e) => setEditOfficeAddress(e.target.value)}
+                  className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
+              >
+                Save Details
+              </button>
+            </form>
           </div>
         </div>
       )}

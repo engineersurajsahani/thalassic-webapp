@@ -14,8 +14,7 @@ import {
 const menuItems = [
   { label: "Dashboard",          href: "/agent-admin/dashboard",      icon: LayoutDashboard },
   { label: "Agents",             href: "/agent-admin/agents",         icon: Users           },
-  { label: "Referral Leads",     href: "/agent-admin/referral-leads", icon: FileText        },
-  { label: "Referred Seafarers", href: "/agent-admin/seafarers",      icon: ClipboardList   },
+  { label: "Referrals Tracker",  href: "/agent-admin/referral-leads", icon: FileText        },
   { label: "Commissions",        href: "/agent-admin/commissions",     icon: DollarSign      },
   { label: "Reports",            href: "/agent-admin/reports",         icon: BarChart3       },
   { label: "Audit Logs",         href: "/agent-admin/audit-logs",      icon: ShieldAlert     },

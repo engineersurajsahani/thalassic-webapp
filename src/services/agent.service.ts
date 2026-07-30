@@ -79,5 +79,30 @@ export const agentService = {
   async createSupportTicket(ticketData: any) {
     const response = await api.post("/agent/support", ticketData);
     return response.data;
+  },
+
+  async getInvoices() {
+    const response = await api.get("/agent/invoices");
+    return response.data;
+  },
+
+  async getNotifications() {
+    const response = await api.get("/agent/notifications");
+    return response.data;
+  },
+
+  async markNotificationRead(id: string) {
+    const response = await api.patch(`/agent/notifications/${id}/read`);
+    return response.data;
+  },
+
+  async deleteNotification(id: string) {
+    const response = await api.delete(`/agent/notifications/${id}`);
+    return response.data;
+  },
+
+  async changePassword(passwordData: any) {
+    const response = await api.put("/agent/settings/password", passwordData);
+    return response.data;
   }
 };

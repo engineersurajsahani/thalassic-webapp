@@ -459,7 +459,7 @@ function Hero() {
               </Link>
 
               <Link
-                href="/contact"
+                href="/register"
                 className="px-6 py-4 font-bold text-slate-300 hover:text-white transition-colors underline-offset-8 hover:underline"
               >
                 Contact Us

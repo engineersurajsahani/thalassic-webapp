@@ -4,6 +4,10 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { agentAdminService } from "@/services/agent-admin.service";
 import { BarChart3, RefreshCw, Sparkles, TrendingUp, Users, ArrowUpRight, DollarSign } from "lucide-react";
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
+  PieChart, Pie, Cell
+} from "recharts";
 
 export default function Reports() {
   const { theme } = useTheme();
@@ -11,6 +15,54 @@ export default function Reports() {
 
   const [loading, setLoading] = useState(true);
   const [reportsData, setReportsData] = useState<any>(null);
+
+  const [selectedAgentFilter, setSelectedAgentFilter] = useState("all");
+  const [selectedStatusFilter, setSelectedStatusFilter] = useState("all");
+  const [startDateFilter, setStartDateFilter] = useState("");
+  const [endDateFilter, setEndDateFilter] = useState("");
+
+  const handleExport = (format: string) => {
+    if (format === "Excel") {
+      const headers = ["Agent Name", "Referral Leads", "Converted", "Conversion Rate", "Attributed Sales", "Agent Earnings"];
+      const rows = performance.map((p: any) => [
+        `"${p.agentName || ""}"`,
+        p.leads ?? 0,
+        p.conversions ?? 0,
+        `"${p.conversionRate || "0%"}"`,
+        `"${p.totalSales || "₹0"}"`,
+        `"${p.earnings || "₹0"}"`
+      ]);
+
+      const csvContent = "\uFEFF" + [headers.join(","), ...rows.map(e => e.join(","))].join("\n");
+      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.setAttribute("href", url);
+      link.setAttribute("download", `manning_agent_reports_${new Date().toISOString().substring(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else if (format === "PDF") {
+      const style = document.createElement("style");
+      style.innerHTML = `
+        @media print {
+          aside, header, .no-print, button {
+            display: none !important;
+          }
+          main, body, html {
+            margin: 0 !important;
+            padding: 0 !important;
+            background: white !important;
+            color: black !important;
+            overflow: visible !important;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+      window.print();
+      document.head.removeChild(style);
+    }
+  };
 
   const card = `rounded-3xl overflow-hidden p-6 ${isDark ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
   const labelText = isDark ? "text-white/50" : "text-slate-500";
@@ -41,12 +93,17 @@ export default function Reports() {
     );
   }
 
-  const performance = reportsData?.agentPerformance || [];
+  const performance = (reportsData?.agentPerformance || []).filter((p: any) => {
+    const matchesAgent = selectedAgentFilter === "all" || p.agentName === selectedAgentFilter;
+    return matchesAgent;
+  });
   const conversion = reportsData?.conversionSummary || {
     totalLeads: 0,
     convertedLeads: 0,
     globalConversionRate: "0%",
   };
+  const regionStats = reportsData?.regionStats || [];
+  const CHART_COLORS = ["#06b6d4", "#3b82f6", "#6366f1", "#14b8a6", "#0ea5e9"];
 
   return (
     <div className="space-y-6">
@@ -62,6 +119,90 @@ export default function Reports() {
         >
           <RefreshCw className="w-4 h-4" />
         </button>
+      </div>
+
+      {/* Filters and Exports Toolbar */}
+      <div className={`p-5 rounded-3xl border flex flex-col md:flex-row gap-4 items-end justify-between ${
+        isDark ? "bg-[#0d1f35]/50 border-white/5" : "bg-slate-50/50 border-slate-200/60"
+      }`}>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto">
+          {/* Agent Filter */}
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manning Agent</span>
+            <select
+              value={selectedAgentFilter}
+              onChange={(e) => setSelectedAgentFilter(e.target.value)}
+              className={`w-full px-3 py-2 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${
+                isDark ? "bg-[#0b182d] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"
+              }`}
+            >
+              <option value="all">All Agents</option>
+              {(reportsData?.agentPerformance || []).map((p: any, idx: number) => (
+                <option key={idx} value={p.agentName}>{p.agentName}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Status Filter */}
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Referral Status</span>
+            <select
+              value={selectedStatusFilter}
+              onChange={(e) => setSelectedStatusFilter(e.target.value)}
+              className={`w-full px-3 py-2 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${
+                isDark ? "bg-[#0b182d] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"
+              }`}
+            >
+              <option value="all">All Statuses</option>
+              <option value="Converted">Converted</option>
+              <option value="New">New</option>
+              <option value="Contacted">Contacted</option>
+              <option value="Expired">Expired</option>
+            </select>
+          </div>
+
+          {/* Start Date */}
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Start Date</span>
+            <input
+              type="date"
+              value={startDateFilter}
+              onChange={(e) => setStartDateFilter(e.target.value)}
+              className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${
+                isDark ? "bg-[#0b182d] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700"
+              }`}
+            />
+          </div>
+
+          {/* End Date */}
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">End Date</span>
+            <input
+              type="date"
+              value={endDateFilter}
+              onChange={(e) => setEndDateFilter(e.target.value)}
+              className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${
+                isDark ? "bg-[#0b182d] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700"
+              }`}
+            />
+          </div>
+        </div>
+
+        {/* Exports */}
+        <div className="flex gap-2 w-full md:w-auto">
+          <button
+            onClick={() => handleExport("PDF")}
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl border border-red-500/20 text-red-400 hover:bg-red-500/5 text-xs font-bold transition cursor-pointer"
+          >
+            Export PDF
+          </button>
+          <button
+            onClick={() => handleExport("Excel")}
+            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition cursor-pointer"
+          >
+            Export Excel
+          </button>
+        </div>
       </div>
 
       {/* Summary Cards */}
@@ -94,6 +235,86 @@ export default function Reports() {
           <p className={`text-3xl font-bold mt-4 text-cyan-400`}>{conversion.globalConversionRate}</p>
         </div>
 
+      </div>
+
+      {/* Charts Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 no-print">
+        {/* Top Referring Agents (Bar Chart) */}
+        <div className={card}>
+          <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
+            <BarChart3 className="w-4 h-4 text-cyan-400" />
+            <h3 className="text-sm font-bold">Top Referring Agents</h3>
+          </div>
+          <div className="h-72 w-full text-xs">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={performance}>
+                <XAxis dataKey="agentName" stroke={isDark ? "#94a3b8" : "#64748b"} fontSize={10} tickLine={false} />
+                <YAxis stroke={isDark ? "#94a3b8" : "#64748b"} fontSize={10} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: isDark ? "#0d1f35" : "#ffffff", 
+                    borderColor: isDark ? "#1e293b" : "#e2e8f0",
+                    color: isDark ? "#f8fafc" : "#0f172a" 
+                  }} 
+                />
+                <Bar dataKey="leads" name="Total Referrals" fill="#06b6d4" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Region-wise Referrals (Pie Chart) */}
+        <div className={card}>
+          <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
+            <BarChart3 className="w-4 h-4 text-cyan-400" />
+            <h3 className="text-sm font-bold">Region-Wise Referrals (by City)</h3>
+          </div>
+          <div className="h-72 w-full text-xs flex flex-col sm:flex-row items-center justify-center">
+            {regionStats.length === 0 ? (
+              <p className={`text-xs ${mt}`}>No regional data available</p>
+            ) : (
+              <>
+                <div className="w-full sm:w-1/2 h-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={regionStats}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={80}
+                        paddingAngle={4}
+                        dataKey="value"
+                      >
+                        {regionStats.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: isDark ? "#0d1f35" : "#ffffff", 
+                          borderColor: isDark ? "#1e293b" : "#e2e8f0",
+                          color: isDark ? "#f8fafc" : "#0f172a" 
+                        }} 
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <div className="w-full sm:w-1/2 space-y-2 mt-4 sm:mt-0 px-4">
+                  {regionStats.map((entry: any, index: number) => (
+                    <div key={entry.name} className="flex items-center justify-between text-[11px]">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
+                        <span className="font-semibold">{entry.name}</span>
+                      </div>
+                      <span className="font-bold">{entry.value} leads</span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Agent Performance List Table */}

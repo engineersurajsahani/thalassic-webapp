@@ -7,17 +7,18 @@ import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, Share2, Users, ClipboardList,
-  DollarSign, Files, User, LifeBuoy, LogOut, Anchor, ChevronRight
+  DollarSign, Files, User, LifeBuoy, LogOut, Anchor, ChevronRight,
+  FileText, Settings
 } from "lucide-react";
 
 const menuItems = [
   { label: "Dashboard",          href: "/agent/dashboard",          icon: LayoutDashboard },
   { label: "Referral Center",    href: "/agent/referral-center",    icon: Share2          },
-  { label: "Referral Leads",     href: "/agent/referral-leads",     icon: Users           },
-  { label: "Referred Purchases", href: "/agent/referred-purchases", icon: ClipboardList   },
+  { label: "Referrals Tracker",  href: "/agent/referral-leads",     icon: Users           },
   { label: "Commissions",        href: "/agent/commissions",        icon: DollarSign      },
+  { label: "Invoices Ledger",    href: "/agent/invoices",           icon: FileText        },
   { label: "Verification Docs",  href: "/agent/documents",          icon: Files           },
-  { label: "Profile",            href: "/agent/profile",            icon: User            },
+  { label: "Settings",           href: "/agent/profile",            icon: Settings        },
   { label: "Support Tickets",    href: "/agent/support",            icon: LifeBuoy        },
 ];
 

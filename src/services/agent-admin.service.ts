@@ -62,5 +62,15 @@ export const agentAdminService = {
   async getAuditLogs() {
     const response = await api.get("/agent-admin/audit-logs");
     return response.data;
+  },
+
+  async updateAgentDetails(agentId: string, data: any) {
+    const response = await api.patch(`/agent-admin/agents/${agentId}`, data);
+    return response.data;
+  },
+
+  async verifyAgentDocument(agentId: string, docId: string, status: string, remarks: string) {
+    const response = await api.patch(`/agent-admin/agents/${agentId}/verify-document`, { docId, status, remarks });
+    return response.data;
   }
 };

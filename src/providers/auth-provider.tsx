@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await api.get("/auth/profile");
       return response.data;
     } catch (err) {
-      console.error("Error fetching user profile from NestJS:", err);
+      console.warn("Session profile fetch status (expected if guest):", err);
       return null;
     }
   };

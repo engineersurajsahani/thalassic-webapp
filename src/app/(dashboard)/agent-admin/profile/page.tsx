@@ -93,7 +93,7 @@ export default function Profile() {
         </div>
 
         {/* Change Password Form */}
-        <div className={`${card} lg:col-span-2 space-y-6`}>
+        <div className={`${card} lg:col-span-2 space-y-6 self-start max-w-2xl`}>
           <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
             <Lock className="w-4 h-4 text-cyan-400" />
             <h3 className="text-sm font-bold">Change Password</h3>
@@ -102,7 +102,7 @@ export default function Profile() {
           {error && <p className="text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">{error}</p>}
           {success && <p className="text-xs text-emerald-500 bg-emerald-500/10 p-2 rounded-lg flex items-center gap-1"><Check className="w-4 h-4" /> Password updated successfully!</p>}
 
-          <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-md">
+          <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-sm">
             <div className="space-y-1">
               <label className={`text-[10px] font-bold ${labelText}`}>Current Password</label>
               <input

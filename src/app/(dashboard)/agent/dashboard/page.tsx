@@ -56,7 +56,6 @@ export default function AgentDashboard() {
     { label: "Total Course Purchases", value: stats?.totalPurchases || 0, icon: ClipboardList, desc: "Successful checkouts", gradient: "from-indigo-500/10 to-purple-500/10", iconBg: "bg-indigo-500/10", iconText: "text-indigo-500" },
     { label: "Total Earnings", value: `₹${stats?.totalEarned?.toLocaleString() || 0}`, icon: DollarSign, desc: "Commissions earned to date", gradient: "from-cyan-500/10 to-blue-500/10", iconBg: "bg-cyan-500/10", iconText: "text-cyan-500" },
     { label: "Pending Payout", value: `₹${stats?.pendingCommission?.toLocaleString() || 0}`, icon: Clock, desc: "Awaiting admin clearance", gradient: "from-rose-500/10 to-red-500/10", iconBg: "bg-rose-500/10", iconText: "text-rose-500" },
-    { label: "Paid Commissions", value: `₹${stats?.paidCommission?.toLocaleString() || 0}`, icon: DollarSign, desc: "Settled disbursements", gradient: "from-emerald-500/10 to-teal-500/10", iconBg: "bg-emerald-500/10", iconText: "text-emerald-500" },
   ];
 
   return (
@@ -80,13 +79,16 @@ export default function AgentDashboard() {
       </div>
 
       {/* KPI Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {kpis.map((kpi, idx) => {
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+        {kpis.map((kpi, idx, arr) => {
           const Icon = kpi.icon;
+          const isLastOdd = arr.length % 2 !== 0 && idx === arr.length - 1;
           return (
             <div
               key={idx}
               className={`rounded-2xl p-5 border flex flex-col justify-between transition-all duration-300 hover:-translate-y-1 relative overflow-hidden group backdrop-blur-xl ${
+                isLastOdd ? "md:col-span-2 lg:col-span-1" : ""
+              } ${
                 isDark 
                   ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white" 
                   : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900"
