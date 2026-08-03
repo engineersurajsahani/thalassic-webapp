@@ -40,6 +40,11 @@ export default function AgentTopbar() {
   const { user } = useAuth();
   const isDark = theme === "dark";
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const [showNotifications, setShowNotifications] = useState(false);
 
@@ -80,8 +85,8 @@ export default function AgentTopbar() {
       {/* Right */}
       <div className="flex items-center gap-1.5 shrink-0">
         <button onClick={toggleTheme} aria-label="Toggle theme"
-          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isDark ? "text-yellow-300 hover:bg-white/8" : "text-slate-500 hover:bg-slate-100"}`}>
-          {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${mounted && isDark ? "text-yellow-300 hover:bg-white/8" : "text-slate-500 hover:bg-slate-100"}`}>
+          {mounted && isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
 
         <div className="relative">

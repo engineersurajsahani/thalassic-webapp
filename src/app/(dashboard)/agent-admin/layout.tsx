@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import AgentAdminSidebar from "@/components/agent-admin/sidebar";
 import AgentAdminTopbar from "@/components/agent-admin/topbar";
 import { useTheme } from "@/providers/theme-provider";
@@ -12,9 +12,16 @@ export default function AgentAdminLayout({
 }) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const themeClasses = mounted && !isDark ? "bg-[#f8fafc] text-slate-900" : "bg-[#050a14] text-white";
 
   return (
-    <div className={`flex h-screen relative overflow-hidden font-outfit ${isDark ? "bg-[#050a14] text-white" : "bg-[#f8fafc] text-slate-900"}`}>
+    <div className={`flex h-screen relative overflow-hidden font-outfit ${themeClasses}`}>
       {/* Decorative Background Elements */}
       <div className={`absolute top-0 right-0 w-[800px] h-[800px] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${
         isDark ? "bg-blue-500/10" : "bg-blue-400/5"

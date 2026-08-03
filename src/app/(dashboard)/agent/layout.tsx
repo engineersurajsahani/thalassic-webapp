@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import AgentSidebar from "@/components/agent/sidebar";
 import AgentTopbar from "@/components/agent/topbar";
@@ -14,12 +14,18 @@ export default function AgentLayout({
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const pathname = usePathname();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isOnboarding = pathname === "/agent/onboarding";
 
   if (isOnboarding) {
+    const onboardingBg = mounted && !isDark ? "bg-slate-50" : "bg-[#031525]";
     return (
-      <div className={`min-h-screen flex flex-col ${isDark ? "bg-[#031525]" : "bg-slate-50"}`}>
+      <div className={`min-h-screen flex flex-col ${onboardingBg}`}>
         <main className="flex-1 flex items-center justify-center p-6">
           <div className="w-full max-w-4xl">{children}</div>
         </main>
@@ -27,8 +33,10 @@ export default function AgentLayout({
     );
   }
 
+  const themeClasses = mounted && !isDark ? "bg-[#f8fafc] text-slate-900" : "bg-[#050a14] text-white";
+
   return (
-    <div className={`flex h-screen relative overflow-hidden font-outfit ${isDark ? "bg-[#050a14] text-white" : "bg-[#f8fafc] text-slate-900"}`}>
+    <div className={`flex h-screen relative overflow-hidden font-outfit ${themeClasses}`}>
       {/* Decorative Background Elements */}
       <div className={`absolute top-0 right-0 w-[800px] h-[800px] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${
         isDark ? "bg-blue-500/10" : "bg-blue-400/5"
