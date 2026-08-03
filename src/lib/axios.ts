@@ -41,7 +41,21 @@ export function deleteCookie(name: string) {
 // Attach interceptor to include authorization header
 api.interceptors.request.use(
   (config) => {
-    const token = getCookie("auth_token");
+    let token = getCookie("auth_token");
+    if (typeof window !== "undefined") {
+      const pathname = window.location.pathname;
+      if (pathname.startsWith("/agent-admin")) {
+        token = getCookie("auth_token_agent-admin") || token;
+      } else if (pathname.startsWith("/agent")) {
+        token = getCookie("auth_token_agent") || token;
+      } else if (pathname.startsWith("/company-admin")) {
+        token = getCookie("auth_token_company-admin") || token;
+      } else if (pathname.startsWith("/master")) {
+        token = getCookie("auth_token_master") || token;
+      } else if (pathname.startsWith("/seafarer") || pathname.startsWith("/seafearer")) {
+        token = getCookie("auth_token_seafarer") || token;
+      }
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

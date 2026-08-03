@@ -257,7 +257,7 @@ export default function Reports() {
                     color: isDark ? "#f8fafc" : "#0f172a" 
                   }} 
                 />
-                <Bar dataKey="leads" name="Total Referrals" fill="#06b6d4" radius={[6, 6, 0, 0]} />
+                <Bar dataKey="leads" name="Total Referrals" fill="#06b6d4" barSize={32} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -274,15 +274,15 @@ export default function Reports() {
               <p className={`text-xs ${mt}`}>No regional data available</p>
             ) : (
               <>
-                <div className="w-full sm:w-1/2 h-full">
+                <div className="w-full sm:w-1/2 h-full relative flex items-center justify-center">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={regionStats}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={80}
+                        innerRadius={55}
+                        outerRadius={75}
                         paddingAngle={4}
                         dataKey="value"
                       >
@@ -297,19 +297,52 @@ export default function Reports() {
                           color: isDark ? "#f8fafc" : "#0f172a" 
                         }} 
                       />
+                      {/* Center Total Leads Text inside Donut hole */}
+                      <text x="50%" y="47%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-800 dark:fill-white font-black text-2xl">
+                        {regionStats.reduce((sum: number, item: any) => sum + item.value, 0)}
+                      </text>
+                      <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-400 dark:fill-slate-500 font-black text-[9px] uppercase tracking-wider">
+                        Leads
+                      </text>
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="w-full sm:w-1/2 space-y-2 mt-4 sm:mt-0 px-4">
-                  {regionStats.map((entry: any, index: number) => (
-                    <div key={entry.name} className="flex items-center justify-between text-[11px]">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2.5 h-2.5 rounded-full animate-pulse" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
-                        <span className="font-semibold">{entry.name}</span>
-                      </div>
-                      <span className="font-bold">{entry.value} leads</span>
-                    </div>
-                  ))}
+                <div className="w-full sm:w-1/2 space-y-3 mt-4 sm:mt-0 px-4">
+                  {(() => {
+                    const totalRegionLeads = regionStats.reduce((sum: number, item: any) => sum + item.value, 0);
+                    return regionStats.map((entry: any, index: number) => {
+                      const percentage = totalRegionLeads > 0 ? Math.round((entry.value / totalRegionLeads) * 100) : 0;
+                      return (
+                        <div 
+                          key={entry.name} 
+                          className={`p-3 rounded-2xl border flex items-center justify-between transition-all duration-300 hover:scale-[1.02] ${
+                            isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]" : "bg-slate-50 border-slate-200/60 hover:bg-slate-100/50"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5">
+                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
+                            <div>
+                              <span className="font-bold text-xs block leading-tight">{entry.name}</span>
+                              {/* Horizontal mini progress bar */}
+                              <div className="w-16 h-1 bg-slate-200 dark:bg-slate-800 rounded-full mt-1.5 overflow-hidden">
+                                <div 
+                                  className="h-full rounded-full" 
+                                  style={{ 
+                                    width: `${percentage}%`, 
+                                    backgroundColor: CHART_COLORS[index % CHART_COLORS.length] 
+                                  }} 
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <span className="font-extrabold text-xs block">{entry.value} leads</span>
+                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold block mt-0.5">{percentage}%</span>
+                          </div>
+                        </div>
+                      );
+                    });
+                  })()}
                 </div>
               </>
             )}

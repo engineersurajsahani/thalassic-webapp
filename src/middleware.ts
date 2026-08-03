@@ -3,8 +3,29 @@ import type { NextRequest } from "next/server";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("auth_token")?.value;
-  const role = request.cookies.get("user_role")?.value;
+  
+  let token = request.cookies.get("auth_token")?.value;
+  let role = request.cookies.get("user_role")?.value;
+  let onboardingStatus = request.cookies.get("onboarding_status")?.value;
+
+  if (pathname.startsWith("/agent-admin")) {
+    token = request.cookies.get("auth_token_agent-admin")?.value || token;
+    role = request.cookies.get("user_role_agent-admin")?.value || role;
+  } else if (pathname.startsWith("/agent")) {
+    token = request.cookies.get("auth_token_agent")?.value || token;
+    role = request.cookies.get("user_role_agent")?.value || role;
+    onboardingStatus = request.cookies.get("onboarding_status_agent")?.value || onboardingStatus;
+  } else if (pathname.startsWith("/company-admin")) {
+    token = request.cookies.get("auth_token_company-admin")?.value || token;
+    role = request.cookies.get("user_role_company-admin")?.value || role;
+  } else if (pathname.startsWith("/master")) {
+    token = request.cookies.get("auth_token_master")?.value || token;
+    role = request.cookies.get("user_role_master")?.value || role;
+  } else if (pathname.startsWith("/seafarer") || pathname.startsWith("/seafearer")) {
+    token = request.cookies.get("auth_token_seafarer")?.value || token;
+    role = request.cookies.get("user_role_seafarer")?.value || role;
+  }
+
   const roleNorm = role?.toLowerCase().replace('_', '-'); // Normalize roles (e.g. company_admin -> company-admin)
 
   // Auth bypass for login/register pages (already handled by Next.js routing, but good to keep clear)
@@ -57,7 +78,6 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    const onboardingStatus = request.cookies.get("onboarding_status")?.value;
     if (onboardingStatus !== "Active") {
       if (pathname !== "/agent/onboarding") {
         const onboardUrl = new URL("/agent/onboarding", request.url);
