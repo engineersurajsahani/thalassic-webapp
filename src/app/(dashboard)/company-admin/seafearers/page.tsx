@@ -138,6 +138,11 @@ export default function SeafarerManagementPage() {
     setSelectedSeafarer(null);
   };
 
+  const handleOpenEdit = (sf: Seafarer) => {
+    setEditingSeafarer(sf);
+    setEditFormData(sf);
+  };
+
   // Edit Submission Handler
   const handleSaveEdit = (e: React.FormEvent) => {
     e.preventDefault();
