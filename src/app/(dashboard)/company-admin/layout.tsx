@@ -13,6 +13,13 @@ export default function CompanyAdminLayout({
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className={`flex h-screen ${isDark ? "bg-[#031525]" : "bg-slate-50"}`}>

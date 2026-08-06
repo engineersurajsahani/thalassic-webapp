@@ -17,11 +17,12 @@ interface SidebarProps {
 }
 
 const menuItems = [
-  { label: "Dashboard", href: "/company-admin/dashboard", icon: LayoutDashboard },
-  { label: "Seafarers", href: "/company-admin/seafearers", icon: Users },
-  { label: "Documents", href: "/company-admin/documents", icon: FileCheck },
-  { label: "Reports",   href: "/company-admin/reports",   icon: BarChart3 },
-  { label: "Profile",   href: "/company-admin/profile",   icon: Settings },
+  { label: "Dashboard",            href: "/company-admin/dashboard",    icon: LayoutDashboard },
+  { label: "Seafarers",            href: "/company-admin/seafearers",   icon: Users },
+  { label: "Walk-in Registration", href: "/company-admin/registration", icon: UserPlus },
+  { label: "Documents",            href: "/company-admin/documents",    icon: FileCheck },
+  { label: "Reports",              href: "/company-admin/reports",      icon: BarChart3 },
+  { label: "Profile",              href: "/company-admin/profile",      icon: Settings },
 ];
 
 export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
