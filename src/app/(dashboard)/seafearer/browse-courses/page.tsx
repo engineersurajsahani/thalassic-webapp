@@ -33,6 +33,7 @@ export default function BrowseCoursesPage() {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [detailCourseId, setDetailCourseId] = useState<string | null>(null);
   const [bookingLoading, setBookingLoading] = useState(false);
+  const [referralCode, setReferralCode] = useState("");
 
   const loadData = async () => {
     try {
@@ -55,9 +56,10 @@ export default function BrowseCoursesPage() {
   const handleEnroll = async (courseId: string) => {
     setBookingLoading(true);
     try {
-      await courseService.enrollInCourse(courseId);
+      await courseService.enrollInCourse(courseId, referralCode);
       alert("Booking request submitted! Your course has been added to My Courses.");
       setDetailCourseId(null);
+      setReferralCode("");
       await loadData();
     } catch (err: any) {
       alert(err.message || "Failed to book course. Please try again.");
@@ -256,7 +258,26 @@ export default function BrowseCoursesPage() {
               </div>
 
               {/* Checkout / Booking Action */}
-              <div className="pt-6 border-t border-slate-800/40">
+              <div className="pt-6 border-t border-slate-800/40 space-y-4">
+                {!isEnrolled(activeDetailCourse.id) && (
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                      Referral Code (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="Enter Agent Referral Code"
+                      value={referralCode}
+                      onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+                      className={`w-full px-3 py-2.5 text-xs font-semibold tracking-widest rounded-xl border outline-none ${
+                        isDark 
+                          ? "bg-[#0b182d] border-slate-800 text-white placeholder-slate-600 focus:border-cyan-500/50" 
+                          : "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400 focus:border-[#3b71cb]/50"
+                      }`}
+                    />
+                  </div>
+                )}
+                
                 {isEnrolled(activeDetailCourse.id) ? (
                   <div className="text-center p-3 rounded-xl bg-green-500/10 border border-green-500/20 text-green-500 font-extrabold text-xs flex items-center justify-center gap-2">
                     <Check className="w-4 h-4" /> Already Enrolled in Course

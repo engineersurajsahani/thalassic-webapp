@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await api.get("/auth/profile");
       return response.data;
     } catch (err) {
-      console.error("Error fetching user profile from NestJS:", err);
+      console.warn("Session profile fetch status (expected if guest):", err);
       return null;
     }
   };
@@ -60,15 +60,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const bootstrapSession = async () => {
-      const token = getCookie("auth_token");
+      let token = getCookie("auth_token");
+      let currentRole = "";
+      if (typeof window !== "undefined") {
+        const pathname = window.location.pathname;
+        if (pathname.startsWith("/agent-admin")) {
+          token = getCookie("auth_token_agent-admin") || token;
+          currentRole = "agent-admin";
+        } else if (pathname.startsWith("/agent")) {
+          token = getCookie("auth_token_agent") || token;
+          currentRole = "agent";
+        } else if (pathname.startsWith("/company-admin")) {
+          token = getCookie("auth_token_company-admin") || token;
+          currentRole = "company-admin";
+        } else if (pathname.startsWith("/master")) {
+          token = getCookie("auth_token_master") || token;
+          currentRole = "master";
+        } else if (pathname.startsWith("/seafarer") || pathname.startsWith("/seafearer")) {
+          token = getCookie("auth_token_seafarer") || token;
+          currentRole = "seafarer";
+        }
+      }
+
       if (token) {
         const profileUser = await fetchProfile();
         if (profileUser) {
           setUser(profileUser);
+          const roleSuffix = profileUser.role.toLowerCase().replace('_', '-');
+          if (profileUser.onboardingStatus) {
+            setCookie("onboarding_status", profileUser.onboardingStatus);
+            setCookie(`onboarding_status_${roleSuffix}`, profileUser.onboardingStatus);
+          } else {
+            deleteCookie("onboarding_status");
+            deleteCookie(`onboarding_status_${roleSuffix}`);
+          }
         } else {
           // Token expired or invalid
           deleteCookie("auth_token");
           deleteCookie("user_role");
+          deleteCookie("onboarding_status");
+          if (currentRole) {
+            deleteCookie(`auth_token_${currentRole}`);
+            deleteCookie(`user_role_${currentRole}`);
+            deleteCookie(`onboarding_status_${currentRole}`);
+          }
           router.push("/login");
         }
       }
@@ -83,14 +118,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await api.post("/auth/login", credentials);
       const { token, user: loggedUser } = response.data;
+      const roleSuffix = loggedUser.role.toLowerCase().replace('_', '-');
 
       setCookie("auth_token", token);
       setCookie("user_role", loggedUser.role);
+      setCookie(`auth_token_${roleSuffix}`, token);
+      setCookie(`user_role_${roleSuffix}`, loggedUser.role);
       
       // Fetch full profile (includes nested seaService logs)
       const fullProfile = await fetchProfile();
-      setUser(fullProfile || loggedUser);
-      return fullProfile || loggedUser;
+      const finalUser = fullProfile || loggedUser;
+      
+      if (finalUser.onboardingStatus) {
+        setCookie("onboarding_status", finalUser.onboardingStatus);
+        setCookie(`onboarding_status_${roleSuffix}`, finalUser.onboardingStatus);
+      } else {
+        deleteCookie("onboarding_status");
+        deleteCookie(`onboarding_status_${roleSuffix}`);
+      }
+
+      setUser(finalUser);
+      return finalUser;
     } catch (err: any) {
       throw new Error(err.response?.data?.message || "Login failed");
     } finally {
@@ -103,13 +151,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const response = await api.post("/auth/register", userDetails);
       const { token, user: registeredUser } = response.data;
+      const roleSuffix = registeredUser.role.toLowerCase().replace('_', '-');
 
       setCookie("auth_token", token);
       setCookie("user_role", registeredUser.role);
+      setCookie(`auth_token_${roleSuffix}`, token);
+      setCookie(`user_role_${roleSuffix}`, registeredUser.role);
       
       const fullProfile = await fetchProfile();
-      setUser(fullProfile || registeredUser);
-      return fullProfile || registeredUser;
+      const finalUser = fullProfile || registeredUser;
+
+      if (finalUser.onboardingStatus) {
+        setCookie("onboarding_status", finalUser.onboardingStatus);
+        setCookie(`onboarding_status_${roleSuffix}`, finalUser.onboardingStatus);
+      } else {
+        deleteCookie("onboarding_status");
+        deleteCookie(`onboarding_status_${roleSuffix}`);
+      }
+
+      setUser(finalUser);
+      return finalUser;
     } catch (err: any) {
       throw new Error(err.response?.data?.message || "Registration failed");
     } finally {
@@ -124,8 +185,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error("Logout API call warning: ", err);
     } finally {
+      const currentRole = user?.role?.toLowerCase().replace('_', '-');
       deleteCookie("auth_token");
       deleteCookie("user_role");
+      deleteCookie("onboarding_status");
+      if (currentRole) {
+        deleteCookie(`auth_token_${currentRole}`);
+        deleteCookie(`user_role_${currentRole}`);
+        deleteCookie(`onboarding_status_${currentRole}`);
+      }
       setUser(null);
       setIsLoading(false);
       router.push("/login");

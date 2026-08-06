@@ -16,7 +16,13 @@ if (typeof window !== "undefined") {
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? (theme === "dark") : true;
   const isAuthPage = pathname === "/login" || pathname === "/register";
 
   const navRef = useRef<HTMLDivElement>(null);

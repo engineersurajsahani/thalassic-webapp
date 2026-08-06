@@ -7,6 +7,7 @@ import { Clock, Award, Star, Shield, Users, Globe, Building, ArrowRight, Check, 
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
+import { BusinessPartnerSection } from "../business-partner/business-partner";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger, useGSAP);
@@ -291,8 +292,7 @@ function Hero() {
     tl.to(".final-hero-sub", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.04, ease: "power2.out" }, 0.98);
     
     // CTA appears exactly as the ship animation concludes
-    tl.to(".final-hero-cta", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.05, ease: "power2.out" }, 1.02);
-    
+    tl.to(".final-hero-cta", { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.05, ease: "power2.out" }, 1.02);    
     // Trigger global navbar reveal
     tl.call(() => {
       window.dispatchEvent(new CustomEvent("reveal-navbar"));
@@ -459,7 +459,7 @@ function Hero() {
               </Link>
 
               <Link
-                href="/contact"
+                href="/register"
                 className="px-6 py-4 font-bold text-slate-300 hover:text-white transition-colors underline-offset-8 hover:underline"
               >
                 Contact Us
@@ -475,7 +475,13 @@ function Hero() {
 // --- MAIN WRAPPER PAGE ---
 export default function HomePage() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? (theme === "dark") : true;
   const stripRef = useRef<HTMLDivElement>(null);
 
   // Counter metric data for telemetry console
@@ -1044,6 +1050,9 @@ export default function HomePage() {
 
         </div>
       </section>
+
+      {/* 5. Business Partner Section */}
+      <BusinessPartnerSection />
     </div>
   );
 }
