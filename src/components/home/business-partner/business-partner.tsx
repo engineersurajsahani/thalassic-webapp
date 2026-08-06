@@ -37,7 +37,13 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 
 export function BusinessPartnerSection() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? (theme === "dark") : true;
 
   const benefits = [
     { icon: TrendingUp, title: "Attractive Commission", desc: "Earn competitive rates for every successful seafarer referral." },

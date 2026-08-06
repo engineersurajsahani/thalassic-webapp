@@ -475,7 +475,13 @@ function Hero() {
 // --- MAIN WRAPPER PAGE ---
 export default function HomePage() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? (theme === "dark") : true;
   const stripRef = useRef<HTMLDivElement>(null);
 
   // Counter metric data for telemetry console
