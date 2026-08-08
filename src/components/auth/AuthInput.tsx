@@ -19,8 +19,12 @@ export default function AuthInput({
   ...props
 }: AuthInputProps) {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
+  const isDark = mounted ? theme === "dark" : true;
   const inputId = id || `auth-input-${label.toLowerCase().replace(/\s+/g, "-")}`;
 
   return (

@@ -12,7 +12,11 @@ import {
 
 export default function OnboardingPage() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+  const isDark = mounted ? theme === "dark" : true;
   const router = useRouter();
 
   const [step, setStep] = useState(1);
@@ -71,19 +75,11 @@ export default function OnboardingPage() {
     });
   };
 
+
   // Step Navigations
   const nextStep = () => {
     setErrorMsg("");
     if (step === 1) {
-      const codeClean = referralCode.trim().toUpperCase();
-      if (!codeClean) {
-        setErrorMsg("Referral code is required.");
-        return;
-      }
-      if (codeClean.length < 3) {
-        setErrorMsg("Referral code must be at least 3 characters.");
-        return;
-      }
       setStep(2);
     } else if (step === 2) {
       if (!profile.name || !profile.phone || !profile.agencyName || !profile.officeAddress) {
@@ -107,11 +103,8 @@ export default function OnboardingPage() {
     }
     setLoading(true);
     try {
-      const codeClean = referralCode.trim().toUpperCase();
-      
-      // 1. Submit Onboarding Data to Backend (Uniqueness and immutability checked here)
+      // 1. Submit Onboarding Data to Backend
       await agentService.onboard({
-        referralCode: codeClean,
         name: profile.name,
         phone: profile.phone,
         alternatePhone: profile.alternatePhone || null,
@@ -142,8 +135,9 @@ export default function OnboardingPage() {
         }
       }
 
-      // 3. Update onboarding status cookie to Active and redirect
+      // 3. Update onboarding status cookies to Active and redirect
       setCookie("onboarding_status", "Active");
+      setCookie("onboarding_status_agent", "Active");
       router.push("/agent/dashboard");
       router.refresh();
     } catch (err: any) {
@@ -213,39 +207,35 @@ export default function OnboardingPage() {
             <div className="space-y-1">
               <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-cyan-400" />
-                Select Your Unique Referral Code
+                Automatic Referral Code Generation
               </h2>
               <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                Your referral code is the permanent identifier that will be appended to your links and scanned QR codes. Once created, it **cannot be modified**.
+                Thalassic automatically issues a permanent, immutable referral identifier for your agency upon completion of onboarding registration.
               </p>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-wider text-slate-400">
-                Unique Referral Code *
-              </label>
-              <div className="flex gap-2">
-                <div className="relative flex-1">
-                  <span className={`absolute left-4 top-1/2 -translate-y-1/2 text-sm font-semibold ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                    ref=
-                  </span>
-                  <input
-                    type="text"
-                    value={referralCode}
-                    onChange={(e) => setReferralCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
-                    placeholder="E.G. PACIFIC20"
-                    maxLength={15}
-                    className={`w-full pl-12 pr-4 py-3 text-sm font-black tracking-widest uppercase rounded-xl border outline-none transition-colors ${
-                      isDark
-                        ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500"
-                        : "bg-slate-50 border-slate-200 text-slate-800 focus:border-cyan-600"
-                    }`}
-                  />
+            <div className={`p-6 rounded-2xl border ${isDark ? "bg-[#0b182d] border-white/5" : "bg-slate-50 border-slate-200"} space-y-4`}>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
+                  <ShieldCheck className="w-5 h-5 text-cyan-400" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-black uppercase tracking-wider">System Generation Rules</h4>
+                  <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>To keep link mappings safe and stable:</p>
                 </div>
               </div>
-              <p className="text-[10px] text-slate-500 italic mt-1">
-                Alphanumeric characters only. Must be unique across all Thalassic placement agents.
-              </p>
+
+              <ul className={`space-y-2 text-[11px] list-disc list-inside ${isDark ? "text-slate-300" : "text-slate-650"}`}>
+                <li>Generated uniquely using your agency owner name and a numeric suffix (e.g. <strong>OCEAN25</strong>).</li>
+                <li>Permanently generated once, and cannot be modified under any circumstances.</li>
+                <li>Used to auto-populate checkout discount parameters and commission tracking headers.</li>
+              </ul>
+
+              <div className="pt-2 border-t border-white/5">
+                <div className={`p-3 rounded-xl ${isDark ? "bg-[#070d19]/60 text-slate-400" : "bg-white text-slate-500"} text-center text-[10px] font-mono border border-dashed border-cyan-500/30`}>
+                  Mock Preview: <span className="text-cyan-400 font-extrabold">YOURNAME[YY]</span> (e.g. KISHAN26)
+                </div>
+              </div>
             </div>
           </div>
         )}

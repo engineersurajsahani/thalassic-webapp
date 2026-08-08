@@ -62,7 +62,8 @@ export default function BrowseCoursesPage() {
       setReferralCode("");
       await loadData();
     } catch (err: any) {
-      alert(err.message || "Failed to book course. Please try again.");
+      const msg = err.response?.data?.message || err.message || "Failed to book course. Please try again.";
+      alert(msg);
     } finally {
       setBookingLoading(false);
     }

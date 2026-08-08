@@ -13,10 +13,17 @@ import {
 export default function AgentDashboard() {
   const { theme } = useTheme();
   const { user } = useAuth();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
 
   const [stats, setStats] = useState<any>(null);
   const [activities, setActivities] = useState<any[]>([]);
+  const [referralCode, setReferralCode] = useState<string>("PENDING");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -25,6 +32,7 @@ export default function AgentDashboard() {
         const data = await agentService.getDashboard();
         setStats(data.stats);
         setActivities(data.recentActivities);
+        setReferralCode(data.referralCode || "PENDING");
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {
@@ -64,11 +72,16 @@ export default function AgentDashboard() {
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full ${
-            isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-cyan-50 text-cyan-600"
-          }`}>
-            ⚓ Partner Workspace
-          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full ${
+              isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-cyan-50 text-cyan-600"
+            }`}>
+              ⚓ Partner Workspace
+            </span>
+            <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20`}>
+              Referral Code: <span className="font-mono text-cyan-400 font-extrabold">{referralCode}</span>
+            </span>
+          </div>
           <h1 className="text-3xl font-extrabold tracking-tight mt-2.5">
             Operations Dashboard
           </h1>

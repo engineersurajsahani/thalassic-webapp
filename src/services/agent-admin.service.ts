@@ -72,5 +72,19 @@ export const agentAdminService = {
   async verifyAgentDocument(agentId: string, docId: string, status: string, remarks: string) {
     const response = await api.patch(`/agent-admin/agents/${agentId}/verify-document`, { docId, status, remarks });
     return response.data;
+  },
+
+  async getReferralConflicts() {
+    const response = await api.get("/agent-admin/referral-conflicts");
+    return response.data;
+  },
+
+  async resolveConflict(purchaseId: string, approvedAgentId: string, remarks: string) {
+    const response = await api.post("/agent-admin/resolve-conflict", {
+      purchaseId,
+      approvedAgentId,
+      remarks,
+    });
+    return response.data;
   }
 };
