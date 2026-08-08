@@ -11,7 +11,13 @@ import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
   const { login } = useAuth();
   const router = useRouter();
 

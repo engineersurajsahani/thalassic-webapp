@@ -21,7 +21,13 @@ export default function PasswordInput({
   ...props
 }: PasswordInputProps) {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
 
   const [showPassword, setShowPassword] = useState(false);
   const [strength, setStrength] = useState(0); // 0 to 3

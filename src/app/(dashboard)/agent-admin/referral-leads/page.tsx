@@ -11,12 +11,15 @@ export default function ReferralsTracker() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const [activeTab, setActiveTab] = useState<"leads" | "purchases">("leads");
+  const [activeTab, setActiveTab] = useState<"leads" | "purchases" | "conflicts">("leads");
   const [loading, setLoading] = useState(true);
 
   // Data states
   const [leads, setLeads] = useState<any[]>([]);
   const [seafarers, setSeafarers] = useState<any[]>([]);
+  const [conflicts, setConflicts] = useState<any[]>([]);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+  const [remarksMap, setRemarksMap] = useState<Record<string, string>>({});
 
   // Filter states
   const [searchLeads, setSearchLeads] = useState("");
@@ -32,16 +35,32 @@ export default function ReferralsTracker() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [leadsList, seafarersList] = await Promise.all([
+      const [leadsList, seafarersList, conflictsList] = await Promise.all([
         agentAdminService.getReferralLeads(),
-        agentAdminService.getReferredSeafarers()
+        agentAdminService.getReferredSeafarers(),
+        agentAdminService.getReferralConflicts()
       ]);
       setLeads(leadsList);
       setSeafarers(seafarersList);
+      setConflicts(conflictsList);
     } catch (err) {
       console.error("Failed to load referral data: ", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResolveConflict = async (purchaseId: string, approvedAgentId: string) => {
+    const remarks = remarksMap[purchaseId] || "First valid registration matching seafarer.";
+    setResolvingId(purchaseId);
+    try {
+      await agentAdminService.resolveConflict(purchaseId, approvedAgentId, remarks);
+      alert("Referral dispute resolved successfully!");
+      await loadData();
+    } catch (err: any) {
+      alert(err.response?.data?.message || err.message || "Failed to resolve conflict.");
+    } finally {
+      setResolvingId(null);
     }
   };
 
@@ -105,6 +124,16 @@ export default function ReferralsTracker() {
           }`}
         >
           Referred Purchases (Bookings)
+        </button>
+        <button
+          onClick={() => setActiveTab("conflicts")}
+          className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+            activeTab === "conflicts"
+              ? "border-cyan-500 text-cyan-400"
+              : "border-transparent text-slate-400 hover:text-slate-200"
+          }`}
+        >
+          Conflicting Referrals (Manual Review)
         </button>
       </div>
 
@@ -225,7 +254,7 @@ export default function ReferralsTracker() {
             )}
           </div>
         </>
-      ) : (
+      ) : activeTab === "purchases" ? (
         <>
           {/* Purchases Filters */}
           <div className="flex flex-col md:flex-row gap-4">
@@ -303,6 +332,137 @@ export default function ReferralsTracker() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        <>
+          {/* Conflicts Panel (Manual Review) */}
+          <div className="space-y-6">
+            {conflicts.length === 0 ? (
+              <div className={card}>
+                <div className="text-center py-10">
+                  <p className={`text-xs ${mt}`}>No conflicting referral disputes requiring manual review.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-6">
+                {conflicts.map((conflict) => {
+                  // Find the winner based on earliest leadSubmittedAt
+                  let earliestAgentId = "";
+                  let earliestTime = Infinity;
+                  conflict.agents.forEach((ag: any) => {
+                    const t = new Date(ag.leadSubmittedAt).getTime();
+                    if (t < earliestTime) {
+                      earliestTime = t;
+                      earliestAgentId = ag.agentId;
+                    }
+                  });
+
+                  return (
+                    <div key={conflict.purchaseId} className={card}>
+                      {/* Conflict Header */}
+                      <div className="flex flex-col md:flex-row justify-between border-b pb-4 mb-4 border-white/5 gap-4">
+                        <div>
+                          <span className="px-2 py-0.5 rounded bg-red-500/10 text-red-500 font-extrabold text-[9px] uppercase tracking-wider animate-pulse">
+                            ⚠️ Duplicate Lead Conflict
+                          </span>
+                          <h3 className="text-sm font-bold mt-2">Seafarer: {conflict.seafarerName}</h3>
+                          <div className={`text-[10px] mt-1.5 space-y-1 ${labelText}`}>
+                            <p>Email: <span className="font-semibold text-cyan-400">{conflict.seafarerEmail}</span></p>
+                            <p>Phone: <span className="font-semibold text-cyan-400">{conflict.seafarerPhone}</span></p>
+                            <p>INDOS Number: <span className="font-mono text-amber-500 font-bold">{conflict.indosNumber}</span></p>
+                          </div>
+                        </div>
+
+                        <div className="md:text-right">
+                          <p className="text-xs font-bold text-slate-400">Purchased Course</p>
+                          <p className="text-xs font-black text-white mt-1">{conflict.courseName}</p>
+                          <p className="text-xs font-black text-cyan-400 mt-1">Fee: ₹{conflict.courseFee.toLocaleString("en-IN")}</p>
+                          <p className={`text-[9px] mt-1.5 ${mt}`}>Purchase Date: {new Date(conflict.createdAt).toLocaleDateString("en-IN")}</p>
+                        </div>
+                      </div>
+
+                      {/* Conflicting Agents list */}
+                      <div className="space-y-4">
+                        <p className="text-[10px] font-black uppercase tracking-wider text-slate-400">Conflicting Referral Claims</p>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {conflict.agents.map((agent: any) => {
+                            const isEarliest = agent.agentId === earliestAgentId;
+                            return (
+                              <div key={agent.agentId} className={`p-4 rounded-2xl border flex flex-col justify-between ${
+                                isEarliest 
+                                  ? (isDark ? "bg-cyan-500/5 border-cyan-500/20 text-white" : "bg-cyan-50/50 border-cyan-200 text-slate-900") 
+                                  : (isDark ? "bg-[#0b182d]/80 border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-900")
+                              }`}>
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-start gap-2">
+                                    <div>
+                                      <p className="font-bold text-xs flex items-center gap-1.5">
+                                        <User className="w-3.5 h-3.5 text-cyan-400" />
+                                        {agent.agentName}
+                                      </p>
+                                      <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.agentEmail}</p>
+                                      <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.agentPhone}</p>
+                                    </div>
+                                    {isEarliest && (
+                                      <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 font-extrabold text-[9px] uppercase tracking-wider">
+                                        🏆 Registered First
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <div className={`text-[10px] p-2 rounded-lg ${isDark ? "bg-slate-950/40 text-slate-350" : "bg-white text-slate-700"} space-y-1`}>
+                                    <p className={labelText}>Lead Registered Time:</p>
+                                    <p className="font-semibold">
+                                      {new Date(agent.leadSubmittedAt).toLocaleString("en-IN", {
+                                        day: "numeric",
+                                        month: "short",
+                                        year: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit"
+                                      })}
+                                    </p>
+                                    <p className={`mt-1.5 ${labelText}`}>Commission Quote: <span className="font-bold text-emerald-500">₹{agent.commissionAmount.toLocaleString("en-IN")} ({agent.commissionRate}%)</span></p>
+                                  </div>
+                                </div>
+
+                                <div className="mt-4 pt-3 border-t border-white/5">
+                                  <button
+                                    onClick={() => handleResolveConflict(conflict.purchaseId, agent.agentId)}
+                                    disabled={resolvingId === conflict.purchaseId}
+                                    className={`w-full py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-sm transition ${
+                                      resolvingId === conflict.purchaseId
+                                        ? "bg-slate-700 text-slate-400 cursor-not-allowed"
+                                        : "bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer"
+                                    }`}
+                                  >
+                                    {resolvingId === conflict.purchaseId ? "Resolving..." : `Assign Commission to ${agent.agentName}`}
+                                  </button>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Dispute Remarks */}
+                        <div className="pt-2">
+                          <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Resolution Remarks *</label>
+                          <textarea
+                            placeholder="Add reason/remarks for the dispute resolution (e.g. First lead registered has authentic seafarer details)"
+                            value={remarksMap[conflict.purchaseId] || ""}
+                            onChange={(e) => setRemarksMap({ ...remarksMap, [conflict.purchaseId]: e.target.value })}
+                            rows={2}
+                            className={`w-full px-3 py-2 text-xs rounded-xl border outline-none mt-1.5 ${
+                              isDark ? "bg-[#0b182d] border-slate-800 text-white placeholder-slate-650" : "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
+                            }`}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

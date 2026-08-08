@@ -39,7 +39,13 @@ const ROLES: RoleOption[] = [
 
 export default function RegisterForm() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
   const { register } = useAuth();
   const router = useRouter();
 

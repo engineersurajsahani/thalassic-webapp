@@ -38,13 +38,14 @@ function getFormattedDate() {
 export default function AgentTopbar() {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
-  const isDark = theme === "dark";
   const pathname = usePathname();
   const [mounted, setMounted] = useState(false);
 
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
 
   const [showNotifications, setShowNotifications] = useState(false);
 

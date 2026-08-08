@@ -8,7 +8,7 @@ import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, Users, FileText, ClipboardList,
   DollarSign, BarChart3, ShieldAlert, User, LogOut,
-  Anchor, ChevronRight,
+  Anchor, ChevronRight, Receipt,
 } from "lucide-react";
 
 const menuItems = [
@@ -16,6 +16,7 @@ const menuItems = [
   { label: "Agents",             href: "/agent-admin/agents",         icon: Users           },
   { label: "Referrals Tracker",  href: "/agent-admin/referral-leads", icon: FileText        },
   { label: "Commissions",        href: "/agent-admin/commissions",     icon: DollarSign      },
+  { label: "Invoices",           href: "/agent-admin/invoices",        icon: Receipt         },
   { label: "Reports",            href: "/agent-admin/reports",         icon: BarChart3       },
   { label: "Audit Logs",         href: "/agent-admin/audit-logs",      icon: ShieldAlert     },
   { label: "Profile",            href: "/agent-admin/profile",         icon: User            },
@@ -24,7 +25,12 @@ const menuItems = [
 export default function AgentAdminSidebar() {
   const { theme } = useTheme();
   const { logout, user } = useAuth();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
   const pathname = usePathname();
 
   const isActive = (href: string) =>

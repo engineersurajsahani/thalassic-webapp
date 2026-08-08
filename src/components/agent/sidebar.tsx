@@ -25,7 +25,12 @@ const menuItems = [
 export default function AgentSidebar() {
   const { theme } = useTheme();
   const { logout, user } = useAuth();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = React.useState(false);
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
   const pathname = usePathname();
 
   const isActive = (href: string) =>
