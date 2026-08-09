@@ -6,7 +6,7 @@ import { agentAdminService } from "@/services/agent-admin.service";
 import { api } from "@/lib/axios";
 import {
   Search, CheckCircle, XCircle, Clock, DollarSign, RefreshCw,
-  History, ChevronDown, Filter, Layers, AlertCircle, Download
+  History, ChevronDown, Filter, Layers, AlertCircle, Download, Info, X
 } from "lucide-react";
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
@@ -18,6 +18,60 @@ const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> =
   "Under Review": { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400", dot: "bg-orange-400" },
   Cancelled: { bg: "bg-slate-100 dark:bg-slate-800/60", text: "text-slate-500 dark:text-slate-400", dot: "bg-slate-400" },
 };
+
+const VALID_TRANSITIONS: Record<string, string[]> = {
+  Pending: ["Pending", "Approved", "Rejected", "Cancelled"],
+  Approved: ["Approved", "Settled", "Cancelled"],
+  "Under Review": ["Under Review", "Pending", "Approved", "Rejected", "Cancelled"],
+  Rejected: ["Rejected"],
+  Settled: ["Settled", "Paid", "Cancelled"],
+  Paid: ["Paid"],
+  Cancelled: ["Cancelled"],
+};
+
+function StatusSelectDropdown({
+  comm,
+  isDark,
+  onChange
+}: {
+  comm: any;
+  isDark: boolean;
+  onChange: (targetStatus: string) => void;
+}) {
+  const currentStatus = comm.status;
+  const options = VALID_TRANSITIONS[currentStatus] || [currentStatus];
+  const s = STATUS_COLORS[currentStatus] || STATUS_COLORS["Pending"];
+
+  if (options.length <= 1) {
+    return (
+      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${s.bg} ${s.text}`}>
+        <span className={`w-1.5 h-1.5 rounded-full ${s.dot}`} />
+        {currentStatus}
+      </span>
+    );
+  }
+
+  return (
+    <div className="relative inline-block">
+      <select
+        value={currentStatus}
+        onChange={(e) => {
+          if (e.target.value !== currentStatus) {
+            onChange(e.target.value);
+          }
+        }}
+        className={`appearance-none inline-flex items-center gap-1.5 px-2.5 py-1 pr-6 rounded-full text-[10px] font-bold cursor-pointer outline-none transition border border-transparent hover:border-current ${s.bg} ${s.text}`}
+      >
+        {options.map(opt => (
+          <option key={opt} value={opt} className={isDark ? "bg-[#0d1f35] text-white" : "bg-white text-slate-800"}>
+            {opt}
+          </option>
+        ))}
+      </select>
+      <span className={`absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none opacity-60 text-[7px] ${s.text}`}>▼</span>
+    </div>
+  );
+}
 
 function StatusBadge({ status }: { status: string }) {
   const s = STATUS_COLORS[status] || STATUS_COLORS["Pending"];
@@ -59,6 +113,7 @@ export default function Commissions() {
   // Lifecycle modal
   const [showStatusModal, setShowStatusModal] = useState(false);
   const [selectedComm, setSelectedComm] = useState<any>(null);
+  const [selectedCommDetails, setSelectedCommDetails] = useState<any | null>(null);
   const [newStatus, setNewStatus] = useState("");
   const [reason, setReason] = useState("");
   const [statusActionLoading, setStatusActionLoading] = useState(false);
@@ -341,9 +396,11 @@ export default function Commissions() {
                       <td className="px-4 py-3 whitespace-nowrap font-semibold text-blue-500">{c.commissionRate}</td>
                       <td className="px-4 py-3 whitespace-nowrap font-bold text-emerald-600 dark:text-emerald-400">{c.commissionAmount}</td>
                       <td className="px-4 py-3 whitespace-nowrap"><SourceBadge source={c.commissionSource || "General Commission"} /></td>
-                      <td className="px-4 py-3 whitespace-nowrap"><StatusBadge status={c.status} /></td>
                       <td className="px-4 py-3 whitespace-nowrap">
-                        <div className={isDark ? "text-white/60" : "text-slate-600"}>{c.agentName}</div>
+                        <StatusSelectDropdown comm={c} isDark={isDark} onChange={(targetStatus) => openStatusModal(c, targetStatus)} />
+                      </td>
+                      <td className="px-4 py-3 whitespace-nowrap">
+                        <div className={isDark ? "text-white/60" : "text-slate-650"}>{c.agentName}</div>
                       </td>
                       <td className="px-4 py-3 whitespace-nowrap">
                         <div className="flex items-center gap-1">
@@ -355,26 +412,14 @@ export default function Commissions() {
                           >
                             <History className="w-3.5 h-3.5" />
                           </button>
-                          {/* Approve */}
-                          {c.status === "Pending" && (
-                            <button
-                              onClick={() => openStatusModal(c, "Approved")}
-                              title="Approve"
-                              className="p-1.5 rounded-lg transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-600"
-                            >
-                              <CheckCircle className="w-3.5 h-3.5" />
-                            </button>
-                          )}
-                          {/* Reject */}
-                          {["Pending", "Under Review"].includes(c.status) && (
-                            <button
-                              onClick={() => openStatusModal(c, "Rejected")}
-                              title="Reject"
-                              className="p-1.5 rounded-lg transition-colors hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500"
-                            >
-                              <XCircle className="w-3.5 h-3.5" />
-                            </button>
-                          )}
+                          {/* Info Details Button */}
+                          <button
+                            onClick={() => setSelectedCommDetails(c)}
+                            title="View Details"
+                            className={`p-1.5 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
                         </div>
                       </td>
                     </tr>
@@ -566,6 +611,84 @@ export default function Commissions() {
               >
                 {settleLoading ? "Creating..." : `Create Batch (${selectedForSettlement.length} selected)`}
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Commission Details Modal */}
+      {selectedCommDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg p-6 rounded-3xl relative animate-in zoom-in-95 duration-200 ${
+            isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
+          }`}>
+            <button
+              onClick={() => setSelectedCommDetails(null)}
+              className={`absolute top-4 right-4 p-1.5 rounded-full transition ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            <h3 className="text-base font-bold mb-5 flex items-center gap-2 border-b pb-3 border-white/5">
+              <DollarSign className="w-4 h-4 text-cyan-400" />
+              Commission Details
+            </h3>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Invoice Number</span>
+                <span className="col-span-2 font-mono font-bold text-blue-500">{selectedCommDetails.invoiceNumber}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Seafarer Name</span>
+                <span className="col-span-2 font-bold">{selectedCommDetails.seafarerName}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Course Name</span>
+                <span className="col-span-2 font-semibold">{selectedCommDetails.courseName}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Course Fee</span>
+                <span className="col-span-2 font-bold">{selectedCommDetails.courseFee}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Commission Rate</span>
+                <span className="col-span-2 font-bold text-blue-500">{selectedCommDetails.commissionRate}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Commission Amount</span>
+                <span className="col-span-2 font-bold text-emerald-600 dark:text-emerald-400">{selectedCommDetails.commissionAmount}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Commission Source</span>
+                <span className="col-span-2">
+                  <SourceBadge source={selectedCommDetails.commissionSource || "General Commission"} />
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Referring Agent</span>
+                <span className="col-span-2 font-bold">{selectedCommDetails.agentName}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={mt}>Current Status</span>
+                <span className="col-span-2">
+                  <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${
+                    STATUS_COLORS[selectedCommDetails.status]?.bg || "bg-amber-100 dark:bg-amber-900/30"
+                  } ${
+                    STATUS_COLORS[selectedCommDetails.status]?.text || "text-amber-700 dark:text-amber-400"
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[selectedCommDetails.status]?.dot || "bg-amber-400"}`} />
+                    {selectedCommDetails.status}
+                  </span>
+                </span>
+              </div>
+              {selectedCommDetails.rejection_reason && (
+                <div className="pt-2">
+                  <span className={`${mt} block mb-1.5`}>Rejection / Cancellation Remarks</span>
+                  <div className={`p-4 rounded-xl leading-relaxed text-xs break-words ${isDark ? "bg-[#0b182d] text-white/80 border border-white/5" : "bg-slate-50 text-slate-700 border border-slate-200"}`}>
+                    {selectedCommDetails.rejection_reason}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
