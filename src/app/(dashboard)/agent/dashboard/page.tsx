@@ -7,7 +7,7 @@ import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
   Users, Share2, ClipboardList, DollarSign,
-  TrendingUp, Clock, HelpCircle, ArrowRight, Sparkles
+  TrendingUp, Clock, HelpCircle, ArrowRight, Sparkles, Copy, Check
 } from "lucide-react";
 
 export default function AgentDashboard() {
@@ -25,6 +25,14 @@ export default function AgentDashboard() {
   const [activities, setActivities] = useState<any[]>([]);
   const [referralCode, setReferralCode] = useState<string>("PENDING");
   const [loading, setLoading] = useState(true);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyCode = () => {
+    if (!referralCode || referralCode === "PENDING") return;
+    navigator.clipboard.writeText(referralCode);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -78,9 +86,18 @@ export default function AgentDashboard() {
             }`}>
               ⚓ Partner Workspace
             </span>
-            <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20`}>
+            <button
+              onClick={handleCopyCode}
+              title="Click to copy Referral Code"
+              className="text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 transition active:scale-95 cursor-pointer outline-none"
+            >
               Referral Code: <span className="font-mono text-cyan-400 font-extrabold">{referralCode}</span>
-            </span>
+              {copied ? (
+                <Check className="w-3.5 h-3.5 text-emerald-400 animate-in zoom-in duration-200" />
+              ) : (
+                <Copy className="w-3.5 h-3.5 opacity-60 hover:opacity-100" />
+              )}
+            </button>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight mt-2.5">
             Operations Dashboard
