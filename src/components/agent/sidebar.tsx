@@ -17,7 +17,7 @@ const menuItems = [
   { label: "Referrals Tracker",  href: "/agent/referral-leads",     icon: Users           },
   { label: "Commissions",        href: "/agent/commissions",        icon: DollarSign      },
   { label: "Invoices Ledger",    href: "/agent/invoices",           icon: FileText        },
-  { label: "Verification Docs",  href: "/agent/documents",          icon: Files           },
+  { label: "Documents",          href: "/agent/documents",          icon: Files           },
   { label: "Settings",           href: "/agent/profile",            icon: Settings        },
   { label: "Support Tickets",    href: "/agent/support",            icon: LifeBuoy        },
 ];

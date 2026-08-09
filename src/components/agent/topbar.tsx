@@ -15,7 +15,7 @@ const pageNames: Record<string, string> = {
   "/agent/referral-leads": "Referrals Tracker",
   "/agent/commissions": "Commissions",
   "/agent/invoices": "Invoices Ledger",
-  "/agent/documents": "Verification Documents",
+  "/agent/documents": "Documents",
   "/agent/profile": "Account Settings",
   "/agent/notifications": "Notifications Inbox",
   "/agent/support": "Support Tickets",
