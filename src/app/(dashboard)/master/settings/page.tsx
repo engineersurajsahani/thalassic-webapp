@@ -4,9 +4,9 @@ import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import {
   Settings, Globe, Bell, Shield, CreditCard,
-  Mail, Key, Palette, Database, ChevronRight,
-  Save, ToggleLeft, ToggleRight, Eye, EyeOff,
-  Plus, Trash2, Check, AlertTriangle,
+  Mail, Key, ChevronRight,
+  Save, Eye, EyeOff,
+  Plus, Check, AlertTriangle,
 } from "lucide-react";
 
 const TABS = [
@@ -15,7 +15,6 @@ const TABS = [
   { key: "security",     label: "Security",        Icon: Shield     },
   { key: "billing",      label: "Billing & Fees",  Icon: CreditCard },
   { key: "email",        label: "Email Templates", Icon: Mail       },
-  { key: "api",          label: "API & Integrations", Icon: Key     },
 ];
 
 function Toggle({ enabled, onChange, dk }: { enabled: boolean; onChange: () => void; dk: boolean }) {
@@ -345,50 +344,6 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* ── API & Integrations ───────────────────────────────────────────── */}
-          {tab === "api" && (
-            <div>
-              <Section title="Connected Integrations" description="Third-party services connected to Thalassic." dk={dk}>
-                {[
-                  { name: "Supabase",     desc: "Database & Auth provider",        status: "connected",    color: "text-emerald-400" },
-                  { name: "Razorpay",     desc: "Payment gateway",                  status: "connected",    color: "text-emerald-400" },
-                  { name: "SendGrid",     desc: "Transactional email service",      status: "connected",    color: "text-emerald-400" },
-                  { name: "Twilio",       desc: "SMS & WhatsApp notifications",     status: "disconnected", color: "text-red-400"     },
-                  { name: "AWS S3",       desc: "Document & certificate storage",   status: "connected",    color: "text-emerald-400" },
-                  { name: "Google Maps",  desc: "Location services",                status: "disconnected", color: "text-red-400"     },
-                ].map(item => (
-                  <div key={item.name} className={`flex items-center justify-between py-3.5 border-b ${dk ? "border-white/5" : "border-slate-100"} last:border-0`}>
-                    <div className="flex items-center gap-3">
-                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold text-white ${
-                        item.status === "connected" ? "bg-emerald-500" : dk ? "bg-white/10" : "bg-slate-200"
-                      }`}>
-                        {item.name[0]}
-                      </div>
-                      <div>
-                        <p className={`text-sm font-medium ${ht}`}>{item.name}</p>
-                        <p className={`text-[11px] mt-0.5 ${mt}`}>{item.desc}</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-[11px] font-semibold ${item.color}`}>● {item.status}</span>
-                      <button className={`text-xs font-semibold px-3 py-1.5 rounded-lg border transition-colors ${dk ? "border-white/8 text-white/50 hover:bg-white/5" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
-                        {item.status === "connected" ? "Configure" : "Connect"}
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </Section>
-
-              <Section title="Webhooks" description="Configure external endpoints for platform events." dk={dk}>
-                <div className={`flex items-center justify-between py-2`}>
-                  <p className={`text-sm ${mt}`}>No webhooks configured yet.</p>
-                  <button className="flex items-center gap-2 px-3 py-1.5 text-xs font-semibold rounded-lg bg-sky-500/15 text-sky-400 hover:bg-sky-500/25 transition-colors">
-                    <Plus className="w-3.5 h-3.5" /> Add Webhook
-                  </button>
-                </div>
-              </Section>
-            </div>
-          )}
 
         </div>
       </div>
