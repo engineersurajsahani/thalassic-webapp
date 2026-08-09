@@ -21,6 +21,9 @@ export default function AgentDocumentsPage() {
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expiryDates, setExpiryDates] = useState<Record<string, string>>({});
+  const [docNumbers, setDocNumbers] = useState<Record<string, string>>({});
+  const [issueDates, setIssueDates] = useState<Record<string, string>>({});
+  const [issuePlaces, setIssuePlaces] = useState<Record<string, string>>({});
   
   // Track upload states for each category
   const [uploads, setUploads] = useState<Record<string, UploadState>>({
@@ -37,6 +40,37 @@ export default function AgentDocumentsPage() {
     try {
       const data = await agentService.getDocuments();
       setDocuments(data);
+
+      const loadedDocNumbers: Record<string, string> = {};
+      const loadedIssueDates: Record<string, string> = {};
+      const loadedIssuePlaces: Record<string, string> = {};
+      const loadedExpiryDates: Record<string, string> = {};
+
+      (data || []).forEach((doc: any) => {
+        const type = doc.type;
+        const rawName = doc.label || doc.name || "";
+        
+        if (rawName.includes("|||")) {
+          const parts = rawName.split("|||");
+          try {
+            const meta = JSON.parse(parts[1]);
+            if (meta.number) loadedDocNumbers[type] = meta.number;
+            if (meta.issueDate) loadedIssueDates[type] = meta.issueDate;
+            if (meta.issuePlace) loadedIssuePlaces[type] = meta.issuePlace;
+          } catch (e) {
+            console.warn("Failed to parse document metadata for", type, e);
+          }
+        }
+        
+        if (doc.expiryDate) {
+          loadedExpiryDates[type] = doc.expiryDate.split("T")[0];
+        }
+      });
+
+      setDocNumbers(loadedDocNumbers);
+      setIssueDates(loadedIssueDates);
+      setIssuePlaces(loadedIssuePlaces);
+      setExpiryDates(loadedExpiryDates);
     } catch (err) {
       console.error("Failed to load document list details:", err);
     } finally {
@@ -57,7 +91,38 @@ export default function AgentDocumentsPage() {
       return;
     }
 
+    // Validate required fields based on PRD requirements
+    if (type === "passport") {
+      if (!docNumbers[type] || !issueDates[type] || !expiryDates[type] || !issuePlaces[type]) {
+        alert("Please fill all Passport details (Number, Issue Date, Expiry Date, Place) before uploading.");
+        return;
+      }
+    } else if (type === "cdc") {
+      if (!docNumbers[type] || !issueDates[type] || !expiryDates[type] || !issuePlaces[type]) {
+        alert("Please fill all CDC Booklet details (Number, Issue Date, Expiry Date, Place) before uploading.");
+        return;
+      }
+    } else if (type === "aadhaar") {
+      if (!docNumbers[type]) {
+        alert("Please enter Aadhaar Number before uploading.");
+        return;
+      }
+    } else if (type === "pan") {
+      if (!docNumbers[type]) {
+        alert("Please enter PAN Card Number before uploading.");
+        return;
+      }
+    }
+
     const expiryDate = expiryDates[type] || "";
+    
+    // Construct metadata
+    const metadata = {
+      number: docNumbers[type] || "",
+      issueDate: issueDates[type] || "",
+      issuePlace: issuePlaces[type] || ""
+    };
+    const serializedName = `${file.name}|||${JSON.stringify(metadata)}`;
 
     setUploads((prev) => ({
       ...prev,
@@ -65,10 +130,8 @@ export default function AgentDocumentsPage() {
     }));
 
     try {
-      await agentService.uploadDocument(type, expiryDate, file.name);
+      await agentService.uploadDocument(type, expiryDate, serializedName);
       
-      // Clear inputs
-      setExpiryDates((prev) => ({ ...prev, [type]: "" }));
       // Reload list
       await loadDocuments();
     } catch (err: any) {
@@ -173,22 +236,154 @@ export default function AgentDocumentsPage() {
                   {cat.desc}
                 </p>
 
-                {(cat.type === "passport" || cat.type === "cdc") && (
+                {cat.type === "passport" && (
+                  <div className="space-y-2.5">
+                    <div className="space-y-1">
+                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                        Passport Number *
+                      </label>
+                      <input
+                        type="text"
+                        value={docNumbers[cat.type] || ""}
+                        onChange={(e) => setDocNumbers(prev => ({ ...prev, [cat.type]: e.target.value }))}
+                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        }`}
+                        placeholder="Enter Passport Number"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                        Date of Issue *
+                      </label>
+                      <input
+                        type="date"
+                        value={issueDates[cat.type] || ""}
+                        onChange={(e) => setIssueDates(prev => ({ ...prev, [cat.type]: e.target.value }))}
+                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                        Date of Expiry *
+                      </label>
+                      <input
+                        type="date"
+                        value={expiryDates[cat.type] || ""}
+                        onChange={(e) => setExpiryDates((prev) => ({ ...prev, [cat.type]: e.target.value }))}
+                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                        Place of Issue *
+                      </label>
+                      <input
+                        type="text"
+                        value={issuePlaces[cat.type] || ""}
+                        onChange={(e) => setIssuePlaces(prev => ({ ...prev, [cat.type]: e.target.value }))}
+                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        }`}
+                        placeholder="Enter Place of Issue"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {cat.type === "cdc" && (
+                  <div className="space-y-2.5">
+                    <div className="space-y-1">
+                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                        CDC Number *
+                      </label>
+                      <input
+                        type="text"
+                        value={docNumbers[cat.type] || ""}
+                        onChange={(e) => setDocNumbers(prev => ({ ...prev, [cat.type]: e.target.value }))}
+                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        }`}
+                        placeholder="Enter CDC Number"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                        Date of Issue *
+                      </label>
+                      <input
+                        type="date"
+                        value={issueDates[cat.type] || ""}
+                        onChange={(e) => setIssueDates(prev => ({ ...prev, [cat.type]: e.target.value }))}
+                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                        Date of Expiry *
+                      </label>
+                      <input
+                        type="date"
+                        value={expiryDates[cat.type] || ""}
+                        onChange={(e) => setExpiryDates((prev) => ({ ...prev, [cat.type]: e.target.value }))}
+                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                        Place of Issue *
+                      </label>
+                      <input
+                        type="text"
+                        value={issuePlaces[cat.type] || ""}
+                        onChange={(e) => setIssuePlaces(prev => ({ ...prev, [cat.type]: e.target.value }))}
+                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        }`}
+                        placeholder="Enter Place of Issue"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {cat.type === "aadhaar" && (
                   <div className="space-y-1.5">
                     <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                      Expiry Date
+                      Aadhaar Number *
                     </label>
                     <input
-                      type="date"
-                      value={expiryDates[cat.type] || ""}
-                      onChange={(e) =>
-                        setExpiryDates((prev) => ({ ...prev, [cat.type]: e.target.value }))
-                      }
+                      type="text"
+                      value={docNumbers[cat.type] || ""}
+                      onChange={(e) => setDocNumbers(prev => ({ ...prev, [cat.type]: e.target.value }))}
                       className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                        isDark
-                          ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500"
-                          : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
                       }`}
+                      placeholder="Enter 12-digit Aadhaar"
+                    />
+                  </div>
+                )}
+
+                {cat.type === "pan" && (
+                  <div className="space-y-1.5">
+                    <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+                      PAN Card Number *
+                    </label>
+                    <input
+                      type="text"
+                      value={docNumbers[cat.type] || ""}
+                      onChange={(e) => setDocNumbers(prev => ({ ...prev, [cat.type]: e.target.value }))}
+                      className={`w-full p-2 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                      placeholder="Enter 10-digit PAN"
                     />
                   </div>
                 )}
@@ -275,8 +470,20 @@ export default function AgentDocumentsPage() {
                     <td className="py-4 pr-4 font-black uppercase tracking-wider text-cyan-400 text-[10px]">
                       {doc.type}
                     </td>
-                    <td className="py-4 pr-4 max-w-[200px] truncate font-semibold" title={doc.label}>
-                      {doc.label || "—"}
+                    <td className="py-4 pr-4 max-w-[200px] truncate font-semibold" title={(doc.label || "").split("|||")[0]}>
+                      {(doc.label || "").split("|||")[0] || "—"}
+                      {(() => {
+                        const parts = (doc.label || "").split("|||");
+                        if (parts.length > 1) {
+                          try {
+                            const meta = JSON.parse(parts[1]);
+                            if (meta.number) {
+                              return <span className={`block text-[9px] font-mono mt-0.5 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Num: {meta.number}</span>;
+                            }
+                          } catch {}
+                        }
+                        return null;
+                      })()}
                     </td>
                     <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
                       {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "—"}

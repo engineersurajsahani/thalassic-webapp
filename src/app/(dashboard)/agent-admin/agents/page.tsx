@@ -693,8 +693,31 @@ export default function AgentManagement() {
                               rel="noreferrer"
                               className="text-[10px] text-cyan-400 hover:underline mt-0.5 block truncate max-w-[180px]"
                             >
-                              {doc.name}
+                              {(doc.name || "").split("|||")[0]}
                             </a>
+                            {(() => {
+                              const rawName = doc.name || "";
+                              if (rawName.includes("|||")) {
+                                try {
+                                  const meta = JSON.parse(rawName.split("|||")[1]);
+                                  return (
+                                    <div className={`mt-2 space-y-0.5 text-[9px] border-l pl-2 font-semibold ${isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}>
+                                      {meta.number && <p><span className="opacity-60">Number:</span> {meta.number}</p>}
+                                      {meta.issueDate && <p><span className="opacity-60">Issued:</span> {new Date(meta.issueDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
+                                      {doc.expiryDate && <p><span className="opacity-60">Expires:</span> {new Date(doc.expiryDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
+                                      {meta.issuePlace && <p><span className="opacity-60">Place:</span> {meta.issuePlace}</p>}
+                                    </div>
+                                  );
+                                } catch (e) {}
+                              } else if (doc.expiryDate) {
+                                return (
+                                  <div className={`mt-2 space-y-0.5 text-[9px] border-l pl-2 font-semibold ${isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}>
+                                    <p><span className="opacity-60">Expires:</span> {new Date(doc.expiryDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                  </div>
+                                );
+                              }
+                              return null;
+                            })()}
                           </div>
                           <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
                             doc.status === 'Verified'
