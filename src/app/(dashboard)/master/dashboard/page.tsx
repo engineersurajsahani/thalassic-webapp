@@ -88,35 +88,9 @@ export default function MasterDashboard(){
   const rh=dk?"hover:bg-white/[0.03]":"hover:bg-slate-50";
   const chartData=RD["2025"].map((row,i)=>{const pt:any={month:row.month};cy.forEach(y=>{pt[y]=RD[y][i]?.revenue??0;});return pt;});
   const toggleY=(y:string)=>setCy(prev=>prev.includes(y)?(prev.length>1?prev.filter(x=>x!==y):prev):[...prev,y]);
-  const kpis=[
-    {label:"Registered Seafarers",value:"2,847",Icon:Users,ib:dk?"bg-indigo-500/15":"bg-indigo-50",ic:"#6366f1",info:null as null,up:true,delta:"+12%"},
-    {label:"Outstanding Amount",value:fmt(OD.reduce((s,r)=>s+Number(r.amount),0)),Icon:AlertCircle,ib:dk?"bg-red-500/15":"bg-red-50",ic:"#ef4444",info:"outstanding" as const,up:false,delta:"+5%"},
-    {label:"Payment Done",value:fmt(PD.reduce((s,r)=>s+Number(r.amount),0)),Icon:CheckCircle2,ib:dk?"bg-emerald-500/15":"bg-emerald-50",ic:"#10b981",info:"done" as const,up:true,delta:"+18%"},
-    {label:"Total Revenue",value:"\u20B924.5L",Icon:TrendingUp,ib:dk?"bg-amber-500/15":"bg-amber-50",ic:"#f59e0b",info:null as null,up:true,delta:"+9%"},
-  ];
+
   return(
     <div className="space-y-5">
-      {modal&&<Modal type={modal} dk={dk} onClose={()=>setModal(null)}/>}
-      <div className={card}>
-        <div className={`grid grid-cols-2 xl:grid-cols-4 divide-x divide-y xl:divide-y-0 ${dk?"divide-white/[0.05]":"divide-slate-100"}`}>
-          {kpis.map((s,i)=>{const D=s.up?TrendingUp:TrendingDown;return(
-            <div key={i} className="flex items-center gap-4 px-6 py-5">
-              <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${s.ib}`}><s.Icon className="w-5 h-5" style={{color:s.ic}}/></div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <p className={`text-[22px] font-bold leading-tight tracking-tight ${ht}`}>{s.value}</p>
-                  {s.info&&<button onClick={()=>setModal(s.info)} className={`p-0.5 rounded ${dk?"text-white/25 hover:text-white/60":"text-slate-300 hover:text-slate-600"}`}><Info className="w-3.5 h-3.5"/></button>}
-                </div>
-                <p className={`text-xs mt-0.5 truncate ${mt}`}>{s.label}</p>
-              </div>
-              <div className="text-right shrink-0 hidden sm:block">
-                <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${s.up?"text-emerald-500":"text-red-500"}`}><D className="w-3 h-3"/>{s.delta}</span>
-                <p className={`text-[10px] mt-0.5 ${mt}`}>vs last month</p>
-              </div>
-            </div>
-          );})}
-        </div>
-      </div>
 
       {/* ── 10 Additional KPI Cards ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
