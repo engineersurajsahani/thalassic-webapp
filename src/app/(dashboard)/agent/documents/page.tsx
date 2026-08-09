@@ -5,7 +5,7 @@ import { agentService } from "@/services/agent.service";
 import { useTheme } from "@/providers/theme-provider";
 import {
   Files, Upload, Download, CheckCircle2, AlertCircle, Clock, ShieldAlert,
-  Sparkles, CloudLightning
+  Sparkles, CloudLightning, Eye
 } from "lucide-react";
 
 interface UploadState {
@@ -460,6 +460,7 @@ export default function AgentDocumentsPage() {
                   <th className="pb-3 pr-4">Upload Date</th>
                   <th className="pb-3 pr-4">Expiry Date</th>
                   <th className="pb-3 pr-4">Status Check</th>
+                  <th className="pb-3 pr-4 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/10">
@@ -493,6 +494,35 @@ export default function AgentDocumentsPage() {
                     </td>
                     <td className="py-4 pr-4">
                       {getStatusBadge(doc.status)}
+                    </td>
+                    <td className="py-4 pr-4 text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        <a
+                          href={doc.url?.startsWith("http") ? doc.url : `http://localhost:4000${doc.url}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-cyan-500/10 cursor-pointer ${
+                            isDark 
+                              ? "bg-white/[0.02] border-white/10 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-500/30" 
+                              : "bg-slate-50 border-slate-200 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-55 hover:border-cyan-200"
+                          }`}
+                          title="Preview Document"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                        </a>
+                        <a
+                          href={doc.url?.startsWith("http") ? doc.url : `http://localhost:4000${doc.url}`}
+                          download
+                          className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-emerald-500/10 cursor-pointer ${
+                            isDark 
+                              ? "bg-white/[0.02] border-white/10 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 hover:border-emerald-500/30" 
+                              : "bg-slate-50 border-slate-200 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-55 hover:border-emerald-200"
+                          }`}
+                          title="Download Document"
+                        >
+                          <Download className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
                     </td>
                   </tr>
                 ))}
