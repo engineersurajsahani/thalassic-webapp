@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { agentAdminService } from "@/services/agent-admin.service";
 import { 
-  Search, FileText, Calendar, User, Compass, RefreshCw, ClipboardList, ShieldCheck 
+  Search, FileText, Calendar, User, Compass, RefreshCw, ClipboardList, ShieldCheck, Info, X 
 } from "lucide-react";
 
 export default function ReferralsTracker() {
@@ -26,6 +26,7 @@ export default function ReferralsTracker() {
   const [conflicts, setConflicts] = useState<any[]>([]);
   const [resolvingId, setResolvingId] = useState<string | null>(null);
   const [remarksMap, setRemarksMap] = useState<Record<string, string>>({});
+  const [selectedLead, setSelectedLead] = useState<any | null>(null);
 
   // Filter states
   const [searchLeads, setSearchLeads] = useState("");
@@ -202,7 +203,7 @@ export default function ReferralsTracker() {
                       <th className="py-3.5 px-2">Course / Location</th>
                       <th className="py-3.5 px-2">Status</th>
                       <th className="py-3.5 px-2">Timeline</th>
-                      <th className="py-3.5 px-2">Remarks</th>
+                      <th className="py-3.5 px-2 text-right">Details</th>
                     </tr>
                   </thead>
                   <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
@@ -249,8 +250,15 @@ export default function ReferralsTracker() {
                             Expires: {new Date(lead.expiryAt).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' })}
                           </p>
                         </td>
-                        <td className="py-4 px-2 max-w-xs truncate" title={lead.remarks}>
-                          <span className={isDark ? "text-white/60" : "text-slate-650"}>{lead.remarks || "No remarks provided"}</span>
+                        {/* Details Action Button */}
+                        <td className="py-4 px-2 text-right">
+                          <button
+                            onClick={() => setSelectedLead(lead)}
+                            className={`p-1.5 rounded-lg border transition ${isDark ? "border-white/5 hover:bg-white/5 text-white/50 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800"}`}
+                            title="View Info"
+                          >
+                            <Info className="w-3.5 h-3.5" />
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -473,6 +481,82 @@ export default function ReferralsTracker() {
             )}
           </div>
         </>
+      )}
+      {/* Referral Lead Details Modal */}
+      {selectedLead && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className={`w-full max-w-lg p-6 rounded-3xl relative animate-in zoom-in-95 duration-200 ${
+            isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
+          }`}>
+            <button
+              onClick={() => setSelectedLead(null)}
+              className={`absolute top-4 right-4 p-1.5 rounded-full transition ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}
+            >
+              <X className="w-4 h-4" />
+            </button>
+            
+            <h3 className="text-base font-bold mb-5 flex items-center gap-2 border-b pb-3 border-white/5">
+              <ClipboardList className="w-4 h-4 text-cyan-400" />
+              Referral Lead Details
+            </h3>
+
+            <div className="space-y-4 text-xs">
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={labelText}>Full Name</span>
+                <span className="col-span-2 font-bold">{selectedLead.name}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={labelText}>Email</span>
+                <span className="col-span-2 font-semibold font-mono">{selectedLead.email}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={labelText}>Phone</span>
+                <span className="col-span-2 font-semibold font-mono">{selectedLead.phone}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={labelText}>City / Location</span>
+                <span className="col-span-2 font-semibold">{selectedLead.city || "Unknown"}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={labelText}>Referring Agent</span>
+                <span className="col-span-2 font-bold">{selectedLead.agentName}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={labelText}>Interested Course</span>
+                <span className="col-span-2 font-semibold">{selectedLead.remarks ? selectedLead.remarks.replace("Interested in ", "") : "STCW course"}</span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={labelText}>Status</span>
+                <span className="col-span-2">
+                  <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                    selectedLead.status === "Converted" 
+                      ? "bg-emerald-500/10 text-emerald-500" 
+                      : selectedLead.status === "Expired" 
+                      ? "bg-slate-500/10 text-slate-500" 
+                      : selectedLead.status === "Cancelled"
+                      ? "bg-red-500/10 text-red-500"
+                      : "bg-amber-500/10 text-amber-500"
+                  }`}>
+                    {selectedLead.status}
+                  </span>
+                </span>
+              </div>
+              <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
+                <span className={labelText}>Timeline</span>
+                <span className="col-span-2 font-semibold space-y-1 block">
+                  <span className="block">Created: {new Date(selectedLead.createdAt).toLocaleString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                  <span className="block opacity-60">Expires: {new Date(selectedLead.expiryAt).toLocaleString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                </span>
+              </div>
+              <div className="pt-2">
+                <span className={`${labelText} block mb-1.5`}>Dispute / Remarks</span>
+                <div className={`p-4 rounded-xl leading-relaxed text-xs break-words ${isDark ? "bg-[#0b182d] text-white/80 border border-white/5" : "bg-slate-50 text-slate-700 border border-slate-200"}`}>
+                  {selectedLead.remarks || "No remarks provided"}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
