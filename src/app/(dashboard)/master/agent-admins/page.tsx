@@ -252,7 +252,7 @@ export default function AgentAdminsPage() {
           </table>
         </div>
         <div className={`px-6 py-3 border-t ${dk ? "border-white/5" : "border-slate-100"}`}>
-          <p className={`text-[12px] ${mt}`}>Showing {filtered.length} of {AGENT_ADMINS.length} agent admins</p>
+          <p className={`text-[12px] ${mt}`}>Showing {filtered.length} of {agentList.length} agent admins</p>
         </div>
       </div>
     </div>

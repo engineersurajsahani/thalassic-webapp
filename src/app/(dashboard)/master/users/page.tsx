@@ -361,7 +361,7 @@ export default function UsersPage() {
         {/* Footer */}
         <div className={`flex items-center justify-between px-6 py-3 border-t ${dk ? "border-white/5" : "border-slate-100"}`}>
           <p className={`text-[12px] ${mt}`}>
-            Showing {filtered.length} of {ACCOUNTS.length} accounts
+            Showing {filtered.length} of {accountList.length} accounts
             &nbsp;·&nbsp; {companyCount} company admins &nbsp;·&nbsp; {agentCount} agent admins
           </p>
           <div className="flex items-center gap-1">

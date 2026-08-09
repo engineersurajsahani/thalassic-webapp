@@ -254,7 +254,7 @@ export default function CompanyAdminsPage() {
           </table>
         </div>
         <div className={`px-6 py-3 border-t ${dk ? "border-white/5" : "border-slate-100"}`}>
-          <p className={`text-[12px] ${mt}`}>Showing {filtered.length} of {COMPANY_ADMINS.length} company admins</p>
+          <p className={`text-[12px] ${mt}`}>Showing {filtered.length} of {adminList.length} company admins</p>
         </div>
       </div>
     </div>
