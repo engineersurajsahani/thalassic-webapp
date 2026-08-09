@@ -597,9 +597,6 @@ export default function ReferralsTrackerPage() {
                     <option value="New">New</option>
                     <option value="Contacted">Contacted</option>
                     <option value="Registered">Registered</option>
-                    <option value="Converted">Converted</option>
-                    <option value="Expired">Expired</option>
-                    <option value="Cancelled">Cancelled</option>
                   </select>
                 </div>
               )}
