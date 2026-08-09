@@ -307,7 +307,7 @@ export default function Reports() {
                     </PieChart>
                   </ResponsiveContainer>
                 </div>
-                <div className="w-full sm:w-1/2 space-y-3 mt-4 sm:mt-0 px-4">
+                <div className="w-full sm:w-1/2 space-y-3 mt-4 sm:mt-0 px-4" style={{ maxHeight: "288px", overflowY: "auto" }}>
                   {(() => {
                     const totalRegionLeads = regionStats.reduce((sum: number, item: any) => sum + item.value, 0);
                     return regionStats.map((entry: any, index: number) => {
