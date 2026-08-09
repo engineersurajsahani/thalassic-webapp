@@ -408,7 +408,11 @@ export default function Commissions() {
                           <button
                             onClick={() => openHistory(c)}
                             title="View Status History"
-                            className={`p-1.5 rounded-lg transition-colors ${isDark ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}
+                            className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-indigo-500/10 cursor-pointer ${
+                              isDark 
+                                ? "bg-white/[0.02] border-white/10 text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 hover:border-indigo-500/30" 
+                                : "bg-slate-50 border-slate-200 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 hover:border-indigo-200"
+                            }`}
                           >
                             <History className="w-3.5 h-3.5" />
                           </button>
