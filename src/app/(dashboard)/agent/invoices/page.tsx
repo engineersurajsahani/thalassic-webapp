@@ -135,8 +135,7 @@ export default function AgentInvoicesPage() {
             <thead>
               <tr className={`border-b ${isDark ? "border-white/10 bg-white/[0.02] text-white/30" : "border-slate-100 bg-slate-50 text-slate-400"} uppercase font-semibold tracking-wider`}>
                 <th className="px-4 py-3.5 text-left">Invoice #</th>
-                <th className="px-4 py-3.5 text-left">Type</th>
-                <th className="px-4 py-3.5 text-left">Invoice Date</th>
+                <th className="px-4 py-3.5 text-left">Converted Date</th>
                 <th className="px-4 py-3.5 text-left">Payment Date</th>
                 <th className="px-4 py-3.5 text-left">Seafarer</th>
                 <th className="px-4 py-3.5 text-left">Course</th>
@@ -149,7 +148,7 @@ export default function AgentInvoicesPage() {
               {loading ? (
                 Array.from({ length: 5 }).map((_, i) => (
                   <tr key={i}>
-                    {Array.from({ length: 9 }).map((_, j) => (
+                    {Array.from({ length: 8 }).map((_, j) => (
                       <td key={j} className="px-4 py-3">
                         <div className={`h-3 rounded-full animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`} style={{ width: `${[60, 45, 75, 50, 65, 80, 55, 70, 40, 60][(i + j) % 10]}%` }} />
                       </td>
@@ -158,7 +157,7 @@ export default function AgentInvoicesPage() {
                 ))
               ) : invoices.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="px-4 py-12 text-center">
+                  <td colSpan={8} className="px-4 py-12 text-center">
                     <FileText className={`w-10 h-10 mx-auto mb-3 ${mt}`} />
                     <div className={`text-sm font-semibold ${mt}`}>No invoices found</div>
                     <div className={`text-xs mt-1 ${mt}`}>Invoices appear automatically after referred seafarers complete a course purchase.</div>
@@ -167,10 +166,7 @@ export default function AgentInvoicesPage() {
               ) : invoices.map((inv: any) => (
                 <tr key={inv.id} className={`transition-colors ${isDark ? "hover:bg-white/[0.025]" : "hover:bg-slate-50/70"}`}>
                   <td className="px-4 py-3.5 font-mono font-bold text-cyan-500 whitespace-nowrap">{inv.invoice_number}</td>
-                  <td className="px-4 py-3.5 whitespace-nowrap">
-                    <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${inv.invoice_type === "HAC" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"}`}>{inv.invoice_type}</span>
-                  </td>
-                  <td className="px-4 py-3.5 whitespace-nowrap">{inv.created_at ? new Date(inv.created_at).toLocaleDateString("en-IN") : "—"}</td>
+                  <td className="px-4 py-3.5 whitespace-nowrap">{inv.converted_at ? new Date(inv.converted_at).toLocaleDateString("en-IN") : "—"}</td>
                   <td className="px-4 py-3.5 whitespace-nowrap">{inv.payment_date ? new Date(inv.payment_date).toLocaleDateString("en-IN") : "—"}</td>
                   <td className="px-4 py-3.5 font-semibold whitespace-nowrap">{inv.customer_name}</td>
                   <td className="px-4 py-3.5 max-w-[140px]"><div className={`truncate ${isDark ? "text-white/60" : "text-slate-600"}`}>{inv.course_name}</div></td>
@@ -183,7 +179,11 @@ export default function AgentInvoicesPage() {
                   <td className="px-4 py-3.5 text-center">
                     <button
                       onClick={() => openPdf(inv)}
-                      className={`p-1.5 rounded-lg border transition ${isDark ? "border-white/10 hover:bg-white/5 text-white/40 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-600"}`}
+                      className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-cyan-500/10 cursor-pointer ${
+                        isDark 
+                          ? "bg-white/[0.02] border-white/10 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-500/30" 
+                          : "bg-slate-50 border-slate-200 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 hover:border-cyan-200"
+                      }`}
                       title="View Invoice"
                     >
                       <Eye className="w-3.5 h-3.5" />

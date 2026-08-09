@@ -46,7 +46,7 @@ export default function AgentManagement() {
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newPhone, setNewPhone] = useState("");
-  const [newGenComm, setNewGenComm] = useState(5.0);
+  const [newGenComm, setNewGenComm] = useState("5.0");
   const [createError, setCreateError] = useState("");
   const [createSuccess, setCreateSuccess] = useState(false);
 
@@ -97,7 +97,7 @@ export default function AgentManagement() {
         email: newEmail,
         password: newPassword,
         phone: newPhone,
-        generalCommission: newGenComm,
+        generalCommission: parseFloat(newGenComm) || 5.0,
       });
 
       setCreateSuccess(true);
@@ -105,7 +105,7 @@ export default function AgentManagement() {
       setNewEmail("");
       setNewPassword("");
       setNewPhone("");
-      setNewGenComm(5.0);
+      setNewGenComm("5.0");
       fetchAgents();
       setTimeout(() => {
         setShowCreateModal(false);
@@ -508,7 +508,7 @@ export default function AgentManagement() {
                   step="0.1"
                   required
                   value={newGenComm}
-                  onChange={(e) => setNewGenComm(parseFloat(e.target.value) || 5.0)}
+                  onChange={(e) => setNewGenComm(e.target.value)}
                   placeholder="e.g. 5.0"
                   className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
                 />
