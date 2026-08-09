@@ -8,7 +8,7 @@ import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, Users, FileText, ClipboardList,
   DollarSign, BarChart3, ShieldAlert, User, LogOut,
-  Anchor, ChevronRight, Receipt,
+  Anchor, ChevronRight, Receipt, LifeBuoy
 } from "lucide-react";
 
 const menuItems = [
@@ -19,6 +19,7 @@ const menuItems = [
   { label: "Invoices",           href: "/agent-admin/invoices",        icon: Receipt         },
   { label: "Reports",            href: "/agent-admin/reports",         icon: BarChart3       },
   { label: "Audit Logs",         href: "/agent-admin/audit-logs",      icon: ShieldAlert     },
+  { label: "Support Tickets",    href: "/agent-admin/support-tickets", icon: LifeBuoy        },
   { label: "Profile",            href: "/agent-admin/profile",         icon: User            },
 ];
 

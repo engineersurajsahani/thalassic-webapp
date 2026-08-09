@@ -16,6 +16,7 @@ const pageNames: Record<string, string> = {
   "/agent-admin/commissions":  "Commissions",
   "/agent-admin/reports":      "Reports",
   "/agent-admin/audit-logs":   "Audit Logs",
+  "/agent-admin/support-tickets": "Support Tickets",
   "/agent-admin/profile":      "Profile",
 };
 
