@@ -142,8 +142,12 @@ export default function AuditLogs() {
                     <td className="py-4 px-2 text-right">
                       <button
                         onClick={() => setSelectedLog(log)}
-                        className={`p-1.5 rounded-lg border transition ${isDark ? "border-white/5 hover:bg-white/5 text-white/50 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800"}`}
-                        title="View Info"
+                        className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-cyan-500/10 cursor-pointer ml-auto ${
+                          isDark 
+                            ? "bg-white/[0.02] border-white/10 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-500/30" 
+                            : "bg-slate-50 border-slate-200 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 hover:border-cyan-200"
+                        }`}
+                        title="View Details"
                       >
                         <Info className="w-3.5 h-3.5" />
                       </button>
