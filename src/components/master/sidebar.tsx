@@ -7,14 +7,18 @@ import { useTheme } from "@/providers/theme-provider";
 import {
   LayoutDashboard, BookOpen, Users, BarChart3,
   Settings, LogOut, Anchor, ChevronRight,
+  Building2, UserCog, Wallet,
 } from "lucide-react";
 
 const menuItems = [
-  { label: "Dashboard",        href: "/master/dashboard", icon: LayoutDashboard },
-  { label: "Course Management",href: "/master/courses",   icon: BookOpen        },
-  { label: "User Management",  href: "/master/users",     icon: Users           },
-  { label: "Reports",          href: "/master/reports",   icon: BarChart3       },
-  { label: "Settings",         href: "/master/settings",  icon: Settings        },
+  { label: "Dashboard",        href: "/master/dashboard",       icon: LayoutDashboard },
+  { label: "Course Management",href: "/master/courses",          icon: BookOpen        },
+  { label: "User Management",  href: "/master/users",            icon: Users           },
+  { label: "Company Admins",   href: "/master/company-admins",   icon: Building2       },
+  { label: "Agent Admins",     href: "/master/agent-admins",     icon: UserCog         },
+  { label: "Finance",          href: "/master/finance",          icon: Wallet          },
+  { label: "Reports",          href: "/master/reports",          icon: BarChart3       },
+  { label: "Settings",         href: "/master/settings",         icon: Settings        },
 ];
 
 export default function MasterSidebar() {

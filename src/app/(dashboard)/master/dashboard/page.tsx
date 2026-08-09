@@ -1,7 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
-import { Users, TrendingUp, TrendingDown, MoreHorizontal, ShieldCheck, Anchor, GraduationCap, Globe, BookOpen, ArrowUpRight, Info, X, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Users, TrendingUp, TrendingDown, MoreHorizontal, ShieldCheck, Anchor, GraduationCap, Globe, BookOpen, ArrowUpRight, Info, X, AlertCircle, CheckCircle2, Building2, UserCog, Handshake, GitMerge, Wallet, Receipt, Clock, IndianRupee, BarChart3 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 
 const RD: Record<string,{month:string;revenue:number}[]> = {
@@ -117,6 +117,34 @@ export default function MasterDashboard(){
           );})}
         </div>
       </div>
+
+      {/* ── 10 Additional KPI Cards ─────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
+        {[
+          { label: "Company Admins",         value: "8",       sub: "Registered",         Icon: Building2,     ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
+          { label: "Agent Admins",           value: "7",       sub: "Registered",         Icon: UserCog,       ib: dk?"bg-violet-500/15":"bg-violet-50",  ic: "#8b5cf6" },
+          { label: "Registered Agents",      value: "41",      sub: "Under agent admins", Icon: Handshake,     ib: dk?"bg-indigo-500/15":"bg-indigo-50",  ic: "#6366f1" },
+          { label: "Referral Leads",         value: "128",     sub: "All time",           Icon: GitMerge,      ib: dk?"bg-amber-500/15":"bg-amber-50",    ic: "#f59e0b" },
+          { label: "Referral Conversions",   value: "74",      sub: "57.8% rate",         Icon: TrendingUp,    ib: dk?"bg-emerald-500/15":"bg-emerald-50", ic: "#10b981" },
+          { label: "Commissions Payable",    value: "₹1.24L",  sub: "Awaiting payout",    Icon: Wallet,        ib: dk?"bg-orange-500/15":"bg-orange-50",   ic: "#f97316" },
+          { label: "Commissions Paid",       value: "₹4.87L",  sub: "All time",           Icon: CheckCircle2,  ib: dk?"bg-teal-500/15":"bg-teal-50",      ic: "#14b8a6" },
+          { label: "Platform Invoices",      value: "312",     sub: "Total raised",       Icon: Receipt,       ib: dk?"bg-rose-500/15":"bg-rose-50",      ic: "#f43f5e" },
+          { label: "Pending Settlements",    value: "₹38.4K",  sub: "Unresolved",         Icon: Clock,         ib: dk?"bg-red-500/15":"bg-red-50",        ic: "#ef4444" },
+          { label: "Monthly Revenue",        value: "₹3.88L",  sub: "Current month",      Icon: BarChart3,     ib: dk?"bg-purple-500/15":"bg-purple-50",   ic: "#a855f7" },
+        ].map((k) => (
+          <div key={k.label} className={`${card} flex items-center gap-3 px-5 py-4`}>
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${k.ib}`}>
+              <k.Icon className="w-5 h-5" style={{ color: k.ic }} />
+            </div>
+            <div className="min-w-0">
+              <p className={`text-[19px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
+              <p className={`text-[11px] font-semibold truncate mt-0.5 ${ht} opacity-75`}>{k.label}</p>
+              <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         <div className={`${card} xl:col-span-2`}>
           <CH title="Revenue Over Time" dk={dk} action={
