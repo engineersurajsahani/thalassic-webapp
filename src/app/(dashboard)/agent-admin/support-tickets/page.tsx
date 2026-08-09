@@ -30,6 +30,8 @@ export default function SupportTickets() {
   const inputWrap = `flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-slate-200 text-slate-600 shadow-sm"}`;
   const selectCls = `px-3 py-2.5 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-[#0d1f35] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"}`;
 
+  const [mounted, setMounted] = useState(false);
+
   const fetchTickets = async () => {
     try {
       const res = await api.get("/agent-admin/tickets");
@@ -47,8 +49,11 @@ export default function SupportTickets() {
   };
 
   useEffect(() => {
+    setMounted(true);
     fetchTickets();
   }, []);
+
+  if (!mounted) return null;
 
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();
