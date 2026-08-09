@@ -5,7 +5,7 @@ import { agentService } from "@/services/agent.service";
 import { useTheme } from "@/providers/theme-provider";
 import {
   Files, Upload, Download, CheckCircle2, AlertCircle, Clock, ShieldAlert,
-  Sparkles, CloudLightning, Eye
+  Sparkles, CloudLightning, Eye, X
 } from "lucide-react";
 
 interface UploadState {
@@ -24,6 +24,7 @@ export default function AgentDocumentsPage() {
   const [docNumbers, setDocNumbers] = useState<Record<string, string>>({});
   const [issueDates, setIssueDates] = useState<Record<string, string>>({});
   const [issuePlaces, setIssuePlaces] = useState<Record<string, string>>({});
+  const [activeDetailsModal, setActiveDetailsModal] = useState<string | null>(null);
   
   // Track upload states for each category
   const [uploads, setUploads] = useState<Record<string, UploadState>>({
@@ -236,156 +237,19 @@ export default function AgentDocumentsPage() {
                   {cat.desc}
                 </p>
 
-                {cat.type === "passport" && (
-                  <div className="space-y-2.5">
-                    <div className="space-y-1">
-                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                        Passport Number *
-                      </label>
-                      <input
-                        type="text"
-                        value={docNumbers[cat.type] || ""}
-                        onChange={(e) => setDocNumbers(prev => ({ ...prev, [cat.type]: e.target.value }))}
-                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                        }`}
-                        placeholder="Enter Passport Number"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                        Date of Issue *
-                      </label>
-                      <input
-                        type="date"
-                        value={issueDates[cat.type] || ""}
-                        onChange={(e) => setIssueDates(prev => ({ ...prev, [cat.type]: e.target.value }))}
-                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                        }`}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                        Date of Expiry *
-                      </label>
-                      <input
-                        type="date"
-                        value={expiryDates[cat.type] || ""}
-                        onChange={(e) => setExpiryDates((prev) => ({ ...prev, [cat.type]: e.target.value }))}
-                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                        }`}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                        Place of Issue *
-                      </label>
-                      <input
-                        type="text"
-                        value={issuePlaces[cat.type] || ""}
-                        onChange={(e) => setIssuePlaces(prev => ({ ...prev, [cat.type]: e.target.value }))}
-                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                        }`}
-                        placeholder="Enter Place of Issue"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {cat.type === "cdc" && (
-                  <div className="space-y-2.5">
-                    <div className="space-y-1">
-                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                        CDC Number *
-                      </label>
-                      <input
-                        type="text"
-                        value={docNumbers[cat.type] || ""}
-                        onChange={(e) => setDocNumbers(prev => ({ ...prev, [cat.type]: e.target.value }))}
-                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                        }`}
-                        placeholder="Enter CDC Number"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                        Date of Issue *
-                      </label>
-                      <input
-                        type="date"
-                        value={issueDates[cat.type] || ""}
-                        onChange={(e) => setIssueDates(prev => ({ ...prev, [cat.type]: e.target.value }))}
-                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                        }`}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                        Date of Expiry *
-                      </label>
-                      <input
-                        type="date"
-                        value={expiryDates[cat.type] || ""}
-                        onChange={(e) => setExpiryDates((prev) => ({ ...prev, [cat.type]: e.target.value }))}
-                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                        }`}
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                        Place of Issue *
-                      </label>
-                      <input
-                        type="text"
-                        value={issuePlaces[cat.type] || ""}
-                        onChange={(e) => setIssuePlaces(prev => ({ ...prev, [cat.type]: e.target.value }))}
-                        className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                          isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                        }`}
-                        placeholder="Enter Place of Issue"
-                      />
-                    </div>
-                  </div>
-                )}
-
-                {cat.type === "aadhaar" && (
-                  <div className="space-y-1.5">
-                    <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                      Aadhaar Number *
-                    </label>
-                    <input
-                      type="text"
-                      value={docNumbers[cat.type] || ""}
-                      onChange={(e) => setDocNumbers(prev => ({ ...prev, [cat.type]: e.target.value }))}
-                      className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                      }`}
-                      placeholder="Enter 12-digit Aadhaar"
-                    />
-                  </div>
-                )}
-
-                {cat.type === "pan" && (
-                  <div className="space-y-1.5">
-                    <label className={`text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                      PAN Card Number *
-                    </label>
-                    <input
-                      type="text"
-                      value={docNumbers[cat.type] || ""}
-                      onChange={(e) => setDocNumbers(prev => ({ ...prev, [cat.type]: e.target.value }))}
-                      className={`w-full p-2 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
-                      }`}
-                      placeholder="Enter 10-digit PAN"
-                    />
-                  </div>
+                {["passport", "cdc", "aadhaar", "pan"].includes(cat.type) && (
+                  <button
+                    onClick={() => setActiveDetailsModal(cat.type)}
+                    className={`mt-2 py-1.5 px-3 rounded-xl border text-[11px] font-extrabold flex items-center gap-1.5 transition active:scale-95 cursor-pointer ${
+                      docNumbers[cat.type]
+                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
+                        : isDark
+                        ? "bg-white/5 border-white/10 text-cyan-400 hover:bg-white/10"
+                        : "bg-slate-50 border-slate-200 text-[#3b71cb] hover:bg-slate-100 shadow-sm"
+                    }`}
+                  >
+                    {docNumbers[cat.type] ? "✓ Details Saved" : "✍️ Fill Details"}
+                  </button>
                 )}
               </div>
 
@@ -532,6 +396,187 @@ export default function AgentDocumentsPage() {
         )}
       </section>
 
+      {/* Details Entry Modal */}
+      {activeDetailsModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className={`w-full max-w-md p-6 rounded-3xl relative animate-in zoom-in-95 duration-200 overflow-hidden ${
+            isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
+          }`}>
+            <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400">
+                ✍️ Fill {activeDetailsModal.toUpperCase()} Details
+              </h3>
+              <button
+                onClick={() => setActiveDetailsModal(null)}
+                className={`p-1.5 rounded-full transition ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {activeDetailsModal === "passport" && (
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      Passport Number *
+                    </label>
+                    <input
+                      type="text"
+                      value={docNumbers[activeDetailsModal] || ""}
+                      onChange={(e) => setDocNumbers(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                      placeholder="Enter Passport Number"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      Date of Issue *
+                    </label>
+                    <input
+                      type="date"
+                      value={issueDates[activeDetailsModal] || ""}
+                      onChange={(e) => setIssueDates(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      Date of Expiry *
+                    </label>
+                    <input
+                      type="date"
+                      value={expiryDates[activeDetailsModal] || ""}
+                      onChange={(e) => setExpiryDates((prev) => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      Place of Issue *
+                    </label>
+                    <input
+                      type="text"
+                      value={issuePlaces[activeDetailsModal] || ""}
+                      onChange={(e) => setIssuePlaces(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                      placeholder="Enter Place of Issue"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {activeDetailsModal === "cdc" && (
+                <div className="space-y-3">
+                  <div className="space-y-1">
+                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      CDC Number *
+                    </label>
+                    <input
+                      type="text"
+                      value={docNumbers[activeDetailsModal] || ""}
+                      onChange={(e) => setDocNumbers(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                      placeholder="Enter CDC Number"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                      Date of Issue *
+                    </label>
+                    <input
+                      type="date"
+                      value={issueDates[activeDetailsModal] || ""}
+                      onChange={(e) => setIssueDates(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                      Date of Expiry *
+                    </label>
+                    <input
+                      type="date"
+                      value={expiryDates[activeDetailsModal] || ""}
+                      onChange={(e) => setExpiryDates((prev) => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                      Place of Issue *
+                    </label>
+                    <input
+                      type="text"
+                      value={issuePlaces[activeDetailsModal] || ""}
+                      onChange={(e) => setIssuePlaces(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      }`}
+                      placeholder="Enter Place of Issue"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {activeDetailsModal === "aadhaar" && (
+                <div className="space-y-1.5">
+                  <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                    Aadhaar Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={docNumbers[activeDetailsModal] || ""}
+                    onChange={(e) => setDocNumbers(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                    className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                    placeholder="Enter 12-digit Aadhaar"
+                  />
+                </div>
+              )}
+
+              {activeDetailsModal === "pan" && (
+                <div className="space-y-1.5">
+                  <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                    PAN Card Number *
+                  </label>
+                  <input
+                    type="text"
+                    value={docNumbers[activeDetailsModal] || ""}
+                    onChange={(e) => setDocNumbers(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
+                    className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                    placeholder="Enter 10-digit PAN"
+                  />
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={() => setActiveDetailsModal(null)}
+              className="mt-6 w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md active:scale-98 transition-all font-sans"
+            >
+              <CheckCircle2 className="w-4 h-4" /> Save Details
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
