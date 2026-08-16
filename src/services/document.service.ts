@@ -32,4 +32,9 @@ export const documentService = {
     const response = await api.delete(`/documents/${id}`);
     return response.data;
   },
+
+  async downloadDocument(id: string) {
+    const response = await api.get(`/documents/${id}/download`);
+    return response.data;
+  },
 };

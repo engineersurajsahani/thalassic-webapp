@@ -55,7 +55,7 @@ export default function DashboardPage() {
     0
   );
   const expiringCerts = mockSeafarers.reduce(
-    (acc, sf) => acc + sf.documents.filter((d) => d.status === "Expiring" || d.status === "Expired").length,
+    (acc, sf) => acc + sf.documents.filter((d) => (d.status as string) === "Expiring" || (d.status as string) === "Expired").length,
     0
   );
   const activeApplications = mockSeafarers.filter((sf) => sf.status === "Pending").length;
