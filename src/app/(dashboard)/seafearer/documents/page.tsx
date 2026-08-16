@@ -109,6 +109,39 @@ export default function DocumentsPage() {
     }
   };
 
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const handleDownload = async (doc: any) => {
+    setDownloadingId(doc.id);
+    try {
+      const data = await documentService.downloadDocument(doc.id);
+      if (!data || !data.signedUrl) {
+        alert("Document file is unavailable.");
+        return;
+      }
+
+      const response = await fetch(data.signedUrl);
+      if (!response.ok) {
+        alert("Document file is unavailable.");
+        return;
+      }
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = data.fileName || doc.label || "document";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || "Document file is unavailable.");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this document?")) return;
     try {
@@ -332,19 +365,22 @@ export default function DocumentsPage() {
                       {getStatusBadge(doc.status)}
                     </td>
                     <td className="py-4 text-right flex justify-end gap-2">
-                      <a
-                        href={doc.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`p-2 rounded-xl border flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
+                      <button
+                        onClick={() => handleDownload(doc)}
+                        disabled={downloadingId === doc.id}
+                        className={`p-2 rounded-xl border flex items-center justify-center transition-all hover:scale-105 active:scale-95 cursor-pointer disabled:opacity-50 ${
                           isDark 
                             ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800 hover:border-slate-700" 
                             : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
                         }`}
                         title="Download file"
                       >
-                        <Download className="w-3.5 h-3.5" />
-                      </a>
+                        {downloadingId === doc.id ? (
+                          <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Download className="w-3.5 h-3.5" />
+                        )}
+                      </button>
                       <button
                         onClick={() => handleDelete(doc.id)}
                         className={`p-2 rounded-xl border flex items-center justify-center text-red-500 transition-all cursor-pointer hover:scale-105 active:scale-95 ${
