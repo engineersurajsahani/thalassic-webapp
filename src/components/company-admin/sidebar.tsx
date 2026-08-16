@@ -6,15 +6,9 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
-  LayoutDashboard,
-  BookOpen,
-  Users,
-  FileCheck,
-  LifeBuoy,
-  LogOut,
-  Anchor,
-  ChevronRight,
-  X,
+  LayoutDashboard, Users, UserPlus, FileCheck,
+  CreditCard, FileText, BarChart3, Settings,
+  LogOut, Anchor, ChevronRight, X
 } from "lucide-react";
 
 interface SidebarProps {
@@ -22,27 +16,13 @@ interface SidebarProps {
   onClose: () => void;
 }
 
-const navigationGroups = [
-  {
-    title: "Operations",
-    items: [
-      { label: "Dashboard", href: "/company-admin/dashboard", icon: LayoutDashboard },
-      { label: "Seafarer Management", href: "/company-admin/seafearers", icon: Users },
-      { label: "Course Management", href: "/company-admin/courses", icon: BookOpen },
-    ],
-  },
-  {
-    title: "Compliance",
-    items: [
-      { label: "Document Verification", href: "/company-admin/documents", icon: FileCheck },
-    ],
-  },
-  {
-    title: "Support",
-    items: [
-      { label: "Help & Support", href: "/company-admin/support", icon: LifeBuoy },
-    ],
-  },
+const menuItems = [
+  { label: "Dashboard",            href: "/company-admin/dashboard",    icon: LayoutDashboard },
+  { label: "Seafarers",            href: "/company-admin/seafearers",   icon: Users },
+  { label: "Walk-in Registration", href: "/company-admin/registration", icon: UserPlus },
+  { label: "Documents",            href: "/company-admin/documents",    icon: FileCheck },
+  { label: "Reports",              href: "/company-admin/reports",      icon: BarChart3 },
+  { label: "Profile",              href: "/company-admin/profile",      icon: Settings },
 ];
 
 export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
@@ -54,40 +34,33 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
-  // Premium design tokens
-  const sidebarBg = isDark
-    ? "bg-[#0b1329] border-r border-white/5 text-slate-200"
-    : "bg-white border-r border-slate-200 text-slate-800";
-  const brandBorder = isDark ? "border-white/5" : "border-slate-100";
-  const logoText = isDark ? "text-white" : "text-slate-800";
-  const logoSub = isDark ? "text-sky-400" : "text-sky-600";
-  const groupTitle = isDark ? "text-white/25" : "text-slate-400";
-  const activeLink = isDark
-    ? "bg-sky-500/10 text-sky-400"
-    : "bg-sky-50 text-sky-700";
-  const activeIcon = isDark ? "text-sky-400" : "text-sky-600";
-  const inactiveLink = isDark
-    ? "text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1"
-    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:translate-x-1";
-  const inactiveIcon = isDark ? "text-slate-500 group-hover:text-slate-300" : "text-slate-400 group-hover:text-slate-600";
-  const footBorder = isDark ? "border-t border-white/5 bg-[#090f20]" : "border-t border-slate-150 bg-slate-50/50";
-  const userName = isDark ? "text-white" : "text-slate-800";
-  const userEmail = isDark ? "text-white/30" : "text-slate-400";
-  const signOutBtn = isDark
-    ? "text-slate-400 hover:bg-red-500/10 hover:text-red-400"
-    : "text-slate-600 hover:bg-red-50 hover:text-red-650";
+  // ── theme tokens (Matching Master Portal) ──────────────────────────────
+  const sidebarBg   = isDark ? "bg-[#0c1a2e] border-r border-white/5"        : "bg-white border-r border-slate-200";
+  const brandBorder = isDark ? "border-white/8"                               : "border-slate-100";
+  const logoText    = isDark ? "text-white"                                   : "text-slate-800";
+  const logoSub     = isDark ? "text-sky-400"                                 : "text-sky-500";
+  const navLabel    = isDark ? "text-white/25"                                : "text-slate-400";
+  const activeLink  = isDark ? "bg-sky-500/15 text-sky-400"                  : "bg-sky-50 text-sky-600";
+  const activeIcon  = isDark ? "text-sky-400"                                 : "text-sky-600";
+  const activeChev  = isDark ? "text-sky-400/60"                              : "text-sky-400";
+  const inactiveLink= isDark ? "text-white/50 hover:bg-white/5 hover:text-white/80" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700";
+  const inactiveIcon= isDark ? "text-white/40 group-hover:text-white/60"     : "text-slate-400 group-hover:text-slate-600";
+  const footBorder  = isDark ? "border-white/8"                              : "border-slate-100";
+  const userName    = isDark ? "text-white/80"                               : "text-slate-700";
+  const userEmail   = isDark ? "text-white/30"                               : "text-slate-400";
+  const signOutBtn  = isDark ? "text-white/40 hover:bg-red-500/10 hover:text-red-400" : "text-slate-400 hover:bg-red-50 hover:text-red-500";
 
   const renderContent = () => (
     <div className="flex flex-col h-full">
       {/* Brand Header */}
-      <div className={`px-6 py-5 flex items-center justify-between border-b ${brandBorder}`}>
+      <div className={`px-5 py-5 flex items-center justify-between border-b ${brandBorder}`}>
         <Link href="/company-admin/dashboard" className="flex items-center gap-3 group/logo">
-          <div className="w-8.5 h-8.5 rounded-lg bg-sky-500 flex items-center justify-center shrink-0 shadow-sm transition-transform duration-300 group-hover/logo:rotate-12 group-hover/logo:scale-110">
-            <Anchor className="w-4.5 h-4.5 text-white" strokeWidth={2.5} />
+          <div className="w-8 h-8 rounded-md bg-sky-500 flex items-center justify-center shrink-0">
+            <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
           </div>
           <div className="leading-tight">
-            <p className={`text-xs font-black tracking-wider ${logoText}`}>Thalassic</p>
-            <p className={`text-[9px] font-bold tracking-widest uppercase ${logoSub}`}>
+            <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>
+            <p className={`text-[11px] font-medium tracking-wider uppercase ${logoSub}`}>
               Company Portal
             </p>
           </div>
@@ -101,65 +74,53 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
         </button>
       </div>
 
-      {/* Navigation Groups */}
-      <nav className="flex-1 px-4 py-6 space-y-6 overflow-y-auto">
-        {navigationGroups.map((group) => (
-          <div key={group.title} className="space-y-1.5">
-            <p className={`px-3 text-[9px] font-bold uppercase tracking-wider ${groupTitle}`}>
-              {group.title}
-            </p>
-            <div className="space-y-0.5">
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onClose}
-                    className={`group relative flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold tracking-normal transition-all duration-150 ${
-                      active ? activeLink : inactiveLink
-                    }`}
-                  >
-                    {/* Left Border Active Indicator */}
-                    {active && (
-                      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-5 rounded-r bg-sky-500" />
-                    )}
-                    <div className="flex items-center gap-3">
-                      <Icon
-                        className={`w-4 h-4 shrink-0 transition-colors ${
-                          active ? activeIcon : inactiveIcon
-                        }`}
-                      />
-                      {item.label}
-                    </div>
-                    {active && <ChevronRight className="w-3.5 h-3.5 opacity-60" />}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        ))}
+      {/* Nav label */}
+      <div className="px-5 pt-5 pb-2">
+        <p className={`text-[10px] font-semibold tracking-widest uppercase ${navLabel}`}>
+          Navigation
+        </p>
+      </div>
+
+      {/* Menu */}
+      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
+        {menuItems.map((item) => {
+          const Icon = item.icon;
+          const active = isActive(item.href);
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              onClick={onClose}
+              className={`group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${active ? activeLink : inactiveLink}`}
+            >
+              <div className="flex items-center gap-3">
+                <Icon className={`w-4 h-4 shrink-0 ${active ? activeIcon : inactiveIcon}`} />
+                {item.label}
+              </div>
+              {active && <ChevronRight className={`w-3.5 h-3.5 ${activeChev}`} />}
+            </Link>
+          );
+        })}
       </nav>
 
       {/* User profile footer */}
-      <div className={`p-4 border-t ${footBorder} space-y-2`}>
-        <div className="flex items-center gap-3 px-3 py-2 rounded-lg">
-          <div className="w-8 h-8 rounded-full bg-sky-500 flex items-center justify-center text-white text-[11px] font-black uppercase shrink-0">
+      <div className={`p-3 border-t ${footBorder} space-y-1`}>
+        <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
+          <div className="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
             {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "CA"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className={`text-xs font-bold truncate leading-none ${userName}`}>
+            <p className={`text-xs font-semibold truncate ${userName}`}>
               {user?.name || "Company Admin"}
             </p>
-            <p className={`text-[10px] truncate mt-1 ${userEmail}`}>
+            <p className={`text-[11px] truncate ${userEmail}`}>
               {user?.email || "admin@shipping.com"}
             </p>
           </div>
         </div>
         <button
           onClick={logout}
-          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150 cursor-pointer ${signOutBtn}`}
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 cursor-pointer ${signOutBtn}`}
         >
           <LogOut className="w-4 h-4 shrink-0" />
           Sign out
