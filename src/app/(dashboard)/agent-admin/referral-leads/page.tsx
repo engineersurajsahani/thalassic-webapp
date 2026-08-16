@@ -9,7 +9,13 @@ import {
 
 export default function ReferralsTracker() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
 
   const [activeTab, setActiveTab] = useState<"leads" | "purchases" | "conflicts">("leads");
   const [loading, setLoading] = useState(true);
