@@ -26,7 +26,6 @@ const menuItems = [
   { label: "Documents", href: "/seafearer/documents", icon: FileText },
   { label: "Profile", href: "/seafearer/profile", icon: User },
   { label: "Purchase History", href: "/seafearer/purchase-history", icon: ShoppingBag },
-  { label: "Invoices", href: "/seafearer/invoices", icon: Receipt },
   { label: "Referral Dashboard", href: "/seafearer/referral-dashboard", icon: GitFork },
   { label: "Support", href: "/seafearer/support", icon: LifeBuoy },
 ];

@@ -15,7 +15,6 @@ const pageNames: { [key: string]: string } = {
   "/seafearer/documents": "Document Repository",
   "/seafearer/profile": "Seafarer Profile Settings",
   "/seafearer/purchase-history": "Purchase History",
-  "/seafearer/invoices": "Invoices",
   "/seafearer/referral-dashboard": "Referral Dashboard",
   "/seafearer/support": "Support Center",
 };
