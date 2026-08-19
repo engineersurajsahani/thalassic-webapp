@@ -10,7 +10,8 @@ export const documentService = {
     type: string,
     file: File,
     expiryDate?: string,
-    onUploadProgress?: (progressEvent: any) => void
+    onUploadProgress?: (progressEvent: any) => void,
+    metadata?: Record<string, any>
   ) {
     const formData = new FormData();
     formData.append("type", type);
@@ -18,12 +19,42 @@ export const documentService = {
     if (expiryDate) {
       formData.append("expiryDate", expiryDate);
     }
+    if (metadata) {
+      Object.entries(metadata).forEach(([key, val]) => {
+        if (val !== undefined && val !== null) {
+          formData.append(key, String(val));
+        }
+      });
+    }
 
     const response = await api.post("/documents/upload", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
       },
       onUploadProgress,
+    });
+    return response.data;
+  },
+
+  async updateDocument(
+    id: string,
+    metadata: Record<string, any>,
+    file?: File | null
+  ) {
+    const formData = new FormData();
+    if (file) {
+      formData.append("file", file);
+    }
+    Object.entries(metadata).forEach(([key, val]) => {
+      if (val !== undefined && val !== null) {
+        formData.append(key, String(val));
+      }
+    });
+
+    const response = await api.put(`/documents/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
     });
     return response.data;
   },

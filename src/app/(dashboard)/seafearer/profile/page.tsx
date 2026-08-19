@@ -16,20 +16,72 @@ export default function ProfilePage() {
   const [seaServiceLoading, setSeaServiceLoading] = useState(false);
 
   // 1. Personal & Contact state
+  const nameParts = (user?.name || "").trim().split(" ");
+  const initialFirstName = user?.profile?.firstName || user?.firstName || nameParts[0] || "";
+  const initialLastName = user?.profile?.lastName || user?.lastName || nameParts.slice(1).join(" ") || "";
+
   const [personalForm, setPersonalForm] = useState({
-    name: user?.name || "",
-    phone: user?.phone || "",
+    firstName: initialFirstName,
+    lastName: initialLastName,
+    email: user?.email || user?.profile?.email || "",
+    phone: user?.phone || user?.profile?.phone || "",
+    alternatePhone: user?.profile?.alternatePhone || "",
     dob: user?.profile?.dob || "",
-    nationality: user?.profile?.nationality || "",
-    indosNumber: user?.profile?.indosNumber || "",
+    placeOfBirth: user?.profile?.placeOfBirth || "",
     address: user?.profile?.address || "",
+    city: user?.profile?.city || "",
+    state: user?.profile?.state || "",
+    country: user?.profile?.country || "India",
+    indosNumber: user?.profile?.indosNumber || "",
+    profilePicture: user?.profile?.profilePicture || "",
   });
 
+  // Re-sync form state when user object updates
+  React.useEffect(() => {
+    if (user) {
+      const parts = (user.name || "").trim().split(" ");
+      setPersonalForm({
+        firstName: user.profile?.firstName || user.firstName || parts[0] || "",
+        lastName: user.profile?.lastName || user.lastName || parts.slice(1).join(" ") || "",
+        email: user.email || user.profile?.email || "",
+        phone: user.phone || user.profile?.phone || "",
+        alternatePhone: user.profile?.alternatePhone || "",
+        dob: user.profile?.dob || "",
+        placeOfBirth: user.profile?.placeOfBirth || "",
+        address: user.profile?.address || "",
+        city: user.profile?.city || "",
+        state: user.profile?.state || "",
+        country: user.profile?.country || "India",
+        indosNumber: user.profile?.indosNumber || "",
+        profilePicture: user.profile?.profilePicture || "",
+      });
+    }
+  }, [user]);
+
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+
+  const validatePersonalForm = () => {
+    const errors: Record<string, string> = {};
+    if (!personalForm.firstName.trim()) errors.firstName = "First Name is required.";
+    if (!personalForm.lastName.trim()) errors.lastName = "Last Name is required.";
+    if (!personalForm.email.trim()) {
+      errors.email = "Email Address is required.";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(personalForm.email.trim())) {
+      errors.email = "Invalid email format.";
+    }
+    if (!personalForm.phone.trim()) errors.phone = "Mobile Number is required.";
+    if (!personalForm.dob) errors.dob = "Date of Birth is required.";
+    if (!personalForm.placeOfBirth.trim()) errors.placeOfBirth = "Place of Birth is required.";
+    if (!personalForm.address.trim()) errors.address = "Address is required.";
+    if (!personalForm.city.trim()) errors.city = "City is required.";
+    if (!personalForm.state.trim()) errors.state = "State is required.";
+    if (!personalForm.country.trim()) errors.country = "Country is required.";
+    if (!personalForm.indosNumber.trim()) errors.indosNumber = "INDOS Number is required.";
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   // 2. Emergency Contact state
-  // We can store emergency details inside profile.address or just parse/stringify it or mock it.
-  // Since our database profile model has a simple schema, we can write emergency contact in a simple format,
-  // or store it in local state. Let's make it fully saveable inside the profile address or profile fields,
-  // or simulated, let's keep it saveable in profile!
   const [emergencyForm, setEmergencyForm] = useState({
     contactName: "Mary Doe",
     relationship: "Spouse",
@@ -56,10 +108,14 @@ export default function ProfilePage() {
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validatePersonalForm()) {
+      alert("Please correct the validation errors in the form before saving.");
+      return;
+    }
     setProfileLoading(true);
     try {
       await updateProfile(personalForm);
-      alert("Personal information saved successfully!");
+      alert("Profile updated successfully!");
     } catch (err: any) {
       alert(err.message || "Failed to update profile info");
     } finally {
@@ -175,81 +231,218 @@ export default function ProfilePage() {
         {activeTab === "personal" && (
           <form onSubmit={handleUpdateProfile} className="space-y-6">
             <h3 className="text-lg font-black border-b border-gray-800/40 pb-3">Personal & Contact Info</h3>
-            <div className="grid md:grid-cols-2 gap-5">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-slate-400">Full Name</label>
+            
+            {/* Profile Photo Field */}
+            <div className="space-y-1.5 border-b border-gray-800/20 pb-4">
+              <label className="text-[10px] font-bold uppercase text-slate-400">Profile Photo URL</label>
+              <div className="flex gap-4 items-center">
+                {personalForm.profilePicture ? (
+                  <img
+                    src={personalForm.profilePicture}
+                    alt="Profile Avatar"
+                    className="w-12 h-12 rounded-full object-cover border-2 border-cyan-500"
+                  />
+                ) : (
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-white text-lg ${isDark ? "bg-cyan-600" : "bg-[#3b71cb]"}`}>
+                    {personalForm.firstName?.charAt(0) || "S"}
+                  </div>
+                )}
                 <input
-                  type="text"
-                  required
-                  value={personalForm.name}
-                  onChange={(e) => setPersonalForm({ ...personalForm, name: e.target.value })}
-                  className={`w-full p-3 text-xs rounded-xl border outline-none ${
+                  type="url"
+                  placeholder="https://example.com/avatar.jpg"
+                  value={personalForm.profilePicture}
+                  onChange={(e) => setPersonalForm({ ...personalForm, profilePicture: e.target.value })}
+                  className={`flex-1 p-3 text-xs rounded-xl border outline-none ${
                     isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
                   }`}
                 />
               </div>
+            </div>
 
+            <div className="grid md:grid-cols-2 gap-5">
+              {/* First Name */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-slate-400">Phone Number</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400">First Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={personalForm.firstName}
+                  onChange={(e) => setPersonalForm({ ...personalForm, firstName: e.target.value })}
+                  className={`w-full p-3 text-xs rounded-xl border outline-none ${
+                    formErrors.firstName ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+                {formErrors.firstName && <p className="text-[10px] text-red-400 font-semibold">{formErrors.firstName}</p>}
+              </div>
+
+              {/* Last Name */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Last Name *</label>
+                <input
+                  type="text"
+                  required
+                  value={personalForm.lastName}
+                  onChange={(e) => setPersonalForm({ ...personalForm, lastName: e.target.value })}
+                  className={`w-full p-3 text-xs rounded-xl border outline-none ${
+                    formErrors.lastName ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+                {formErrors.lastName && <p className="text-[10px] text-red-400 font-semibold">{formErrors.lastName}</p>}
+              </div>
+
+              {/* Email Address */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Email Address *</label>
+                <input
+                  type="email"
+                  required
+                  value={personalForm.email}
+                  onChange={(e) => setPersonalForm({ ...personalForm, email: e.target.value })}
+                  className={`w-full p-3 text-xs rounded-xl border outline-none ${
+                    formErrors.email ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+                {formErrors.email && <p className="text-[10px] text-red-400 font-semibold">{formErrors.email}</p>}
+              </div>
+
+              {/* Mobile Number */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Mobile Number *</label>
                 <input
                   type="tel"
                   required
                   value={personalForm.phone}
                   onChange={(e) => setPersonalForm({ ...personalForm, phone: e.target.value })}
                   className={`w-full p-3 text-xs rounded-xl border outline-none ${
+                    formErrors.phone ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+                {formErrors.phone && <p className="text-[10px] text-red-400 font-semibold">{formErrors.phone}</p>}
+              </div>
+
+              {/* Alternate Mobile Number */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Alternate Mobile Number</label>
+                <input
+                  type="tel"
+                  placeholder="+91 98765 00000"
+                  value={personalForm.alternatePhone}
+                  onChange={(e) => setPersonalForm({ ...personalForm, alternatePhone: e.target.value })}
+                  className={`w-full p-3 text-xs rounded-xl border outline-none ${
                     isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
                   }`}
                 />
               </div>
 
+              {/* Date of Birth */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-slate-400">Date of Birth</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400">Date of Birth *</label>
                 <input
                   type="date"
+                  required
                   value={personalForm.dob}
                   onChange={(e) => setPersonalForm({ ...personalForm, dob: e.target.value })}
                   className={`w-full p-3 text-xs rounded-xl border outline-none ${
-                    isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    formErrors.dob ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
                   }`}
                 />
+                {formErrors.dob && <p className="text-[10px] text-red-400 font-semibold">{formErrors.dob}</p>}
               </div>
 
+              {/* Place of Birth */}
               <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase text-slate-400">Nationality</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400">Place of Birth *</label>
                 <input
                   type="text"
-                  placeholder="Indian"
-                  value={personalForm.nationality}
-                  onChange={(e) => setPersonalForm({ ...personalForm, nationality: e.target.value })}
+                  required
+                  placeholder="e.g. Mumbai, Maharashtra"
+                  value={personalForm.placeOfBirth}
+                  onChange={(e) => setPersonalForm({ ...personalForm, placeOfBirth: e.target.value })}
                   className={`w-full p-3 text-xs rounded-xl border outline-none ${
-                    isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    formErrors.placeOfBirth ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
                   }`}
                 />
+                {formErrors.placeOfBirth && <p className="text-[10px] text-red-400 font-semibold">{formErrors.placeOfBirth}</p>}
               </div>
 
-              <div className="space-y-1.5 md:col-span-2">
-                <label className="text-[10px] font-bold uppercase text-slate-400">INDoS Reference Number</label>
+              {/* INDoS Number */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-slate-400">INDOS Number *</label>
                 <input
                   type="text"
+                  required
                   placeholder="22GL4567"
                   value={personalForm.indosNumber}
                   onChange={(e) => setPersonalForm({ ...personalForm, indosNumber: e.target.value })}
                   className={`w-full p-3 text-xs rounded-xl border outline-none ${
-                    isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    formErrors.indosNumber ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
                   }`}
                 />
+                {formErrors.indosNumber && <p className="text-[10px] text-red-400 font-semibold">{formErrors.indosNumber}</p>}
               </div>
 
+              {/* Address */}
               <div className="space-y-1.5 md:col-span-2">
-                <label className="text-[10px] font-bold uppercase text-slate-400">Home Address</label>
+                <label className="text-[10px] font-bold uppercase text-slate-400">Address *</label>
                 <input
                   type="text"
+                  required
+                  placeholder="Street address / House No."
                   value={personalForm.address}
                   onChange={(e) => setPersonalForm({ ...personalForm, address: e.target.value })}
                   className={`w-full p-3 text-xs rounded-xl border outline-none ${
-                    isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    formErrors.address ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
                   }`}
                 />
+                {formErrors.address && <p className="text-[10px] text-red-400 font-semibold">{formErrors.address}</p>}
+              </div>
+
+              {/* City */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-slate-400">City *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Mumbai"
+                  value={personalForm.city}
+                  onChange={(e) => setPersonalForm({ ...personalForm, city: e.target.value })}
+                  className={`w-full p-3 text-xs rounded-xl border outline-none ${
+                    formErrors.city ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+                {formErrors.city && <p className="text-[10px] text-red-400 font-semibold">{formErrors.city}</p>}
+              </div>
+
+              {/* State */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase text-slate-400">State *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="Maharashtra"
+                  value={personalForm.state}
+                  onChange={(e) => setPersonalForm({ ...personalForm, state: e.target.value })}
+                  className={`w-full p-3 text-xs rounded-xl border outline-none ${
+                    formErrors.state ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+                {formErrors.state && <p className="text-[10px] text-red-400 font-semibold">{formErrors.state}</p>}
+              </div>
+
+              {/* Country */}
+              <div className="space-y-1.5 md:col-span-2">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Country *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="India"
+                  value={personalForm.country}
+                  onChange={(e) => setPersonalForm({ ...personalForm, country: e.target.value })}
+                  className={`w-full p-3 text-xs rounded-xl border outline-none ${
+                    formErrors.country ? "border-red-500" : isDark ? "bg-[#0B2540] border-gray-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+                {formErrors.country && <p className="text-[10px] text-red-400 font-semibold">{formErrors.country}</p>}
               </div>
             </div>
 
