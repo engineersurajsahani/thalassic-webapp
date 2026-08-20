@@ -16,6 +16,7 @@ const financeSubItems = [
   { label: "Invoices",    href: "/master/finance/invoices",    icon: FileText    },
   { label: "Commissions", href: "/master/finance/commissions", icon: TrendingUp  },
   { label: "Settlements", href: "/master/finance/settlements", icon: Handshake   },
+  { label: "Audit Logs", href: "/master/finance/audit-logs", icon: FileText },
 ];
 
 const menuItems = [
