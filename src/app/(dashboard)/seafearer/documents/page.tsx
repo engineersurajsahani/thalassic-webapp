@@ -9,21 +9,17 @@ import {
   Trash2, 
   Download, 
   CheckCircle, 
-  AlertCircle, 
   Calendar, 
   Plus, 
   ShieldAlert, 
-  HelpCircle,
-  Clock,
-  CloudLightning,
-  Sparkles
+  Clock, 
+  CloudLightning, 
+  Sparkles,
+  Eye,
+  Edit2,
+  X,
+  FileCheck
 } from "lucide-react";
-
-interface UploadState {
-  type: string;
-  progress: number;
-  loading: boolean;
-}
 
 export default function DocumentsPage() {
   const { theme } = useTheme();
@@ -31,22 +27,70 @@ export default function DocumentsPage() {
 
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [expiryDates, setExpiryDates] = useState<Record<string, string>>({});
-  
-  // Track upload states for each category
-  const [uploads, setUploads] = useState<Record<string, UploadState>>({
-    cdc: { type: "cdc", progress: 0, loading: false },
-    passport: { type: "passport", progress: 0, loading: false },
-    medical: { type: "medical", progress: 0, loading: false },
-    stcw: { type: "stcw", progress: 0, loading: false },
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  // Active Passport State
+  const [passportForm, setPassportForm] = useState({
+    passportNumber: "",
+    issueDate: "",
+    expiryDate: "",
+    placeOfIssue: "",
   });
+  const [passportFile, setPassportFile] = useState<File | null>(null);
+  const [uploadingPassport, setUploadingPassport] = useState(false);
+
+  // Active CDC State
+  const [cdcForm, setCdcForm] = useState({
+    cdcNumber: "",
+    issueDate: "",
+    expiryDate: "",
+    placeOfIssue: "",
+  });
+  const [cdcFile, setCdcFile] = useState<File | null>(null);
+  const [uploadingCdc, setUploadingCdc] = useState(false);
+
+  // Certificate State (Multi-certificate form & editing)
+  const [showCertForm, setShowCertForm] = useState(false);
+  const [editingCertId, setEditingCertId] = useState<string | null>(null);
+  const [certForm, setCertForm] = useState({
+    courseName: "",
+    courseType: "Basic", // Basic, Advanced, Refresher, Other STCW
+    durationFrom: "",
+    durationTo: "",
+    issueDate: "",
+    expiryDate: "",
+  });
+  const [certFile, setCertFile] = useState<File | null>(null);
+  const [uploadingCert, setUploadingCert] = useState(false);
 
   const loadDocuments = async () => {
     try {
       const data = await documentService.getDocuments();
       setDocuments(data);
+
+      // Populate Passport form if existing passport document exists
+      const passDoc = data.find((d: any) => d.type?.toLowerCase() === "passport");
+      if (passDoc) {
+        setPassportForm({
+          passportNumber: passDoc.passportNumber || passDoc.metadata?.passportNumber || "",
+          issueDate: passDoc.issueDate || passDoc.metadata?.issueDate || "",
+          expiryDate: passDoc.expiryDate || passDoc.metadata?.expiryDate || "",
+          placeOfIssue: passDoc.placeOfIssue || passDoc.metadata?.placeOfIssue || "",
+        });
+      }
+
+      // Populate CDC form if existing cdc document exists
+      const cdcDoc = data.find((d: any) => d.type?.toLowerCase() === "cdc");
+      if (cdcDoc) {
+        setCdcForm({
+          cdcNumber: cdcDoc.cdcNumber || cdcDoc.metadata?.cdcNumber || "",
+          issueDate: cdcDoc.issueDate || cdcDoc.metadata?.issueDate || "",
+          expiryDate: cdcDoc.expiryDate || cdcDoc.metadata?.expiryDate || "",
+          placeOfIssue: cdcDoc.placeOfIssue || cdcDoc.metadata?.placeOfIssue || "",
+        });
+      }
     } catch (err) {
-      console.error("Failed to load document list details:", err);
+      console.error("Failed to load document registry:", err);
     } finally {
       setLoading(false);
     }
@@ -56,61 +100,221 @@ export default function DocumentsPage() {
     loadDocuments();
   }, []);
 
-  const handleFileUpload = async (type: string, file: File) => {
-    if (!file) return;
+  // Validation Rules for Field-First Upload Flow
+  const isPassportFieldsValid = Boolean(
+    passportForm.passportNumber.trim() &&
+    passportForm.issueDate &&
+    passportForm.expiryDate &&
+    passportForm.placeOfIssue.trim()
+  );
 
-    // Validate size (max 5MB)
+  const isCdcFieldsValid = Boolean(
+    cdcForm.cdcNumber.trim() &&
+    cdcForm.issueDate &&
+    cdcForm.expiryDate &&
+    cdcForm.placeOfIssue.trim()
+  );
+
+  const isCertFieldsValid = Boolean(
+    certForm.courseName.trim() &&
+    certForm.courseType &&
+    certForm.durationFrom &&
+    certForm.durationTo &&
+    certForm.issueDate
+  );
+
+  // File Upload Helper
+  const validateFile = (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size exceeds 5MB limit. Please upload a smaller file.");
-      return;
+      alert("File size exceeds 5MB limit. Please choose a smaller file.");
+      return false;
     }
-
-    // Validate type (PDF, JPEG, PNG)
-    const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+    const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
       alert("Invalid file format. Please upload PDF, JPG, or PNG.");
+      return false;
+    }
+    return true;
+  };
+
+  // Submit Passport Upload
+  const handleUploadPassport = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isPassportFieldsValid) {
+      alert("Please complete all required Passport metadata fields first.");
       return;
     }
+    if (!passportFile) {
+      alert("Please select a Passport file to upload.");
+      return;
+    }
+    if (!validateFile(passportFile)) return;
 
-    const expiryDate = expiryDates[type] || "";
-
-    setUploads((prev) => ({
-      ...prev,
-      [type]: { ...prev[type], loading: true, progress: 0 },
-    }));
-
+    setUploadingPassport(true);
     try {
       await documentService.uploadDocument(
-        type,
-        file,
-        expiryDate,
-        (progressEvent) => {
-          const percentCompleted = Math.round(
-            (progressEvent.loaded * 100) / progressEvent.total
-          );
-          setUploads((prev) => ({
-            ...prev,
-            [type]: { ...prev[type], progress: percentCompleted },
-          }));
-        }
+        "passport",
+        passportFile,
+        passportForm.expiryDate,
+        undefined,
+        passportForm
       );
-      
-      // Clear inputs
-      setExpiryDates((prev) => ({ ...prev, [type]: "" }));
-      // Reload list
+      alert("Passport uploaded successfully!");
+      setPassportFile(null);
       await loadDocuments();
     } catch (err: any) {
-      alert(err.message || "Document upload failed");
+      alert(err.message || "Failed to upload Passport");
     } finally {
-      setUploads((prev) => ({
-        ...prev,
-        [type]: { ...prev[type], loading: false, progress: 0 },
-      }));
+      setUploadingPassport(false);
     }
   };
 
+  // Submit CDC Upload
+  const handleUploadCdc = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isCdcFieldsValid) {
+      alert("Please complete all required CDC metadata fields first.");
+      return;
+    }
+    if (!cdcFile) {
+      alert("Please select a CDC file to upload.");
+      return;
+    }
+    if (!validateFile(cdcFile)) return;
+
+    setUploadingCdc(true);
+    try {
+      await documentService.uploadDocument(
+        "cdc",
+        cdcFile,
+        cdcForm.expiryDate,
+        undefined,
+        cdcForm
+      );
+      alert("CDC uploaded successfully!");
+      setCdcFile(null);
+      await loadDocuments();
+    } catch (err: any) {
+      alert(err.message || "Failed to upload CDC");
+    } finally {
+      setUploadingCdc(false);
+    }
+  };
+
+  // Submit Certificate Add or Edit
+  const handleSaveCertificate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isCertFieldsValid) {
+      alert("Please complete all required certificate fields first.");
+      return;
+    }
+
+    if (!editingCertId && !certFile) {
+      alert("Please select a certificate document file to upload.");
+      return;
+    }
+
+    if (certFile && !validateFile(certFile)) return;
+
+    setUploadingCert(true);
+    try {
+      if (editingCertId) {
+        await documentService.updateDocument(editingCertId, certForm, certFile);
+        alert("Certificate updated successfully!");
+      } else {
+        await documentService.uploadDocument(
+          "certificate",
+          certFile!,
+          certForm.expiryDate || certForm.durationTo,
+          undefined,
+          certForm
+        );
+        alert("Certificate added successfully!");
+      }
+
+      setCertForm({
+        courseName: "",
+        courseType: "Basic",
+        durationFrom: "",
+        durationTo: "",
+        issueDate: "",
+        expiryDate: "",
+      });
+      setCertFile(null);
+      setEditingCertId(null);
+      setShowCertForm(false);
+      await loadDocuments();
+    } catch (err: any) {
+      alert(err.message || "Failed to save certificate");
+    } finally {
+      setUploadingCert(false);
+    }
+  };
+
+  // Edit Certificate Trigger
+  const handleStartEditCert = (cert: any) => {
+    setEditingCertId(cert.id);
+    setCertForm({
+      courseName: cert.courseName || cert.metadata?.courseName || cert.label || "",
+      courseType: cert.courseType || cert.metadata?.courseType || "Basic",
+      durationFrom: cert.durationFrom || cert.metadata?.durationFrom || "",
+      durationTo: cert.durationTo || cert.metadata?.durationTo || "",
+      issueDate: cert.issueDate || cert.metadata?.issueDate || "",
+      expiryDate: cert.expiryDate || cert.metadata?.expiryDate || "",
+    });
+    setCertFile(null);
+    setShowCertForm(true);
+  };
+
+  // View Document (opens actual stored file in new tab)
+  const handleView = async (doc: any) => {
+    try {
+      const data = await documentService.downloadDocument(doc.id);
+      if (data?.signedUrl) {
+        window.open(data.signedUrl, "_blank");
+      } else {
+        alert("Document file is unavailable.");
+      }
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || "Document file is unavailable.");
+    }
+  };
+
+  // Download Document (triggers real browser file download)
+  const handleDownload = async (doc: any) => {
+    setDownloadingId(doc.id);
+    try {
+      const data = await documentService.downloadDocument(doc.id);
+      if (!data || !data.signedUrl) {
+        alert("Document file is unavailable.");
+        return;
+      }
+
+      const response = await fetch(data.signedUrl);
+      if (!response.ok) {
+        alert("Document file is unavailable.");
+        return;
+      }
+
+      const blob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = data.fileName || doc.label || "document";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (err: any) {
+      alert(err?.response?.data?.message || err?.message || "Document file is unavailable.");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
+
+  // Delete Document
   const handleDelete = async (id: string) => {
-    if (!confirm("Are you sure you want to delete this document?")) return;
+    if (!confirm("Are you sure you want to delete this document record?")) return;
     try {
       await documentService.deleteDocument(id);
       await loadDocuments();
@@ -120,7 +324,7 @@ export default function DocumentsPage() {
   };
 
   const getStatusBadge = (status: string) => {
-    switch (status) {
+    switch (status?.toLowerCase()) {
       case "verified":
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
@@ -136,7 +340,7 @@ export default function DocumentsPage() {
       default:
         return (
           <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 animate-pulse">
-            <Clock className="w-3 h-3" /> Pending
+            <Clock className="w-3 h-3" /> Pending Verification
           </span>
         );
     }
@@ -145,22 +349,18 @@ export default function DocumentsPage() {
   if (loading) {
     return (
       <div className="space-y-8 animate-pulse">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className={`h-52 rounded-2xl ${isDark ? "bg-[#0A192F]" : "bg-slate-100"}`} />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className={`h-64 rounded-2xl ${isDark ? "bg-[#0A192F]" : "bg-slate-100"}`} />
+          <div className={`h-64 rounded-2xl ${isDark ? "bg-[#0A192F]" : "bg-slate-100"}`} />
         </div>
         <div className={`h-72 rounded-3xl ${isDark ? "bg-[#0A192F]" : "bg-slate-100"}`} />
       </div>
     );
   }
 
-  const documentCategories = [
-    { type: "passport", label: "Passport", desc: "Front/back bio pages copy", color: "from-cyan-500/5 to-blue-500/5" },
-    { type: "cdc", label: "CDC Booklet", desc: "Continuous Discharge Certificate", color: "from-indigo-500/5 to-purple-500/5" },
-    { type: "medical", label: "Medical Certificate", desc: "Accredited DGS Physical Fitness Report", color: "from-teal-500/5 to-emerald-500/5" },
-    { type: "stcw", label: "STCW Safety Certs", desc: "BST, STSDSD safety courses", color: "from-amber-500/5 to-orange-500/5" },
-  ];
+  const activePassport = documents.find((d) => d.type?.toLowerCase() === "passport");
+  const activeCdc = documents.find((d) => d.type?.toLowerCase() === "cdc");
+  const certificatesList = documents.filter((d) => d.type?.toLowerCase() === "certificate" || d.type?.toLowerCase() === "stcw");
 
   return (
     <div className="space-y-8 animate-fadeIn relative pb-10">
@@ -173,127 +373,499 @@ export default function DocumentsPage() {
           📂 Digital Credentials Vault
         </span>
         <h1 className="text-3xl font-extrabold tracking-tight mt-1.5">
-          Marine Document Registry
+          Seafarer Document Management
         </h1>
         <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          Securely upload and manage your passport, CDC, fitness certifications, and course credentials.
+          Manage your official Passport, CDC, and STCW course certificates with field-first verification.
         </p>
       </div>
 
-      {/* 1. Document Upload Slots Grid */}
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {documentCategories.map((cat) => {
-          const state = uploads[cat.type];
-          return (
-            <div
-              key={cat.type}
-              className={`rounded-2xl p-5 border shadow-lg flex flex-col justify-between transition-all duration-300 hover:shadow-xl relative overflow-hidden group ${
-                isDark 
-                  ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white hover:border-cyan-500/20" 
-                  : "bg-white border-slate-200 text-slate-900 hover:border-[#3b71cb]/20"
-              }`}
-            >
-              {/* Highlight card backgrounds */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-100 pointer-events-none`} />
+      {/* 1. PASSPORT & CDC SECTION (Grid of 2) */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        {/* PASSPORT CARD */}
+        <section className={`rounded-3xl border p-6 md:p-8 shadow-lg flex flex-col justify-between ${
+          isDark ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white" : "bg-white border-slate-200 text-slate-900"
+        }`}>
+          <div className="space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-800/40 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-cyan-400" />
+                <h2 className="text-lg font-black tracking-tight">Passport Credentials</h2>
+              </div>
+              {activePassport && getStatusBadge(activePassport.status)}
+            </div>
 
-              <div className="space-y-4 relative z-10">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-extrabold text-sm tracking-tight">{cat.label}</h3>
-                  <div className={`p-2 rounded-lg ${
-                    isDark ? "bg-slate-900/60 text-cyan-400" : "bg-slate-50 text-[#3b71cb]"
-                  }`}>
-                    <FileText className="w-4 h-4" />
-                  </div>
+            <form onSubmit={handleUploadPassport} className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">Passport Number *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Z1234567"
+                    value={passportForm.passportNumber}
+                    onChange={(e) => setPassportForm({ ...passportForm, passportNumber: e.target.value })}
+                    className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                  />
                 </div>
-                <p className={`text-[10px] leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-                  {cat.desc}
-                </p>
-
-                {/* Expiry Date Datepicker */}
-                <div className="space-y-1.5">
-                  <label className={`text-[9px] uppercase font-black tracking-wider flex items-center gap-1.5 ${
-                    isDark ? "text-slate-500" : "text-slate-400"
-                  }`}>
-                    <Calendar className="w-3 h-3" /> Expiry Date (Optional)
-                  </label>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">Place of Issue *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Mumbai / RPO"
+                    value={passportForm.placeOfIssue}
+                    onChange={(e) => setPassportForm({ ...passportForm, placeOfIssue: e.target.value })}
+                    className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">Date of Issue *</label>
                   <input
                     type="date"
-                    value={expiryDates[cat.type] || ""}
-                    onChange={(e) =>
-                      setExpiryDates((prev) => ({ ...prev, [cat.type]: e.target.value }))
-                    }
-                    className={`w-full p-2 text-xs rounded-lg border outline-none transition-colors ${
-                      isDark
-                        ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500"
-                        : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    required
+                    value={passportForm.issueDate}
+                    onChange={(e) => setPassportForm({ ...passportForm, issueDate: e.target.value })}
+                    className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">Date of Expiry *</label>
+                  <input
+                    type="date"
+                    required
+                    value={passportForm.expiryDate}
+                    onChange={(e) => setPassportForm({ ...passportForm, expiryDate: e.target.value })}
+                    className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
                     }`}
                   />
                 </div>
               </div>
 
-              {/* Upload Trigger Button & Progress Bar */}
-              <div className="mt-5 pt-3 border-t border-slate-800/40 relative z-10">
-                {state.loading ? (
-                  <div className="space-y-2.5">
-                    <div className="flex justify-between text-[10px] font-black text-cyan-400 animate-pulse">
-                      <span>Uploading File...</span>
-                      <span>{state.progress}%</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-cyan-405 rounded-full transition-all duration-300"
-                        style={{ width: `${state.progress}%` }}
-                      />
-                    </div>
-                  </div>
-                ) : (
-                  <label className={`w-full py-2.5 rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 active:translate-y-0 ${
-                    isDark 
-                      ? "bg-gradient-to-r from-cyan-600 to-blue-600 hover:brightness-110 text-white" 
-                      : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+              {/* Field-First Upload Trigger */}
+              <div className="pt-2 border-t border-slate-800/40">
+                {!isPassportFieldsValid && (
+                  <p className="text-[10px] text-amber-400 font-semibold mb-2 flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> Complete all required Passport fields above to enable file selection.
+                  </p>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                  <label className={`flex-1 w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
+                    !isPassportFieldsValid
+                      ? "opacity-50 cursor-not-allowed border-slate-700 bg-slate-800/30 text-slate-500"
+                      : isDark
+                      ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 cursor-pointer"
+                      : "border-blue-200 bg-blue-50 text-[#3b71cb] hover:bg-blue-100 cursor-pointer"
                   }`}>
-                    <Upload className="w-4 h-4 transition-transform group-hover:-translate-y-0.5" /> Select File
+                    <Upload className="w-4 h-4" />
+                    {passportFile ? passportFile.name : "SELECT PASSPORT FILE"}
                     <input
                       type="file"
+                      disabled={!isPassportFieldsValid}
                       accept=".pdf,.jpg,.jpeg,.png"
                       className="sr-only"
                       onChange={(e) => {
                         const file = e.target.files?.[0];
-                        if (file) handleFileUpload(cat.type, file);
+                        if (file) setPassportFile(file);
                       }}
                     />
                   </label>
-                )}
+
+                  <button
+                    type="submit"
+                    disabled={!isPassportFieldsValid || !passportFile || uploadingPassport}
+                    className={`w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                      isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+                    }`}
+                  >
+                    {uploadingPassport ? "Uploading..." : activePassport ? "Replace Passport" : "Save & Upload"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          {/* Active Passport Card Action Footer */}
+          {activePassport && (
+            <div className={`mt-4 p-3 rounded-2xl border flex items-center justify-between text-xs ${
+              isDark ? "bg-slate-900/60 border-slate-800" : "bg-slate-50 border-slate-200"
+            }`}>
+              <div className="flex items-center gap-2">
+                <FileCheck className="w-4 h-4 text-emerald-400" />
+                <span className="font-bold truncate max-w-[150px]">{activePassport.label}</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleView(activePassport)}
+                  className="px-2.5 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 hover:bg-slate-800/40"
+                  title="View Passport"
+                >
+                  <Eye className="w-3 h-3 text-cyan-400" /> View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownload(activePassport)}
+                  disabled={downloadingId === activePassport.id}
+                  className="px-2.5 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 hover:bg-slate-800/40"
+                  title="Download Passport"
+                >
+                  <Download className="w-3 h-3 text-cyan-400" /> Download
+                </button>
               </div>
             </div>
-          );
-        })}
-      </section>
+          )}
+        </section>
 
-      {/* 2. Uploaded Documents List Table */}
+        {/* CDC CARD */}
+        <section className={`rounded-3xl border p-6 md:p-8 shadow-lg flex flex-col justify-between ${
+          isDark ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white" : "bg-white border-slate-200 text-slate-900"
+        }`}>
+          <div className="space-y-5">
+            <div className="flex items-center justify-between border-b border-slate-800/40 pb-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-5 h-5 text-indigo-400" />
+                <h2 className="text-lg font-black tracking-tight">CDC Booklet (Continuous Discharge)</h2>
+              </div>
+              {activeCdc && getStatusBadge(activeCdc.status)}
+            </div>
+
+            <form onSubmit={handleUploadCdc} className="space-y-4">
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">CDC Number *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="MUM123456"
+                    value={cdcForm.cdcNumber}
+                    onChange={(e) => setCdcForm({ ...cdcForm, cdcNumber: e.target.value })}
+                    className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">Place of Issue *</label>
+                  <input
+                    type="text"
+                    required
+                    placeholder="Mumbai / MMD"
+                    value={cdcForm.placeOfIssue}
+                    onChange={(e) => setCdcForm({ ...cdcForm, placeOfIssue: e.target.value })}
+                    className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">Date of Issue *</label>
+                  <input
+                    type="date"
+                    required
+                    value={cdcForm.issueDate}
+                    onChange={(e) => setCdcForm({ ...cdcForm, issueDate: e.target.value })}
+                    className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] font-bold uppercase text-slate-400">Date of Expiry *</label>
+                  <input
+                    type="date"
+                    required
+                    value={cdcForm.expiryDate}
+                    onChange={(e) => setCdcForm({ ...cdcForm, expiryDate: e.target.value })}
+                    className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    }`}
+                  />
+                </div>
+              </div>
+
+              {/* Field-First Upload Trigger */}
+              <div className="pt-2 border-t border-slate-800/40">
+                {!isCdcFieldsValid && (
+                  <p className="text-[10px] text-amber-400 font-semibold mb-2 flex items-center gap-1">
+                    <Clock className="w-3 h-3" /> Complete all required CDC fields above to enable file selection.
+                  </p>
+                )}
+
+                <div className="flex flex-col sm:flex-row gap-3 items-center">
+                  <label className={`flex-1 w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
+                    !isCdcFieldsValid
+                      ? "opacity-50 cursor-not-allowed border-slate-700 bg-slate-800/30 text-slate-500"
+                      : isDark
+                      ? "border-indigo-500/40 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 cursor-pointer"
+                      : "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 cursor-pointer"
+                  }`}>
+                    <Upload className="w-4 h-4" />
+                    {cdcFile ? cdcFile.name : "SELECT CDC FILE"}
+                    <input
+                      type="file"
+                      disabled={!isCdcFieldsValid}
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      className="sr-only"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) setCdcFile(file);
+                      }}
+                    />
+                  </label>
+
+                  <button
+                    type="submit"
+                    disabled={!isCdcFieldsValid || !cdcFile || uploadingCdc}
+                    className={`w-full sm:w-auto px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                      isDark ? "bg-indigo-600 hover:bg-indigo-500 text-white" : "bg-indigo-600 hover:bg-indigo-700 text-white"
+                    }`}
+                  >
+                    {uploadingCdc ? "Uploading..." : activeCdc ? "Replace CDC" : "Save & Upload"}
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          {/* Active CDC Card Action Footer */}
+          {activeCdc && (
+            <div className={`mt-4 p-3 rounded-2xl border flex items-center justify-between text-xs ${
+              isDark ? "bg-slate-900/60 border-slate-800" : "bg-slate-50 border-slate-200"
+            }`}>
+              <div className="flex items-center gap-2">
+                <FileCheck className="w-4 h-4 text-emerald-400" />
+                <span className="font-bold truncate max-w-[150px]">{activeCdc.label}</span>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleView(activeCdc)}
+                  className="px-2.5 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 hover:bg-slate-800/40"
+                  title="View CDC"
+                >
+                  <Eye className="w-3 h-3 text-cyan-400" /> View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleDownload(activeCdc)}
+                  disabled={downloadingId === activeCdc.id}
+                  className="px-2.5 py-1 rounded-lg border text-[10px] font-bold flex items-center gap-1 hover:bg-slate-800/40"
+                  title="Download CDC"
+                >
+                  <Download className="w-3 h-3 text-cyan-400" /> Download
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+      </div>
+
+      {/* 2. CERTIFICATES SECTION (Multi-Certificate Repository) */}
       <section className={`rounded-3xl border p-6 md:p-8 shadow-xl relative overflow-hidden ${
         isDark ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white" : "bg-white border-slate-200 text-slate-900"
       }`}>
         <div className="flex items-center justify-between border-b border-slate-800/40 pb-4 mb-5">
           <div className="flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-lg font-black tracking-tight">Active Credential Registry</h3>
+            <h2 className="text-lg font-black tracking-tight">STCW & Safety Course Certificates</h2>
           </div>
-          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-            isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
-          }`}>
-            Total uploads: {documents.length}
-          </span>
+          <button
+            type="button"
+            onClick={() => {
+              setEditingCertId(null);
+              setCertForm({
+                courseName: "",
+                courseType: "Basic",
+                durationFrom: "",
+                durationTo: "",
+                issueDate: "",
+                expiryDate: "",
+              });
+              setCertFile(null);
+              setShowCertForm(!showCertForm);
+            }}
+            className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 cursor-pointer transition-all ${
+              isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+            }`}
+          >
+            <Plus className="w-4 h-4" /> Add New Certificate
+          </button>
         </div>
 
-        {documents.length === 0 ? (
+        {/* Add / Edit Certificate Form Container */}
+        {showCertForm && (
+          <form onSubmit={handleSaveCertificate} className={`mb-6 p-6 rounded-2xl border space-y-4 animate-fadeIn ${
+            isDark ? "bg-slate-900/60 border-slate-800" : "bg-slate-50 border-slate-200"
+          }`}>
+            <div className="flex justify-between items-center border-b border-slate-800/40 pb-2">
+              <h3 className="font-bold text-sm">
+                {editingCertId ? "Edit Certificate Details" : "Add New STCW Certificate"}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowCertForm(false)}
+                className="text-slate-400 hover:text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-4">
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Course Name *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Basic Safety Training (BST)"
+                  value={certForm.courseName}
+                  onChange={(e) => setCertForm({ ...certForm, courseName: e.target.value })}
+                  className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-white border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Course Type *</label>
+                <select
+                  value={certForm.courseType}
+                  onChange={(e) => setCertForm({ ...certForm, courseType: e.target.value })}
+                  className={`w-full p-2.5 text-xs rounded-xl border outline-none cursor-pointer ${
+                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-white border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                >
+                  <option value="Basic">Basic</option>
+                  <option value="Advanced">Advanced</option>
+                  <option value="Refresher">Refresher</option>
+                  <option value="Other STCW">Other STCW</option>
+                </select>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Issue Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={certForm.issueDate}
+                  onChange={(e) => setCertForm({ ...certForm, issueDate: e.target.value })}
+                  className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-white border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Duration From Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={certForm.durationFrom}
+                  onChange={(e) => setCertForm({ ...certForm, durationFrom: e.target.value })}
+                  className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-white border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Duration To Date *</label>
+                <input
+                  type="date"
+                  required
+                  value={certForm.durationTo}
+                  onChange={(e) => setCertForm({ ...certForm, durationTo: e.target.value })}
+                  className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-white border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-[10px] font-bold uppercase text-slate-400">Expiry Date (Optional)</label>
+                <input
+                  type="date"
+                  value={certForm.expiryDate}
+                  onChange={(e) => setCertForm({ ...certForm, expiryDate: e.target.value })}
+                  className={`w-full p-2.5 text-xs rounded-xl border outline-none ${
+                    isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-white border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  }`}
+                />
+              </div>
+            </div>
+
+            {/* Field-First File Upload Box */}
+            <div className="pt-2 border-t border-slate-800/40">
+              {!isCertFieldsValid && (
+                <p className="text-[10px] text-amber-400 font-semibold mb-2 flex items-center gap-1">
+                  <Clock className="w-3 h-3" /> Complete all required certificate metadata fields above to enable file selection.
+                </p>
+              )}
+
+              <div className="flex flex-col sm:flex-row gap-3 items-center">
+                <label className={`flex-1 w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
+                  !isCertFieldsValid
+                    ? "opacity-50 cursor-not-allowed border-slate-700 bg-slate-800/30 text-slate-500"
+                    : isDark
+                    ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 cursor-pointer"
+                    : "border-blue-200 bg-blue-50 text-[#3b71cb] hover:bg-blue-100 cursor-pointer"
+                }`}>
+                  <Upload className="w-4 h-4" />
+                  {certFile ? certFile.name : editingCertId ? "REPLACE CERTIFICATE FILE (OPTIONAL)" : "SELECT CERTIFICATE FILE *"}
+                  <input
+                    type="file"
+                    disabled={!isCertFieldsValid}
+                    accept=".pdf,.jpg,.jpeg,.png"
+                    className="sr-only"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) setCertFile(file);
+                    }}
+                  />
+                </label>
+
+                <div className="flex gap-2 w-full sm:w-auto">
+                  <button
+                    type="submit"
+                    disabled={!isCertFieldsValid || (!editingCertId && !certFile) || uploadingCert}
+                    className={`flex-1 sm:flex-none px-5 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                      isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+                    }`}
+                  >
+                    {uploadingCert ? "Saving..." : editingCertId ? "Save Changes" : "Upload Certificate"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowCertForm(false)}
+                    className="px-4 py-2.5 rounded-xl text-xs font-bold text-slate-400 hover:bg-slate-800/40"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        )}
+
+        {/* Certificates Table Registry */}
+        {certificatesList.length === 0 ? (
           <div className={`text-center py-16 rounded-2xl border border-dashed flex flex-col items-center justify-center p-6 ${
             isDark ? "border-slate-800 bg-slate-900/10" : "border-slate-200 bg-slate-50/50"
           }`}>
             <CloudLightning className="w-10 h-10 text-slate-500 mb-3" />
-            <h4 className="text-sm font-bold text-slate-400">Vault is Empty</h4>
+            <h3 className="text-sm font-bold text-slate-400">No Certificates Added Yet</h3>
             <p className="text-xs text-slate-500 mt-1 max-w-[300px] leading-relaxed">
-              No scanned credentials have been synced yet. Choose document attachments above to populate this secure registry.
+              Click "+ Add New Certificate" above to record your STCW course qualifications.
             </p>
           </div>
         ) : (
@@ -303,62 +875,93 @@ export default function DocumentsPage() {
                 <tr className={`font-black border-b uppercase tracking-widest text-[9px] ${
                   isDark ? "text-slate-500 border-slate-800" : "text-slate-400 border-slate-100"
                 }`}>
-                  <th className="pb-3 pr-4">Document Category</th>
-                  <th className="pb-3 pr-4">File Name</th>
-                  <th className="pb-3 pr-4">Upload Date</th>
-                  <th className="pb-3 pr-4">Expiry Date</th>
-                  <th className="pb-3 pr-4">Status Check</th>
+                  <th className="pb-3 pr-4">Course Name</th>
+                  <th className="pb-3 pr-4">Course Type</th>
+                  <th className="pb-3 pr-4">Duration</th>
+                  <th className="pb-3 pr-4">Issue Date</th>
+                  <th className="pb-3 pr-4">Verification Status</th>
                   <th className="pb-3 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/10">
-                {documents.map((doc) => (
-                  <tr key={doc.id} className={`hover:bg-slate-500/5 transition-colors ${
-                    isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
-                  }`}>
-                    <td className="py-4 pr-4 font-black uppercase tracking-wider text-cyan-400 text-[10px]">
-                      {doc.type}
-                    </td>
-                    <td className="py-4 pr-4 max-w-[200px] truncate font-semibold" title={doc.label}>
-                      {doc.label || "—"}
-                    </td>
-                    <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
-                      {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "—"}
-                    </td>
-                    <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
-                      {doc.expiryDate ? new Date(doc.expiryDate).toLocaleDateString() : "--"}
-                    </td>
-                    <td className="py-4 pr-4">
-                      {getStatusBadge(doc.status)}
-                    </td>
-                    <td className="py-4 text-right flex justify-end gap-2">
-                      <a
-                        href={doc.url}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={`p-2 rounded-xl border flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
-                          isDark 
-                            ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800 hover:border-slate-700" 
-                            : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
-                        }`}
-                        title="Download file"
-                      >
-                        <Download className="w-3.5 h-3.5" />
-                      </a>
-                      <button
-                        onClick={() => handleDelete(doc.id)}
-                        className={`p-2 rounded-xl border flex items-center justify-center text-red-500 transition-all cursor-pointer hover:scale-105 active:scale-95 ${
-                          isDark 
-                            ? "border-slate-800 bg-slate-900/40 hover:bg-red-500/10 hover:border-red-500/30" 
-                            : "border-slate-200 bg-slate-50 hover:bg-red-50"
-                        }`}
-                        title="Delete document"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {certificatesList.map((cert) => {
+                  const courseName = cert.courseName || cert.metadata?.courseName || cert.label || cert.name;
+                  const courseType = cert.courseType || cert.metadata?.courseType || "Basic";
+                  const durFrom = cert.durationFrom || cert.metadata?.durationFrom;
+                  const durTo = cert.durationTo || cert.metadata?.durationTo;
+                  const issueDt = cert.issueDate || cert.metadata?.issueDate;
+
+                  return (
+                    <tr key={cert.id} className={`hover:bg-slate-500/5 transition-colors ${
+                      isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
+                    }`}>
+                      <td className="py-4 pr-4 font-bold max-w-[200px] truncate" title={courseName}>
+                        {courseName}
+                      </td>
+                      <td className="py-4 pr-4">
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                          {courseType}
+                        </span>
+                      </td>
+                      <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                        {durFrom && durTo ? `${durFrom} – ${durTo}` : "—"}
+                      </td>
+                      <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                        {issueDt || (cert.uploadedAt ? new Date(cert.uploadedAt).toLocaleDateString() : "—")}
+                      </td>
+                      <td className="py-4 pr-4">
+                        {getStatusBadge(cert.status)}
+                      </td>
+                      <td className="py-4 text-right flex justify-end gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => handleView(cert)}
+                          className={`p-2 rounded-xl border flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
+                            isDark ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                          }`}
+                          title="View Certificate"
+                        >
+                          <Eye className="w-3.5 h-3.5 text-cyan-400" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDownload(cert)}
+                          disabled={downloadingId === cert.id}
+                          className={`p-2 rounded-xl border flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
+                            isDark ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                          }`}
+                          title="Download Certificate"
+                        >
+                          {downloadingId === cert.id ? (
+                            <span className="w-3.5 h-3.5 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                          ) : (
+                            <Download className="w-3.5 h-3.5 text-cyan-400" />
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleStartEditCert(cert)}
+                          className={`p-2 rounded-xl border flex items-center justify-center transition-all hover:scale-105 active:scale-95 ${
+                            isDark ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800" : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                          }`}
+                          title="Edit Certificate Details"
+                        >
+                          <Edit2 className="w-3.5 h-3.5 text-amber-400" />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(cert.id)}
+                          className={`p-2 rounded-xl border flex items-center justify-center text-red-500 transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+                            isDark ? "border-slate-800 bg-slate-900/40 hover:bg-red-500/10" : "border-slate-200 bg-slate-50 hover:bg-red-50"
+                          }`}
+                          title="Delete Certificate"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

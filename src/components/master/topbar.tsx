@@ -32,16 +32,26 @@ function getFormattedDate() {
 }
 
 export default function MasterTopbar() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, mounted } = useTheme();
   const { user } = useAuth();
   const isDark = theme === "dark";
   const pathname = usePathname();
 
   const [notifications, setNotifications] = useState<any[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [greeting, setGreeting] = useState("");
+  const [formattedDate, setFormattedDate] = useState("");
 
   const currentPage = pageNames[pathname] || "Dashboard";
   const isHome = pathname === "/master/dashboard";
+
+  useEffect(() => {
+    const h = new Date().getHours();
+    setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
+    setFormattedDate(new Date().toLocaleDateString("en-IN", {
+      weekday: "long", day: "numeric", month: "long", year: "numeric",
+    }));
+  }, []);
 
   const fetchNotifications = async () => {
     try {
@@ -88,8 +98,8 @@ export default function MasterTopbar() {
       <div className="flex flex-col justify-center min-w-0">
         {isHome ? (
           <>
-            <p className={`text-xs font-medium ${isDark ? "text-white/30" : "text-slate-400"}`}>{getFormattedDate()}</p>
-            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white/75" : "text-slate-700"}`}>{getGreeting()}, Admin</p>
+            <p className={`text-xs font-medium ${isDark ? "text-white/30" : "text-slate-400"}`}>{formattedDate}</p>
+            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white/75" : "text-slate-700"}`}>{greeting ? `${greeting}, Admin` : "\u00A0"}</p>
           </>
         ) : (
           <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>

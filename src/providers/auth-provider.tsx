@@ -10,11 +10,23 @@ interface User {
   name: string;
   phone: string;
   role: string;
+  firstName?: string;
+  lastName?: string;
+  onboardingStatus?: string;
   profile?: {
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    alternatePhone?: string;
     dob?: string;
+    placeOfBirth?: string;
     nationality?: string;
     indosNumber?: string;
     address?: string;
+    city?: string;
+    state?: string;
+    country?: string;
     profilePicture?: string;
     seaService?: any[];
   };
@@ -43,8 +55,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async () => {
     try {
-      const response = await api.get("/auth/profile");
-      return response.data;
+      // First try seafarer profile endpoint to get full details
+      const response = await api.get("/users/profile").catch(() => null);
+      if (response && response.data && response.data.id) {
+        return response.data;
+      }
+      const authRes = await api.get("/auth/profile");
+      return authRes.data;
     } catch (err) {
       console.warn("Session profile fetch status (expected if guest):", err);
       return null;

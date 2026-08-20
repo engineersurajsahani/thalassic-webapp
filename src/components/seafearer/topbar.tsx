@@ -14,6 +14,9 @@ const pageNames: { [key: string]: string } = {
   "/seafearer/browse-courses": "Browse DGS Courses",
   "/seafearer/documents": "Document Repository",
   "/seafearer/profile": "Seafarer Profile Settings",
+  "/seafearer/purchase-history": "Purchase History",
+  "/seafearer/referral-dashboard": "Referral Dashboard",
+  "/seafearer/support": "Support Center",
 };
 
 export default function SeafearerTopbar() {
