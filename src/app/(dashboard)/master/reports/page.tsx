@@ -381,6 +381,7 @@ export default function ReportsPage() {
           </div>
         </div>
       </div>
+      {loading ? <p className="text-center">Loading...</p> : renderReportTable()}
     </div>
   );
 }
