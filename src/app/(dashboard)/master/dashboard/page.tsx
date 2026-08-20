@@ -81,55 +81,6 @@ function Modal({type,dk,onClose}:{type:"outstanding"|"done";dk:boolean;onClose:(
         </div>
       </div>
 
-      {/* ── Quick Actions + Recent Activities ────────────────────────────── */}
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-
-        {/* Quick Actions */}
-        <div className={card}>
-          <CH title="Quick Actions" dk={dk} action={<Zap className={`w-4 h-4 ${dk?"text-amber-400":"text-amber-500"}`}/>}/>
-          <div className="p-4 grid grid-cols-2 gap-3">
-            {[
-              { label:"Create Company Admin", Icon:Building2, color:"bg-sky-500 hover:bg-sky-600",     href:"/master/company-admins" },
-              { label:"Create Agent Admin",   Icon:UserCog,   color:"bg-violet-500 hover:bg-violet-600", href:"/master/agent-admins"   },
-              { label:"View Finance",         Icon:BarChart2, color:"bg-emerald-500 hover:bg-emerald-600",href:"/master/finance"      },
-              { label:"Platform Reports",     Icon:FileText,  color:"bg-indigo-500 hover:bg-indigo-600", href:"/master/reports"        },
-            ].map(q=>(
-              <button key={q.label} onClick={()=>router.push(q.href)}
-                className={`flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl text-white text-[12px] font-semibold text-center transition-all active:scale-95 shadow-md ${q.color}`}>
-                <q.Icon className="w-5 h-5"/>
-                {q.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Recent Activities */}
-        <div className={`${card} xl:col-span-2`}>
-          <CH title="Recent Activities" dk={dk} action={
-            <button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>
-              View all <ArrowUpRight className="w-3 h-3"/>
-            </button>
-          }/>
-          <div className={`divide-y ${dv}`}>
-            {ACTIVITIES.map((a,i)=>{
-              const Icon=a.icon;
-              return(
-                <div key={i} className={`flex items-center gap-4 px-6 py-3.5 ${rh} transition-colors`}>
-                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${a.bg}`}>
-                    <Icon className="w-4 h-4" style={{color:a.color}}/>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-[13px] font-semibold ${ht}`}>{a.label}</p>
-                    <p className={`text-[11px] mt-0.5 ${mt}`}>{a.name}</p>
-                  </div>
-                  <span className={`text-[11px] shrink-0 ${mt}`}>{a.time}</span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-      </div>
     </div>
   );
 }
@@ -230,6 +181,56 @@ export default function MasterDashboard(){
           <CH title="Recent Purchases" dk={dk} action={<button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>View all <ArrowUpRight className="w-3 h-3"/></button>}/>
           <div className={`divide-y ${dv}`}>{PUR.map((p,i)=>(<div key={i} className={`flex items-start justify-between px-5 py-3.5 ${rh} transition-colors`}><div className="flex items-start gap-2.5 min-w-0"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 mt-0.5 ${AB[i%AB.length]}`}>{p.user.split(" ").map(n=>n[0]).join("")}</div><div className="min-w-0"><p className={`text-[13px] font-medium truncate ${ht}`}>{p.course}</p><p className={`text-[11px] mt-0.5 ${mt}`}>{p.user} · {p.date}</p><p className={`text-[10px] mt-0.5 ${mt} opacity-60`}>{p.method}</p></div></div><span className={`text-[13px] font-bold shrink-0 ml-2 ${dk?"text-emerald-400":"text-emerald-600"}`}>{fmt(Number(p.amount))}</span></div>))}</div>
         </div>
+      </div>
+
+      {/* ── Quick Actions + Recent Activities ────────────────────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+        {/* Quick Actions */}
+        <div className={card}>
+          <CH title="Quick Actions" dk={dk} action={<Zap className={`w-4 h-4 ${dk?"text-amber-400":"text-amber-500"}`}/>}/>
+          <div className="p-4 grid grid-cols-2 gap-3">
+            {[
+              { label:"Create Company Admin", Icon:Building2, color:"bg-sky-500 hover:bg-sky-600",     href:"/master/company-admins" },
+              { label:"Create Agent Admin",   Icon:UserCog,   color:"bg-violet-500 hover:bg-violet-600", href:"/master/agent-admins"   },
+              { label:"View Finance",         Icon:BarChart2, color:"bg-emerald-500 hover:bg-emerald-600",href:"/master/finance"      },
+              { label:"Platform Reports",     Icon:FileText,  color:"bg-indigo-500 hover:bg-indigo-600", href:"/master/reports"        },
+            ].map(q=>(
+              <button key={q.label} onClick={()=>router.push(q.href)}
+                className={`flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl text-white text-[12px] font-semibold text-center transition-all active:scale-95 shadow-md ${q.color}`}>
+                <q.Icon className="w-5 h-5"/>
+                {q.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Activities */}
+        <div className={`${card} xl:col-span-2`}>
+          <CH title="Recent Activities" dk={dk} action={
+            <button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>
+              View all <ArrowUpRight className="w-3 h-3"/>
+            </button>
+          }/>
+          <div className={`divide-y ${dv}`}>
+            {ACTIVITIES.map((a,i)=>{
+              const Icon=a.icon;
+              return(
+                <div key={i} className={`flex items-center gap-4 px-6 py-3.5 ${rh} transition-colors`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${a.bg}`}>
+                    <Icon className="w-4 h-4" style={{color:a.color}}/>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-[13px] font-semibold ${ht}`}>{a.label}</p>
+                    <p className={`text-[11px] mt-0.5 ${mt}`}>{a.name}</p>
+                  </div>
+                  <span className={`text-[11px] shrink-0 ${mt}`}>{a.time}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
     </div>
   );
