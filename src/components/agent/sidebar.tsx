@@ -2,12 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, Share2, Users, ClipboardList,
-  DollarSign, Files, User, LifeBuoy, LogOut, Anchor, ChevronRight,
+  DollarSign, Files, User, LifeBuoy, LogOut, ChevronRight,
   FileText, Settings
 } from "lucide-react";
 
@@ -56,11 +57,15 @@ export default function AgentSidebar() {
 
       {/* Brand */}
       <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
-        <div className="w-8 h-8 rounded-md bg-cyan-500 flex items-center justify-center shrink-0">
-          <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
-        </div>
+        <Image
+          src="/logo.jpeg"
+          alt="Hari Om Thalassic"
+          width={34}
+          height={34}
+          className={`rounded-full shrink-0 ${isDark ? "border border-white/10" : "border border-slate-200"}`}
+        />
         <div className="leading-tight">
-          <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>
+          <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Hari Om Thalassic</p>
           <p className={`text-[11px] font-medium tracking-wider uppercase ${logoSub}`}>Manning Agent</p>
         </div>
       </div>

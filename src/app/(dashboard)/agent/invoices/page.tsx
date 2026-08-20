@@ -166,7 +166,7 @@ export default function AgentInvoicesPage() {
                 </tr>
               ) : invoices.map((inv: any) => (
                 <tr key={inv.id} className={`transition-colors ${isDark ? "hover:bg-white/[0.025]" : "hover:bg-slate-50/70"}`}>
-                  <td className="px-4 py-3.5 font-mono font-bold text-cyan-500 whitespace-nowrap">{inv.invoice_number}</td>
+                  <td className={`px-4 py-3.5 font-mono font-bold whitespace-nowrap ${isDark ? "text-cyan-500" : "text-blue-700"}`}>{inv.invoice_number}</td>
                   <td className="px-4 py-3.5 whitespace-nowrap">
                     <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${inv.invoice_type === "HAC" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" : "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400"}`}>{inv.invoice_type}</span>
                   </td>

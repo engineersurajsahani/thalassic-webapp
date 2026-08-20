@@ -68,9 +68,9 @@ export default function NotificationsPage() {
       return <AlertTriangle className="w-4 h-4 text-red-500" />;
     }
     if (cleanTitle.includes("commission") || cleanTitle.includes("payout")) {
-      return <Info className="w-4 h-4 text-cyan-400" />;
+      return <Info className={`w-4 h-4 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />;
     }
-    return <Bell className="w-4 h-4 text-slate-450" />;
+    return <Bell className={`w-4 h-4 ${isDark ? "text-slate-400" : "text-slate-500"}`} />;
   };
 
   if (loading) {
@@ -98,15 +98,15 @@ export default function NotificationsPage() {
       </div>
 
       <div className={card}>
-        <div className="flex items-center gap-2 border-b pb-4 mb-6 border-white/5">
-          <Bell className="w-4 h-4 text-cyan-400" />
+        <div className={`flex items-center gap-2 border-b pb-4 mb-6 ${borderB}`}>
+          <Bell className={`w-4 h-4 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
           <h3 className="text-sm font-bold">Inbox Messages</h3>
         </div>
 
         {notifications.length === 0 ? (
           <div className="text-center py-12 space-y-3">
             <div className="w-12 h-12 rounded-full bg-slate-500/10 flex items-center justify-center mx-auto">
-              <Bell className="w-6 h-6 text-slate-500" />
+              <Bell className="w-6 h-6 text-slate-400" />
             </div>
             <p className={`text-xs ${mt}`}>All caught up! You have no active notifications.</p>
           </div>
@@ -119,7 +119,7 @@ export default function NotificationsPage() {
                   notif.isRead
                     ? isDark
                       ? "bg-slate-950/20 border-slate-900/60 opacity-60"
-                      : "bg-slate-50/50 border-slate-150/40 opacity-70"
+                      : "bg-slate-50/50 border-slate-200 opacity-70"
                     : isDark
                     ? "bg-[#0b182d] border-cyan-500/10 shadow-[0_2px_8px_rgba(6,182,212,0.05)]"
                     : "bg-white border-slate-200 shadow-sm"
@@ -171,7 +171,7 @@ export default function NotificationsPage() {
                   <button
                     onClick={() => handleDelete(notif.id)}
                     className={`p-1.5 rounded-lg border transition cursor-pointer ${
-                      isDark ? "border-slate-800 hover:bg-white/5 text-slate-450 hover:text-red-400" : "border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-red-600"
+                      isDark ? "border-slate-800 hover:bg-white/5 text-slate-400 hover:text-red-400" : "border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-red-600"
                     }`}
                     title="Delete"
                   >
