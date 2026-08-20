@@ -1,7 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
-import { Users, TrendingUp, TrendingDown, MoreHorizontal, ShieldCheck, Anchor, GraduationCap, Globe, BookOpen, ArrowUpRight, Info, X, AlertCircle, CheckCircle2, Building2, UserCog, Handshake, GitMerge, Wallet, Receipt, Clock, IndianRupee, BarChart3 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Users, TrendingUp, TrendingDown, MoreHorizontal, ShieldCheck, Anchor, GraduationCap, Globe, BookOpen, ArrowUpRight, Info, X, AlertCircle, CheckCircle2, Building2, UserCog, Handshake, GitMerge, Wallet, Receipt, Clock, IndianRupee, BarChart3, Plus, BarChart2, FileText, Zap } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 
 const RD: Record<string,{month:string;revenue:number}[]> = {
@@ -20,6 +21,16 @@ const SD:Record<string,string>={Active:"bg-emerald-500/10 text-emerald-400",Pend
 const AB=["bg-indigo-500","bg-sky-500","bg-amber-500","bg-emerald-500","bg-violet-500"];
 const YC:Record<string,string>={"2025":"#6366f1","2024":"#10b981","2023":"#f59e0b"};
 const fmt=(n:number)=>`\u20B9${n.toLocaleString("en-IN")}`;
+
+const ACTIVITIES = [
+  { icon: Building2, color: "#0ea5e9", bg: "bg-sky-500/15",     label: "Company Admin Created",   name: "Rajesh Kumar",    time: "2 min ago"   },
+  { icon: UserCog,   color: "#8b5cf6", bg: "bg-violet-500/15",  label: "Agent Admin Created",     name: "Suresh Patel",    time: "18 min ago"  },
+  { icon: Handshake, color: "#6366f1", bg: "bg-indigo-500/15",  label: "New Agent Registered",    name: "Anand Verma",     time: "45 min ago"  },
+  { icon: TrendingUp,color: "#10b981", bg: "bg-emerald-500/15", label: "Referral Converted",      name: "Lead #RL-0092",   time: "1 hr ago"    },
+  { icon: CheckCircle2,color:"#14b8a6",bg: "bg-teal-500/15",    label: "Commission Approved",     name: "₹12,400 · AG002", time: "3 hr ago"    },
+  { icon: Receipt,   color: "#f43f5e", bg: "bg-rose-500/15",    label: "Invoice Generated",       name: "INV-1049",        time: "5 hr ago"    },
+  { icon: Wallet,    color: "#f97316", bg: "bg-orange-500/15",  label: "Settlement Completed",    name: "₹38,400 · CA004", time: "Yesterday"   },
+];
 
 function DonutRing({v,t,color,label,dk}:{v:number;t:number;color:string;label:string;dk:boolean}){
   const r=34,ci=2*Math.PI*r,da=(v/t)*ci;
@@ -69,12 +80,63 @@ function Modal({type,dk,onClose}:{type:"outstanding"|"done";dk:boolean;onClose:(
           <p className={`text-xs font-medium ${mt}`}>{type==="outstanding"?"Total outstanding":"Total received"}: {fmt(total)}</p>
         </div>
       </div>
+
+      {/* ── Quick Actions + Recent Activities ────────────────────────────── */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+
+        {/* Quick Actions */}
+        <div className={card}>
+          <CH title="Quick Actions" dk={dk} action={<Zap className={`w-4 h-4 ${dk?"text-amber-400":"text-amber-500"}`}/>}/>
+          <div className="p-4 grid grid-cols-2 gap-3">
+            {[
+              { label:"Create Company Admin", Icon:Building2, color:"bg-sky-500 hover:bg-sky-600",     href:"/master/company-admins" },
+              { label:"Create Agent Admin",   Icon:UserCog,   color:"bg-violet-500 hover:bg-violet-600", href:"/master/agent-admins"   },
+              { label:"View Finance",         Icon:BarChart2, color:"bg-emerald-500 hover:bg-emerald-600",href:"/master/finance"      },
+              { label:"Platform Reports",     Icon:FileText,  color:"bg-indigo-500 hover:bg-indigo-600", href:"/master/reports"        },
+            ].map(q=>(
+              <button key={q.label} onClick={()=>router.push(q.href)}
+                className={`flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl text-white text-[12px] font-semibold text-center transition-all active:scale-95 shadow-md ${q.color}`}>
+                <q.Icon className="w-5 h-5"/>
+                {q.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Recent Activities */}
+        <div className={`${card} xl:col-span-2`}>
+          <CH title="Recent Activities" dk={dk} action={
+            <button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>
+              View all <ArrowUpRight className="w-3 h-3"/>
+            </button>
+          }/>
+          <div className={`divide-y ${dv}`}>
+            {ACTIVITIES.map((a,i)=>{
+              const Icon=a.icon;
+              return(
+                <div key={i} className={`flex items-center gap-4 px-6 py-3.5 ${rh} transition-colors`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${a.bg}`}>
+                    <Icon className="w-4 h-4" style={{color:a.color}}/>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-[13px] font-semibold ${ht}`}>{a.label}</p>
+                    <p className={`text-[11px] mt-0.5 ${mt}`}>{a.name}</p>
+                  </div>
+                  <span className={`text-[11px] shrink-0 ${mt}`}>{a.time}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }
 
 export default function MasterDashboard(){
   const {theme}=useTheme();
+  const router=useRouter();
   const dk=theme==="dark";
   const [er,setEr]=useState<"monthly"|"weekly">("monthly");
   const [cy,setCy]=useState<string[]>(["2025"]);
