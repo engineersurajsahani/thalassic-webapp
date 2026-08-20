@@ -51,8 +51,27 @@ export const agentService = {
     return response.data;
   },
 
-  async uploadDocument(type: string, expiryDate?: string, fileName?: string) {
-    const response = await api.post("/agent/documents", { type, expiryDate, fileName });
+  async uploadDocument(
+    type: string,
+    file: File,
+    metadata?: { expiryDate?: string; documentNumber?: string; placeOfIssue?: string; dateOfIssue?: string }
+  ) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("type", type);
+    if (metadata?.expiryDate) formData.append("expiryDate", metadata.expiryDate);
+    if (metadata?.documentNumber) formData.append("documentNumber", metadata.documentNumber);
+    if (metadata?.placeOfIssue) formData.append("placeOfIssue", metadata.placeOfIssue);
+    if (metadata?.dateOfIssue) formData.append("dateOfIssue", metadata.dateOfIssue);
+
+    const response = await api.post("/agent/documents", formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
+  },
+
+  async downloadDocument(docId: string) {
+    const response = await api.get(`/agent/documents/${docId}/download`);
     return response.data;
   },
 

@@ -129,8 +129,8 @@ export default function OnboardingPage() {
           }
           await agentService.uploadDocument(
             cat,
-            expiryStr || undefined,
-            doc.file.name
+            doc.file,
+            { expiryDate: expiryStr || undefined }
           );
         }
       }
@@ -192,7 +192,7 @@ export default function OnboardingPage() {
         
         {/* Error Alert Box */}
         {errorMsg && (
-          <div className="mb-6 p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start gap-3 text-xs animate-shake">
+          <div className={`mb-6 p-4 rounded-2xl border flex items-start gap-3 text-xs animate-shake ${isDark ? "bg-red-500/10 border-red-500/20 text-red-400" : "bg-red-50 border-red-200 text-red-700"}`}>
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-extrabold">Requirement Missing or Conflict</p>
@@ -206,7 +206,7 @@ export default function OnboardingPage() {
           <div className="space-y-6">
             <div className="space-y-1">
               <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-cyan-400" />
+                <Sparkles className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
                 Automatic Referral Code Generation
               </h2>
               <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
@@ -217,7 +217,7 @@ export default function OnboardingPage() {
             <div className={`p-6 rounded-2xl border ${isDark ? "bg-[#0b182d] border-white/5" : "bg-slate-50 border-slate-200"} space-y-4`}>
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-cyan-500/10 flex items-center justify-center">
-                  <ShieldCheck className="w-5 h-5 text-cyan-400" />
+                  <ShieldCheck className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
                 </div>
                 <div>
                   <h4 className="text-xs font-black uppercase tracking-wider">System Generation Rules</h4>
@@ -225,7 +225,7 @@ export default function OnboardingPage() {
                 </div>
               </div>
 
-              <ul className={`space-y-2 text-[11px] list-disc list-inside ${isDark ? "text-slate-300" : "text-slate-650"}`}>
+              <ul className={`space-y-2 text-[11px] list-disc list-inside ${isDark ? "text-slate-300" : "text-slate-600"}`}>
                 <li>Generated uniquely using your agency owner name and a numeric suffix (e.g. <strong>OCEAN25</strong>).</li>
                 <li>Permanently generated once, and cannot be modified under any circumstances.</li>
                 <li>Used to auto-populate checkout discount parameters and commission tracking headers.</li>
@@ -245,7 +245,7 @@ export default function OnboardingPage() {
           <div className="space-y-6">
             <div className="space-y-1">
               <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
-                <User className="w-5 h-5 text-cyan-400" />
+                <User className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
                 Fill Agency Profile Details
               </h2>
               <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
@@ -255,7 +255,7 @@ export default function OnboardingPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">Agency Owner Name *</label>
+                <label className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Agency Owner Name *</label>
                 <input
                   type="text"
                   name="name"
@@ -269,7 +269,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">Owner Mobile *</label>
+                <label className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Owner Mobile *</label>
                 <input
                   type="text"
                   name="phone"
@@ -283,7 +283,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">Agency Company Name *</label>
+                <label className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Agency Company Name *</label>
                 <input
                   type="text"
                   name="agencyName"
@@ -297,7 +297,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">Alternate Phone (Optional)</label>
+                <label className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Alternate Phone (Optional)</label>
                 <input
                   type="text"
                   name="alternatePhone"
@@ -311,7 +311,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="md:col-span-2 space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">Office Premises Address *</label>
+                <label className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Office Premises Address *</label>
                 <textarea
                   name="officeAddress"
                   value={profile.officeAddress}
@@ -325,7 +325,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">City *</label>
+                <label className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>City *</label>
                 <input
                   type="text"
                   name="agencyCity"
@@ -339,7 +339,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">State *</label>
+                <label className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>State *</label>
                 <input
                   type="text"
                   name="agencyState"
@@ -353,7 +353,7 @@ export default function OnboardingPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-black uppercase tracking-wider text-slate-400">PIN Code *</label>
+                <label className={`text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>PIN Code *</label>
                 <input
                   type="text"
                   name="agencyPinCode"
@@ -374,7 +374,7 @@ export default function OnboardingPage() {
           <div className="space-y-6">
             <div className="space-y-1">
               <h2 className="text-lg font-black tracking-tight flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-cyan-400" />
+                <ShieldCheck className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
                 Upload Verification Credentials
               </h2>
               <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
@@ -608,13 +608,13 @@ export default function OnboardingPage() {
         )}
 
         {/* Buttons Controls */}
-        <div className="mt-8 pt-5 border-t border-slate-800/40 flex justify-between">
+        <div className={`mt-8 pt-5 border-t flex justify-between ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
           {step > 1 ? (
             <button
               onClick={prevStep}
               disabled={loading}
               className={`px-5 py-2 text-xs font-bold rounded-xl border transition-all ${
-                isDark ? "border-slate-800 text-slate-400 hover:bg-white/5" : "border-slate-350 text-slate-600 hover:bg-slate-50"
+                isDark ? "border-slate-800 text-slate-400 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"
               }`}
             >
               Previous Step
@@ -638,7 +638,7 @@ export default function OnboardingPage() {
               disabled={loading}
               className={`px-6 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl shadow-lg transition-all flex items-center gap-2 ${
                 loading
-                  ? "bg-slate-700 text-slate-400"
+                  ? isDark ? "bg-slate-700 text-slate-400" : "bg-slate-200 text-slate-500"
                   : isDark
                   ? "bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:brightness-110"
                   : "bg-gradient-to-r from-[#3b71cb] to-[#2c5fb3] text-white hover:brightness-110"

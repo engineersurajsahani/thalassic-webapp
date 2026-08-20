@@ -82,7 +82,7 @@ export default function AgentDashboard() {
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full ${
-              isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-cyan-50 text-cyan-600"
+              isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-blue-700"
             }`}>
               ⚓ Partner Workspace
             </span>
@@ -100,7 +100,7 @@ export default function AgentDashboard() {
             </button>
           </div>
           <h1 className="text-3xl font-extrabold tracking-tight mt-2.5">
-            Operations Dashboard
+            Welcome back, {user?.name || "Partner"}
           </h1>
           <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
             Track your referred seafarer leads, conversions, and commission ledgers.
@@ -127,7 +127,7 @@ export default function AgentDashboard() {
               <div className={`absolute inset-0 bg-gradient-to-br ${kpi.gradient} opacity-20 pointer-events-none`} />
               <div className="flex justify-between items-start relative z-10">
                 <div className="space-y-1">
-                  <span className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-slate-450" : "text-slate-400"}`}>
+                  <span className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                     {kpi.label}
                   </span>
                   <p className="text-2xl font-black tracking-tight">{kpi.value}</p>
@@ -136,7 +136,7 @@ export default function AgentDashboard() {
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
-              <p className={`text-[9px] font-bold mt-4 tracking-wide uppercase ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+              <p className={`text-[9px] font-bold mt-4 tracking-wide uppercase ${isDark ? "text-slate-500" : "text-slate-500"}`}>
                 {kpi.desc}
               </p>
             </div>
@@ -152,9 +152,9 @@ export default function AgentDashboard() {
           isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900"
         }`}>
           <div>
-            <div className="flex items-center justify-between border-b border-slate-800/40 pb-4 mb-5">
+            <div className={`flex items-center justify-between border-b pb-4 mb-5 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-cyan-400" />
+                <Sparkles className={`w-4 h-4 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
                 <h3 className="text-lg font-black tracking-tight">Recent Activity Feed</h3>
               </div>
             </div>
@@ -167,11 +167,11 @@ export default function AgentDashboard() {
             ) : (
               <div className="space-y-5">
                 {activities.map((act) => (
-                  <div key={act.id} className="flex gap-4 border-b border-slate-800/20 pb-4 last:border-0 last:pb-0">
+                  <div key={act.id} className={`flex gap-4 border-b pb-4 last:border-0 last:pb-0 ${isDark ? "border-slate-800/20" : "border-slate-200"}`}>
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-black ${
                       act.type === "lead"
-                        ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                        : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                        ? isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-blue-600 border border-blue-200"
+                        : isDark ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-emerald-50 text-emerald-600 border border-emerald-200"
                     }`}>
                       {act.type === "lead" ? "LD" : "CM"}
                     </div>
@@ -194,7 +194,7 @@ export default function AgentDashboard() {
           isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900"
         }`}>
           <div className="space-y-6">
-            <h3 className="text-lg font-black tracking-tight border-b border-slate-800/40 pb-4">
+            <h3 className={`text-lg font-black tracking-tight border-b pb-4 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
               Quick Operations
             </h3>
 
@@ -216,7 +216,7 @@ export default function AgentDashboard() {
                 >
                   <div>
                     <span className="text-xs font-black block leading-none">{opt.label}</span>
-                    <span className={`text-[10px] block mt-1 ${isDark ? "text-slate-500" : "text-slate-450"}`}>
+                    <span className={`text-[10px] block mt-1 ${isDark ? "text-slate-500" : "text-slate-500"}`}>
                       {opt.desc}
                     </span>
                   </div>

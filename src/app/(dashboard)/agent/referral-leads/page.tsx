@@ -129,13 +129,13 @@ export default function ReferralsTrackerPage() {
     switch (status) {
       case "Converted":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-emerald-400 bg-emerald-400/10 border border-emerald-500/20" : "text-emerald-600 bg-emerald-50 border border-emerald-200"}`}>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-emerald-400 bg-emerald-400/10 border border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border border-emerald-200"}`}>
             <CheckCircle2 className="w-3 h-3" /> Converted
           </span>
         );
       case "Expired":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-red-400 bg-red-400/10 border border-red-500/20" : "text-red-600 bg-red-50 border border-red-200"}`}>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-red-400 bg-red-400/10 border border-red-500/20" : "text-red-700 bg-red-50 border border-red-200"}`}>
             <XCircle className="w-3 h-3" /> Expired
           </span>
         );
@@ -147,19 +147,19 @@ export default function ReferralsTrackerPage() {
         );
       case "Contacted":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-blue-400 bg-blue-400/10 border border-blue-500/20" : "text-blue-600 bg-blue-50 border border-blue-200"}`}>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-blue-400 bg-blue-400/10 border border-blue-500/20" : "text-blue-700 bg-blue-50 border border-blue-200"}`}>
             <Clock className="w-3 h-3" /> Contacted
           </span>
         );
       case "Registered":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full animate-pulse ${isDark ? "text-indigo-400 bg-indigo-400/10 border border-indigo-500/20" : "text-indigo-600 bg-indigo-50 border border-indigo-200"}`}>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full animate-pulse ${isDark ? "text-indigo-400 bg-indigo-400/10 border border-indigo-500/20" : "text-indigo-700 bg-indigo-50 border border-indigo-200"}`}>
             <Users className="w-3 h-3" /> Registered
           </span>
         );
       default:
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full animate-pulse ${isDark ? "text-amber-400 bg-amber-400/10 border border-amber-500/20" : "text-amber-600 bg-amber-50 border border-amber-200"}`}>
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full animate-pulse ${isDark ? "text-amber-400 bg-amber-400/10 border border-amber-500/20" : "text-amber-700 bg-amber-50 border border-amber-200"}`}>
             <Clock className="w-3 h-3" /> New
           </span>
         );
@@ -169,13 +169,13 @@ export default function ReferralsTrackerPage() {
   const getPurchaseStatusBadge = (status: string) => {
     if (status === "Completed") {
       return (
-        <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+        <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${isDark ? "text-emerald-400 bg-emerald-400/10 border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border-emerald-200"}`}>
           <CheckCircle2 className="w-3 h-3" /> Completed
         </span>
       );
     }
     return (
-      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-red-400 bg-red-400/10 px-2.5 py-0.5 rounded-full border border-red-500/20">
+      <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${isDark ? "text-red-400 bg-red-400/10 border-red-500/20" : "text-red-700 bg-red-50 border-red-200"}`}>
         <XCircle className="w-3 h-3" /> Cancelled
       </span>
     );
@@ -189,7 +189,7 @@ export default function ReferralsTrackerPage() {
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
     if (diffDays <= 0) return <span className="text-red-500 font-extrabold text-[10px]">EXPIRED</span>;
-    if (diffDays <= 7) return <span className="text-rose-450 font-bold text-[10px]">{diffDays} days left</span>;
+    if (diffDays <= 7) return <span className="text-rose-500 font-bold text-[10px]">{diffDays} days left</span>;
     return <span className="text-slate-500 text-[10px]">{diffDays} days left</span>;
   };
 
@@ -271,8 +271,8 @@ export default function ReferralsTrackerPage() {
           onClick={() => setActiveTab("leads")}
           className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
             activeTab === "leads"
-              ? "border-cyan-500 text-cyan-400 font-extrabold"
-              : "border-transparent text-slate-450 hover:text-slate-250"
+              ? isDark ? "border-cyan-500 text-cyan-400 font-extrabold" : "border-blue-600 text-blue-700 font-extrabold"
+              : isDark ? "border-transparent text-slate-400 hover:text-white/60" : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
           Referral Pipeline (Leads)
@@ -281,8 +281,8 @@ export default function ReferralsTrackerPage() {
           onClick={() => setActiveTab("purchases")}
           className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
             activeTab === "purchases"
-              ? "border-cyan-500 text-cyan-400 font-extrabold"
-              : "border-transparent text-slate-450 hover:text-slate-250"
+              ? isDark ? "border-cyan-500 text-cyan-400 font-extrabold" : "border-blue-600 text-blue-700 font-extrabold"
+              : isDark ? "border-transparent text-slate-400 hover:text-white/60" : "border-transparent text-slate-500 hover:text-slate-800"
           }`}
         >
           Referred Purchases (Bookings)
@@ -294,10 +294,10 @@ export default function ReferralsTrackerPage() {
           isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
         }`}>
           {/* Search & Filters (Leads) */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-800/40 pb-5 mb-5">
+          <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
             <div className="flex-1 w-full max-w-sm">
               <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${inputBg}`}>
-                <Search className="w-3.5 h-3.5 shrink-0 opacity-55" />
+                <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
                 <input
                   type="text"
                   placeholder="Search leads by name, email, or mobile..."
@@ -309,7 +309,7 @@ export default function ReferralsTrackerPage() {
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
-              <Filter className="w-4 h-4 opacity-55" />
+              <Filter className="w-4 h-4 opacity-50" />
               <select
                 value={statusFilterLeads}
                 onChange={(e) => setStatusFilterLeads(e.target.value)}
@@ -380,7 +380,7 @@ export default function ReferralsTrackerPage() {
                           className={`p-2 rounded-xl border flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
                             isDark 
                               ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800 hover:border-slate-700" 
-                              : "border-slate-200 bg-slate-50 text-slate-750 hover:bg-slate-100"
+                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
                           }`}
                           title="Edit lead details"
                         >
@@ -399,10 +399,10 @@ export default function ReferralsTrackerPage() {
           isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
         }`}>
           {/* Search & Filters (Purchases) */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-800/40 pb-5 mb-5">
+          <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
             <div className="flex-1 w-full max-w-sm">
               <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${inputBg}`}>
-                <Search className="w-3.5 h-3.5 shrink-0 opacity-55" />
+                <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
                 <input
                   type="text"
                   placeholder="Search by invoice, course, or crew name..."
@@ -414,7 +414,7 @@ export default function ReferralsTrackerPage() {
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto shrink-0 justify-end">
-              <Filter className="w-4 h-4 opacity-55" />
+              <Filter className="w-4 h-4 opacity-50" />
               <select
                 value={statusFilterPurchases}
                 onChange={(e) => setStatusFilterPurchases(e.target.value)}
@@ -454,7 +454,7 @@ export default function ReferralsTrackerPage() {
                     <tr key={i} className={`hover:bg-slate-500/5 transition-colors ${
                       isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
                     }`}>
-                      <td className="py-4 pr-4 font-black tracking-wider text-cyan-400 text-[10px]">
+                      <td className={`py-4 pr-4 font-black tracking-wider text-[10px] ${isDark ? "text-cyan-400" : "text-blue-700"}`}>
                         {pur.invoiceNumber}
                       </td>
                       <td className="py-4 pr-4 font-extrabold">
@@ -463,7 +463,7 @@ export default function ReferralsTrackerPage() {
                       <td className="py-4 pr-4 font-semibold max-w-[250px] truncate">
                         {pur.courseName}
                       </td>
-                      <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                      <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                         {new Date(pur.purchaseDate).toLocaleDateString()}
                       </td>
                       <td className="py-4 pr-4 font-black">
@@ -488,12 +488,12 @@ export default function ReferralsTrackerPage() {
             isDark ? "bg-[#0a1122]/90 border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] text-white backdrop-blur-2xl" : "bg-white border-slate-200/80 shadow-2xl text-slate-900 backdrop-blur-2xl"
           }`}>
             
-            <h3 className="text-xl font-black tracking-tight border-b border-slate-800/40 pb-4 mb-6">
+            <h3 className={`text-xl font-black tracking-tight border-b pb-4 mb-6 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
               {modalMode === "add" ? "Register New Referral Lead" : "Edit Lead Details"}
             </h3>
 
             {errorMsg && (
-              <div className="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start gap-3 text-xs animate-shake">
+              <div className={`mb-5 p-4 rounded-xl flex items-start gap-3 text-xs animate-shake ${isDark ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-red-50 border border-red-200 text-red-700"}`}>
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-extrabold">Submission Error</p>
@@ -505,7 +505,7 @@ export default function ReferralsTrackerPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Seafarer Name *</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Seafarer Name *</label>
                   <input
                     type="text"
                     name="name"
@@ -520,7 +520,7 @@ export default function ReferralsTrackerPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Mobile Number *</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Mobile Number *</label>
                   <input
                     type="text"
                     name="phone"
@@ -535,7 +535,7 @@ export default function ReferralsTrackerPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Email Address *</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Email Address *</label>
                   <input
                     type="email"
                     name="email"
@@ -550,7 +550,7 @@ export default function ReferralsTrackerPage() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">City</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>City</label>
                   <input
                     type="text"
                     name="city"
@@ -565,7 +565,7 @@ export default function ReferralsTrackerPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Interested Course</label>
+                <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Interested Course</label>
                 <select
                   name="courseId"
                   value={formData.courseId}
@@ -585,7 +585,7 @@ export default function ReferralsTrackerPage() {
 
               {modalMode === "edit" && (
                 <div className="space-y-1">
-                  <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Lead Status</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Lead Status</label>
                   <select
                     name="status"
                     value={formData.status}
@@ -602,7 +602,7 @@ export default function ReferralsTrackerPage() {
               )}
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Remarks</label>
+                <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Remarks</label>
                 <textarea
                   name="remarks"
                   value={formData.remarks}
@@ -616,12 +616,12 @@ export default function ReferralsTrackerPage() {
               </div>
 
               {/* Submit Buttons */}
-              <div className="pt-4 flex justify-end gap-3 border-t border-slate-800/40 mt-4">
+              <div className={`pt-4 flex justify-end gap-3 border-t mt-4 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
                   className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
-                    isDark ? "border-slate-800 hover:bg-white/5" : "border-slate-300 hover:bg-slate-50 text-slate-650"
+                    isDark ? "border-slate-800 hover:bg-white/5" : "border-slate-300 hover:bg-slate-50 text-slate-700"
                   }`}
                 >
                   Cancel
