@@ -49,7 +49,7 @@ export default function ReferralCenter() {
             <div key={i} className={`h-24 rounded-2xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
           ))}
         </div>
-        <div className="h-44 rounded-3xl ${isDark ? 'bg-[#09162c]' : 'bg-slate-100'}" />
+        <div className={`h-44 rounded-3xl ${isDark ? 'bg-[#09162c]' : 'bg-slate-100'}`} />
       </div>
     );
   }
@@ -105,7 +105,7 @@ export default function ReferralCenter() {
             >
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
-                  <span className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-slate-450" : "text-slate-400"}`}>
+                  <span className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                     {met.label}
                   </span>
                   <p className="text-xl font-black tracking-tight">{met.value}</p>
@@ -114,7 +114,7 @@ export default function ReferralCenter() {
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
-              <p className={`text-[9px] font-semibold mt-4 tracking-wide uppercase ${isDark ? "text-slate-500" : "text-slate-400"}`}>
+              <p className={`text-[9px] font-semibold mt-4 tracking-wide uppercase ${isDark ? "text-slate-500" : "text-slate-500"}`}>
                 {met.desc}
               </p>
             </div>
@@ -139,7 +139,7 @@ export default function ReferralCenter() {
 
           <div className="flex items-center gap-3 shrink-0">
             <div className={`px-6 py-2.5 rounded-xl text-2xl font-black tracking-widest border font-mono select-all ${
-              isDark ? "bg-[#0b182d] border-slate-850 text-cyan-400 shadow-inner" : "bg-slate-50 border-slate-200 text-cyan-700 shadow-inner"
+              isDark ? "bg-[#0b182d] border-slate-800 text-cyan-400 shadow-inner" : "bg-slate-50 border-slate-200 text-cyan-700 shadow-inner"
             }`}>
               {referralCode}
             </div>
@@ -154,10 +154,10 @@ export default function ReferralCenter() {
           </div>
         </div>
 
-        <div className="mt-5 pt-5 border-t border-slate-800/10 flex gap-3 text-[11px] leading-relaxed text-slate-400">
-          <AlertCircle className="w-4.5 h-4.5 shrink-0 text-cyan-400 mt-0.5" />
+        <div className={`mt-5 pt-5 border-t ${isDark ? "border-slate-800/10" : "border-slate-200"} flex gap-3 text-[11px] leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+          <AlertCircle className={`w-4.5 h-4.5 shrink-0 mt-0.5 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
           <div>
-            <span className="font-bold text-slate-350 mr-1.5">Important Notice:</span>
+            <span className="font-bold text-slate-300 mr-1.5">Important Notice:</span>
             Automatic link tracking is deprecated. The candidate must explicitly type or paste this code in checkout to qualify.
           </div>
         </div>
@@ -165,11 +165,11 @@ export default function ReferralCenter() {
 
       {/* Guide Section */}
       <section className={cardStyle}>
-        <h3 className="text-lg font-black tracking-tight border-b border-slate-800/40 pb-4 flex items-center gap-2 mb-5">
-          <HelpCircle className="w-5 h-5 text-cyan-400" />
+        <h3 className={`text-lg font-black tracking-tight border-b ${isDark ? "border-slate-800/40" : "border-slate-200"} pb-4 flex items-center gap-2 mb-5`}>
+          <HelpCircle className={`w-5 h-5 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
           Referral Code Usage Guide
         </h3>
-        <div className={`space-y-4 text-sm leading-relaxed ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+        <div className={`space-y-4 text-sm leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
           <p>
             1. **Provide Your Code**: Copy your Agent Referral Code from the box above and send it to your candidates via WhatsApp, Email, or SMS.
           </p>

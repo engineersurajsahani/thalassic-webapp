@@ -85,20 +85,20 @@ export default function AgentSupportPage() {
     switch (statusLower) {
       case "resolved":
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-emerald-400 bg-emerald-400/10 border border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border border-emerald-200"}`}>
             <CheckCircle2 className="w-3 h-3" /> Resolved
           </span>
         );
       case "closed":
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-slate-400 bg-slate-400/10 px-2.5 py-0.5 rounded-full border border-slate-500/20">
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-slate-400 bg-slate-400/10 border border-slate-500/20" : "text-slate-600 bg-slate-100 border border-slate-300"}`}>
             <X className="w-3 h-3" /> Closed
           </span>
         );
       case "open":
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 animate-pulse">
+          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-amber-400 bg-amber-400/10 border border-amber-500/20" : "text-amber-700 bg-amber-50 border border-amber-200"} animate-pulse`}>
             <Clock className="w-3 h-3" /> Open
           </span>
         );
@@ -120,8 +120,8 @@ export default function AgentSupportPage() {
   if (loading) {
     return (
       <div className="space-y-8 animate-pulse">
-        <div className="h-16 rounded-2xl ${isDark ? 'bg-[#09162c]' : 'bg-slate-100'}" />
-        <div className="h-96 rounded-3xl ${isDark ? 'bg-[#09162c]' : 'bg-slate-100'}" />
+        <div className={`h-16 rounded-2xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
+        <div className={`h-96 rounded-3xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
       </div>
     );
   }
@@ -148,7 +148,7 @@ export default function AgentSupportPage() {
         <button
           onClick={() => setShowAddModal(true)}
           className={`px-5 py-3 rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5 cursor-pointer transition-all ${
-            isDark ? "bg-cyan-600 hover:bg-cyan-505 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+                    isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
           }`}
         >
           <Plus className="w-4 h-4" /> Create Support Ticket
@@ -161,9 +161,9 @@ export default function AgentSupportPage() {
       }`}>
         
         {/* Search & Filters */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4 border-b border-slate-800/40 pb-5 mb-5">
+        <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
           <div className="flex-1 w-full max-w-sm">
-            <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${isDark ? "bg-[#0b182d] border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-850"}`}>
+            <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${isDark ? "bg-[#0b182d] border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-800"}`}>
               <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
               <input
                 type="text"
@@ -220,13 +220,13 @@ export default function AgentSupportPage() {
                   <tr key={ticket.id} className={`hover:bg-slate-500/5 transition-colors ${
                     isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
                   }`}>
-                    <td className="py-4 pr-4 font-black tracking-wider text-cyan-400 text-[10px]">
+                    <td className={`py-4 pr-4 font-black tracking-wider text-[10px] ${isDark ? "text-cyan-400" : "text-blue-700"}`}>
                       TCK-{ticket.id.substring(0, 8).toUpperCase()}
                     </td>
                     <td className="py-4 pr-4 font-extrabold max-w-[200px] truncate">
                       {ticket.subject}
                     </td>
-                    <td className={`py-4 pr-4 max-w-[250px] truncate ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                    <td className={`py-4 pr-4 max-w-[250px] truncate ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                       {ticket.description}
                     </td>
                     <td className="py-4 pr-4">
@@ -266,12 +266,12 @@ export default function AgentSupportPage() {
             isDark ? "bg-[#0a1122]/90 border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] text-white backdrop-blur-2xl" : "bg-white border-slate-200/80 shadow-2xl text-slate-900 backdrop-blur-2xl"
           }`}>
             
-            <h3 className="text-xl font-black tracking-tight border-b border-slate-800/40 pb-4 mb-6">
+            <h3 className={`text-xl font-black tracking-tight border-b pb-4 mb-6 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
               Raise Support Ticket
             </h3>
 
             {errorMsg && (
-              <div className="mb-5 p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-start gap-3 text-xs animate-shake">
+              <div className={`mb-5 p-4 rounded-xl flex items-start gap-3 text-xs animate-shake ${isDark ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-red-50 border border-red-200 text-red-700"}`}>
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-extrabold">Submission Error</p>
@@ -282,7 +282,7 @@ export default function AgentSupportPage() {
 
             <form onSubmit={handleCreateTicket} className="space-y-4">
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Subject / Category *</label>
+                <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Subject / Category *</label>
                 <input
                   type="text"
                   name="subject"
@@ -297,7 +297,7 @@ export default function AgentSupportPage() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Issue Details / Description *</label>
+                <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Issue Details / Description *</label>
                 <textarea
                   name="description"
                   value={newTicket.description}
@@ -312,7 +312,7 @@ export default function AgentSupportPage() {
               </div>
 
               {/* Submit Buttons */}
-              <div className="pt-4 flex justify-end gap-3 border-t border-slate-800/40 mt-4">
+              <div className={`pt-4 border-t flex justify-end gap-3 mt-4 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
                 <button
                   type="button"
                   onClick={() => setShowAddModal(false)}
@@ -325,7 +325,7 @@ export default function AgentSupportPage() {
                 <button
                   type="submit"
                   className={`px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-all ${
-                    isDark ? "bg-cyan-600 hover:bg-cyan-505 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+          isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
                   }`}
                 >
                   Submit Ticket
@@ -345,12 +345,12 @@ export default function AgentSupportPage() {
             
             <button
               onClick={() => setShowDetailsModal(false)}
-              className="absolute top-5 right-5 p-2 rounded-lg hover:bg-slate-800/10 cursor-pointer"
+              className={`absolute top-5 right-5 p-2 rounded-lg cursor-pointer ${isDark ? "hover:bg-slate-800/10" : "hover:bg-slate-100"}`}
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="border-b border-slate-800/40 pb-4 mb-4">
+            <div className={`border-b pb-4 mb-4 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
               <div className="flex items-center gap-2 mb-2">
                 {getStatusBadge(selectedTicket.status)}
                 <span className="text-[10px] font-black uppercase text-slate-500 tracking-wider">
@@ -363,7 +363,7 @@ export default function AgentSupportPage() {
             {/* Scrollable conversation history */}
             <div className="flex-1 overflow-y-auto space-y-4 pr-2 mb-4">
               {/* Original post */}
-              <div className={`p-4 rounded-2xl border ${isDark ? "bg-slate-950/40 border-slate-850" : "bg-slate-50 border-slate-200"}`}>
+              <div className={`p-4 rounded-2xl border ${isDark ? "bg-slate-950/40 border-slate-800/40" : "bg-slate-50 border-slate-200"}`}>
                 <p className="text-[10px] font-bold text-slate-400 mb-1.5">Original Request</p>
                 <p className="text-xs leading-relaxed">{selectedTicket.description}</p>
                 <p className="text-[9px] text-slate-500 mt-2">{new Date(selectedTicket.createdAt).toLocaleString()}</p>
@@ -371,7 +371,7 @@ export default function AgentSupportPage() {
 
               {/* Replies */}
               {(!selectedTicket.replies || selectedTicket.replies.length === 0) ? (
-                <div className="text-center py-6 text-slate-500 italic text-xs">
+                <div className={`text-center py-6 italic text-xs ${isDark ? "text-slate-500" : "text-slate-400"}`}>
                   No replies logged yet. Administrative operators will respond shortly.
                 </div>
               ) : (
@@ -401,11 +401,11 @@ export default function AgentSupportPage() {
               )}
             </div>
 
-            <div className="pt-4 border-t border-slate-800/40 flex justify-end">
+            <div className={`pt-4 border-t flex justify-end ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
               <button
                 onClick={() => setShowDetailsModal(false)}
                 className={`px-5 py-2 rounded-xl text-xs font-bold cursor-pointer ${
-                  isDark ? "bg-slate-850 hover:bg-slate-800 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                  isDark ? "bg-slate-800 hover:bg-slate-700 text-white" : "bg-slate-100 hover:bg-slate-200 text-slate-700"
                 }`}
               >
                 Close View
