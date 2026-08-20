@@ -2,256 +2,169 @@
 
 import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
-import {
-  UserCircle, Building2, Mail, Phone, MapPin,
-  Lock, Bell, Shield, CheckCircle2, Eye, EyeOff, Save,
-} from "lucide-react";
-
-// ─── Main Page ────────────────────────────────────────────────────────────────
+import { useAuth } from "@/providers/auth-provider";
+import { Building2, Mail, Phone, MapPin, Edit3, X } from "lucide-react";
 
 export default function ProfilePage() {
   const { theme } = useTheme();
-  const dk = theme === "dark";
+  const { user } = useAuth();
+  const isDark = theme === "dark";
 
-  const [profile, setProfile] = useState({
-    name: "Company Admin",
-    email: "admin@company.in",
-    phone: "+91 98765 43210",
-    company: "Hari Om Thalassic Pvt. Ltd.",
-    location: "Mumbai, Maharashtra",
-    designation: "Admin Manager",
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [profileData, setProfileData] = useState({
+    name: user?.name || "Company Name placeholder",
+    email: user?.email || "admin@shipping.com",
+    phone: user?.phone || "+91 98765 43210",
+    address: "Andheri East, Mumbai, Maharashtra 400069, India",
+    rpsl: "RPSL-MUM-12345"
   });
 
-  const [passwords, setPasswords] = useState({ current: "", newPass: "", confirm: "" });
-  const [showPass, setShowPass]   = useState({ current: false, newPass: false, confirm: false });
-  const [saved,    setSaved]      = useState(false);
-  const [pwSaved,  setPwSaved]    = useState(false);
+  const [formData, setFormData] = useState(profileData);
 
-  const [notifications, setNotifications] = useState({
-    newRegistration: true,
-    paymentReceived: true,
-    documentVerification: false,
-    weeklyReport: true,
-  });
-
-  const card    = `rounded-2xl overflow-hidden ${dk ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
-  const ht      = dk ? "text-white/80"  : "text-slate-800";
-  const mt      = dk ? "text-white/35"  : "text-slate-400";
-  const inputBg = dk
-    ? "bg-white/5 border-white/10 text-white/80 placeholder:text-white/25 focus:border-emerald-500/60"
-    : "bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-emerald-400";
-  const labelCls = `block text-[11px] font-semibold mb-1 ${mt}`;
-  const sectionHead = `flex items-center gap-2 px-6 py-4 border-b ${dk ? "border-white/5" : "border-slate-100"}`;
-
-  function saveProfile(e: React.FormEvent) {
+  const handleSave = (e: React.FormEvent) => {
     e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
-  }
-
-  function savePassword(e: React.FormEvent) {
-    e.preventDefault();
-    setPasswords({ current: "", newPass: "", confirm: "" });
-    setPwSaved(true);
-    setTimeout(() => setPwSaved(false), 3000);
-  }
-
-  const toggleNotif = (key: keyof typeof notifications) =>
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
-
-  const passInput = (field: keyof typeof passwords, placeholder: string) => (
-    <div className="relative">
-      <Lock className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
-      <input
-        type={showPass[field] ? "text" : "password"}
-        value={passwords[field]}
-        onChange={e => setPasswords(p => ({ ...p, [field]: e.target.value }))}
-        placeholder={placeholder}
-        className={`w-full pl-9 pr-10 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`}
-      />
-      <button
-        type="button"
-        onClick={() => setShowPass(p => ({ ...p, [field]: !p[field] }))}
-        className={`absolute right-3 top-1/2 -translate-y-1/2 ${mt}`}
-      >
-        {showPass[field] ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
-      </button>
-    </div>
-  );
+    setProfileData(formData);
+    setIsEditModalOpen(false);
+  };
 
   return (
-    <div className="space-y-5 max-w-4xl">
-
+    <div className="space-y-6 max-w-4xl relative">
       {/* Header */}
-      <div>
-        <h1 className={`text-xl font-bold ${ht}`}>Profile</h1>
-        <p className={`text-sm mt-0.5 ${mt}`}>Manage your account and company settings</p>
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+          <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}>
+            Company Profile
+          </h1>
+          <p className={`text-[11px] mt-0.5 ${isDark ? "text-white/40" : "text-slate-500"}`}>
+            Manage your company details and administrative preferences.
+          </p>
+        </div>
+        <button
+          onClick={() => {
+            setFormData(profileData);
+            setIsEditModalOpen(true);
+          }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-600 text-white transition-colors cursor-pointer"
+        >
+          <Edit3 className="w-4 h-4" />
+          Edit Profile
+        </button>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-
-        {/* ── Avatar Card ───────────────────────────────────────────────────── */}
-        <div className={`${card} xl:col-span-1 flex flex-col items-center px-6 py-8 gap-4`}>
-          <div className="w-20 h-20 rounded-2xl bg-emerald-500 flex items-center justify-center text-white text-2xl font-bold">
-            CA
+      {/* Profile Card */}
+      <div
+        className={`p-6 rounded-xl border flex flex-col md:flex-row gap-8 ${
+          isDark
+            ? "bg-[#0c1a2e] border-white/5"
+            : "bg-white border-slate-200"
+        }`}
+      >
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-24 h-24 rounded-2xl bg-sky-500 flex items-center justify-center text-white text-3xl font-black uppercase shadow-lg">
+            {profileData.name.split(" ").map((n: string) => n[0]).join("").substring(0, 2)}
           </div>
-          <div className="text-center">
-            <p className={`text-base font-bold ${ht}`}>{profile.name}</p>
-            <p className={`text-sm ${mt}`}>{profile.designation}</p>
-            <p className={`text-xs mt-1 ${mt}`}>{profile.company}</p>
-          </div>
-          <div className={`w-full rounded-xl px-4 py-3 space-y-2 ${dk ? "bg-white/[0.04] border border-white/6" : "bg-slate-50 border border-slate-100"}`}>
-            {[
-              { icon: Mail,    label: profile.email },
-              { icon: Phone,   label: profile.phone },
-              { icon: MapPin,  label: profile.location },
-            ].map(({ icon: Icon, label }) => (
-              <div key={label} className="flex items-center gap-2">
-                <Icon className={`w-3.5 h-3.5 shrink-0 ${mt}`} />
-                <span className={`text-[12px] truncate ${ht}`}>{label}</span>
-              </div>
-            ))}
-          </div>
-          <div className={`w-full rounded-xl px-4 py-3 flex items-center gap-2 ${dk ? "bg-emerald-500/10 border border-emerald-500/20" : "bg-emerald-50 border border-emerald-100"}`}>
-            <Shield className="w-4 h-4 text-emerald-500 shrink-0" />
-            <span className={`text-[12px] font-medium ${dk ? "text-emerald-400" : "text-emerald-700"}`}>Company Admin · Verified</span>
-          </div>
+          <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full ${isDark ? "bg-sky-500/20 text-sky-400" : "bg-sky-50 text-sky-600"}`}>
+            {user?.role?.replace("_", " ") || "COMPANY ADMIN"}
+          </span>
         </div>
 
-        {/* ── Right Column ──────────────────────────────────────────────────── */}
-        <div className="xl:col-span-2 space-y-5">
+        <div className="flex-1 space-y-6">
+          <div>
+            <h2 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
+              {profileData.name}
+            </h2>
+            <p className={`text-xs mt-1 ${isDark ? "text-white/60" : "text-slate-500"}`}>
+              RPSL Number: {profileData.rpsl}
+            </p>
+          </div>
 
-          {/* Profile Form */}
-          <div className={card}>
-            <div className={sectionHead}>
-              <UserCircle className={`w-4 h-4 ${dk ? "text-indigo-400" : "text-indigo-500"}`} />
-              <p className={`text-sm font-semibold ${ht}`}>Personal Information</p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}>
+                Email Address
+              </span>
+              <div className={`flex items-center gap-2 text-sm font-medium ${isDark ? "text-white/80" : "text-slate-700"}`}>
+                <Mail className="w-4 h-4 opacity-50" />
+                {profileData.email}
+              </div>
             </div>
-            <form onSubmit={saveProfile} className="px-6 py-5 space-y-4">
+            
+            <div className="space-y-1">
+              <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}>
+                Phone Number
+              </span>
+              <div className={`flex items-center gap-2 text-sm font-medium ${isDark ? "text-white/80" : "text-slate-700"}`}>
+                <Phone className="w-4 h-4 opacity-50" />
+                {profileData.phone}
+              </div>
+            </div>
+
+            <div className="space-y-1 md:col-span-2">
+              <span className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-white/40" : "text-slate-400"}`}>
+                Headquarters Address
+              </span>
+              <div className={`flex items-center gap-2 text-sm font-medium ${isDark ? "text-white/80" : "text-slate-700"}`}>
+                <MapPin className="w-4 h-4 opacity-50 shrink-0" />
+                {profileData.address}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Edit Profile Modal */}
+      {isEditModalOpen && (
+        <>
+          <div 
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity"
+            onClick={() => setIsEditModalOpen(false)}
+          />
+          <div className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg shadow-2xl z-55 rounded-xl overflow-hidden border ${isDark ? "bg-[#0b1625] border-white/5 text-white" : "bg-white border-slate-200 text-slate-850"}`}>
+            <div className={`p-4 border-b flex items-center justify-between gap-4 ${isDark ? "border-white/5 bg-[#09111e]" : "border-slate-100 bg-slate-50"}`}>
+              <div className="flex items-center gap-2">
+                <Edit3 className="w-4 h-4 text-sky-400" />
+                <h3 className="text-sm font-bold">Edit Company Profile</h3>
+              </div>
+              <button onClick={() => setIsEditModalOpen(false)} className={`p-1.5 rounded transition-colors cursor-pointer ${isDark ? "hover:bg-white/5" : "hover:bg-slate-100"}`}>
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleSave} className="p-5 space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase opacity-60">Company Name</label>
+                <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} required className={`w-full py-2 px-3 rounded-lg border text-xs outline-none ${isDark ? "bg-[#0c1a2e] border-white/10 text-white focus:border-sky-500" : "bg-white border-slate-200 text-slate-850 focus:border-sky-500"}`} />
+              </div>
+              
               <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelCls}>Full Name</label>
-                  <input value={profile.name} onChange={e => setProfile(p => ({ ...p, name: e.target.value }))}
-                    className={`w-full px-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`} />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase opacity-60">Email Address</label>
+                  <input type="email" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required className={`w-full py-2 px-3 rounded-lg border text-xs outline-none ${isDark ? "bg-[#0c1a2e] border-white/10 text-white focus:border-sky-500" : "bg-white border-slate-200 text-slate-850 focus:border-sky-500"}`} />
                 </div>
-                <div>
-                  <label className={labelCls}>Designation</label>
-                  <input value={profile.designation} onChange={e => setProfile(p => ({ ...p, designation: e.target.value }))}
-                    className={`w-full px-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`} />
-                </div>
-                <div>
-                  <label className={labelCls}>Email</label>
-                  <input type="email" value={profile.email} onChange={e => setProfile(p => ({ ...p, email: e.target.value }))}
-                    className={`w-full px-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`} />
-                </div>
-                <div>
-                  <label className={labelCls}>Phone</label>
-                  <input value={profile.phone} onChange={e => setProfile(p => ({ ...p, phone: e.target.value }))}
-                    className={`w-full px-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`} />
-                </div>
-                <div className="col-span-2">
-                  <label className={labelCls}>Company Name</label>
-                  <div className="relative">
-                    <Building2 className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
-                    <input value={profile.company} onChange={e => setProfile(p => ({ ...p, company: e.target.value }))}
-                      className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`} />
-                  </div>
-                </div>
-                <div className="col-span-2">
-                  <label className={labelCls}>Location</label>
-                  <div className="relative">
-                    <MapPin className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
-                    <input value={profile.location} onChange={e => setProfile(p => ({ ...p, location: e.target.value }))}
-                      className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`} />
-                  </div>
+                
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-bold uppercase opacity-60">Phone Number</label>
+                  <input type="text" value={formData.phone} onChange={(e) => setFormData({...formData, phone: e.target.value})} required className={`w-full py-2 px-3 rounded-lg border text-xs outline-none ${isDark ? "bg-[#0c1a2e] border-white/10 text-white focus:border-sky-500" : "bg-white border-slate-200 text-slate-850 focus:border-sky-500"}`} />
                 </div>
               </div>
-              <div className="flex items-center justify-between pt-1">
-                {saved ? (
-                  <div className="flex items-center gap-2 text-emerald-500 text-sm font-medium">
-                    <CheckCircle2 className="w-4 h-4" /> Profile saved!
-                  </div>
-                ) : <span />}
-                <button type="submit"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors">
-                  <Save className="w-3.5 h-3.5" /> Save Changes
+              
+              <div className="space-y-1.5">
+                <label className="text-[10px] font-bold uppercase opacity-60">Headquarters Address</label>
+                <input type="text" value={formData.address} onChange={(e) => setFormData({...formData, address: e.target.value})} required className={`w-full py-2 px-3 rounded-lg border text-xs outline-none ${isDark ? "bg-[#0c1a2e] border-white/10 text-white focus:border-sky-500" : "bg-white border-slate-200 text-slate-850 focus:border-sky-500"}`} />
+              </div>
+
+              <div className="pt-2 flex justify-end gap-3">
+                <button type="button" onClick={() => setIsEditModalOpen(false)} className={`px-4 py-2 rounded-lg text-xs font-semibold cursor-pointer ${isDark ? "bg-white/5 hover:bg-white/10" : "bg-slate-100 hover:bg-slate-200 text-slate-700"}`}>
+                  Cancel
+                </button>
+                <button type="submit" className="px-4 py-2 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-600 text-white cursor-pointer">
+                  Save Changes
                 </button>
               </div>
             </form>
           </div>
-
-          {/* Password */}
-          <div className={card}>
-            <div className={sectionHead}>
-              <Lock className={`w-4 h-4 ${dk ? "text-amber-400" : "text-amber-500"}`} />
-              <p className={`text-sm font-semibold ${ht}`}>Change Password</p>
-            </div>
-            <form onSubmit={savePassword} className="px-6 py-5 space-y-4">
-              <div>
-                <label className={labelCls}>Current Password</label>
-                {passInput("current", "Enter current password")}
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className={labelCls}>New Password</label>
-                  {passInput("newPass", "Enter new password")}
-                </div>
-                <div>
-                  <label className={labelCls}>Confirm Password</label>
-                  {passInput("confirm", "Confirm new password")}
-                </div>
-              </div>
-              <div className="flex items-center justify-between pt-1">
-                {pwSaved ? (
-                  <div className="flex items-center gap-2 text-emerald-500 text-sm font-medium">
-                    <CheckCircle2 className="w-4 h-4" /> Password updated!
-                  </div>
-                ) : <span />}
-                <button type="submit"
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold bg-indigo-600 hover:bg-indigo-500 text-white transition-colors">
-                  <Lock className="w-3.5 h-3.5" /> Update Password
-                </button>
-              </div>
-            </form>
-          </div>
-
-          {/* Notifications */}
-          <div className={card}>
-            <div className={sectionHead}>
-              <Bell className={`w-4 h-4 ${dk ? "text-sky-400" : "text-sky-500"}`} />
-              <p className={`text-sm font-semibold ${ht}`}>Notification Preferences</p>
-            </div>
-            <div className="px-6 py-5 space-y-4">
-              {[
-                { key: "newRegistration",      label: "New Registration",          desc: "Alert when a new seafarer registers" },
-                { key: "paymentReceived",       label: "Payment Received",           desc: "Alert when a payment is confirmed" },
-                { key: "documentVerification",  label: "Document Verification",      desc: "Alert when a document needs review" },
-                { key: "weeklyReport",          label: "Weekly Summary Report",      desc: "Receive a weekly digest every Monday" },
-              ].map(({ key, label, desc }) => (
-                <div key={key} className="flex items-center justify-between gap-4">
-                  <div>
-                    <p className={`text-sm font-medium ${ht}`}>{label}</p>
-                    <p className={`text-[11px] mt-0.5 ${mt}`}>{desc}</p>
-                  </div>
-                  <button
-                    onClick={() => toggleNotif(key as keyof typeof notifications)}
-                    className={`relative w-11 h-6 rounded-full transition-all duration-300 shrink-0 ${
-                      notifications[key as keyof typeof notifications]
-                        ? "bg-emerald-500"
-                        : dk ? "bg-white/10" : "bg-slate-200"
-                    }`}
-                  >
-                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow-sm transition-transform duration-300 ${
-                      notifications[key as keyof typeof notifications] ? "translate-x-5" : "translate-x-0"
-                    }`} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-        </div>
-      </div>
+        </>
+      )}
     </div>
   );
 }

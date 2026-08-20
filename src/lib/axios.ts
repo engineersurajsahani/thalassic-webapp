@@ -1,7 +1,9 @@
 import axios from "axios";
 
-// Determine base API URL (default to localhost:5050 for our NestJS server)
-const API_URL = "http://localhost:5050/api";
+// Determine base API URL (reads from env, defaults to localhost:4000 for our NestJS server)
+const API_URL =
+  (process.env.NEXT_PUBLIC_API_URL && process.env.NEXT_PUBLIC_API_URL.trim()) ||
+  "http://localhost:4000/api";
 
 export const api = axios.create({
   baseURL: API_URL,
@@ -39,7 +41,21 @@ export function deleteCookie(name: string) {
 // Attach interceptor to include authorization header
 api.interceptors.request.use(
   (config) => {
-    const token = getCookie("auth_token");
+    let token = getCookie("auth_token");
+    if (typeof window !== "undefined") {
+      const pathname = window.location.pathname;
+      if (pathname.startsWith("/agent-admin")) {
+        token = getCookie("auth_token_agent-admin") || token;
+      } else if (pathname.startsWith("/agent")) {
+        token = getCookie("auth_token_agent") || token;
+      } else if (pathname.startsWith("/company-admin")) {
+        token = getCookie("auth_token_company-admin") || token;
+      } else if (pathname.startsWith("/master")) {
+        token = getCookie("auth_token_master") || token;
+      } else if (pathname.startsWith("/seafarer") || pathname.startsWith("/seafearer")) {
+        token = getCookie("auth_token_seafarer") || token;
+      }
+    }
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -49,3 +65,5 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+export default api;

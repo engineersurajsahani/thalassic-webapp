@@ -16,7 +16,13 @@ if (typeof window !== "undefined") {
 export default function Navbar() {
   const { theme, toggleTheme } = useTheme();
   const pathname = usePathname();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? (theme === "dark") : true;
   const isAuthPage = pathname === "/login" || pathname === "/register";
 
   const navRef = useRef<HTMLDivElement>(null);
@@ -90,8 +96,8 @@ export default function Navbar() {
       : "bg-transparent border-b border-transparent py-4.5";
 
   return (
-    <div 
-      ref={navRef} 
+    <div
+      ref={navRef}
       className="main-nav-container fixed top-0 left-0 w-full z-50 pointer-events-none transition-all duration-300"
       style={{
         visibility: isVisible ? "visible" : "hidden",
@@ -112,9 +118,8 @@ export default function Navbar() {
               className="rounded-full border border-white/10 group-hover:scale-105 transition-transform duration-300"
             />
             <div className="flex flex-col">
-              <h2 className={`font-black text-xs tracking-widest uppercase transition-colors ${
-                isDark ? "text-white" : "text-slate-800"
-              }`}>
+              <h2 className={`font-black text-xs tracking-widest uppercase transition-colors ${isDark ? "text-white" : "text-slate-800"
+                }`}>
                 Hari Om Thalassic
               </h2>
             </div>
@@ -134,17 +139,15 @@ export default function Navbar() {
                   <Link
                     key={item.label}
                     href={item.href}
-                    className={`text-xs uppercase tracking-widest font-bold transition-all relative py-1 ${
-                      isActive
-                        ? isDark ? "text-white" : "text-slate-900"
-                        : isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"
-                    }`}
+                    className={`text-xs uppercase tracking-widest font-bold transition-all relative py-1 ${isActive
+                      ? isDark ? "text-white" : "text-slate-900"
+                      : isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"
+                      }`}
                   >
                     {item.label}
                     {isActive && (
-                      <span className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${
-                        isDark ? "bg-white" : "bg-slate-900"
-                      }`} />
+                      <span className={`absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full ${isDark ? "bg-white" : "bg-slate-900"
+                        }`} />
                     )}
                   </Link>
                 );
@@ -157,9 +160,8 @@ export default function Navbar() {
             {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className={`transition-colors cursor-pointer flex items-center justify-center ${
-                isDark ? "text-slate-400 hover:text-white" : "text-slate-400 hover:text-slate-900"
-              }`}
+              className={`transition-colors cursor-pointer flex items-center justify-center ${isDark ? "text-slate-400 hover:text-white" : "text-slate-400 hover:text-slate-900"
+                }`}
               aria-label="Toggle theme mode"
             >
               {isDark ? <Sun className="w-4 h-4 stroke-[2]" /> : <Moon className="w-4 h-4 stroke-[2]" />}
@@ -171,9 +173,8 @@ export default function Navbar() {
               <div className="flex items-center gap-3">
                 <Link
                   href="/"
-                  className={`text-xs font-bold tracking-widest uppercase transition-colors px-3 py-1.5 ${
-                    isDark ? "text-slate-350 hover:text-white" : "text-slate-550 hover:text-slate-900"
-                  }`}
+                  className={`text-xs font-bold tracking-widest uppercase transition-colors px-3 py-1.5 ${isDark ? "text-slate-350 hover:text-white" : "text-slate-550 hover:text-slate-900"
+                    }`}
                 >
                   Home
                 </Link>
@@ -182,10 +183,9 @@ export default function Navbar() {
                   href="/login"
                   className={`
                     px-4 py-1.5 text-xs font-bold rounded-lg tracking-wider uppercase transition-all duration-300 border
-                    ${
-                      pathname === "/login"
-                        ? isDark ? "bg-white/10 border-white/40 text-white" : "bg-slate-100 border-slate-350 text-slate-800 shadow-sm"
-                        : isDark ? "border-transparent text-slate-400 hover:text-white" : "border-transparent text-slate-500 hover:text-slate-950"
+                    ${pathname === "/login"
+                      ? isDark ? "bg-white/10 border-white/40 text-white" : "bg-slate-100 border-slate-350 text-slate-800 shadow-sm"
+                      : isDark ? "border-transparent text-slate-400 hover:text-white" : "border-transparent text-slate-500 hover:text-slate-950"
                     }
                   `}
                 >
@@ -196,10 +196,9 @@ export default function Navbar() {
                   href="/register"
                   className={`
                     px-4 py-1.5 text-xs font-bold rounded-lg tracking-wider uppercase transition-all duration-300 border
-                    ${
-                      pathname === "/register"
-                        ? isDark ? "bg-white/10 border-white/40 text-white" : "bg-slate-100 border-slate-350 text-slate-800 shadow-sm"
-                        : isDark ? "border-transparent text-slate-400 hover:text-white" : "border-transparent text-slate-500 hover:text-slate-950"
+                    ${pathname === "/register"
+                      ? isDark ? "bg-white/10 border-white/40 text-white" : "bg-slate-100 border-slate-350 text-slate-800 shadow-sm"
+                      : isDark ? "border-transparent text-slate-400 hover:text-white" : "border-transparent text-slate-500 hover:text-slate-950"
                     }
                   `}
                 >
@@ -210,20 +209,18 @@ export default function Navbar() {
               <div className="flex items-center gap-5">
                 <Link
                   href="/login"
-                  className={`text-xs font-bold tracking-widest uppercase transition-colors ${
-                    isDark ? "text-slate-300 hover:text-white" : "text-slate-500 hover:text-slate-900"
-                  }`}
+                  className={`text-xs font-bold tracking-widest uppercase transition-colors ${isDark ? "text-slate-300 hover:text-white" : "text-slate-500 hover:text-slate-900"
+                    }`}
                 >
                   Login
                 </Link>
 
                 <Link
                   href="/courses"
-                  className={`px-5 py-2 text-xs font-bold rounded-lg tracking-widest uppercase transition-all duration-300 ${
-                    isDark
-                      ? "bg-white text-black hover:bg-gray-200 hover:scale-[1.03]"
-                      : "bg-black text-white hover:bg-gray-800 hover:scale-[1.03]"
-                  }`}
+                  className={`px-5 py-2 text-xs font-bold rounded-lg tracking-widest uppercase transition-all duration-300 ${isDark
+                    ? "bg-white text-black hover:bg-gray-200 hover:scale-[1.03]"
+                    : "bg-black text-white hover:bg-gray-800 hover:scale-[1.03]"
+                    }`}
                 >
                   Begin Journey
                 </Link>
@@ -253,9 +250,8 @@ export default function Navbar() {
 
         {/* Mobile Drawer Panel */}
         {mobileMenuOpen && (
-          <div className={`md:hidden mt-4 pt-4 pb-4 px-6 border-t space-y-5 transition-all ${
-            isDark ? "border-white/10 text-white bg-[#020b14]" : "border-slate-200/80 text-slate-800 bg-white"
-          }`}>
+          <div className={`md:hidden mt-4 pt-4 pb-4 px-6 border-t space-y-5 transition-all ${isDark ? "border-white/10 text-white bg-[#020b14]" : "border-slate-200/80 text-slate-800 bg-white"
+            }`}>
             <nav className="flex flex-col gap-4">
               {isAuthPage ? (
                 [
@@ -267,11 +263,10 @@ export default function Navbar() {
                     key={item.label}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`text-xs uppercase tracking-widest font-bold ${
-                      pathname === item.href
-                        ? isDark ? "text-white" : "text-slate-900"
-                        : isDark ? "text-slate-400" : "text-slate-500"
-                    }`}
+                    className={`text-xs uppercase tracking-widest font-bold ${pathname === item.href
+                      ? isDark ? "text-white" : "text-slate-900"
+                      : isDark ? "text-slate-400" : "text-slate-500"
+                      }`}
                   >
                     {item.label}
                   </Link>
@@ -287,18 +282,17 @@ export default function Navbar() {
                     key={item.label}
                     href={item.href}
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`text-xs uppercase tracking-widest font-bold ${
-                      pathname === item.href
-                        ? isDark ? "text-white" : "text-slate-900"
-                        : isDark ? "text-slate-400" : "text-slate-500"
-                    }`}
+                    className={`text-xs uppercase tracking-widest font-bold ${pathname === item.href
+                      ? isDark ? "text-white" : "text-slate-900"
+                      : isDark ? "text-slate-400" : "text-slate-500"
+                      }`}
                   >
                     {item.label}
                   </Link>
                 ))
               )}
             </nav>
-            
+
             {!isAuthPage && (
               <>
                 <div className="h-[1px] bg-white/10 w-full" />
@@ -307,18 +301,16 @@ export default function Navbar() {
                   <Link
                     href="/login"
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`w-full text-center py-3 rounded-lg text-xs font-bold tracking-widest uppercase border ${
-                      isDark ? "border-white/20 text-white" : "border-slate-200 text-slate-800"
-                    }`}
+                    className={`w-full text-center py-3 rounded-lg text-xs font-bold tracking-widest uppercase border ${isDark ? "border-white/20 text-white" : "border-slate-200 text-slate-800"
+                      }`}
                   >
                     Login
                   </Link>
                   <Link
                     href="/courses"
                     onClick={() => setMobileMenuOpen(false)}
-                    className={`w-full text-center py-3 rounded-lg text-xs font-bold tracking-widest uppercase ${
-                      isDark ? "bg-white text-black" : "bg-black text-white"
-                    }`}
+                    className={`w-full text-center py-3 rounded-lg text-xs font-bold tracking-widest uppercase ${isDark ? "bg-white text-black" : "bg-black text-white"
+                      }`}
                   >
                     Begin Journey
                   </Link>

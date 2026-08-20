@@ -123,7 +123,7 @@ export default function UsersPage() {
   return (
     <div className="space-y-6">
 
-      {/* ── Add Account Modal ──────────────────────── */}
+      {/*  Add Account Modal  */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setShowModal(false)}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />

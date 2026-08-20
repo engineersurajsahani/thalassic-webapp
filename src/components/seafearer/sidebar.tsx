@@ -13,6 +13,10 @@ import {
   User,
   LogOut,
   Anchor,
+  ShoppingBag,
+  Receipt,
+  GitFork,
+  LifeBuoy,
 } from "lucide-react";
 
 const menuItems = [
@@ -21,6 +25,9 @@ const menuItems = [
   { label: "Browse Courses", href: "/seafearer/browse-courses", icon: Compass },
   { label: "Documents", href: "/seafearer/documents", icon: FileText },
   { label: "Profile", href: "/seafearer/profile", icon: User },
+  { label: "Purchase History", href: "/seafearer/purchase-history", icon: ShoppingBag },
+  { label: "Referral Dashboard", href: "/seafearer/referral-dashboard", icon: GitFork },
+  { label: "Support", href: "/seafearer/support", icon: LifeBuoy },
 ];
 
 export default function SeafearerSidebar() {

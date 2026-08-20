@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import CompanyAdminSidebar from "@/components/company-admin/sidebar";
 import CompanyAdminTopbar from "@/components/company-admin/topbar";
 import { useTheme } from "@/providers/theme-provider";
@@ -12,18 +12,26 @@ export default function CompanyAdminLayout({
 }) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) return null;
 
   return (
     <div className={`flex h-screen ${isDark ? "bg-[#031525]" : "bg-slate-50"}`}>
       {/* Sidebar */}
-      <CompanyAdminSidebar />
+      <CompanyAdminSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} />
 
-      {/* Main Content */}
+      {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Topbar */}
-        <CompanyAdminTopbar />
+        {/* Topbar Header */}
+        <CompanyAdminTopbar onMenuClick={() => setIsSidebarOpen(true)} />
 
-        {/* Page Content */}
+        {/* Page Content Scroll Container */}
         <main
           className={`flex-1 overflow-y-auto ${
             isDark ? "bg-[#031525]" : "bg-slate-50"
@@ -35,4 +43,3 @@ export default function CompanyAdminLayout({
     </div>
   );
 }
-

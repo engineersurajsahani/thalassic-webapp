@@ -29,7 +29,7 @@ export default function MasterSidebar() {
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
-  // ── theme tokens ──────────────────────────────────────────────────────────
+  //  theme tokens 
   const sidebarBg   = isDark ? "bg-[#0c1a2e] border-r border-white/5"        : "bg-white border-r border-slate-200";
   const brandBorder = isDark ? "border-white/8"                               : "border-slate-100";
   const logoText    = isDark ? "text-white"                                   : "text-slate-800";

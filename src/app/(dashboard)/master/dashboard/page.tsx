@@ -105,7 +105,7 @@ export default function MasterDashboard(){
   return(
     <div className="space-y-5">
 
-      {/* ── 10 Additional KPI Cards ─────────────────────────────────────────── */}
+      {/*  10 Additional KPI Cards ─ */}
       <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
         {[
           { label: "Company Admins",         value: "8",       sub: "Registered",         Icon: Building2,     ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
@@ -183,7 +183,7 @@ export default function MasterDashboard(){
         </div>
       </div>
 
-      {/* ── Quick Actions + Recent Activities ────────────────────────────── */}
+      {/*  Quick Actions + Recent Activities  */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
         {/* Quick Actions */}

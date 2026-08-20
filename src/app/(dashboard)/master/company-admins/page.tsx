@@ -63,7 +63,7 @@ export default function CompanyAdminsPage() {
   const [perms, setPerms]         = useState<string[]>(["View Dashboard","Manage Seafarers"]);
   const [resetDone, setResetDone] = useState(false);
 
-  // ── theme tokens ─────────────────────────────────────────────────────────
+  //  theme tokens ─
   const ht       = dk ? "text-white"       : "text-slate-800";
   const mt       = dk ? "text-white/40"    : "text-slate-400";
   const card     = dk ? "bg-[#0f2035] border border-white/5 rounded-2xl" : "bg-white border border-slate-200 rounded-2xl shadow-sm";
@@ -119,11 +119,11 @@ export default function CompanyAdminsPage() {
     { label: "Inactive", value: adminList.filter(a => a.status === "inactive").length, color: "bg-red-500/15",     iconColor: "text-red-400"     },
   ];
 
-  // ── Modal inner content ────────────────────────────────────────────────
+  //  Modal inner content 
   const renderModal = () => {
     if (!modal) return null;
 
-    // ── ADD / EDIT form ──────────────────────────────────────────────────
+    //  ADD / EDIT form 
     if (modal === "add" || modal === "edit") {
       const isEdit = modal === "edit";
       return (
@@ -172,7 +172,7 @@ export default function CompanyAdminsPage() {
       );
     }
 
-    // ── RESET PASSWORD ─────────────────────────────────────────────────────
+    //  RESET PASSWORD ─
     if (modal === "reset" && selected) return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={closeModal}>
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
@@ -197,7 +197,7 @@ export default function CompanyAdminsPage() {
       </div>
     );
 
-    // ── LOGIN HISTORY ──────────────────────────────────────────────────────
+    //  LOGIN HISTORY 
     if (modal === "login" && selected) return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={closeModal}>
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
@@ -225,7 +225,7 @@ export default function CompanyAdminsPage() {
       </div>
     );
 
-    // ── ASSIGN PERMISSIONS ────────────────────────────────────────────────
+    //  ASSIGN PERMISSIONS 
     if (modal === "permissions" && selected) return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={closeModal}>
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
@@ -256,7 +256,7 @@ export default function CompanyAdminsPage() {
       </div>
     );
 
-    // ── AUDIT HISTORY ─────────────────────────────────────────────────────
+    //  AUDIT HISTORY ─
     if (modal === "audit" && selected) return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={closeModal}>
         <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />

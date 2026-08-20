@@ -11,7 +11,13 @@ import { useRouter } from "next/navigation";
 
 export default function LoginForm() {
   const { theme } = useTheme();
-  const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
   const { login } = useAuth();
   const router = useRouter();
 
@@ -43,11 +49,23 @@ export default function LoginForm() {
     setIsLoading(true);
     login({ email, password })
       .then((user) => {
-        if (user.role === "seafarer" || user.role === "seafearer") {
+        console.log("LoginForm login resolved with user:", user);
+        const role = user.role?.toLowerCase();
+        console.log("LoginForm target role:", role);
+        if (role === "seafarer" || role === "seafearer") {
+          console.log("LoginForm pushing /seafearer/dashboard");
           router.push("/seafearer/dashboard");
-        } else if (user.role === "company-admin") {
+        } else if (role === "company_admin" || role === "company-admin") {
+          console.log("LoginForm pushing /company-admin/dashboard");
           router.push("/company-admin/dashboard");
+        } else if (role === "agent_admin" || role === "agent-admin") {
+          console.log("LoginForm pushing /agent-admin/dashboard");
+          router.push("/agent-admin/dashboard");
+        } else if (role === "agent") {
+          console.log("LoginForm pushing /agent/dashboard");
+          router.push("/agent/dashboard");
         } else {
+          console.log("LoginForm pushing /master/dashboard");
           router.push("/master/dashboard");
         }
       })

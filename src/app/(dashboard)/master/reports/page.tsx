@@ -14,7 +14,7 @@ import {
   CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
 
-// ── Dummy chart data ──────────────────────────────────────────────────────
+//  Dummy chart data 
 const revenueData = [
   { month:"Jan",revenue:180000,target:200000 }, { month:"Feb",revenue:210000,target:200000 },
   { month:"Mar",revenue:195000,target:210000 }, { month:"Apr",revenue:240000,target:220000 },
@@ -34,7 +34,7 @@ const referralData = [
   { month:"Aug",leads:40,conversions:26 },
 ];
 
-// ── Report definitions ────────────────────────────────────────────────────
+//  Report definitions 
 const REPORT_CATEGORIES = [
   {
     id: "operational", label: "Operational", Icon: Activity, color: "text-sky-400", bg: "bg-sky-500/15",
@@ -132,7 +132,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-5">
 
-      {/* ── Schedule Modal ─────────────────────────────────────────── */}
+      {/*  Schedule Modal ─ */}
       {schedModal.open && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={() => setSchedModal(s => ({ ...s, open: false }))}>
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" />
@@ -176,7 +176,7 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {/* ── Header ───────────────────────────────────────────────── */}
+      {/*  Header ─ */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className={`text-xl font-bold ${ht}`}>Reports & Analytics</h1>
@@ -193,7 +193,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* ── Filter Bar ──────────────────────────────────────────── */}
+      {/*  Filter Bar  */}
       {showFilters && (
         <div className={`${bg} rounded-2xl p-5`}>
           <div className="flex flex-wrap gap-4 items-end">
@@ -228,7 +228,7 @@ export default function ReportsPage() {
         </div>
       )}
 
-      {/* ── Summary KPIs ─────────────────────────────────────────── */}
+      {/*  Summary KPIs ─ */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {kpis.map(k => {
           const D = k.up ? TrendingUp : TrendingDown;
@@ -247,7 +247,7 @@ export default function ReportsPage() {
         })}
       </div>
 
-      {/* ── Category Tabs + Reports ───────────────────────────────── */}
+      {/*  Category Tabs + Reports ─ */}
       <div className={`${bg} rounded-2xl overflow-hidden`}>
         {/* Tabs */}
         <div className={`flex border-b ${border} px-4 pt-4`}>
@@ -314,7 +314,7 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* ── Charts ──────────────────────────────────────────────── */}
+      {/*  Charts  */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-5">
         {/* Revenue vs Target */}
         <div className={`${bg} rounded-2xl overflow-hidden`}>

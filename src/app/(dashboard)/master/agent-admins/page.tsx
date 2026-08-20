@@ -61,7 +61,7 @@ export default function AgentAdminsPage() {
   const [perms, setPerms]         = useState<string[]>(["View Dashboard","Manage Agents"]);
   const [resetDone, setResetDone] = useState(false);
 
-  // ── theme tokens ─────────────────────────────────────────────────────────
+  //  theme tokens ─
   const ht       = dk ? "text-white"       : "text-slate-800";
   const mt       = dk ? "text-white/40"    : "text-slate-400";
   const card     = dk ? "bg-[#0f2035] border border-white/5 rounded-2xl" : "bg-white border border-slate-200 rounded-2xl shadow-sm";

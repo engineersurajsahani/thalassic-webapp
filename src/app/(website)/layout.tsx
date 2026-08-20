@@ -1,6 +1,7 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import Navbar from "@/components/layout/navbar/navbar";
 import Footer from "./footer";
 
@@ -10,13 +11,15 @@ export default function WebsiteLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const isHome = pathname === "/";
 
+
   return (
-    <div className="min-h-screen flex flex-col bg-[#020b14]">
+    <div className="min-h-screen flex flex-col transition-colors duration-500 bg-white dark:bg-[#020b14]">
       <Navbar />
 
-      <main className={`flex-grow ${isHome ? "" : "pt-[72px] lg:pt-[80px]"}`}>
+      <main className="flex-grow">
         {children}
       </main>
 

@@ -151,7 +151,7 @@ export default function SettingsPage() {
         {/* Content */}
         <div className={`flex-1 ${card} p-8`}>
 
-          {/* ── General ─────────────────────────────────────────────────────── */}
+          {/*  General ─ */}
           {tab === "general" && (
             <div>
               <Section title="Platform Identity" description="Basic information about your platform." dk={dk}>
@@ -199,7 +199,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* ── Notifications ────────────────────────────────────────────────── */}
+          {/*  Notifications  */}
           {tab === "notifications" && (
             <div>
               <Section title="Email Notifications" description="Choose which events trigger email alerts to you." dk={dk}>
@@ -218,7 +218,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* ── Security ─────────────────────────────────────────────────────── */}
+          {/*  Security ─ */}
           {tab === "security" && (
             <div>
               <Section title="Authentication" description="Control login and session security." dk={dk}>
@@ -271,7 +271,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* ── Billing & Fees ───────────────────────────────────────────────── */}
+          {/*  Billing & Fees ─ */}
           {tab === "billing" && (
             <div>
               <Section title="Platform Fees" description="Configure default fee percentages applied platform-wide." dk={dk}>
@@ -310,7 +310,7 @@ export default function SettingsPage() {
             </div>
           )}
 
-          {/* ── Email Templates ──────────────────────────────────────────────── */}
+          {/*  Email Templates  */}
           {tab === "email" && (
             <div>
               <Section title="Transactional Emails" description="Manage email templates sent to users." dk={dk}>

@@ -14,7 +14,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const isDark = theme === "dark";
 
   useEffect(() => {
-    if (!isLoading && (!user || (user.role !== "seafarer" && user.role !== "seafearer"))) {
+    const role = user?.role?.toLowerCase();
+    if (!isLoading && (!user || (role !== "seafarer" && role !== "seafearer"))) {
       router.push("/login");
     }
   }, [user, isLoading, router]);
@@ -38,7 +39,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   }
 
   // Fallback check (although middleware handles route guarding)
-  if (!user || (user.role !== "seafarer" && user.role !== "seafearer")) {
+  const role = user?.role?.toLowerCase();
+  if (!user || (role !== "seafarer" && role !== "seafearer")) {
     return null;
   }
 

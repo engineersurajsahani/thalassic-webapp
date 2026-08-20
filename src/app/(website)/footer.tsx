@@ -70,6 +70,7 @@ export default function Footer() {
             <div className="flex space-x-4 text-xs pt-1">
               <Link href="/privacy" className="hover:text-blue-400 transition-colors">Privacy Policy</Link>
               <Link href="/terms" className="hover:text-blue-400 transition-colors">Terms & Conditions</Link>
+              <Link href="/partner-registration" className="hover:text-blue-400 transition-colors">Contact Us</Link>
             </div>
           </div>
 

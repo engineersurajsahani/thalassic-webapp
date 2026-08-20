@@ -11,8 +11,12 @@ export const courseService = {
     return response.data;
   },
 
-  async enrollInCourse(courseId: string) {
-    const response = await api.post(`/courses/${courseId}/enroll`);
+  async enrollInCourse(courseId: string, referralCode?: string) {
+    console.log("[courseService] Enrolling in course with referralCode:", referralCode);
+
+    const response = await api.post(`/courses/${courseId}/enroll`, {
+      referralCode: referralCode || null,
+    });
     return response.data;
   },
 
