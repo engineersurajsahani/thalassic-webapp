@@ -72,4 +72,21 @@ export const financeService = {
     const response = await api.post(`/master/finance/settlements/${id}/pay`);
     return response.data;
   },
+
+  // ── Reports ───────────────────────────────────────────────────────────────
+  async getReportsRevenue(params?: any) {
+    const response = await api.get("/finance/reports/revenue", { params });
+    return response.data;
+  },
+
+  async getReportsPayments(params?: any) {
+    const response = await api.get("/finance/reports/payments", { params });
+    return response.data;
+  },
+
+  // ── Audit Logs ────────────────────────────────────────────────────────────
+  async getAuditLogs(params?: any) {
+    const response = await api.get("/finance/audit-logs", { params });
+    return response.data;
+  }
 };
