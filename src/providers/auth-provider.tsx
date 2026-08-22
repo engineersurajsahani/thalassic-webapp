@@ -55,10 +55,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async () => {
     try {
-      // First try seafarer profile endpoint to get full details
-      const response = await api.get("/users/profile").catch(() => null);
-      if (response && response.data && response.data.id) {
-        return response.data;
+      // Only call seafarer profile endpoint for seafarer roles
+      const role = getCookie("user_role_seafarer") || getCookie("user_role");
+      const roleNorm = role?.toLowerCase().replace('_', '-');
+      if (roleNorm === "seafarer" || roleNorm === "seafearer") {
+        const response = await api.get("/users/profile").catch(() => null);
+        if (response && response.data && response.data.id) {
+          return response.data;
+        }
       }
       const authRes = await api.get("/auth/profile");
       return authRes.data;
