@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { financeService } from "@/services/finance.service";
-import { Search, ShieldAlert, Clock, RefreshCw } from "lucide-react";
+import { Search, ShieldAlert, Clock, RefreshCw, ChevronDown, ChevronUp } from "lucide-react";
 
 export default function AuditLogsPage() {
   const { theme } = useTheme();
@@ -12,6 +12,7 @@ export default function AuditLogsPage() {
   const [logs, setLogs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
 
   const card    = isDark ? "bg-[#0c1a2e] border-white/5"  : "bg-white border-slate-200";
   const text    = isDark ? "text-white"                   : "text-slate-800";
@@ -105,15 +106,46 @@ export default function AuditLogsPage() {
                 </tr>
               ) : (
                 filtered.map((log) => (
-                  <tr key={log.id} className={`border-b ${row} transition-colors`}>
-                    <td className={`px-4 py-3 ${subtext}`}>{new Date(log.created_at).toLocaleString('en-IN')}</td>
-                    <td className={`px-4 py-3 font-medium ${text}`}>{log.user_name || "System"}</td>
-                    <td className={`px-4 py-3 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>{log.action}</td>
-                    <td className={`px-4 py-3 ${text}`}>{log.module}</td>
-                    <td className={`px-4 py-3 font-mono text-[11px] ${subtext}`}>{log.entity_id || "—"}</td>
-                    <td className={`px-4 py-3 ${subtext}`}>{log.details || "—"}</td>
-                    <td className={`px-4 py-3 font-mono text-[10px] ${subtext}`}>{log.ip_address || "—"}</td>
-                  </tr>
+                  <React.Fragment key={log.id}>
+                    <tr className={`border-b ${row} transition-colors cursor-pointer`} onClick={() => setExpandedRow(expandedRow === log.id ? null : log.id)}>
+                      <td className={`px-4 py-3 ${subtext}`}>
+                        <div className="flex items-center gap-2">
+                          {expandedRow === log.id ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                          {new Date(log.created_at).toLocaleString('en-IN')}
+                        </div>
+                      </td>
+                      <td className={`px-4 py-3 font-medium ${text}`}>{log.user_name || "System"}</td>
+                      <td className={`px-4 py-3 font-semibold ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>{log.action}</td>
+                      <td className={`px-4 py-3 ${text}`}>{log.module}</td>
+                      <td className={`px-4 py-3 font-mono text-[11px] ${subtext}`}>{log.entity_id || "—"}</td>
+                      <td className={`px-4 py-3 ${subtext} max-w-xs truncate`} title={log.details || ""}>{log.details || "—"}</td>
+                      <td className={`px-4 py-3 font-mono text-[10px] ${subtext}`}>{log.ip_address || "—"}</td>
+                    </tr>
+                    {expandedRow === log.id && (log.previous_value || log.new_value) && (
+                      <tr className={`${isDark ? 'bg-white/[0.02]' : 'bg-slate-50/50'}`}>
+                        <td colSpan={7} className="px-10 py-4">
+                          <div className="flex flex-col gap-3">
+                            {log.previous_value && (
+                              <div>
+                                <span className={`text-[10px] font-bold uppercase ${subtext}`}>Previous Value</span>
+                                <pre className={`mt-1 p-2 rounded text-[11px] font-mono overflow-x-auto ${isDark ? 'bg-black/40 text-rose-300' : 'bg-slate-100 text-rose-600'}`}>
+                                  {JSON.stringify(log.previous_value, null, 2)}
+                                </pre>
+                              </div>
+                            )}
+                            {log.new_value && (
+                              <div>
+                                <span className={`text-[10px] font-bold uppercase ${subtext}`}>New Value</span>
+                                <pre className={`mt-1 p-2 rounded text-[11px] font-mono overflow-x-auto ${isDark ? 'bg-black/40 text-emerald-300' : 'bg-slate-100 text-emerald-600'}`}>
+                                  {JSON.stringify(log.new_value, null, 2)}
+                                </pre>
+                              </div>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    )}
+                  </React.Fragment>
                 ))
               )}
             </tbody>

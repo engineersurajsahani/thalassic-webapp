@@ -14,6 +14,8 @@ import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis,
   CartesianGrid, Tooltip, ResponsiveContainer,
 } from "recharts";
+import { financeService } from "@/services/finance.service";
+import * as XLSX from "xlsx";
 
 //  Dummy chart data 
 const revenueData = [
@@ -290,13 +292,43 @@ function buildCSV(reportId: string, reportName: string, dateFrom: string, dateTo
   return [...meta.map(r => r.join(",")), ...header, ...rows].join("\n");
 }
 
-function downloadAsCSV(reportId: string, reportName: string, dateFrom: string, dateTo: string) {
+async function downloadAsCSV(reportId: string, reportName: string, dateFrom: string, dateTo: string) {
   const csv = buildCSV(reportId, reportName, dateFrom, dateTo);
   const filename = `${reportName.replace(/\s+/g, "_")}_${dateFrom}_${dateTo}.csv`;
   triggerBlobDownload(csv, filename, "text/csv;charset=utf-8;");
+  await financeService.logFinancialActivity({
+    action: "REPORT_EXPORTED",
+    module: "Reports",
+    entityId: reportId,
+    details: `Exported ${reportName} (CSV) for period ${dateFrom} to ${dateTo}`
+  });
 }
 
-function downloadAsPDF(reportId: string, reportName: string, dateFrom: string, dateTo: string) {
+async function downloadAsExcel(reportId: string, reportName: string, dateFrom: string, dateTo: string) {
+  const data = REPORT_SAMPLE_DATA[reportId];
+  if (!data) return;
+  const wsData = [
+    [`Report: ${reportName}`],
+    [`Period: ${dateFrom} to ${dateTo}`],
+    [`Generated: ${new Date().toLocaleString("en-IN")}`],
+    [],
+    data.headers,
+    ...data.rows.map(r => data.headers.map(h => r[h] ?? ""))
+  ];
+  const ws = XLSX.utils.aoa_to_sheet(wsData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Report");
+  XLSX.writeFile(wb, `${reportName.replace(/\s+/g, "_")}_${dateFrom}_${dateTo}.xlsx`);
+  
+  await financeService.logFinancialActivity({
+    action: "REPORT_EXPORTED",
+    module: "Reports",
+    entityId: reportId,
+    details: `Exported ${reportName} (Excel) for period ${dateFrom} to ${dateTo}`
+  });
+}
+
+async function downloadAsPDF(reportId: string, reportName: string, dateFrom: string, dateTo: string) {
   const data = REPORT_SAMPLE_DATA[reportId];
   if (!data) return;
   const rows = data.rows.map(r =>
@@ -313,6 +345,12 @@ table{border-collapse:collapse;width:100%;margin-top:16px}th{background:#6366f1;
 <script>window.onload=()=>window.print()<\/script></body></html>`;
   const win = window.open("", "_blank");
   if (win) { win.document.write(html); win.document.close(); }
+  await financeService.logFinancialActivity({
+    action: "REPORT_EXPORTED",
+    module: "Reports",
+    entityId: reportId,
+    details: `Exported ${reportName} (PDF) for period ${dateFrom} to ${dateTo}`
+  });
 }
 
 export default function ReportsPage() {
@@ -626,7 +664,7 @@ export default function ReportsPage() {
                   <div className={`flex items-center justify-between px-6 py-3 border-b ${border}`}>
                     <p className={`text-xs font-semibold ${mt}`}>{st.data.length} records</p>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => {
+                      <button onClick={async () => {
                         const csv = [
                           `Report: ${st.label} Report`,
                           `Generated: ${new Date().toLocaleString("en-IN")}`,
@@ -635,9 +673,35 @@ export default function ReportsPage() {
                           ...(st.data as FinRow[]).map(r => st.headers.map(h => `"${String(r[h] ?? "").replace(/"/g, '""')}"`).join(",")),
                         ].join("\n");
                         triggerBlobDownload(csv, `${st.label}_Report.csv`, "text/csv;charset=utf-8;");
+                        await financeService.logFinancialActivity({
+                          action: "REPORT_EXPORTED",
+                          module: "Financial Reports",
+                          entityId: st.id,
+                          details: `Exported ${st.label} Report (CSV)`
+                        });
                       }} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg border transition-colors ${dk ? "border-white/10 text-white/50 hover:bg-white/5 hover:text-white/70" : "border-slate-200 text-slate-500 hover:bg-slate-50"
                         }`}><FileSpreadsheet className="w-3 h-3" /> CSV</button>
-                      <button onClick={() => {
+                      <button onClick={async () => {
+                        const wsData = [
+                          [`Report: ${st.label} Report`],
+                          [`Generated: ${new Date().toLocaleString("en-IN")}`],
+                          [],
+                          st.headers,
+                          ...(st.data as FinRow[]).map(r => st.headers.map(h => r[h] ?? ""))
+                        ];
+                        const ws = XLSX.utils.aoa_to_sheet(wsData);
+                        const wb = XLSX.utils.book_new();
+                        XLSX.utils.book_append_sheet(wb, ws, "Report");
+                        XLSX.writeFile(wb, `${st.label}_Report.xlsx`);
+                        await financeService.logFinancialActivity({
+                          action: "REPORT_EXPORTED",
+                          module: "Financial Reports",
+                          entityId: st.id,
+                          details: `Exported ${st.label} Report (Excel)`
+                        });
+                      }} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg border transition-colors ${dk ? "border-white/10 text-white/50 hover:bg-white/5 hover:text-white/70" : "border-slate-200 text-slate-500 hover:bg-slate-50"
+                        }`}><FileSpreadsheet className="w-3 h-3" /> Excel</button>
+                      <button onClick={async () => {
                         const rows = (st.data as FinRow[]).map(r =>
                           `<tr>${st.headers.map(h => `<td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:12px">${r[h] ?? ""}</td>`).join("")}</tr>`
                         ).join("");
@@ -648,6 +712,12 @@ export default function ReportsPage() {
 <script>window.onload=()=>window.print()<\/script></body></html>`;
                         const win = window.open("", "_blank");
                         if (win) { win.document.write(html); win.document.close(); }
+                        await financeService.logFinancialActivity({
+                          action: "REPORT_EXPORTED",
+                          module: "Financial Reports",
+                          entityId: st.id,
+                          details: `Exported ${st.label} Report (PDF)`
+                        });
                       }} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg border transition-colors ${dk ? "border-white/10 text-white/50 hover:bg-white/5 hover:text-white/70" : "border-slate-200 text-slate-500 hover:bg-slate-50"
                         }`}><Printer className="w-3 h-3" /> PDF</button>
                     </div>
