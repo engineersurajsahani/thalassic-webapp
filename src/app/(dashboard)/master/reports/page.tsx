@@ -781,7 +781,7 @@ export default function ReportsPage() {
                   }`}>
                   <ShieldCheck className="w-3 h-3" /> Read-Only
                 </div>
-                <button onClick={() => {
+                <button onClick={async () => {
                   const headers = ["Purchase ID", "Agent ID", "Agent Name", "Agency", "Course", "Course ID", "Amount", "Comm %", "Commission", "Source", "Purchase Date", "Settled Date", "Status"];
                   const csv = [
                     "Report: Commission Snapshots",
@@ -794,8 +794,58 @@ export default function ReportsPage() {
                     ),
                   ].join("\n");
                   triggerBlobDownload(csv, "Commission_Snapshots.csv", "text/csv;charset=utf-8;");
+                  await financeService.logFinancialActivity({
+                    action: "REPORT_EXPORTED",
+                    module: "Commission Snapshots",
+                    entityId: "commission_snapshots",
+                    details: `Exported Commission Snapshots (CSV)`
+                  });
                 }} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg border transition-colors ${dk ? "border-white/10 text-white/50 hover:bg-white/5" : "border-slate-200 text-slate-500 hover:bg-slate-50"
-                  }`}><Download className="w-3 h-3" /> Export CSV</button>
+                  }`}><FileSpreadsheet className="w-3 h-3" /> CSV</button>
+                <button onClick={async () => {
+                  const headers = ["Purchase ID", "Agent ID", "Agent Name", "Agency", "Course", "Course ID", "Amount", "Comm %", "Commission", "Source", "Purchase Date", "Settled Date", "Status"];
+                  const wsData = [
+                    ["Report: Commission Snapshots"],
+                    [`Generated: ${new Date().toLocaleString("en-IN")}`],
+                    [],
+                    headers,
+                    ...COMMISSION_SNAPSHOTS.map(r =>
+                      [r.purchaseId, r.agentId, r.agentName, r.agencyName, r.courseName, r.courseId, r.amount, r.commPct, r.commAmount, r.source, r.purchaseDate, r.settledDate, r.status]
+                    )
+                  ];
+                  const ws = XLSX.utils.aoa_to_sheet(wsData);
+                  const wb = XLSX.utils.book_new();
+                  XLSX.utils.book_append_sheet(wb, ws, "Snapshots");
+                  XLSX.writeFile(wb, "Commission_Snapshots.xlsx");
+                  await financeService.logFinancialActivity({
+                    action: "REPORT_EXPORTED",
+                    module: "Commission Snapshots",
+                    entityId: "commission_snapshots",
+                    details: `Exported Commission Snapshots (Excel)`
+                  });
+                }} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg border transition-colors ${dk ? "border-white/10 text-white/50 hover:bg-white/5" : "border-slate-200 text-slate-500 hover:bg-slate-50"
+                  }`}><FileSpreadsheet className="w-3 h-3" /> Excel</button>
+                <button onClick={async () => {
+                  const headers = ["Purchase ID", "Agent ID", "Agent Name", "Agency", "Course", "Course ID", "Amount", "Comm %", "Commission", "Source", "Purchase Date", "Settled Date", "Status"];
+                  const rows = COMMISSION_SNAPSHOTS.map(r =>
+                    `<tr>${[r.purchaseId, r.agentId, r.agentName, r.agencyName, r.courseName, r.courseId, r.amount, r.commPct, r.commAmount, r.source, r.purchaseDate, r.settledDate, r.status]
+                      .map(v => `<td style="padding:6px 10px;border:1px solid #e2e8f0;font-size:12px">${v}</td>`).join("")}</tr>`
+                  ).join("");
+                  const html = `<!DOCTYPE html><html><head><meta charset="utf-8"/><title>Commission Snapshots</title>
+<style>body{font-family:sans-serif;padding:24px}table{border-collapse:collapse;width:100%;margin-top:16px}th{background:#8b5cf6;color:#fff;padding:8px 10px;font-size:12px;text-align:left}@media print{button{display:none}}</style>
+</head><body><h2>Commission Snapshots</h2><p>Generated: ${new Date().toLocaleString("en-IN")}</p>
+<table><thead><tr>${headers.map(h => `<th>${h}</th>`).join("")}</tr></thead><tbody>${rows}</tbody></table>
+<script>window.onload=()=>window.print()<\/script></body></html>`;
+                  const win = window.open("", "_blank");
+                  if (win) { win.document.write(html); win.document.close(); }
+                  await financeService.logFinancialActivity({
+                    action: "REPORT_EXPORTED",
+                    module: "Commission Snapshots",
+                    entityId: "commission_snapshots",
+                    details: `Exported Commission Snapshots (PDF)`
+                  });
+                }} className={`flex items-center gap-1.5 px-3 py-1.5 text-[12px] font-semibold rounded-lg border transition-colors ${dk ? "border-white/10 text-white/50 hover:bg-white/5" : "border-slate-200 text-slate-500 hover:bg-slate-50"
+                  }`}><Printer className="w-3 h-3" /> PDF</button>
               </div>
             </div>
             <div className="overflow-x-auto">
