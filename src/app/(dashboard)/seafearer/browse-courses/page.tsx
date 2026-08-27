@@ -21,6 +21,16 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 
+const getCourseIcon = (code: string) => {
+  const c = (code || '').toUpperCase();
+  if (c.includes('BST')) return '🦺';
+  if (c.includes('AFF')) return '🔥';
+  if (c.includes('OCTCO')) return '🧪';
+  if (c.includes('MEDICARE')) return '💼';
+  if (c.includes('RPST') || c.includes('PST')) return '⚓';
+  return '🚢';
+};
+
 export default function BrowseCoursesPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -93,11 +103,15 @@ export default function BrowseCoursesPage() {
   ];
 
   const filteredCourses = courses.filter((c) => {
+    if (!c) return false;
+    const name = c.name || "";
+    const code = c.code || "";
+    const category = c.category || "";
     const matchesSearch =
-      c.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.code.toLowerCase().includes(searchQuery.toLowerCase());
+      name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      code.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory =
-      selectedCategory === "all" || c.category === selectedCategory;
+      selectedCategory === "all" || category.toLowerCase() === selectedCategory.toLowerCase();
     return matchesSearch && matchesCategory;
   });
 
@@ -213,7 +227,7 @@ export default function BrowseCoursesPage() {
                   ))}
                 </div>
                 <span className="text-xs font-bold text-slate-400">
-                  {activeDetailCourse.rating} ({activeDetailCourse.ratingCount} reviews)
+                  {activeDetailCourse.rating || "4.7"} ({activeDetailCourse.ratingCount || "120"} reviews)
                 </span>
               </div>
 
@@ -247,7 +261,7 @@ export default function BrowseCoursesPage() {
                   <Tag className="w-4.5 h-4.5 text-indigo-400" /> Required Documents for verification
                 </h4>
                 <div className="space-y-2.5">
-                  {(activeDetailCourse.documentsRequired || "").split(",").map((doc: string, idx: number) => (
+                  {(activeDetailCourse.documentsRequired || "Passport, CDC, Passport-sized photograph").split(",").map((doc: string, idx: number) => (
                     <div key={idx} className={`flex items-center gap-2.5 text-xs p-2.5 rounded-xl border ${
                       isDark ? "bg-slate-900/40 border-slate-800 text-slate-300" : "bg-slate-50/50 border-slate-200 text-slate-700"
                     }`}>
@@ -341,7 +355,7 @@ export default function BrowseCoursesPage() {
                     }`}>
                       {course.code}
                     </span>
-                    <div className="text-2xl group-hover:scale-110 transition-transform">{course.icon}</div>
+                    <div className="text-2xl group-hover:scale-110 transition-transform">{course.icon || getCourseIcon(course.code)}</div>
                   </div>
 
                   <h3 className="font-extrabold text-base leading-snug group-hover:text-cyan-400 transition-colors truncate max-w-[240px]" title={course.name}>
@@ -354,8 +368,8 @@ export default function BrowseCoursesPage() {
 
                   <div className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400" />
-                    <span className="text-xs font-bold">{course.rating}</span>
-                    <span className="text-[10px] text-slate-400">({course.ratingCount} reviews)</span>
+                    <span className="text-xs font-bold">{course.rating || "4.7"}</span>
+                    <span className="text-[10px] text-slate-400">({course.ratingCount || "120"} reviews)</span>
                   </div>
                 </div>
 
