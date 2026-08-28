@@ -497,7 +497,6 @@ export default function AboutUsPage() {
                 title: "BSID (SID Card) & C1/D US Visa",
                 desc: "Complete execution of BSID (Biometric Seafarer ID) applications, appointment booking, and specialized C1/D US Maritime Crew Visa documentation and interview scheduling.",
                 icon: Globe,
-                leftColor: "border-l-purple-500",
                 iconColor: isDark ? "text-purple-400" : "text-purple-600",
                 highlight: false
               },
@@ -509,20 +508,19 @@ export default function AboutUsPage() {
                   { text: ", delivering fully compliant seafarers." }
                 ],
                 icon: Zap,
-                leftColor: "border-l-cyan-500",
                 iconColor: isDark ? "text-cyan-400" : "text-cyan-600",
                 highlight: true
               }
             ].map((sol, idx) => (
               <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
+                <div className={`rounded-xl p-6 h-full flex flex-col gap-3 border transition-all duration-300 ${
                   sol.highlight
                     ? isDark
-                      ? `bg-cyan-950/20 border border-slate-800/60 ${sol.leftColor}`
-                      : `bg-sky-50 border border-slate-200 ${sol.leftColor}`
+                      ? "bg-cyan-950/25 border-cyan-900/40"
+                      : "bg-sky-50/70 border-sky-200/80 shadow-sm"
                     : isDark
-                      ? `bg-[#0b1329] border border-slate-800/60 ${sol.leftColor}`
-                      : `bg-white border border-slate-200 shadow-sm ${sol.leftColor}`
+                      ? "bg-[#0b1329] border-slate-700"
+                      : "bg-white border-slate-200"
                 }`}>
                   {/* Icon + Title inline — matches PDF */}
                   <div className="flex items-center gap-2.5">
