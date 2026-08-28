@@ -105,14 +105,14 @@ export default function AboutUsPage() {
 
 
       {/* 1. Hero / Intro Block */}
-      <section className="relative pt-36 pb-28 md:pt-40 md:pb-36 bg-[#0F1B2D] text-white overflow-hidden text-center z-10">
+      <section className="relative pt-20 pb-16 md:pt-24 md:pb-20 bg-[#0F1B2D] text-white overflow-hidden text-center z-10">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none" />
         
         <div className="max-w-4xl mx-auto px-6 relative z-10 flex flex-col items-center">
           <ScrollReveal>
             {/* Logo badge */}
-            <div className="flex justify-center mb-6">
-              <div className="relative w-36 h-36 rounded-full overflow-hidden border-4 border-cyan-500/20 shadow-2xl bg-slate-900">
+            <div className="flex justify-center mb-4">
+              <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-cyan-500/20 shadow-2xl bg-slate-900">
                 <Image 
                   src="/logo.jpeg" 
                   alt="Hari Om Thalassic Logo" 
@@ -124,30 +124,30 @@ export default function AboutUsPage() {
             </div>
 
             {/* Pill badge (above title) */}
-            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase mb-6 border bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
+            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
               ⚓ CORPORATE PARTNERSHIP PITCH DECK
             </div>
 
             {/* Main title */}
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-black tracking-tight mb-4 uppercase leading-none">
+            <h1 className="text-3xl md:text-5xl lg:text-6xl font-black tracking-tight mb-3 uppercase leading-none">
               HARI OM <span className="text-cyan-400">THALASSIC</span>
             </h1>
 
             {/* Tagline */}
-            <p className="text-lg md:text-2xl font-bold italic text-cyan-400 mb-6">
+            <p className="text-base md:text-xl font-bold italic text-cyan-400 mb-4">
               "Assistance at Sea, Support on Land."
             </p>
 
             {/* Description line */}
-            <p className="text-sm md:text-base max-w-2xl mx-auto leading-relaxed text-slate-300 font-light mb-8">
+            <p className="text-xs md:text-sm max-w-2xl mx-auto leading-relaxed text-slate-300 font-light mb-6">
               Your End-to-End One-Stop Solution for Ethical Maritime Documentation, DG Shipping Compliance & Candidate Upgradation
             </p>
 
             {/* Divider */}
-            <div className="w-24 h-px bg-slate-700/65 mx-auto mb-8" />
+            <div className="w-20 h-px bg-slate-700/65 mx-auto mb-6" />
 
             {/* Bottom pill badge */}
-            <div className="text-[10px] md:text-xs font-black uppercase text-slate-400 tracking-wider flex items-center justify-center gap-2">
+            <div className="text-[9px] md:text-[10px] font-black uppercase text-slate-400 tracking-wider flex items-center justify-center gap-2">
               <span>🤝</span> STRATEGIC TIE-UPS & ASSISTANCE FOR LEADING MARITIME MNCs & SHIP MANAGEMENT COMPANIES
             </div>
           </ScrollReveal>
@@ -207,6 +207,78 @@ export default function AboutUsPage() {
               </div>
             </div>
           </ScrollReveal>
+        </div>
+      </section>
+
+      {/* 16. Proven Track Record & Industry Reputation */}
+      <section className={`py-16 transition-colors ${isDark ? "bg-[#040810]" : "bg-white"}`}>
+        <div className="max-w-7xl mx-auto px-6">
+          <ScrollReveal>
+            <div className="text-center md:text-left mb-10">
+              <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Proven Track Record &amp; Industry Reputation</h2>
+              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+            </div>
+          </ScrollReveal>
+          {/* 4-stat light-blue row — matches PDF */}
+          <ScrollReveal delay={100}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+              {[
+                { val: "4.9★", sub: "★★★★★", label: "GOOGLE RATING" },
+                { val: "1,000+", sub: "Candidate Reviews", label: "VERIFIED RATINGS" },
+                { val: "4.5+", sub: "Years Registered", label: "FLAWLESS OPERATION" },
+                { val: "100%", sub: "Zero Complaints", label: "CLIENT SATISFACTION" }
+              ].map((stat, sIdx) => (
+                <div key={sIdx} className={`rounded-xl p-4 text-center border ${
+                  isDark ? "bg-blue-950/20 border-blue-900/30" : "bg-blue-50 border-blue-100"
+                }`}>
+                  <div className={`text-2xl md:text-3xl font-black ${isDark ? "text-blue-300" : "text-blue-600"}`}>{stat.val}</div>
+                  <div className={`text-[10px] font-medium mt-0.5 ${isDark ? "text-blue-400" : "text-blue-500"}`}>{stat.sub}</div>
+                  <div className={`text-[9px] font-black uppercase tracking-wider mt-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}>{stat.label}</div>
+                </div>
+              ))}
+            </div>
+          </ScrollReveal>
+          {/* 2×2 left-border cards — matches PDF */}
+          <div className="grid md:grid-cols-2 gap-5">
+            {[
+              { title: "6 Years Industry Experience", icon: Briefcase,
+                leftColor: "border-l-blue-500", iconColor: isDark ? "text-blue-400" : "text-blue-600",
+                desc: "Providing trusted services in the maritime domain for over 6 years, working closely with industry experts to deliver seamless, one-stop crew solutions for ship management companies."
+              },
+              { title: "Flawless Corporate Record", icon: ShieldCheck,
+                leftColor: "border-l-teal-500", iconColor: isDark ? "text-teal-400" : "text-teal-600",
+                descParts: [
+                  { text: "Completed 4.5+ years as a registered entity with " },
+                  { text: "zero negative reports", bold: true },
+                  { text: " and 100% satisfaction maintained across partner companies and thousands of seafarers." }
+                ]
+              },
+              { title: "Expert-Led Crew Management", icon: Users,
+                leftColor: "border-l-orange-400", iconColor: isDark ? "text-orange-400" : "text-orange-500",
+                desc: "Collaborating directly with maritime veteran advisors to ensure candidate documentation aligns perfectly with changing statutory mandates and fleet readiness."
+              },
+              { title: "Most Trusted Seafarer Partner", icon: Star,
+                leftColor: "border-l-purple-500", iconColor: isDark ? "text-purple-400" : "text-purple-600",
+                desc: "Renowned across the industry for serving candidates with absolute transparency and ethical commitment, building long-term goodwill and corporate reliability."
+              }
+            ].map((card, idx) => (
+              <ScrollReveal key={idx} delay={idx * 80}>
+                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
+                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${card.leftColor}` : `bg-white border border-slate-200 shadow-sm ${card.leftColor}`
+                }`}>
+                  <div className="flex items-center gap-2.5">
+                    <card.icon className={`w-5 h-5 shrink-0 ${card.iconColor}`} />
+                    <h5 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>{card.title}</h5>
+                  </div>
+                  <p className={`text-[12px] leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                    {"descParts" in card
+                      ? card.descParts!.map((p, pi) => p.bold ? <strong key={pi} className="font-black">{p.text}</strong> : <span key={pi}>{p.text}</span>)
+                      : card.desc}
+                  </p>
+                </div>
+              </ScrollReveal>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -946,78 +1018,6 @@ export default function AboutUsPage() {
         </div>
       </section>
 
-
-      {/* 16. Proven Track Record & Industry Reputation */}
-      <section className={`py-16 transition-colors ${isDark ? "bg-[#040810]" : "bg-white"}`}>
-        <div className="max-w-7xl mx-auto px-6">
-          <ScrollReveal>
-            <div className="text-center md:text-left mb-10">
-              <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Proven Track Record &amp; Industry Reputation</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
-            </div>
-          </ScrollReveal>
-          {/* 4-stat light-blue row — matches PDF */}
-          <ScrollReveal delay={100}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              {[
-                { val: "4.9★", sub: "★★★★★", label: "GOOGLE RATING" },
-                { val: "1,000+", sub: "Candidate Reviews", label: "VERIFIED RATINGS" },
-                { val: "4.5+", sub: "Years Registered", label: "FLAWLESS OPERATION" },
-                { val: "100%", sub: "Zero Complaints", label: "CLIENT SATISFACTION" }
-              ].map((stat, sIdx) => (
-                <div key={sIdx} className={`rounded-xl p-4 text-center border ${
-                  isDark ? "bg-blue-950/20 border-blue-900/30" : "bg-blue-50 border-blue-100"
-                }`}>
-                  <div className={`text-2xl md:text-3xl font-black ${isDark ? "text-blue-300" : "text-blue-600"}`}>{stat.val}</div>
-                  <div className={`text-[10px] font-medium mt-0.5 ${isDark ? "text-blue-400" : "text-blue-500"}`}>{stat.sub}</div>
-                  <div className={`text-[9px] font-black uppercase tracking-wider mt-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}>{stat.label}</div>
-                </div>
-              ))}
-            </div>
-          </ScrollReveal>
-          {/* 2×2 left-border cards — matches PDF */}
-          <div className="grid md:grid-cols-2 gap-5">
-            {[
-              { title: "6 Years Industry Experience", icon: Briefcase,
-                leftColor: "border-l-blue-500", iconColor: isDark ? "text-blue-400" : "text-blue-600",
-                desc: "Providing trusted services in the maritime domain for over 6 years, working closely with industry experts to deliver seamless, one-stop crew solutions for ship management companies."
-              },
-              { title: "Flawless Corporate Record", icon: ShieldCheck,
-                leftColor: "border-l-teal-500", iconColor: isDark ? "text-teal-400" : "text-teal-600",
-                descParts: [
-                  { text: "Completed 4.5+ years as a registered entity with " },
-                  { text: "zero negative reports", bold: true },
-                  { text: " and 100% satisfaction maintained across partner companies and thousands of seafarers." }
-                ]
-              },
-              { title: "Expert-Led Crew Management", icon: Users,
-                leftColor: "border-l-orange-400", iconColor: isDark ? "text-orange-400" : "text-orange-500",
-                desc: "Collaborating directly with maritime veteran advisors to ensure candidate documentation aligns perfectly with changing statutory mandates and fleet readiness."
-              },
-              { title: "Most Trusted Seafarer Partner", icon: Star,
-                leftColor: "border-l-purple-500", iconColor: isDark ? "text-purple-400" : "text-purple-600",
-                desc: "Renowned across the industry for serving candidates with absolute transparency and ethical commitment, building long-term goodwill and corporate reliability."
-              }
-            ].map((card, idx) => (
-              <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
-                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${card.leftColor}` : `bg-white border border-slate-200 shadow-sm ${card.leftColor}`
-                }`}>
-                  <div className="flex items-center gap-2.5">
-                    <card.icon className={`w-5 h-5 shrink-0 ${card.iconColor}`} />
-                    <h5 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>{card.title}</h5>
-                  </div>
-                  <p className={`text-[12px] leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {"descParts" in card
-                      ? card.descParts!.map((p, pi) => p.bold ? <strong key={pi} className="font-black">{p.text}</strong> : <span key={pi}>{p.text}</span>)
-                      : card.desc}
-                  </p>
-                </div>
-              </ScrollReveal>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* 17. Operational Scale & Cumulative Impact */}
       <section className={`py-16 transition-colors ${isDark ? "bg-slate-950/40" : "bg-slate-50"}`}>
