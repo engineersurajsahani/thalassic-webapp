@@ -199,23 +199,35 @@ export default function AboutUsPage() {
               <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
-          {/* 4-stat light-blue row — matches PDF */}
+          {/* 4-stat row — premium stat cards */}
           <ScrollReveal delay={100}>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
               {[
-                { val: "4.9★", sub: "★★★★★", label: "GOOGLE RATING" },
-                { val: "1,000+", sub: "Candidate Reviews", label: "VERIFIED RATINGS" },
-                { val: "4.5+", sub: "Years Registered", label: "FLAWLESS OPERATION" },
-                { val: "100%", sub: "Zero Complaints", label: "CLIENT SATISFACTION" }
-              ].map((stat, sIdx) => (
-                <div key={sIdx} className={`rounded-xl p-4 text-center border ${
-                  isDark ? "bg-blue-950/20 border-blue-900/30" : "bg-blue-50 border-blue-100"
-                }`}>
-                  <div className={`text-2xl md:text-3xl font-black ${isDark ? "text-blue-300" : "text-blue-600"}`}>{stat.val}</div>
-                  <div className={`text-[10px] font-medium mt-0.5 ${isDark ? "text-blue-400" : "text-blue-500"}`}>{stat.sub}</div>
-                  <div className={`text-[9px] font-black uppercase tracking-wider mt-1 ${isDark ? "text-slate-400" : "text-slate-600"}`}>{stat.label}</div>
-                </div>
-              ))}
+                { val: "4.9★", sub: "★★★★★", label: "GOOGLE RATING", color: "blue" },
+                { val: "1,000+", sub: "Candidate Reviews", label: "VERIFIED RATINGS", color: "emerald" },
+                { val: "4.5+", sub: "Years Registered", label: "FLAWLESS OPERATION", color: "orange" },
+                { val: "100%", sub: "Zero Complaints", label: "CLIENT SATISFACTION", color: "purple" }
+              ].map((stat, sIdx) => {
+                const valColor = stat.color === "blue"
+                  ? (isDark ? "text-blue-400" : "text-blue-600")
+                  : stat.color === "emerald"
+                  ? (isDark ? "text-emerald-400" : "text-emerald-600")
+                  : stat.color === "orange"
+                  ? (isDark ? "text-orange-400" : "text-orange-600")
+                  : (isDark ? "text-purple-400" : "text-purple-600");
+
+                return (
+                  <div key={sIdx} className={`rounded-2xl p-6 md:p-8 text-center border transition-all duration-300 ease-out hover:-translate-y-1 ${
+                    isDark 
+                      ? "bg-slate-900/40 border-slate-800 hover:border-slate-700/60 hover:shadow-black/25 shadow-[0_1px_3px_rgba(0,0,0,0.1),_0_10px_30px_rgba(0,0,0,0.2)]" 
+                      : "bg-white border-slate-200/80 hover:border-slate-300/80 hover:shadow-slate-200/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),_0_8px_24px_rgba(0,0,0,0.03)]"
+                  }`}>
+                    <div className={`text-2xl md:text-3xl font-black ${valColor}`}>{stat.val}</div>
+                    <div className={`text-xs font-semibold mt-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>{stat.sub}</div>
+                    <div className={`text-[10px] font-black uppercase tracking-wider mt-2 ${isDark ? "text-slate-400" : "text-slate-600"}`}>{stat.label}</div>
+                  </div>
+                );
+              })}
             </div>
           </ScrollReveal>
           {/* 2×2 grid — premium AboutCard styling */}
@@ -628,14 +640,12 @@ export default function AboutUsPage() {
 
             {/* Right — navigational officer on ship bridge image */}
             <ScrollReveal delay={200}>
-              <div className={`relative rounded-2xl overflow-hidden aspect-[4/3] border shadow-lg group ${
-                isDark ? "border-slate-800" : "border-slate-200"
-              }`}>
+              <div className="relative rounded-3xl overflow-hidden aspect-[16/10] border border-slate-200/10 shadow-xl group">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src="https://ik.imagekit.io/mwakqpfup/ship_master_ship_office_ab0cjq.jpg"
                   alt="Navigational seafarer officer on ship bridge"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover object-[50%_30%] transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-[8px] text-white/80 px-2 py-0.5 rounded font-mono z-10">
                   Navigational officer on ship bridge
@@ -921,11 +931,12 @@ export default function AboutUsPage() {
               <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
-          <div className="grid md:grid-cols-2 gap-5">
+          {/* 2×2 grid — premium stat cards */}
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               { val: "65,000+", label: "Total Seafarers Served", icon: Users,
-                leftColor: "border-l-blue-500", valColor: isDark ? "text-blue-400" : "text-blue-600",
-                iconColor: isDark ? "text-blue-400" : "text-blue-600",
+                valColor: isDark ? "text-blue-400" : "text-blue-600",
+                iconBg: isDark ? "bg-blue-950/40 text-blue-400 ring-blue-900/30" : "bg-blue-50/70 text-blue-600 ring-blue-100/60",
                 descParts: [
                   { text: "In the last 6 years, we have directly served " },
                   { text: "40,000+ candidates", bold: true },
@@ -935,8 +946,8 @@ export default function AboutUsPage() {
                 ]
               },
               { val: "15+", label: "Authorized Network Agencies", icon: Building2,
-                leftColor: "border-l-teal-500", valColor: isDark ? "text-teal-400" : "text-teal-600",
-                iconColor: isDark ? "text-teal-400" : "text-teal-600",
+                valColor: isDark ? "text-emerald-400" : "text-emerald-600",
+                iconBg: isDark ? "bg-emerald-950/40 text-emerald-400 ring-emerald-900/30" : "bg-emerald-50/70 text-emerald-600 ring-emerald-100/60",
                 descParts: [
                   { text: "Operating a robust national footprint with " },
                   { text: "15+ authorized agency partners", bold: true },
@@ -944,8 +955,8 @@ export default function AboutUsPage() {
                 ]
               },
               { val: "2,500+", label: "Annual CDC Applications", icon: FileText,
-                leftColor: "border-l-orange-400", valColor: isDark ? "text-orange-400" : "text-orange-500",
-                iconColor: isDark ? "text-orange-400" : "text-orange-500",
+                valColor: isDark ? "text-orange-400" : "text-orange-500",
+                iconBg: isDark ? "bg-orange-950/40 text-orange-400 ring-orange-900/30" : "bg-orange-50/70 text-orange-600 ring-orange-100/60",
                 descParts: [
                   { text: "Handling comprehensive processing for over " },
                   { text: "2,500 seafarers annually", bold: true },
@@ -953,8 +964,8 @@ export default function AboutUsPage() {
                 ]
               },
               { val: "800+", label: "Annual Fresh CDCs Issued", icon: Award,
-                leftColor: "border-l-purple-500", valColor: isDark ? "text-purple-400" : "text-purple-600",
-                iconColor: isDark ? "text-purple-400" : "text-purple-600",
+                valColor: isDark ? "text-purple-400" : "text-purple-600",
+                iconBg: isDark ? "bg-purple-950/40 text-purple-400 ring-purple-900/30" : "bg-purple-50/70 text-purple-600 ring-purple-100/60",
                 descParts: [
                   { text: "Successfully issued " },
                   { text: "300+ fresh CDCs", bold: true },
@@ -965,19 +976,23 @@ export default function AboutUsPage() {
               }
             ].map((card, idx) => (
               <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-2 ${
-                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${card.leftColor}` : `bg-white border border-slate-200 shadow-sm ${card.leftColor}`
+                <div className={`group flex flex-col justify-between gap-5 p-8 md:p-9 rounded-2xl border transition-all duration-300 ease-out hover:-translate-y-1 h-full ${
+                  isDark 
+                    ? "bg-slate-900/40 border-slate-800 hover:border-slate-700/60 hover:shadow-black/25 shadow-[0_1px_3px_rgba(0,0,0,0.1),_0_10px_30px_rgba(0,0,0,0.2)]" 
+                    : "bg-white border-slate-200/80 hover:border-slate-300/80 hover:shadow-slate-200/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),_0_8px_24px_rgba(0,0,0,0.03)]"
                 }`}>
                   {/* Large number + label row */}
-                  <div className="flex items-start justify-between">
-                    <span className={`text-2xl font-black leading-none ${card.valColor}`}>{card.val}</span>
-                    <div className="flex items-center gap-1.5">
-                      <card.icon className={`w-4 h-4 shrink-0 ${card.iconColor}`} />
-                      <span className={`text-[11px] font-black ${isDark ? "text-slate-300" : "text-slate-700"}`}>{card.label}</span>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className={`text-3xl md:text-4xl font-black tracking-tight leading-none ${card.valColor}`}>{card.val}</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ring-4 transition-transform duration-300 group-hover:scale-105 shrink-0 ${card.iconBg}`}>
+                        <card.icon className="w-5 h-5 stroke-[2]" />
+                      </div>
+                      <span className={`text-xs md:text-sm font-black tracking-tight ${isDark ? "text-white" : "text-[#0F1B2D]"}`}>{card.label}</span>
                     </div>
                   </div>
-                  <p className={`text-[12px] leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {card.descParts.map((p, pi) => p.bold ? <strong key={pi} className="font-black">{p.text}</strong> : <span key={pi}>{p.text}</span>)}
+                  <p className={`text-[12.5px] leading-relaxed font-light ${isDark ? "text-slate-400 group-hover:text-slate-300" : "text-slate-600 group-hover:text-slate-700"} transition-colors duration-200`}>
+                    {card.descParts.map((p, pi) => p.bold ? <strong key={pi} className={`font-black ${isDark ? "text-white" : "text-[#0F1B2D]"}`}>{p.text}</strong> : <span key={pi}>{p.text}</span>)}
                   </p>
                 </div>
               </ScrollReveal>
@@ -995,11 +1010,12 @@ export default function AboutUsPage() {
               <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
-          <div className="grid md:grid-cols-2 gap-5">
+          {/* 2×2 grid — premium stat cards */}
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               { val: "1,500 / Yr", label: "Watchkeeping Certificates", icon: Award,
-                leftColor: "border-l-blue-500", valColor: isDark ? "text-blue-400" : "text-blue-600",
-                iconColor: isDark ? "text-blue-400" : "text-blue-600",
+                valColor: isDark ? "text-blue-400" : "text-blue-600",
+                iconBg: isDark ? "bg-blue-950/40 text-blue-400 ring-blue-900/30" : "bg-blue-50/70 text-blue-600 ring-blue-100/60",
                 descParts: [
                   { text: "Assisting over " },
                   { text: "1,500 seafarer candidates annually", bold: true },
@@ -1007,8 +1023,8 @@ export default function AboutUsPage() {
                 ]
               },
               { val: "2,000 / Yr", label: "Able Seafarer COPs", icon: Star,
-                leftColor: "border-l-teal-500", valColor: isDark ? "text-teal-400" : "text-teal-600",
-                iconColor: isDark ? "text-teal-400" : "text-teal-600",
+                valColor: isDark ? "text-emerald-400" : "text-emerald-600",
+                iconBg: isDark ? "bg-emerald-950/40 text-emerald-400 ring-emerald-900/30" : "bg-emerald-50/70 text-emerald-600 ring-emerald-100/60",
                 descParts: [
                   { text: "Guiding around " },
                   { text: "2,000 rating seafarers nationally", bold: true },
@@ -1016,8 +1032,8 @@ export default function AboutUsPage() {
                 ]
               },
               { val: "11,000+", label: "STCW & Refresher Courses", icon: Layers,
-                leftColor: "border-l-orange-400", valColor: isDark ? "text-orange-400" : "text-orange-500",
-                iconColor: isDark ? "text-orange-400" : "text-orange-500",
+                valColor: isDark ? "text-orange-400" : "text-orange-500",
+                iconBg: isDark ? "bg-orange-950/40 text-orange-400 ring-orange-900/30" : "bg-orange-50/70 text-orange-600 ring-orange-100/60",
                 descParts: [
                   { text: "Annual training volume of " },
                   { text: "5,000+ candidates", bold: true },
@@ -1027,8 +1043,8 @@ export default function AboutUsPage() {
                 ]
               },
               { val: "100+ / Yr", label: "Pre-Sea Enrolments & Admissions", icon: Users,
-                leftColor: "border-l-purple-500", valColor: isDark ? "text-purple-400" : "text-purple-600",
-                iconColor: isDark ? "text-purple-400" : "text-purple-600",
+                valColor: isDark ? "text-purple-400" : "text-purple-600",
+                iconBg: isDark ? "bg-purple-950/40 text-purple-400 ring-purple-900/30" : "bg-purple-50/70 text-purple-600 ring-purple-100/60",
                 descParts: [
                   { text: "Enrolling " },
                   { text: "100+ candidates annually", bold: true },
@@ -1037,18 +1053,22 @@ export default function AboutUsPage() {
               }
             ].map((card, idx) => (
               <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-2 ${
-                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${card.leftColor}` : `bg-white border border-slate-200 shadow-sm ${card.leftColor}`
+                <div className={`group flex flex-col justify-between gap-5 p-8 md:p-9 rounded-2xl border transition-all duration-300 ease-out hover:-translate-y-1 h-full ${
+                  isDark 
+                    ? "bg-slate-900/40 border-slate-800 hover:border-slate-700/60 hover:shadow-black/25 shadow-[0_1px_3px_rgba(0,0,0,0.1),_0_10px_30px_rgba(0,0,0,0.2)]" 
+                    : "bg-white border-slate-200/80 hover:border-slate-300/80 hover:shadow-slate-200/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),_0_8px_24px_rgba(0,0,0,0.03)]"
                 }`}>
-                  <div className="flex items-start justify-between">
-                    <span className={`text-2xl font-black leading-none ${card.valColor}`}>{card.val}</span>
-                    <div className="flex items-center gap-1.5">
-                      <card.icon className={`w-4 h-4 shrink-0 ${card.iconColor}`} />
-                      <span className={`text-[11px] font-black ${isDark ? "text-slate-300" : "text-slate-700"}`}>{card.label}</span>
+                  <div className="flex items-center justify-between gap-4">
+                    <span className={`text-3xl md:text-4xl font-black tracking-tight leading-none ${card.valColor}`}>{card.val}</span>
+                    <div className="flex items-center gap-2.5">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ring-4 transition-transform duration-300 group-hover:scale-105 shrink-0 ${card.iconBg}`}>
+                        <card.icon className="w-5 h-5 stroke-[2]" />
+                      </div>
+                      <span className={`text-xs md:text-sm font-black tracking-tight ${isDark ? "text-white" : "text-[#0F1B2D]"}`}>{card.label}</span>
                     </div>
                   </div>
-                  <p className={`text-[12px] leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {card.descParts.map((p, pi) => p.bold ? <strong key={pi} className="font-black">{p.text}</strong> : <span key={pi}>{p.text}</span>)}
+                  <p className={`text-[12.5px] leading-relaxed font-light ${isDark ? "text-slate-400 group-hover:text-slate-300" : "text-slate-600 group-hover:text-slate-700"} transition-colors duration-200`}>
+                    {card.descParts.map((p, pi) => p.bold ? <strong key={pi} className={`font-black ${isDark ? "text-white" : "text-[#0F1B2D]"}`}>{p.text}</strong> : <span key={pi}>{p.text}</span>)}
                   </p>
                 </div>
               </ScrollReveal>
@@ -1067,23 +1087,35 @@ export default function AboutUsPage() {
             </div>
           </ScrollReveal>
           <div className="grid md:grid-cols-2 gap-10 items-center">
-            {/* 2×2 stat tiles — matches PDF */}
-            <div className="grid grid-cols-2 gap-4">
+            {/* 2×2 stat tiles — premium styling */}
+            <div className="grid grid-cols-2 gap-6">
               {[
-                { val: "100%", label: "ETHICAL & LEGAL" },
-                { val: "0", label: "ZERO DELAYS" },
-                { val: "20+", label: "SERVICES OFFERED" },
-                { val: "24/7", label: "SUPPORT ACCESS" }
-              ].map((tile, iIdx) => (
-                <ScrollReveal key={iIdx} delay={iIdx * 60}>
-                  <div className={`p-5 rounded-xl border text-center ${
-                    isDark ? "bg-[#0b1329] border-slate-800" : "bg-white border-slate-200 shadow-sm"
-                  }`}>
-                    <div className={`text-2xl font-black mb-1 ${isDark ? "text-blue-400" : "text-blue-600"}`}>{tile.val}</div>
-                    <div className={`text-[9px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>{tile.label}</div>
-                  </div>
-                </ScrollReveal>
-              ))}
+                { val: "100%", label: "ETHICAL & LEGAL", color: "blue" },
+                { val: "0", label: "ZERO DELAYS", color: "emerald" },
+                { val: "20+", label: "SERVICES OFFERED", color: "orange" },
+                { val: "24/7", label: "SUPPORT ACCESS", color: "purple" }
+              ].map((tile, iIdx) => {
+                const valColor = tile.color === "blue"
+                  ? (isDark ? "text-blue-400" : "text-blue-600")
+                  : tile.color === "emerald"
+                  ? (isDark ? "text-emerald-400" : "text-emerald-600")
+                  : tile.color === "orange"
+                  ? (isDark ? "text-orange-400" : "text-orange-600")
+                  : (isDark ? "text-purple-400" : "text-purple-600");
+
+                return (
+                  <ScrollReveal key={iIdx} delay={iIdx * 60}>
+                    <div className={`p-6 md:p-8 rounded-2xl border text-center flex flex-col items-center justify-center transition-all duration-300 ease-out hover:-translate-y-1 ${
+                      isDark 
+                        ? "bg-slate-900/40 border-slate-800 hover:border-slate-700/60 hover:shadow-black/25 shadow-[0_1px_3px_rgba(0,0,0,0.1),_0_10px_30px_rgba(0,0,0,0.2)]" 
+                        : "bg-white border-slate-200/80 hover:border-slate-300/80 hover:shadow-slate-200/40 shadow-[0_1px_2px_rgba(0,0,0,0.02),_0_8px_24px_rgba(0,0,0,0.03)]"
+                    }`}>
+                      <div className={`text-3xl md:text-4xl font-black mb-2 tracking-tight ${valColor}`}>{tile.val}</div>
+                      <div className={`text-[10px] md:text-xs font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-600"}`}>{tile.label}</div>
+                    </div>
+                  </ScrollReveal>
+                );
+              })}
             </div>
             {/* Text block — matches PDF */}
             <ScrollReveal delay={200}>
