@@ -77,15 +77,11 @@ export default function AgentDocumentsPage() {
   const [issueDates, setIssueDates] = useState<Record<string, string>>({});
   const [issuePlaces, setIssuePlaces] = useState<Record<string, string>>({});
   const [activeDetailsModal, setActiveDetailsModal] = useState<string | null>(null);
-<<<<<<< HEAD
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
-  const [downloadingId, setDownloadingId] = useState<string | null>(null);
-=======
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
-  const initUploadState = useCallback((): Record<string, UploadState> => {
-    const initial: Record<string, UploadState> = {};
+  const initUploadState = useCallback(() => {
+    const initial: Record<string, any> = {};
     DOCUMENT_CATEGORIES.forEach((cat) => {
       initial[cat.type] = {
         type: cat.type,
@@ -101,20 +97,6 @@ export default function AgentDocumentsPage() {
       };
     });
     return initial;
-  }, []);
->>>>>>> 04944025 (Fix API and frontend errors)
-  
-  const initUploadState = useCallback(() => {
-    const states: Record<string, any> = {};
-    DOCUMENT_CATEGORIES.forEach((cat) => {
-      states[cat.type] = {
-        file: null,
-        loading: false,
-        error: "",
-        success: "",
-      };
-    });
-    return states;
   }, []);
 
   // Track upload states for each category
@@ -172,6 +154,32 @@ export default function AgentDocumentsPage() {
       alert("File size exceeds 10MB limit.");
       return;
     }
+    setUploads((prev) => ({
+      ...prev,
+      [type]: { ...prev[type], loading: true, error: "", success: "" },
+    }));
+    try {
+      await agentService.uploadDocument(type, file, file.name);
+      setUploads((prev) => ({
+        ...prev,
+        [type]: {
+          ...prev[type],
+          loading: false,
+          file: null,
+          success: "Document uploaded successfully!",
+          error: "",
+        },
+      }));
+      await loadDocuments();
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message || err.message || "Upload failed.";
+      alert(errMsg);
+      setUploads((prev) => ({
+        ...prev,
+        [type]: { ...prev[type], loading: false, error: errMsg, success: "" },
+      }));
+    }
+  };
 
   const handleUpload = async (type: string) => {
     const uploadState = uploads[type];
@@ -209,17 +217,13 @@ export default function AgentDocumentsPage() {
     }));
 
     try {
-<<<<<<< HEAD
+      const meta = {
+        number: docNumbers[type] || "",
+        issueDate: issueDates[type] || "",
+        issuePlace: issuePlaces[type] || "",
+      };
+      const serializedName = `${file.name}|||${JSON.stringify(meta)}`;
       await agentService.uploadDocument(type, file, serializedName, { expiryDate });
-      
-=======
-      await agentService.uploadDocument(type, file, {
-        expiryDate,
-        documentNumber: docNumbers[type] || uploadState.documentNumber,
-        placeOfIssue: issuePlaces[type] || uploadState.placeOfIssue,
-        dateOfIssue: issueDates[type] || uploadState.dateOfIssue,
-      });
->>>>>>> 04944025 (Fix API and frontend errors)
       setUploads((prev) => ({
         ...prev,
         [type]: {
@@ -343,7 +347,6 @@ export default function AgentDocumentsPage() {
                   : "bg-white border-slate-200 text-slate-900 hover:border-[#3b71cb]/20"
               } ${existing ? (existing.status === "Verified" ? "border-l-2 border-l-emerald-500" : existing.status === "Rejected" ? "border-l-2 border-l-red-500" : "border-l-2 border-l-amber-500") : ""}`}
             >
-<<<<<<< HEAD
               <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-20 pointer-events-none`} />
 
               {/* Main card info container */}
@@ -360,96 +363,6 @@ export default function AgentDocumentsPage() {
                   </div>
                   <p className={`text-[10px] leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
                     {cat.desc}
-=======
-              <div className="space-y-4 relative z-10">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-extrabold text-sm tracking-tight">{cat.label}</h3>
-                  <div className={`p-2 rounded-lg ${
-                    isDark ? "bg-slate-900/60 text-cyan-400" : "bg-slate-50 text-[#3b71cb]"
-                  }`}>
-                    <Files className="w-4 h-4" />
-                  </div>
-                </div>
-                <p className={`text-[10px] leading-relaxed ${isDark ? "text-slate-400" : "text-slate-505"}`}>
-                  {cat.desc}
-                </p>
-
-                {["passport", "cdc", "aadhaar", "pan"].includes(cat.type) && (
-                  <button
-                    onClick={() => setActiveDetailsModal(cat.type)}
-                    className={`mt-2 py-1.5 px-3 rounded-xl border text-[11px] font-extrabold flex items-center gap-1.5 transition active:scale-95 cursor-pointer ${
-                      docNumbers[cat.type]
-                        ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
-                        : isDark
-                        ? "bg-white/5 border-white/10 text-cyan-400 hover:bg-white/10"
-                        : "bg-slate-50 border-slate-200 text-[#3b71cb] hover:bg-slate-100 shadow-sm"
-                    }`}
-                  >
-                    {docNumbers[cat.type] ? "✓ Details Saved" : "✍️ Fill Details"}
-                  </button>
-                )}
-              </div>
-
-              {/* Upload trigger */}
-              <div className="mt-5 pt-3 border-t border-slate-800/40 relative z-10">
-                {uploadState?.loading && (
-                  <div className="space-y-2.5">
-                    <div className="flex justify-between text-[10px] font-black text-cyan-400 animate-pulse">
-                      <span>Syncing File...</span>
-                    </div>
-                  </div>
-                )}
-                {existing && getStatusBadge(existing.status)}
-
-                {/* Existing document info */}
-                {existing && (
-                  <div className={`mt-3 p-3 rounded-xl text-xs space-y-1 ${isDark ? "bg-slate-900/40" : "bg-slate-50"}`}>
-                    <div className="flex justify-between">
-                      <span className={`font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}>File</span>
-                      <span className="truncate max-w-[160px] text-right font-bold" title={existing.label}>{existing.label}</span>
-                    </div>
-                    {existing.uploadedAt && (
-                      <div className="flex justify-between">
-                        <span className={`font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}>Uploaded</span>
-                        <span className="font-bold">{new Date(existing.uploadedAt).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    {existing.expiryDate && (
-                      <div className="flex justify-between">
-                        <span className={`font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}>Expiry</span>
-                        <span className="font-bold">{new Date(existing.expiryDate).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    {existing.documentNumber && (
-                      <div className="flex justify-between">
-                        <span className={`font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}>Number</span>
-                        <span className="font-bold">{existing.documentNumber}</span>
-                      </div>
-                    )}
-                    {existing.placeOfIssue && (
-                      <div className="flex justify-between">
-                        <span className={`font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}>Place of Issue</span>
-                        <span className="font-bold">{existing.placeOfIssue}</span>
-                      </div>
-                    )}
-                    {existing.dateOfIssue && (
-                      <div className="flex justify-between">
-                        <span className={`font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}>Date of Issue</span>
-                        <span className="font-bold">{new Date(existing.dateOfIssue).toLocaleDateString()}</span>
-                      </div>
-                    )}
-                    {existing.status === "Rejected" && existing.remarks && (
-                      <div className={`mt-2 p-2 rounded-lg ${isDark ? "bg-red-500/10 border border-red-500/20" : "bg-red-50 border border-red-200"}`}>
-                        <span className={`text-[10px] font-bold ${isDark ? "text-red-400" : "text-red-600"}`}>Rejection reason: {existing.remarks}</span>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {!existing && (
-                  <p className={`mt-2 text-[10px] italic ${isDark ? "text-slate-600" : "text-slate-400"}`}>
-                    No document uploaded yet.
->>>>>>> 04944025 (Fix API and frontend errors)
                   </p>
 
                   {["passport", "cdc", "aadhaar", "pan"].includes(cat.type) && (

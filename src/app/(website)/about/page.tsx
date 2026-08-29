@@ -38,6 +38,8 @@ import {
   Search
 } from "lucide-react";
 
+import { AboutCard } from "@/components/ui/about-card";
+
 // --- SCROLL REVEAL COMPONENT ---
 function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -159,53 +161,31 @@ export default function AboutUsPage() {
         <ScrollReveal>
           <div className="text-center md:text-left mb-10">
             <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Executive Summary</h2>
-            <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+            <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
           </div>
         </ScrollReveal>
 
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-8">
           {/* Card 1 — 100% Ethical & DG Compliant */}
           <ScrollReveal delay={100}>
-            <div className={`border rounded-2xl p-8 h-full flex flex-col gap-5 transition-all duration-300 hover:shadow-md ${
-              isDark ? "bg-[#0b1329] border-slate-800" : "bg-white border-slate-200"
-            }`}>
-              {/* Icon — bare, light-blue rounded square, matching PDF */}
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                isDark ? "bg-blue-950/50 text-blue-400" : "bg-blue-50 text-blue-600"
-              }`}>
-                <Shield className="w-5 h-5" />
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-lg font-black">100% Ethical &amp; DG Compliant</h3>
-                <p className={`text-sm leading-relaxed font-light ${
-                  isDark ? "text-slate-400" : "text-slate-600"
-                }`}>
-                  We provide complete, end-to-end documentation assistance adhering strictly to all updated DG Shipping rules and amended regulations, guaranteeing 100% legal integrity for candidate processing.
-                </p>
-              </div>
-            </div>
+            <AboutCard
+              title="100% Ethical & DG Compliant"
+              icon={Shield}
+              leftColor="blue"
+              isDark={isDark}
+              desc="We provide complete, end-to-end documentation assistance adhering strictly to all updated DG Shipping rules and amended regulations, guaranteeing 100% legal integrity for candidate processing."
+            />
           </ScrollReveal>
 
           {/* Card 2 — Hassle-Free One-Stop Service */}
           <ScrollReveal delay={200}>
-            <div className={`border rounded-2xl p-8 h-full flex flex-col gap-5 transition-all duration-300 hover:shadow-md ${
-              isDark ? "bg-[#0b1329] border-slate-800" : "bg-white border-slate-200"
-            }`}>
-              {/* Icon — bare, teal rounded square, matching PDF */}
-              <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                isDark ? "bg-emerald-950/50 text-emerald-400" : "bg-emerald-50 text-emerald-600"
-              }`}>
-                <Zap className="w-5 h-5" />
-              </div>
-              <div className="space-y-3">
-                <h3 className="text-lg font-black">Hassle-Free One-Stop Service</h3>
-                <p className={`text-sm leading-relaxed font-light ${
-                  isDark ? "text-slate-400" : "text-slate-600"
-                }`}>
-                  Eliminate administrative bottlenecks for your crew. From INDOS creation &amp; profile updates to TARBook issuance, COPs, C1/D US visas, and flag state documentation, we handle every step seamlessly.
-                </p>
-              </div>
-            </div>
+            <AboutCard
+              title="Hassle-Free One-Stop Service"
+              icon={Zap}
+              leftColor="emerald"
+              isDark={isDark}
+              desc="Eliminate administrative bottlenecks for your crew. From INDOS creation & profile updates to TARBook issuance, COPs, C1/D US visas, and flag state documentation, we handle every step seamlessly."
+            />
           </ScrollReveal>
         </div>
       </section>
@@ -216,7 +196,7 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Proven Track Record &amp; Industry Reputation</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
           {/* 4-stat light-blue row — matches PDF */}
@@ -238,15 +218,15 @@ export default function AboutUsPage() {
               ))}
             </div>
           </ScrollReveal>
-          {/* 2×2 left-border cards — matches PDF */}
-          <div className="grid md:grid-cols-2 gap-5">
+          {/* 2×2 grid — premium AboutCard styling */}
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               { title: "6 Years Industry Experience", icon: Briefcase,
-                leftColor: "border-l-blue-500", iconColor: isDark ? "text-blue-400" : "text-blue-600",
+                leftColor: "blue",
                 desc: "Providing trusted services in the maritime domain for over 6 years, working closely with industry experts to deliver seamless, one-stop crew solutions for ship management companies."
               },
               { title: "Flawless Corporate Record", icon: ShieldCheck,
-                leftColor: "border-l-teal-500", iconColor: isDark ? "text-teal-400" : "text-teal-600",
+                leftColor: "emerald",
                 descParts: [
                   { text: "Completed 4.5+ years as a registered entity with " },
                   { text: "zero negative reports", bold: true },
@@ -254,28 +234,23 @@ export default function AboutUsPage() {
                 ]
               },
               { title: "Expert-Led Crew Management", icon: Users,
-                leftColor: "border-l-orange-400", iconColor: isDark ? "text-orange-400" : "text-orange-500",
+                leftColor: "orange",
                 desc: "Collaborating directly with maritime veteran advisors to ensure candidate documentation aligns perfectly with changing statutory mandates and fleet readiness."
               },
               { title: "Most Trusted Seafarer Partner", icon: Star,
-                leftColor: "border-l-purple-500", iconColor: isDark ? "text-purple-400" : "text-purple-600",
+                leftColor: "purple",
                 desc: "Renowned across the industry for serving candidates with absolute transparency and ethical commitment, building long-term goodwill and corporate reliability."
               }
             ].map((card, idx) => (
               <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
-                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${card.leftColor}` : `bg-white border border-slate-200 shadow-sm ${card.leftColor}`
-                }`}>
-                  <div className="flex items-center gap-2.5">
-                    <card.icon className={`w-5 h-5 shrink-0 ${card.iconColor}`} />
-                    <h5 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>{card.title}</h5>
-                  </div>
-                  <p className={`text-[12px] leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {"descParts" in card
-                      ? card.descParts!.map((p, pi) => p.bold ? <strong key={pi} className="font-black">{p.text}</strong> : <span key={pi}>{p.text}</span>)
-                      : card.desc}
-                  </p>
-                </div>
+                <AboutCard
+                  title={card.title}
+                  icon={card.icon}
+                  leftColor={card.leftColor}
+                  isDark={isDark}
+                  desc={card.desc}
+                  descParts={card.descParts}
+                />
               </ScrollReveal>
             ))}
           </div>
@@ -291,7 +266,7 @@ export default function AboutUsPage() {
                 isDark ? "text-cyan-400" : "text-cyan-600"
               }`}>// Why It Matters</span>
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">The Industry Challenge</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
               <p className={`mt-4 text-sm font-light max-w-2xl leading-relaxed ${
                 isDark ? "text-slate-400" : "text-slate-600"
               }`}>
@@ -300,47 +275,35 @@ export default function AboutUsPage() {
             </div>
           </ScrollReveal>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-8">
             {[
               {
                 title: "Stricter DG Regulations",
                 desc: "With DG Shipping constantly tightening compliance rules and portal verification norms, candidates face complex obstacles obtaining correct e-certificates and document approvals on time.",
                 icon: Wrench,
-                iconBg: isDark ? "bg-blue-950/50 text-blue-400" : "bg-blue-50 text-blue-600"
+                leftColor: "blue"
               },
               {
                 title: "Candidate Sign-On Delays",
                 desc: "Seafarers often get entangled in TARBook submissions, COP applications, profile discrepancies, or visa delays, holding up critical crew joining schedules.",
                 icon: Timer,
-                iconBg: isDark ? "bg-blue-950/50 text-blue-400" : "bg-blue-50 text-blue-600"
+                leftColor: "orange"
               },
               {
                 title: "Skill & Profile Upgradation Gap",
                 desc: "Leading MNCs require thoroughly vetted, properly endorsed candidates whose profiles are updated and fully upgraded for specialized fleet requirements.",
                 icon: UserCog,
-                iconBg: isDark ? "bg-blue-950/50 text-blue-400" : "bg-blue-50 text-blue-600"
+                leftColor: "purple"
               }
             ].map((challenge, idx) => (
               <ScrollReveal key={idx} delay={idx * 120}>
-                <div className={`border rounded-2xl p-7 h-full flex flex-col gap-5 transition-all duration-300 hover:shadow-md ${
-                  isDark ? "bg-[#0b1329] border-slate-800" : "bg-white border-slate-200"
-                }`}>
-                  {/* Icon badge — matches PDF: bare light-blue rounded square */}
-                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                    challenge.iconBg
-                  }`}>
-                    <challenge.icon className="w-5 h-5" />
-                  </div>
-
-                  <div className="space-y-3">
-                    <h4 className="text-base font-black leading-snug">{challenge.title}</h4>
-                    <p className={`text-sm leading-relaxed font-light ${
-                      isDark ? "text-slate-400" : "text-slate-600"
-                    }`}>
-                      {challenge.desc}
-                    </p>
-                  </div>
-                </div>
+                <AboutCard
+                  title={challenge.title}
+                  icon={challenge.icon}
+                  leftColor={challenge.leftColor}
+                  isDark={isDark}
+                  desc={challenge.desc}
+                />
               </ScrollReveal>
             ))}
           </div>
@@ -403,60 +366,46 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Permitted CDC Pathways &amp; Compliance</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
 
-          {/* 2×2 Grid — matching PDF layout */}
-          <div className="grid md:grid-cols-2 gap-5">
+          {/* 2×2 grid — premium AboutCard styling */}
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               {
                 title: "Pre-Sea Certificate Holders",
                 desc: "Candidates who have completed DG-approved pre-sea training courses (B.Sc Nautical, DNS, BE Marine, GME, GP Rating, ETO, CCMC) along with 5 basic STCW safety courses.",
                 icon: BookOpen,
-                leftColor: "border-l-blue-500",
-                iconColor: isDark ? "text-blue-400" : "text-blue-600"
+                leftColor: "blue"
               },
               {
                 title: "Hospitality Sector & Cruise CDC",
                 desc: "Degree/Diploma in Hotel Management + OCCP + 5 STCW courses, OR structured engagement via DG-approved Cruise RPSL companies with official Offer Letters (Cruise-Restricted CDC).",
                 icon: Building2,
-                leftColor: "border-l-orange-400",
-                iconColor: isDark ? "text-orange-400" : "text-orange-500"
+                leftColor: "orange"
               },
               {
                 title: "CoC, Certified Cooks & Defense Personnel",
                 desc: "Certified Cooks (Cook CoC), CoC Officers, Ex-Indian Navy, and Agniveer Discharge Certificate holders completing 5 STCW courses qualify under compliant pathways.",
                 icon: Award,
-                leftColor: "border-l-emerald-500",
-                iconColor: isDark ? "text-emerald-400" : "text-emerald-600"
+                leftColor: "emerald"
               },
               {
                 title: "General CDC & Profile Processing",
                 desc: "End-to-end legal filing, verification, and portal alignment ensuring candidate CDCs are procured legally and without bureaucratic delays.",
                 icon: ShieldCheck,
-                leftColor: "border-l-purple-500",
-                iconColor: isDark ? "text-purple-400" : "text-purple-600"
+                leftColor: "purple"
               }
             ].map((pathway, idx) => (
               <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
-                  isDark
-                    ? `bg-[#0b1329] border border-slate-800/60 ${pathway.leftColor}`
-                    : `bg-white border border-slate-200 shadow-sm ${pathway.leftColor}`
-                }`}>
-                  {/* Icon + Title inline — matches PDF */}
-                  <div className="flex items-center gap-2.5">
-                    <pathway.icon className={`w-5 h-5 shrink-0 ${pathway.iconColor}`} />
-                    <h5 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>
-                      {pathway.title}
-                    </h5>
-                  </div>
-                  {/* Description */}
-                  <p className={`text-[12px] leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {pathway.desc}
-                  </p>
-                </div>
+                <AboutCard
+                  title={pathway.title}
+                  icon={pathway.icon}
+                  leftColor={pathway.leftColor}
+                  isDark={isDark}
+                  desc={pathway.desc}
+                />
               </ScrollReveal>
             ))}
           </div>
@@ -470,34 +419,32 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Cruise Fleet Solutions – Shortlist to Sign-On</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
 
-          {/* 2×2 Grid — matching PDF layout */}
-          <div className="grid md:grid-cols-2 gap-5">
+          {/* 2×2 grid — premium AboutCard styling */}
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               {
                 title: "RPSL Offer Letter & INDOS Mapping",
                 desc: "For shortlisted cruise candidates, we map official Offer Letters from DG-approved RPSL companies into the DG portal for INDOS creation and Cruise-Restricted CDC issuance.",
                 icon: FileText,
-                leftColor: "border-l-blue-500",
-                iconColor: isDark ? "text-blue-400" : "text-blue-600",
+                leftColor: "blue",
                 highlight: false
               },
               {
                 title: "Catering Degree + OCCP Verification",
                 desc: "Assisting hospitality candidates holding 1-Year Diplomas or 3-Year Degrees with 5 basic STCW courses + OCCP enrollment for CDC and Ship's Cook CoC endorsements.",
                 icon: Award,
-                leftColor: "border-l-emerald-500",
-                iconColor: isDark ? "text-emerald-400" : "text-emerald-600",
+                leftColor: "emerald",
                 highlight: false
               },
               {
                 title: "BSID (SID Card) & C1/D US Visa",
                 desc: "Complete execution of BSID (Biometric Seafarer ID) applications, appointment booking, and specialized C1/D US Maritime Crew Visa documentation and interview scheduling.",
                 icon: Globe,
-                iconColor: isDark ? "text-purple-400" : "text-purple-600",
+                leftColor: "purple",
                 highlight: false
               },
               {
@@ -508,42 +455,20 @@ export default function AboutUsPage() {
                   { text: ", delivering fully compliant seafarers." }
                 ],
                 icon: Zap,
-                iconColor: isDark ? "text-cyan-400" : "text-cyan-600",
+                leftColor: "cyan",
                 highlight: true
               }
             ].map((sol, idx) => (
               <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`rounded-xl p-6 h-full flex flex-col gap-3 border transition-all duration-300 ${
-                  sol.highlight
-                    ? isDark
-                      ? "bg-cyan-950/25 border-cyan-900/40"
-                      : "bg-sky-50/70 border-sky-200/80 shadow-sm"
-                    : isDark
-                      ? "bg-[#0b1329] border-slate-700"
-                      : "bg-white border-slate-200"
-                }`}>
-                  {/* Icon + Title inline — matches PDF */}
-                  <div className="flex items-center gap-2.5">
-                    <sol.icon className={`w-5 h-5 shrink-0 ${sol.iconColor}`} />
-                    <h5 className={`text-sm font-black leading-snug ${
-                      isDark ? "text-white" : sol.highlight ? "text-sky-900" : "text-slate-800"
-                    }`}>
-                      {sol.title}
-                    </h5>
-                  </div>
-                  {/* Description — supports bold inline text for card 4 */}
-                  <p className={`text-[12px] leading-relaxed font-light ${
-                    isDark ? "text-slate-400" : sol.highlight ? "text-sky-800" : "text-slate-600"
-                  }`}>
-                    {"descParts" in sol
-                      ? sol.descParts!.map((part, pIdx) =>
-                          part.bold
-                            ? <strong key={pIdx} className="font-black">{part.text}</strong>
-                            : <span key={pIdx}>{part.text}</span>
-                        )
-                      : sol.desc}
-                  </p>
-                </div>
+                <AboutCard
+                  title={sol.title}
+                  icon={sol.icon}
+                  leftColor={sol.leftColor}
+                  isDark={isDark}
+                  desc={sol.desc}
+                  descParts={sol.descParts}
+                  highlight={sol.highlight}
+                />
               </ScrollReveal>
             ))}
           </div>
@@ -557,60 +482,46 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">GP Rating Upgradation &amp; Eligibility</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
 
-          {/* 2×2 Grid — matching PDF layout */}
-          <div className="grid md:grid-cols-2 gap-5">
+          {/* 2×2 grid — premium AboutCard styling */}
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               {
                 title: "Technical Reserved Quota",
                 desc: "Guidance and placement for GP Rating seats reserved for candidates holding 1-year ITI / Govt diplomas in Fitter, Mechanic, Electrical, Plumbing, Computer, or IACS Welding.",
                 icon: Wrench,
-                leftColor: "border-l-blue-500",
-                iconColor: isDark ? "text-blue-400" : "text-blue-600"
+                leftColor: "blue"
               },
               {
                 title: "Expanded Age Eligibility (28 Years)",
                 desc: "Upper age limit for GP Rating entry up to 28 years (with applicable SC/ST relaxations), expanding eligibility for mature, skilled technical candidates joining your fleet.",
                 icon: Calendar,
-                leftColor: "border-l-teal-500",
-                iconColor: isDark ? "text-teal-400" : "text-teal-600"
+                leftColor: "emerald"
               },
               {
                 title: "Trade Skill Verification",
                 desc: "We verify candidate trade certificates against DG Shipping guidelines, ensuring trade-certified ratings enter your fleet with genuine technical competencies.",
                 icon: Users,
-                leftColor: "border-l-orange-400",
-                iconColor: isDark ? "text-orange-400" : "text-orange-500"
+                leftColor: "orange"
               },
               {
                 title: "Seafarer Profile Protection",
                 desc: "Comprehensive profile auditing ensuring all serving seafarers in your active pool maintain valid, compliant documentation without operational disruption.",
                 icon: Shield,
-                leftColor: "border-l-purple-500",
-                iconColor: isDark ? "text-purple-400" : "text-purple-600"
+                leftColor: "purple"
               }
             ].map((gp, idx) => (
               <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
-                  isDark
-                    ? `bg-[#0b1329] border border-slate-800/60 ${gp.leftColor}`
-                    : `bg-white border border-slate-200 shadow-sm ${gp.leftColor}`
-                }`}>
-                  {/* Icon + Title inline — matches PDF */}
-                  <div className="flex items-center gap-2.5">
-                    <gp.icon className={`w-5 h-5 shrink-0 ${gp.iconColor}`} />
-                    <h5 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>
-                      {gp.title}
-                    </h5>
-                  </div>
-                  {/* Description */}
-                  <p className={`text-[12px] leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {gp.desc}
-                  </p>
-                </div>
+                <AboutCard
+                  title={gp.title}
+                  icon={gp.icon}
+                  leftColor={gp.leftColor}
+                  isDark={isDark}
+                  desc={gp.desc}
+                />
               </ScrollReveal>
             ))}
           </div>
@@ -624,75 +535,47 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Identity &amp; Primary Documentation</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
 
-          {/* 3-column grid — matches PDF page 8 */}
-          <div className="grid md:grid-cols-3 gap-6">
+          {/* 3-column grid — premium AboutCard styling */}
+          <div className="grid md:grid-cols-3 gap-8">
             {/* Card 1 — CDC & INDOS Assistance */}
             <ScrollReveal delay={0}>
-              <div className={`border rounded-2xl p-7 h-full flex flex-col gap-5 transition-all duration-300 hover:shadow-md ${
-                isDark ? "bg-[#0b1329] border-slate-800" : "bg-white border-slate-200"
-              }`}>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  isDark ? "bg-blue-950/50 text-blue-400" : "bg-blue-50 text-blue-600"
-                }`}>
-                  <FileText className="w-5 h-5" />
-                </div>
-                <div className="space-y-2">
-                  <h4 className={`text-base font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>
-                    CDC &amp; INDOS Assistance
-                  </h4>
-                  <p className={`text-sm leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    Fresh INDOS application creation, profile updating assistance, CDC application (General &amp; Cruise), CDC renewal, duplicate, and replacement services under DG Shipping rules.
-                  </p>
-                </div>
-              </div>
+              <AboutCard
+                title="CDC & INDOS Assistance"
+                icon={FileText}
+                leftColor="blue"
+                isDark={isDark}
+                desc="Fresh INDOS application creation, profile updating assistance, CDC application (General & Cruise), CDC renewal, duplicate, and replacement services under DG Shipping rules."
+              />
             </ScrollReveal>
 
             {/* Card 2 — BSID & Passport Services */}
             <ScrollReveal delay={100}>
-              <div className={`border rounded-2xl p-7 h-full flex flex-col gap-5 transition-all duration-300 hover:shadow-md ${
-                isDark ? "bg-[#0b1329] border-slate-800" : "bg-white border-slate-200"
-              }`}>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  isDark ? "bg-blue-950/50 text-blue-400" : "bg-blue-50 text-blue-600"
-                }`}>
-                  <Layers className="w-5 h-5" />
-                </div>
-                <div className="space-y-2">
-                  <h4 className={`text-base font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>
-                    BSID &amp; Passport Services
-                  </h4>
-                  <p className={`text-sm leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    End-to-end assistance for BSID (Biometric Seafarer Identity Document) applications, fresh passport applications, passport renewals, and damaged passport re-issuance.
-                  </p>
-                </div>
-              </div>
+              <AboutCard
+                title="BSID & Passport Services"
+                icon={Layers}
+                leftColor="emerald"
+                isDark={isDark}
+                desc="End-to-end assistance for BSID (Biometric Seafarer Identity Document) applications, fresh passport applications, passport renewals, and damaged passport re-issuance."
+              />
             </ScrollReveal>
 
-            {/* Card 3 — C1/D US Maritime Visa (with bold inline text) */}
+            {/* Card 3 — C1/D US Maritime Visa */}
             <ScrollReveal delay={200}>
-              <div className={`border rounded-2xl p-7 h-full flex flex-col gap-5 transition-all duration-300 hover:shadow-md ${
-                isDark ? "bg-[#0b1329] border-slate-800" : "bg-white border-slate-200"
-              }`}>
-                <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                  isDark ? "bg-blue-950/50 text-blue-400" : "bg-blue-50 text-blue-600"
-                }`}>
-                  <Globe className="w-5 h-5" />
-                </div>
-                <div className="space-y-2">
-                  <h4 className={`text-base font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>
-                    C1/D US Maritime Visa
-                  </h4>
-                  <p className={`text-sm leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    Specialized application, documentation verification, and appointment scheduling strictly for{" "}
-                    <strong className="font-black">C1/D US Crew Visas</strong>{" "}
-                    tailored exclusively for maritime seafarers.
-                  </p>
-                </div>
-              </div>
+              <AboutCard
+                title="C1/D US Maritime Visa"
+                icon={Globe}
+                leftColor="purple"
+                isDark={isDark}
+                descParts={[
+                  { text: "Specialized application, documentation verification, and appointment scheduling strictly for " },
+                  { text: "C1/D US Crew Visas", bold: true },
+                  { text: " tailored exclusively for maritime seafarers." }
+                ]}
+              />
             </ScrollReveal>
           </div>
         </div>
@@ -705,7 +588,7 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Certification, TARBook &amp; COPs</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
 
@@ -772,32 +655,36 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">DG Courses: Pre-Sea &amp; Entry Programs</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-2 gap-8">
             {[
-              { title: "Nautical Cadets & Ratings", icon: Compass, leftColor: "border-l-blue-500", iconColor: isDark ? "text-blue-400" : "text-blue-600",
+              { title: "Nautical Cadets & Ratings", icon: Compass, leftColor: "blue",
                 items: ["B.Sc Nautical Science (3 Years Degree)", "Diploma in Nautical Science (DNS - 1 Year)", "B.Sc (Maritime Science) Polyvalent Course", "Training for General Purpose (GP) Ratings (6 Months)"] },
-              { title: "Marine Engineering Cadets", icon: Activity, leftColor: "border-l-teal-500", iconColor: isDark ? "text-teal-400" : "text-teal-600",
+              { title: "Marine Engineering Cadets", icon: Activity, leftColor: "emerald",
                 items: ["B.E. / B.Tech Marine Engineering (4 Years)", "Graduate Marine Engineering (GME - 1 Year)", "Pre-Sea Training for Diploma Holders (2 Years)", "Bridging Course for ATS Candidates"] },
-              { title: "Electro-Technical Officers (ETO)", icon: Zap, leftColor: "border-l-orange-400", iconColor: isDark ? "text-orange-400" : "text-orange-500",
+              { title: "Electro-Technical Officers (ETO)", icon: Zap, leftColor: "orange",
                 items: ["Electro Technical Officers Course (ETO - 85 Days)", "Bridging Course for Existing Electrical Officers to ETO", "Special ETO Bridging Course (Non-qualifying eligibility)"] },
-              { title: "Catering & Cruise Services", icon: Users, leftColor: "border-l-purple-500", iconColor: isDark ? "text-purple-400" : "text-purple-600",
+              { title: "Catering & Cruise Services", icon: Users, leftColor: "purple",
                 items: ["Certificate Course in Maritime Catering (CCMC - 6 Months)", "Orientation Course for Catering Personnel (OCCP)", "Applying Cruise-Only Vessel CDCs & Endorsements"] }
             ].map((sub, i) => (
               <ScrollReveal key={i} delay={i * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
-                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${sub.leftColor}` : `bg-white border border-slate-200 shadow-sm ${sub.leftColor}`
-                }`}>
-                  <div className="flex items-center gap-2.5">
-                    <sub.icon className={`w-5 h-5 shrink-0 ${sub.iconColor}`} />
-                    <h4 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>{sub.title}</h4>
-                  </div>
-                  <ul className={`text-[12px] space-y-1 font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {sub.items.map((item, j) => <li key={j} className="flex gap-2"><span className="text-current opacity-50 shrink-0">•</span>{item}</li>)}
+                <AboutCard
+                  title={sub.title}
+                  icon={sub.icon}
+                  leftColor={sub.leftColor}
+                  isDark={isDark}
+                >
+                  <ul className="space-y-1">
+                    {sub.items.map((item, j) => (
+                      <li key={j} className="flex gap-2 items-start text-left">
+                        <span className="opacity-55 shrink-0 select-none">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
                   </ul>
-                </div>
+                </AboutCard>
               </ScrollReveal>
             ))}
           </div>
@@ -810,32 +697,36 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">DG Courses: STCW, Security &amp; Tankers</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-2 gap-8">
             {[
-              { title: "Basic STCW Safety Modular", icon: ShieldCheck, leftColor: "border-l-blue-500", iconColor: isDark ? "text-blue-400" : "text-blue-600",
+              { title: "Basic STCW Safety Modular", icon: ShieldCheck, leftColor: "blue",
                 items: ["Basic Safety Training (BST - 11 Days: PST, FPFF, EFA, PSSR)", "Augmentation of FPFF (Practical Tanker Fire Fighting)", "Basic Offshore Safety Course"] },
-              { title: "Maritime Security Courses", icon: Shield, leftColor: "border-l-teal-500", iconColor: isDark ? "text-teal-400" : "text-teal-600",
+              { title: "Maritime Security Courses", icon: Shield, leftColor: "emerald",
                 items: ["Security Training for Seafarers with Designated Duties (STSDSD)", "Ship Security Officer (SSO - 2 Days)", "Company Security Officer (CSO) & Port Facility Officer (PFSO)"] },
-              { title: "Tanker Cargo Operations (DC)", icon: Layers, leftColor: "border-l-orange-400", iconColor: isDark ? "text-orange-400" : "text-orange-500",
+              { title: "Tanker Cargo Operations (DC)", icon: Layers, leftColor: "orange",
                 items: ["Basic & Advanced Oil Tanker Operations (BTOCO / ATOCO - TASCO)", "Basic & Advanced Chemical Tanker Operations (BTCO / ATCCO - CHEMCO)", "Basic & Advanced Liquefied Gas Operations (BLGCO / ATGCO - GASCO)", "LNG Tanker Cargo Operations Familiarization"] },
-              { title: "Dual-Fuel, IGF & Polar Waters", icon: Globe, leftColor: "border-l-purple-500", iconColor: isDark ? "text-purple-400" : "text-purple-600",
+              { title: "Dual-Fuel, IGF & Polar Waters", icon: Globe, leftColor: "purple",
                 items: ["Basic & Advanced Training for Ships using IGF Code Fuels", "Basic & Advanced Training for Ships Operating in Polar Waters", "Crowd Management, Passenger Safety & Crisis Management"] }
             ].map((sub, i) => (
               <ScrollReveal key={i} delay={i * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
-                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${sub.leftColor}` : `bg-white border border-slate-200 shadow-sm ${sub.leftColor}`
-                }`}>
-                  <div className="flex items-center gap-2.5">
-                    <sub.icon className={`w-5 h-5 shrink-0 ${sub.iconColor}`} />
-                    <h4 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>{sub.title}</h4>
-                  </div>
-                  <ul className={`text-[12px] space-y-1 font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {sub.items.map((item, j) => <li key={j} className="flex gap-2"><span className="text-current opacity-50 shrink-0">•</span>{item}</li>)}
+                <AboutCard
+                  title={sub.title}
+                  icon={sub.icon}
+                  leftColor={sub.leftColor}
+                  isDark={isDark}
+                >
+                  <ul className="space-y-1">
+                    {sub.items.map((item, j) => (
+                      <li key={j} className="flex gap-2 items-start text-left">
+                        <span className="opacity-55 shrink-0 select-none">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
                   </ul>
-                </div>
+                </AboutCard>
               </ScrollReveal>
             ))}
           </div>
@@ -848,32 +739,36 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">DG Courses: Advanced Modular &amp; Simulators</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-2 gap-8">
             {[
-              { title: "Advanced Safety & Medical", icon: Heart, leftColor: "border-l-blue-500", iconColor: isDark ? "text-blue-400" : "text-blue-600",
+              { title: "Advanced Safety & Medical", icon: Heart, leftColor: "blue",
                 items: ["Advanced Training in Fire Fighting (AFF - 4 Days)", "Proficiency in Survival Craft and Rescue Boats (PSCRB - 5 Days)", "Fast Rescue Boats (FRB - 3 Days)", "Medical First Aid (MFA - 4 Days) & Medical Care (10 Days)"] },
-              { title: "Bridge Navigation & GMDSS", icon: Compass, leftColor: "border-l-teal-500", iconColor: isDark ? "text-teal-400" : "text-teal-600",
+              { title: "Bridge Navigation & GMDSS", icon: Compass, leftColor: "emerald",
                 items: ["Electronic Chart Display and Information Systems (ECDIS)", "Automatic Radar Plotting Aids (ARPA) & Radar Observer (ROS)", "Radar and Navigation Simulator (RANS) & Ship Manoeuvering", "GMDSS General Operator (GOC) & Restricted Operator (ROC)"] },
-              { title: "Engine & Electrical Simulators", icon: Activity, leftColor: "border-l-orange-400", iconColor: isDark ? "text-orange-400" : "text-orange-500",
+              { title: "Engine & Electrical Simulators", icon: Activity, leftColor: "orange",
                 items: ["Engine Room Simulator (ERS - Operational & Management Level)", "High Voltage Safety & Switchgear (Management & Ops Level)", "Diesel Engine Combustion Gas Simulator", "Marine Boiler & Steam Engineering Course (Ops & Mgmt)"] },
-              { title: "Cargo Handling Simulators", icon: Layers, leftColor: "border-l-purple-500", iconColor: isDark ? "text-purple-400" : "text-purple-600",
+              { title: "Cargo Handling Simulators", icon: Layers, leftColor: "purple",
                 items: ["Liquid Cargo Handling Simulator - Oil (Management Level)", "Liquid Cargo Handling Simulator - Chemical", "Liquid Cargo Handling Simulator - Gas / LPG / LNG"] }
             ].map((sub, i) => (
               <ScrollReveal key={i} delay={i * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
-                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${sub.leftColor}` : `bg-white border border-slate-200 shadow-sm ${sub.leftColor}`
-                }`}>
-                  <div className="flex items-center gap-2.5">
-                    <sub.icon className={`w-5 h-5 shrink-0 ${sub.iconColor}`} />
-                    <h4 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>{sub.title}</h4>
-                  </div>
-                  <ul className={`text-[12px] space-y-1 font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {sub.items.map((item, j) => <li key={j} className="flex gap-2"><span className="text-current opacity-50 shrink-0">•</span>{item}</li>)}
+                <AboutCard
+                  title={sub.title}
+                  icon={sub.icon}
+                  leftColor={sub.leftColor}
+                  isDark={isDark}
+                >
+                  <ul className="space-y-1">
+                    {sub.items.map((item, j) => (
+                      <li key={j} className="flex gap-2 items-start text-left">
+                        <span className="opacity-55 shrink-0 select-none">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
                   </ul>
-                </div>
+                </AboutCard>
               </ScrollReveal>
             ))}
           </div>
@@ -886,32 +781,36 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Competency, Refresher (RUT) &amp; Skill Courses</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
-          <div className="grid md:grid-cols-2 gap-5">
+          <div className="grid md:grid-cols-2 gap-8">
             {[
-              { title: "Deck Competency Courses", icon: Compass, leftColor: "border-l-blue-500", iconColor: isDark ? "text-blue-400" : "text-blue-600",
+              { title: "Deck Competency Courses", icon: Compass, leftColor: "blue",
                 items: ["Second Mate (FG / NCV) Foundation & Competency Course", "Chief Mate (FG Phase I & II / NCV Phase 2)", "Master (FG / NCV) Advanced Shipboard Management (ASM)"] },
-              { title: "Engine Competency Courses", icon: Wrench, leftColor: "border-l-teal-500", iconColor: isDark ? "text-teal-400" : "text-teal-600",
+              { title: "Engine Competency Courses", icon: Wrench, leftColor: "emerald",
                 items: ["MEO Class IV (FG / NCV) Competency Course", "MEO Class II & Class I Competency Courses", "Extra Chief Engineer & MEO (NCV SEO / CEO)"] },
-              { title: "Mandatory STCW Refresher (RUT)", icon: Timer, leftColor: "border-l-orange-400", iconColor: isDark ? "text-orange-400" : "text-orange-500",
+              { title: "Mandatory STCW Refresher (RUT)", icon: Timer, leftColor: "orange",
                 items: ["Refresher PST, FPFF, PSCRB, AFF, FRB & Medical Care", "Revalidation Course for Masters and Deck Officers", "Refresher & Updating Course for Engineers (Ops & Mgmt)"] },
-              { title: "Value-Added & Trainer Courses", icon: Star, leftColor: "border-l-purple-500", iconColor: isDark ? "text-purple-400" : "text-purple-600",
+              { title: "Value-Added & Trainer Courses", icon: Star, leftColor: "purple",
                 items: ["Ship's Cook Training & Certification", "Vertical Integration Course for Trainers (VICT) & AECS", "Train the Simulator Trainer and Assessor Course (TSTA)", "Flag State Endorsements & Flag Courses (Panama, Liberia, etc.)"] }
             ].map((sub, i) => (
               <ScrollReveal key={i} delay={i * 80}>
-                <div className={`border-l-4 rounded-r-xl rounded-l-sm p-6 h-full flex flex-col gap-3 ${
-                  isDark ? `bg-[#0b1329] border border-slate-800/60 ${sub.leftColor}` : `bg-white border border-slate-200 shadow-sm ${sub.leftColor}`
-                }`}>
-                  <div className="flex items-center gap-2.5">
-                    <sub.icon className={`w-5 h-5 shrink-0 ${sub.iconColor}`} />
-                    <h4 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>{sub.title}</h4>
-                  </div>
-                  <ul className={`text-[12px] space-y-1 font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {sub.items.map((item, j) => <li key={j} className="flex gap-2"><span className="text-current opacity-50 shrink-0">•</span>{item}</li>)}
+                <AboutCard
+                  title={sub.title}
+                  icon={sub.icon}
+                  leftColor={sub.leftColor}
+                  isDark={isDark}
+                >
+                  <ul className="space-y-1">
+                    {sub.items.map((item, j) => (
+                      <li key={j} className="flex gap-2 items-start text-left">
+                        <span className="opacity-55 shrink-0 select-none">•</span>
+                        <span>{item}</span>
+                      </li>
+                    ))}
                   </ul>
-                </div>
+                </AboutCard>
               </ScrollReveal>
             ))}
           </div>
@@ -924,7 +823,7 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Courses &amp; Flag State Solutions</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
           <ScrollReveal delay={100}>
@@ -966,15 +865,14 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Candidate Audit &amp; Strict Data Privacy</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
-          <div className="grid md:grid-cols-2 gap-5">
-            {/* Top row — white cards */}
+          <div className="grid md:grid-cols-2 gap-8">
             {[
               { title: "Individual Profile Audit & Checklists", icon: Search,
-                iconColor: isDark ? "text-blue-400" : "text-blue-600",
-                bgCard: isDark ? "bg-[#0b1329] border-slate-700" : "bg-white border-slate-200",
+                leftColor: "blue",
+                highlight: false,
                 descParts: [
                   { text: "We systematically audit candidate profiles provided in your database against company requirements and basic DG Shipping norms, verifying amended PSSR course requirements, mandatory " },
                   { text: "Sagar Mein Yog", bold: true },
@@ -982,34 +880,31 @@ export default function AboutUsPage() {
                 ]
               },
               { title: "Gap Analysis & Fast-Track Assistance", icon: Layers,
-                iconColor: isDark ? "text-blue-400" : "text-blue-600",
-                bgCard: isDark ? "bg-[#0b1329] border-slate-700" : "bg-white border-slate-200",
+                leftColor: "blue",
+                highlight: false,
                 desc: "As per agreement, we proactively notify both company and candidate of required updates, providing end-to-end guidance to execute course enrollments and documentation as quickly as possible for mutual benefit."
               },
-              /* Bottom row — light mint-green tint cards */
               { title: "100% Strict Non-Disclosure Policy", icon: Lock,
-                iconColor: isDark ? "text-emerald-400" : "text-emerald-600",
-                bgCard: isDark ? "bg-emerald-950/25 border-emerald-900/40" : "bg-emerald-50 border-emerald-200/70",
+                leftColor: "emerald",
+                highlight: true,
                 desc: "We strictly guarantee that candidate details, documents, and data will NEVER be shared with any third-party institution, organization, or external firm for any use or mode. Client data remains 100% protected."
               },
               { title: "Sole Access & Accountable Management", icon: Users,
-                iconColor: isDark ? "text-emerald-400" : "text-emerald-600",
-                bgCard: isDark ? "bg-emerald-950/25 border-emerald-900/40" : "bg-emerald-50 border-emerald-200/70",
+                leftColor: "emerald",
+                highlight: true,
                 desc: "Only the authorized Hari Om Thalassic team maintains direct access to candidate profiles. We assume full responsibility for secure file handling, data integrity, and compliance updating."
               }
             ].map((card, idx) => (
               <ScrollReveal key={idx} delay={idx * 80}>
-                <div className={`rounded-xl p-6 h-full flex flex-col gap-3 border ${card.bgCard}`}>
-                  <div className="flex items-center gap-2.5">
-                    <card.icon className={`w-5 h-5 shrink-0 ${card.iconColor}`} />
-                    <h5 className={`text-sm font-black leading-snug ${isDark ? "text-white" : "text-slate-800"}`}>{card.title}</h5>
-                  </div>
-                  <p className={`text-[12px] leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-600"}`}>
-                    {"descParts" in card
-                      ? card.descParts!.map((p, pi) => p.bold ? <strong key={pi} className="font-black">{p.text}</strong> : <span key={pi}>{p.text}</span>)
-                      : card.desc}
-                  </p>
-                </div>
+                <AboutCard
+                  title={card.title}
+                  icon={card.icon}
+                  leftColor={card.leftColor}
+                  isDark={isDark}
+                  desc={card.desc}
+                  descParts={card.descParts}
+                  highlight={card.highlight}
+                />
               </ScrollReveal>
             ))}
           </div>
@@ -1023,7 +918,7 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Operational Scale &amp; Cumulative Impact</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
           <div className="grid md:grid-cols-2 gap-5">
@@ -1097,7 +992,7 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Annual Certification &amp; Training Volume</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
           <div className="grid md:grid-cols-2 gap-5">
@@ -1168,7 +1063,7 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-10">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Compliance &amp; Operational Impact</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
           <div className="grid md:grid-cols-2 gap-10 items-center">
@@ -1271,7 +1166,7 @@ export default function AboutUsPage() {
           <ScrollReveal>
             <div className="text-center md:text-left mb-16">
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">Corporate Engagement Workflow</h2>
-              <div className="w-12 h-1 bg-cyan-500 rounded-full" />
+              <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
             </div>
           </ScrollReveal>
 
