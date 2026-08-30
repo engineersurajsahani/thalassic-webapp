@@ -1,11 +1,14 @@
 # dependencies
 /node_modules
+<<<<<<< HEAD
 node_modules/
 backend/node_modules/
 **/node_modules/
 
 # backend build output
 backend/dist/
+=======
+>>>>>>> 851dfe9f (Agent Admin and Agent UI updated for the new seafarer journey)
 /.pnp
 .pnp.*
 

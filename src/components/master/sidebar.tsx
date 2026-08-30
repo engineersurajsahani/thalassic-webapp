@@ -4,32 +4,30 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
+import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, BookOpen, Users, BarChart3,
   Settings, LogOut, Anchor, ChevronRight,
-  Building2, UserCog, Wallet,
 } from "lucide-react";
 
 const menuItems = [
-  { label: "Dashboard",        href: "/master/dashboard",       icon: LayoutDashboard },
-  { label: "Course Management",href: "/master/courses",          icon: BookOpen        },
-  { label: "User Management",  href: "/master/users",            icon: Users           },
-  { label: "Company Admins",   href: "/master/company-admins",   icon: Building2       },
-  { label: "Agent Admins",     href: "/master/agent-admins",     icon: UserCog         },
-  { label: "Finance",          href: "/master/finance",          icon: Wallet          },
-  { label: "Reports",          href: "/master/reports",          icon: BarChart3       },
-  { label: "Settings",         href: "/master/settings",         icon: Settings        },
+  { label: "Dashboard",        href: "/master/dashboard", icon: LayoutDashboard },
+  { label: "Course Management",href: "/master/courses",   icon: BookOpen        },
+  { label: "User Management",  href: "/master/users",     icon: Users           },
+  { label: "Reports",          href: "/master/reports",   icon: BarChart3       },
+  { label: "Settings",         href: "/master/settings",  icon: Settings        },
 ];
 
 export default function MasterSidebar() {
   const { theme } = useTheme();
+  const { logout, user } = useAuth();
   const isDark = theme === "dark";
   const pathname = usePathname();
 
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(href + "/");
 
-  //  theme tokens 
+  // ── theme tokens ──────────────────────────────────────────────────────────
   const sidebarBg   = isDark ? "bg-[#0c1a2e] border-r border-white/5"        : "bg-white border-r border-slate-200";
   const brandBorder = isDark ? "border-white/8"                               : "border-slate-100";
   const logoText    = isDark ? "text-white"                                   : "text-slate-800";
@@ -88,15 +86,18 @@ export default function MasterSidebar() {
       {/* User + logout */}
       <div className={`p-3 border-t ${footBorder} space-y-1`}>
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
-          <div className="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center text-white text-xs font-bold shrink-0">
-            MA
+          <div className="w-7 h-7 rounded-full bg-sky-500 flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
+            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "MA"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className={`text-xs font-semibold truncate ${userName}`}>Master Admin</p>
-            <p className={`text-[11px] truncate ${userEmail}`}>admin@thalassic.in</p>
+            <p className={`text-xs font-semibold truncate ${userName}`}>{user?.name || "Master Admin"}</p>
+            <p className={`text-[11px] truncate ${userEmail}`}>{user?.email || "admin@thalassic.in"}</p>
           </div>
         </div>
-        <button className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 ${signOutBtn}`}>
+        <button
+          onClick={logout}
+          className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150 cursor-pointer ${signOutBtn}`}
+        >
           <LogOut className="w-4 h-4 shrink-0" />
           Sign out
         </button>
