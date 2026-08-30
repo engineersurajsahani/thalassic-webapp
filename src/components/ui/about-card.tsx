@@ -73,7 +73,7 @@ export const AboutCard: React.FC<AboutCardProps> = ({
 
   return (
     <div
-      className={`group flex flex-col gap-5 p-8 md:p-9 rounded-2xl border transition-all duration-300 ease-out hover:-translate-y-1 ${cardBgStyle} ${cardShadow}`}
+      className={`group flex flex-col justify-start gap-5 p-8 md:p-9 rounded-2xl border transition-all duration-300 ease-out hover:-translate-y-1 h-full w-full ${cardBgStyle} ${cardShadow}`}
     >
       {/* Icon Treatment: premium badge */}
       <div className="flex items-center gap-4">
@@ -101,7 +101,7 @@ export const AboutCard: React.FC<AboutCardProps> = ({
 
       {/* Description: Warmer editorial slate/grey with generous line-height */}
       <div
-        className={`text-[12.5px] leading-relaxed font-light ${
+        className={`text-[12.5px] leading-relaxed font-light flex-1 flex flex-col justify-start ${
           isDark
             ? "text-slate-400 group-hover:text-slate-300"
             : highlight
@@ -114,20 +114,22 @@ export const AboutCard: React.FC<AboutCardProps> = ({
         {children ? (
           children
         ) : descParts ? (
-          descParts.map((part, pIdx) =>
-            part.bold ? (
-              <strong
-                key={pIdx}
-                className={`font-black ${isDark ? "text-white" : "text-[#0F1B2D]"}`}
-              >
-                {part.text}
-              </strong>
-            ) : (
-              <span key={pIdx}>{part.text}</span>
-            )
-          )
+          <p className="leading-relaxed">
+            {descParts.map((part, pIdx) =>
+              part.bold ? (
+                <strong
+                  key={pIdx}
+                  className={`font-black ${isDark ? "text-white" : "text-[#0F1B2D]"}`}
+                >
+                  {part.text}
+                </strong>
+              ) : (
+                <span key={pIdx}>{part.text}</span>
+              )
+            )}
+          </p>
         ) : typeof desc === "string" ? (
-          <span>{desc}</span>
+          <p className="leading-relaxed">{desc}</p>
         ) : (
           desc
         )}

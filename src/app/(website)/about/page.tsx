@@ -41,7 +41,7 @@ import {
 import { AboutCard } from "@/components/ui/about-card";
 
 // --- SCROLL REVEAL COMPONENT ---
-function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function ScrollReveal({ children, delay = 0, className = "" }: { children: React.ReactNode; delay?: number; className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -70,10 +70,10 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
   return (
     <div
       ref={ref}
-      className={`transition-all duration-1000 transform will-change-transform ${isVisible
+      className={`h-full flex flex-col transition-all duration-1000 transform will-change-transform ${isVisible
           ? "opacity-100 translate-y-0 scale-100"
           : "opacity-0 translate-y-8 scale-[0.99]"
-        }`}
+        } ${className}`}
       style={{
         transitionDelay: `${delay}ms`,
         transitionTimingFunction: "cubic-bezier(0.34, 1.56, 0.64, 1)"
@@ -686,7 +686,7 @@ export default function AboutUsPage() {
                   leftColor={sub.leftColor}
                   isDark={isDark}
                 >
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5 flex-1 flex flex-col justify-start">
                     {sub.items.map((item, j) => (
                       <li key={j} className="flex gap-2 items-start text-left">
                         <span className="opacity-55 shrink-0 select-none">•</span>
@@ -728,7 +728,7 @@ export default function AboutUsPage() {
                   leftColor={sub.leftColor}
                   isDark={isDark}
                 >
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5 flex-1 flex flex-col justify-start">
                     {sub.items.map((item, j) => (
                       <li key={j} className="flex gap-2 items-start text-left">
                         <span className="opacity-55 shrink-0 select-none">•</span>
@@ -770,7 +770,7 @@ export default function AboutUsPage() {
                   leftColor={sub.leftColor}
                   isDark={isDark}
                 >
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5 flex-1 flex flex-col justify-start">
                     {sub.items.map((item, j) => (
                       <li key={j} className="flex gap-2 items-start text-left">
                         <span className="opacity-55 shrink-0 select-none">•</span>
@@ -812,7 +812,7 @@ export default function AboutUsPage() {
                   leftColor={sub.leftColor}
                   isDark={isDark}
                 >
-                  <ul className="space-y-1">
+                  <ul className="space-y-1.5 flex-1 flex flex-col justify-start">
                     {sub.items.map((item, j) => (
                       <li key={j} className="flex gap-2 items-start text-left">
                         <span className="opacity-55 shrink-0 select-none">•</span>
