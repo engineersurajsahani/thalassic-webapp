@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { User, Mail, Phone, ChevronDown, Check, UserCheck, Shield, Anchor, Plus } from "lucide-react";
+import { User, Mail, Phone, Check, UserCheck, Shield, Anchor, Plus, Tag } from "lucide-react";
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
 import { useTheme } from "@/providers/theme-provider";
@@ -41,20 +41,17 @@ export default function RegisterForm() {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const isDark = mounted ? theme === "dark" : true;
   const { register } = useAuth();
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
     phone: "",
     password: "",
     confirmPassword: "",
+    referralCode: "",
   });
 
   const [role, setRole] = useState("seafarer");
@@ -63,7 +60,19 @@ export default function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const selectedRoleOption = ROLES.find((r) => r.value === role);
+  useEffect(() => {
+    setMounted(true);
+    // Auto-populate referral code from URL query params (e.g. ?ref=REFAGENT123 or ?referralCode=...)
+    if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      const refCode = searchParams.get("ref") || searchParams.get("referralCode") || searchParams.get("referral_code");
+      if (refCode) {
+        setFormData((prev) => ({ ...prev, referralCode: refCode.toUpperCase() }));
+      }
+    }
+  }, []);
+
+  const isDark = mounted ? theme === "dark" : true;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -81,7 +90,9 @@ export default function RegisterForm() {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
-    if (!formData.name) newErrors.name = "Full name is required";
+    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
+    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+    
     if (!formData.email) newErrors.email = "Email is required";
     else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
     
@@ -94,8 +105,6 @@ export default function RegisterForm() {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
-
-
     if (!agreed) {
       newErrors.agree = "You must agree to the Terms of Service";
     }
@@ -105,15 +114,20 @@ export default function RegisterForm() {
       return;
     }
 
+    const fullName = `${formData.firstName.trim()} ${formData.lastName.trim()}`;
+
     setIsLoading(true);
     register({
+      name: fullName,
+      firstName: formData.firstName.trim(),
+      lastName: formData.lastName.trim(),
       email: formData.email,
       password: formData.password,
-      name: formData.name,
       phone: formData.phone,
       role: role,
+      referralCode: formData.referralCode.trim() ? formData.referralCode.trim().toUpperCase() : undefined,
     })
-      .then((user) => {
+      .then(() => {
         setIsSuccess(true);
       })
       .catch((err) => {
@@ -162,17 +176,31 @@ export default function RegisterForm() {
           {errors.submit}
         </div>
       )}
-      {/* Full Name */}
-      <AuthInput
-        label="Full Name"
-        name="name"
-        placeholder="Enter your full name"
-        icon={User}
-        value={formData.name}
-        onChange={handleChange}
-        error={errors.name}
-        required
-      />
+
+      {/* First Name & Last Name - Side by Side on Desktop */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <AuthInput
+          label="First Name"
+          name="firstName"
+          placeholder="First name"
+          icon={User}
+          value={formData.firstName}
+          onChange={handleChange}
+          error={errors.firstName}
+          required
+        />
+
+        <AuthInput
+          label="Last Name"
+          name="lastName"
+          placeholder="Last name"
+          icon={User}
+          value={formData.lastName}
+          onChange={handleChange}
+          error={errors.lastName}
+          required
+        />
+      </div>
 
       {/* Email & Phone Number - Side by Side on Desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -201,7 +229,18 @@ export default function RegisterForm() {
         />
       </div>
 
-
+      {/* Referral Code (Optional) */}
+      <AuthInput
+        label="Referral Code (Optional)"
+        name="referralCode"
+        placeholder="Enter Agent Referral Code (e.g. REFAGENT123)"
+        icon={Tag}
+        value={formData.referralCode}
+        onChange={(e) => {
+          const val = e.target.value.toUpperCase();
+          setFormData((prev) => ({ ...prev, referralCode: val }));
+        }}
+      />
 
       {/* Passwords - Side by Side on Desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
@@ -303,3 +342,4 @@ export default function RegisterForm() {
     </form>
   );
 }
+

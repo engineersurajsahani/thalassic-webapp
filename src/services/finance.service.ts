@@ -88,5 +88,10 @@ export const financeService = {
   async getAuditLogs(params?: any) {
     const response = await api.get("/finance/audit-logs", { params });
     return response.data;
+  },
+
+  async logFinancialActivity(dto: { action: string; module: string; entityId?: string; details?: string; previousValue?: any; updatedValue?: any }) {
+    const response = await api.post("/finance/audit-logs", dto);
+    return response.data;
   }
 };
