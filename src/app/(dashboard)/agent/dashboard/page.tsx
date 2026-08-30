@@ -7,7 +7,7 @@ import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
   Users, Share2, ClipboardList, DollarSign,
-  TrendingUp, Clock, HelpCircle, ArrowRight, Sparkles, Copy, Check
+  TrendingUp, Clock, HelpCircle, ArrowRight, Sparkles
 } from "lucide-react";
 
 export default function AgentDashboard() {
