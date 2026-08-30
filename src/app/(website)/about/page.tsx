@@ -111,7 +111,7 @@ export default function AboutUsPage() {
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500/10 via-transparent to-transparent pointer-events-none" />
         
         <div className="max-w-4xl mx-auto px-6 relative z-10 flex flex-col items-center">
-          <ScrollReveal>
+          <ScrollReveal className="flex flex-col items-center text-center">
             {/* Logo badge */}
             <div className="flex justify-center mb-4">
               <div className="relative w-24 h-24 rounded-full overflow-hidden border-4 border-cyan-500/20 shadow-2xl bg-slate-900">
@@ -126,8 +126,10 @@ export default function AboutUsPage() {
             </div>
 
             {/* Pill badge (above title) */}
-            <div className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase mb-4 border bg-cyan-500/10 text-cyan-400 border-cyan-500/20">
-              ⚓ CORPORATE PARTNERSHIP PITCH DECK
+            <div className="flex justify-center mb-4">
+              <div className="inline-flex items-center justify-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase border bg-cyan-500/10 text-cyan-400 border-cyan-500/20 w-fit">
+                ⚓ CORPORATE PARTNERSHIP PITCH DECK
+              </div>
             </div>
 
             {/* Main title */}
