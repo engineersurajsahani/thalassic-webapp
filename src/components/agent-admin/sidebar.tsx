@@ -8,17 +8,15 @@ import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, Users, FileText, ClipboardList,
   DollarSign, BarChart3, ShieldAlert, User, LogOut,
-  Anchor, ChevronRight, Receipt,
+  Anchor, ChevronRight, Receipt, Tag,
 } from "lucide-react";
 
 const menuItems = [
   { label: "Dashboard",          href: "/agent-admin/dashboard",      icon: LayoutDashboard },
   { label: "Agents",             href: "/agent-admin/agents",         icon: Users           },
-  { label: "Referrals Tracker",  href: "/agent-admin/referral-leads", icon: FileText        },
-  { label: "Commissions",        href: "/agent-admin/commissions",     icon: DollarSign      },
+  { label: "Course Pricing",     href: "/agent-admin/pricing",        icon: Tag             },
   { label: "Invoices",           href: "/agent-admin/invoices",        icon: Receipt         },
   { label: "Reports",            href: "/agent-admin/reports",         icon: BarChart3       },
-  { label: "Audit Logs",         href: "/agent-admin/audit-logs",      icon: ShieldAlert     },
   { label: "Profile",            href: "/agent-admin/profile",         icon: User            },
 ];
 
@@ -62,7 +60,7 @@ export default function AgentAdminSidebar() {
         </div>
         <div className="leading-tight">
           <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>
-          <p className={`text-[11px] font-medium tracking-wider uppercase ${logoSub}`}>Agent Admin</p>
+          <p className={`text-[11px] font-medium tracking-wider uppercase ${logoSub}`}>Partner Admin</p>
         </div>
       </div>
 
@@ -96,10 +94,10 @@ export default function AgentAdminSidebar() {
       <div className={`p-3 border-t ${footBorder} space-y-1`}>
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
           <div className="w-7 h-7 rounded-full bg-cyan-500 flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
-            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "AA"}
+            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "PA"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className={`text-xs font-semibold truncate ${userName}`}>{user?.name || "Agent Admin"}</p>
+            <p className={`text-xs font-semibold truncate ${userName}`}>{user?.name || "Partner Admin"}</p>
             <p className={`text-[11px] truncate ${userEmail}`}>{user?.email || "ops@thalassic.in"}</p>
           </div>
         </div>

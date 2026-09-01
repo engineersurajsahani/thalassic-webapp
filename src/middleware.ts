@@ -78,6 +78,20 @@ export function middleware(request: NextRequest) {
       const loginUrl = new URL("/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
+
+    if (roleNorm === "agent") {
+      if (onboardingStatus !== "Active") {
+        if (pathname !== "/agent/onboarding") {
+          const onboardUrl = new URL("/agent/onboarding", request.url);
+          return NextResponse.redirect(onboardUrl);
+        }
+      } else {
+        if (pathname === "/agent/onboarding") {
+          const dashboardUrl = new URL("/agent/dashboard", request.url);
+          return NextResponse.redirect(dashboardUrl);
+        }
+      }
+    }
   }
 
   return NextResponse.next();

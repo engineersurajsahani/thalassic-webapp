@@ -12,10 +12,8 @@ import {
 const pageNames: Record<string, string> = {
   "/agent-admin/dashboard": "Dashboard",
   "/agent-admin/agents":   "Agent Management",
-  "/agent-admin/referral-leads": "Referrals Tracker",
-  "/agent-admin/commissions":  "Commissions",
+  "/agent-admin/pricing":      "Course Pricing",
   "/agent-admin/reports":      "Reports",
-  "/agent-admin/audit-logs":   "Audit Logs",
   "/agent-admin/profile":      "Profile",
 };
 
@@ -57,11 +55,11 @@ export default function AgentAdminTopbar() {
         {isHome ? (
           <>
             <p className={`text-xs font-medium ${isDark ? "text-white/30" : "text-slate-400"}`}>{getFormattedDate()}</p>
-            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white/75" : "text-slate-700"}`}>{getGreeting()}, {user?.name || "Agent Admin"}</p>
+            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white/75" : "text-slate-700"}`}>{getGreeting()}, {user?.name || "Partner Admin"}</p>
           </>
         ) : (
           <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>
-            <span>Agent Admin</span>
+            <span>Partner Admin</span>
             <ChevronRight className="w-3 h-3" />
             <span className={isDark ? "text-white/70" : "text-slate-700"}>{currentPage}</span>
           </div>
@@ -103,10 +101,10 @@ export default function AgentAdminTopbar() {
 
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-cyan-500 flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
-            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "AA"}
+            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "PA"}
           </div>
           <div className="hidden sm:flex flex-col items-start leading-tight">
-            <span className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}>{user?.name || "Agent Admin"}</span>
+            <span className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}>{user?.name || "Partner Admin"}</span>
             <span className={`text-[10px] ${isDark ? "text-white/30" : "text-slate-400"}`}>Manning Operations</span>
           </div>
         </div>

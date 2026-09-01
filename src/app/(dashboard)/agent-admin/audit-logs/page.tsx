@@ -117,7 +117,7 @@ export default function AuditLogs() {
 
                     {/* Admin Name */}
                     <td className="py-4 px-2 font-bold">
-                      {log.user_name || "Agent Admin"}
+                      {log.user_name || "Partner Admin"}
                     </td>
 
                     {/* Action */}

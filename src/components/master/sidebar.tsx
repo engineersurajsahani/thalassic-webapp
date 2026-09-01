@@ -7,12 +7,13 @@ import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, BookOpen, Users, BarChart3,
-  Settings, LogOut, Anchor, ChevronRight,
+  Settings, LogOut, Anchor, ChevronRight, CheckSquare,
 } from "lucide-react";
 
 const menuItems = [
   { label: "Dashboard",        href: "/master/dashboard", icon: LayoutDashboard },
   { label: "Course Management",href: "/master/courses",   icon: BookOpen        },
+  { label: "Pricing Approvals",href: "/master/pricing-approvals", icon: CheckSquare },
   { label: "User Management",  href: "/master/users",     icon: Users           },
   { label: "Reports",          href: "/master/reports",   icon: BarChart3       },
   { label: "Settings",         href: "/master/settings",  icon: Settings        },
