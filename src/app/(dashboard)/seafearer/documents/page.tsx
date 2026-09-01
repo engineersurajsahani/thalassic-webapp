@@ -163,7 +163,7 @@ export default function DocumentsPage() {
       setPassportFile(null);
       await loadDocuments();
     } catch (err: any) {
-      alert(err.message || "Failed to upload Passport");
+      alert(err.response?.data?.message || err.message || "Failed to upload Passport");
     } finally {
       setUploadingPassport(false);
     }
@@ -195,7 +195,7 @@ export default function DocumentsPage() {
       setCdcFile(null);
       await loadDocuments();
     } catch (err: any) {
-      alert(err.message || "Failed to upload CDC");
+      alert(err.response?.data?.message || err.message || "Failed to upload CDC");
     } finally {
       setUploadingCdc(false);
     }
@@ -245,7 +245,7 @@ export default function DocumentsPage() {
       setShowCertForm(false);
       await loadDocuments();
     } catch (err: any) {
-      alert(err.message || "Failed to save certificate");
+      alert(err.response?.data?.message || err.message || "Failed to save certificate");
     } finally {
       setUploadingCert(false);
     }

@@ -372,7 +372,7 @@ export default function SeafarerManagementPage() {
                               </button>
                               <button
                                 onClick={() => {
-                                  /* handleOpenEdit stub – function was not defined */ void sf;
+                                  handleOpenEdit(sf);
                                   setActiveMenuSeafarerId(null);
                                 }}
                                 className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors ${

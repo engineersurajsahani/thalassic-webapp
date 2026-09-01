@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { AuthProvider } from "@/providers/auth-provider";
 import "./globals.css";
 
-const inter = Inter({
-  subsets: ["latin"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
   title: "Hari Om Thalassic",
-  description: "Maritime Career Partners",
+  description: "Maritime Career & Partner Portal",
 };
 
 export default function RootLayout({
@@ -42,7 +36,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={inter.className}>
+      <body className="antialiased font-sans">
         <ThemeProvider>
           <AuthProvider>
             {children}
