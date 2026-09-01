@@ -457,6 +457,216 @@ export const agentService = {
       };
     }
   },
+
+  // --- Agent & Partner Documents ---
+  async getDocuments() {
+    try {
+      const response = await api.get("/agent/documents");
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/documents");
+        return res.data;
+      } catch (err) {
+        return [];
+      }
+    }
+  },
+
+  async uploadDocument(
+    type: string,
+    file?: File,
+    serializedNameOrMeta?: string | { expiryDate?: string; documentNumber?: string; placeOfIssue?: string; dateOfIssue?: string },
+    metadata?: { expiryDate?: string; documentNumber?: string; placeOfIssue?: string; dateOfIssue?: string }
+  ) {
+    const formData = new FormData();
+    if (file) {
+      if (typeof serializedNameOrMeta === "string") {
+        formData.append("file", file, serializedNameOrMeta);
+      } else {
+        formData.append("file", file);
+      }
+    }
+    formData.append("type", type);
+
+    const meta = typeof serializedNameOrMeta === "object" ? serializedNameOrMeta : metadata;
+    if (meta?.expiryDate) formData.append("expiryDate", meta.expiryDate);
+    if (meta?.documentNumber) formData.append("documentNumber", meta.documentNumber);
+    if (meta?.placeOfIssue) formData.append("placeOfIssue", meta.placeOfIssue);
+    if (meta?.dateOfIssue) formData.append("dateOfIssue", meta.dateOfIssue);
+
+    try {
+      const response = await api.post("/documents/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return response.data;
+    } catch (e) {
+      const res = await api.post("/agent/documents", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      return res.data;
+    }
+  },
+
+  async getCommissions() {
+    try {
+      const response = await api.get("/agent/commissions");
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/commissions");
+        return res.data;
+      } catch (err) {
+        return [];
+      }
+    }
+  },
+
+  async downloadDocument(docId: string) {
+    try {
+      const response = await api.get(`/documents/${docId}/download`);
+      return response.data;
+    } catch (e) {
+      const res = await api.get(`/agent/documents/${docId}/download`);
+      return res.data;
+    }
+  },
+
+  // --- Notifications ---
+  async getNotifications() {
+    try {
+      const response = await api.get("/agent/notifications");
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/notifications");
+        return res.data;
+      } catch (err) {
+        return [];
+      }
+    }
+  },
+
+  async markNotificationRead(id: string) {
+    try {
+      const response = await api.patch(`/agent/notifications/${id}/read`);
+      return response.data;
+    } catch (e) {
+      const res = await api.patch(`/partner/notifications/${id}/read`);
+      return res.data;
+    }
+  },
+
+  async deleteNotification(id: string) {
+    try {
+      const response = await api.delete(`/agent/notifications/${id}`);
+      return response.data;
+    } catch (e) {
+      const res = await api.delete(`/partner/notifications/${id}`);
+      return res.data;
+    }
+  },
+
+  // --- Profile & Onboarding ---
+  async onboard(data: any) {
+    try {
+      const response = await api.post("/agent/onboarding", data);
+      return response.data;
+    } catch (e) {
+      const res = await api.post("/partner/onboarding", data);
+      return res.data;
+    }
+  },
+
+  async updateProfile(profileData: any) {
+    try {
+      const response = await api.put("/agent/profile", profileData);
+      return response.data;
+    } catch (e) {
+      const res = await api.put("/partner/profile", profileData);
+      return res.data;
+    }
+  },
+
+  async changePassword(passwordData: any) {
+    try {
+      const response = await api.put("/agent/settings/password", passwordData);
+      return response.data;
+    } catch (e) {
+      const res = await api.put("/partner/settings/password", passwordData);
+      return res.data;
+    }
+  },
+
+  // --- Referral Leads ---
+  async getLeads(query?: string) {
+    try {
+      const response = await api.get("/agent/leads", { params: { query } });
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/leads", { params: { query } });
+        return res.data;
+      } catch (err) {
+        return [];
+      }
+    }
+  },
+
+  async createLead(leadData: any) {
+    try {
+      const response = await api.post("/agent/leads", leadData);
+      return response.data;
+    } catch (e) {
+      const res = await api.post("/partner/leads", leadData);
+      return res.data;
+    }
+  },
+
+  async updateLead(id: string, leadData: any) {
+    try {
+      const response = await api.put(`/agent/leads/${id}`, leadData);
+      return response.data;
+    } catch (e) {
+      const res = await api.put(`/partner/leads/${id}`, leadData);
+      return res.data;
+    }
+  },
+
+  // --- Support Tickets ---
+  async getSupportTickets() {
+    try {
+      const response = await api.get("/agent/support");
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/support");
+        return res.data;
+      } catch (err) {
+        return [];
+      }
+    }
+  },
+
+  async createSupportTicket(ticketData: any) {
+    try {
+      const response = await api.post("/agent/support", ticketData);
+      return response.data;
+    } catch (e) {
+      const res = await api.post("/partner/support", ticketData);
+      return res.data;
+    }
+  },
+
+  async getSupportTicketById(id: string) {
+    try {
+      const response = await api.get(`/agent/support/${id}`);
+      return response.data;
+    } catch (e) {
+      const res = await api.get(`/partner/support/${id}`);
+      return res.data;
+    }
+  },
 };
 
 export const partnerService = agentService;
