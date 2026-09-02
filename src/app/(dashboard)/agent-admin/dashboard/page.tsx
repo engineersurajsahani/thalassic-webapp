@@ -70,7 +70,7 @@ export default function AgentAdminDashboard() {
       {/* Page Header */}
       <div>
         <h1 className={`text-2xl font-bold tracking-tight ${headText}`}>Operations Overview</h1>
-        <p className={`text-xs mt-1.5 ${mutedText}`}>Monitor agent performance, onboarding progress, and commissions.</p>
+        <p className={`text-xs mt-1.5 ${mutedText}`}>Monitor partner agents, course pricing, invoices, and settlements.</p>
       </div>
 
       {/* KPI Cards Grid */}
@@ -162,9 +162,6 @@ export default function AgentAdminDashboard() {
               <ShieldAlert className="w-4 h-4 text-cyan-400" />
               <h3 className={`text-sm font-bold ${headText}`}>Recent Administrative Activity</h3>
             </div>
-            <Link href="/agent-admin/audit-logs" className="text-xs text-cyan-400 font-semibold hover:underline flex items-center gap-1">
-              View all logs <ArrowUpRight className="w-3.5 h-3.5" />
-            </Link>
           </div>
 
           <div className={`flex-1 divide-y ${dv} overflow-y-auto max-h-[350px]`}>
@@ -199,14 +196,6 @@ export default function AgentAdminDashboard() {
               <div className="flex items-center gap-2.5">
                 <Users className="w-4 h-4 text-cyan-500" />
                 <span>Onboard New Agent</span>
-              </div>
-              <ChevronRight className="w-4 h-4 opacity-50" />
-            </Link>
-            
-            <Link href="/agent-admin/referral-leads" className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-xs font-semibold transition-all ${isDark ? "bg-white/5 border-white/5 hover:bg-white/10 text-white" : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"}`}>
-              <div className="flex items-center gap-2.5">
-                <FileText className="w-4 h-4 text-cyan-500" />
-                <span>Review Referral Leads</span>
               </div>
               <ChevronRight className="w-4 h-4 opacity-50" />
             </Link>

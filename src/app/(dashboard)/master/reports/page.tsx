@@ -51,7 +51,7 @@ const REPORT_CATEGORIES = [
     id: "admin", label: "Administrative", Icon: UserCog, color: "text-violet-400", bg: "bg-violet-500/15",
     reports: [
       { id: "cadmin", name: "Company Admin Activity Report", desc: "Actions and logins by company administrators", rows: 8 },
-      { id: "aadmin", name: "Agent Admin Activity Report", desc: "Actions and logins by agent administrators", rows: 7 },
+      { id: "aadmin", name: "Partner Admin Activity Report", desc: "Actions and logins by partner administrators", rows: 7 },
       { id: "login", name: "Login Activity Report", desc: "All login attempts across the platform", rows: 1480 },
       { id: "audit", name: "Audit Log Report", desc: "Complete audit trail of all admin actions", rows: 3260 },
     ],
@@ -70,14 +70,14 @@ const REPORT_CATEGORIES = [
     id: "referral", label: "Referral", Icon: GitMerge, color: "text-amber-400", bg: "bg-amber-500/15",
     reports: [
       { id: "refperf", name: "Referral Performance Report", desc: "Lead generation and conversion by agent", rows: 128 },
-      { id: "agconv", name: "Agent Conversion Report", desc: "Conversion rates per agent admin", rows: 41 },
+      { id: "agconv", name: "Agent Conversion Report", desc: "Conversion rates per partner admin", rows: 41 },
       { id: "refsrc", name: "Referral Source Analysis", desc: "Breakdown of referral origin channels", rows: 74 },
     ],
   },
 ];
 
 const STATUS_FILTERS = ["All", "Pending", "Paid", "Overdue", "Settled", "Failed"];
-const USER_TYPES = ["All", "Company Admin", "Agent Admin", "Agent", "Seafarer"];
+const USER_TYPES = ["All", "Company Admin", "Partner Admin", "Agent", "Seafarer"];
 const COURSES = ["All", "STCW Basic Safety", "Advanced Fire Fighting", "Ship Navigation & Radar", "Maritime Law", "Tanker Cargo Ops"];
 
 type GenerateState = Record<string, "idle" | "generating" | "done">;
@@ -87,7 +87,7 @@ type ScheduleModal = { open: boolean; reportId: string; reportName: string; };
 // Maps which report categories / ids are relevant to each filter dimension
 const REPORT_USER_RELEVANCE: Record<string, string[]> = {
   "Company Admin": ["cadmin", "audit", "login", "revenue", "payment", "invoice", "settle", "commout"],
-  "Agent Admin": ["aadmin", "audit", "login", "refperf", "agconv", "refsrc", "commout"],
+  "Partner Admin": ["aadmin", "audit", "login", "refperf", "agconv", "refsrc", "commout"],
   "Agent": ["refperf", "agconv", "refsrc", "commout"],
   "Seafarer": ["reg", "enroll", "active"],
 };
@@ -111,7 +111,7 @@ const MONTH_ORDER = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Se
 
 // ── Audit log static dataset ─────────────────────────────────────────────
 const ACTIONS = ["LOGIN", "LOGOUT", "CREATE", "UPDATE", "DELETE", "EXPORT", "VIEW", "APPROVE", "REJECT"];
-const ROLES = ["Master Admin", "Company Admin", "Agent Admin", "Agent", "Seafarer"];
+const ROLES = ["Master Admin", "Company Admin", "Partner Admin", "Agent", "Seafarer"];
 const ENTITIES = ["User", "Invoice", "Course", "Settlement", "Commission", "Report", "Enrollment", "Partner"];
 const DETAILS_MAP: Record<string, string> = {
   LOGIN: "Successful authentication", LOGOUT: "Session terminated",

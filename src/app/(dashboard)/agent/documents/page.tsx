@@ -328,7 +328,7 @@ export default function AgentDocumentsPage() {
           Document Manager
         </h1>
         <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          Upload, replace, and download your verification documents. Documents are reviewed by the Agent Admin.
+          Upload, replace, and download your verification documents. Documents are reviewed by the Partner Admin.
         </p>
       </div>
 
