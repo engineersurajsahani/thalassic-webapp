@@ -10,12 +10,12 @@ import {
 } from "lucide-react";
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  Pending: { bg: "bg-amber-100 dark:bg-amber-900/30", text: "text-amber-700 dark:text-amber-400", dot: "bg-amber-400" },
+  Pending: { bg: "bg-slate-100 dark:bg-white/5", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400" },
   Approved: { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-400" },
   Rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", dot: "bg-red-400" },
   Settled: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", dot: "bg-blue-400" },
   Paid: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", dot: "bg-purple-400" },
-  "Under Review": { bg: "bg-orange-100 dark:bg-orange-900/30", text: "text-orange-700 dark:text-orange-400", dot: "bg-orange-400" },
+  "Under Review": { bg: "bg-slate-100 dark:bg-white/5", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400" },
   Cancelled: { bg: "bg-slate-100 dark:bg-slate-800/60", text: "text-slate-500 dark:text-slate-400", dot: "bg-slate-400" },
 };
 
@@ -96,7 +96,11 @@ function SourceBadge({ source }: { source: string }) {
 export default function Commissions() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const card = `rounded-2xl p-5 ${isDark ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
+  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+    isDark
+      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
+      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+  }`;
   const ht = isDark ? "text-white/90" : "text-slate-800";
   const mt = isDark ? "text-white/40" : "text-slate-400";
   const inputCls = `bg-transparent outline-none w-full text-xs ${isDark ? "text-white" : "text-slate-800"}`;
@@ -269,7 +273,7 @@ export default function Commissions() {
     >
       {label}
       {count !== undefined && (
-        <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${activeTab === id ? "bg-white/25 text-white" : "bg-amber-500/20 text-amber-600"}`}>
+        <span className={`text-xs px-1.5 py-0.5 rounded-full font-bold ${activeTab === id ? "bg-white/25 text-white" : "bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300"}`}>
           {count}
         </span>
       )}
@@ -311,7 +315,7 @@ export default function Commissions() {
       {/* Stats Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { label: "Pending Approval", value: totalPending, icon: Clock, color: "text-amber-500" },
+          { label: "Pending Approval", value: totalPending, icon: Clock, color: "text-slate-600 dark:text-slate-300" },
           { label: "Approved", value: totalApproved, icon: CheckCircle, color: "text-emerald-500" },
           { label: "Total Earnings", value: `₹${totalEarnings.toLocaleString("en-IN")}`, icon: DollarSign, color: "text-blue-500" },
           { label: "Paid", value: totalPaid, icon: CheckCircle, color: "text-purple-500" },
@@ -420,10 +424,10 @@ export default function Commissions() {
                           <button
                             onClick={() => setSelectedCommDetails(c)}
                             title="View Details"
-                            className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-cyan-500/10 cursor-pointer ${
+                            className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm cursor-pointer ${
                               isDark 
-                                ? "bg-white/[0.02] border-white/10 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-500/30" 
-                                : "bg-slate-50 border-slate-200 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 hover:border-cyan-200"
+                                ? "bg-white/[0.02] border-white/10 text-[#3D5EF6] hover:text-[#3D5EF6] hover:bg-[#3D5EF6]/10 hover:border-[#3D5EF6]/30" 
+                                : "bg-slate-50 border-slate-200 text-[#3D5EF6] hover:text-[#2E4FE0] hover:bg-[#EEF1FE] hover:border-slate-300"
                             }`}
                           >
                             <Info className="w-3.5 h-3.5" />
@@ -494,7 +498,7 @@ export default function Commissions() {
       {/* Status Change Modal */}
       {showStatusModal && selectedComm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className={`rounded-2xl w-full max-w-md shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
+          <div className={`rounded-lg w-full max-w-md shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
             <div className="p-6">
               <h3 className={`text-lg font-bold mb-1 ${ht}`}>
                 {newStatus === "Approved" ? "Approve Commission" : "Reject Commission"}
@@ -538,7 +542,7 @@ export default function Commissions() {
       {/* Status History Modal */}
       {showHistoryModal && historyComm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className={`rounded-2xl w-full max-w-lg shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
+          <div className={`rounded-lg w-full max-w-lg shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className={`text-lg font-bold ${ht}`}>Status History</h3>
@@ -579,7 +583,7 @@ export default function Commissions() {
       {/* Settlement Batch Modal */}
       {showSettleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className={`rounded-2xl w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
+          <div className={`rounded-lg w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
             <div className="p-6 border-b border-white/[0.06] dark:border-white/10 border-slate-100">
               <h3 className={`text-lg font-bold ${ht}`}>Create Settlement Batch</h3>
               <p className={`text-xs mt-1 ${mt}`}>Select approved commissions to include in this settlement batch. Only commissions with Approved status can be settled.</p>
@@ -626,7 +630,7 @@ export default function Commissions() {
       {/* Commission Details Modal */}
       {selectedCommDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className={`w-full max-w-lg p-6 rounded-3xl relative animate-in zoom-in-95 duration-200 ${
+          <div className={`w-full max-w-lg p-6 rounded-lg relative animate-in zoom-in-95 duration-200 ${
             isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
           }`}>
             <button
@@ -637,7 +641,7 @@ export default function Commissions() {
             </button>
             
             <h3 className="text-base font-bold mb-5 flex items-center gap-2 border-b pb-3 border-white/5">
-              <DollarSign className="w-4 h-4 text-cyan-400" />
+              <DollarSign className="w-4 h-4 text-[#3D5EF6]" />
               Commission Details
             </h3>
 
@@ -680,11 +684,11 @@ export default function Commissions() {
                 <span className={mt}>Current Status</span>
                 <span className="col-span-2">
                   <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                    STATUS_COLORS[selectedCommDetails.status]?.bg || "bg-amber-100 dark:bg-amber-900/30"
+                    STATUS_COLORS[selectedCommDetails.status]?.bg || "bg-slate-100 dark:bg-white/5"
                   } ${
-                    STATUS_COLORS[selectedCommDetails.status]?.text || "text-amber-700 dark:text-amber-400"
+                    STATUS_COLORS[selectedCommDetails.status]?.text || "text-slate-600 dark:text-slate-400"
                   }`}>
-                    <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[selectedCommDetails.status]?.dot || "bg-amber-400"}`} />
+                    <span className={`w-1.5 h-1.5 rounded-full ${STATUS_COLORS[selectedCommDetails.status]?.dot || "bg-slate-400"}`} />
                     {selectedCommDetails.status}
                   </span>
                 </span>

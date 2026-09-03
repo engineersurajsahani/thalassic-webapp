@@ -54,7 +54,7 @@ export default function SeafearerSidebar() {
         {/* Brand / Logo */}
         <div className="h-16 flex items-center px-6 border-b border-transparent">
           <Link href="/seafearer/dashboard" className="flex items-center gap-3">
-            <Anchor className={`w-5.5 h-5.5 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
+            <Anchor className="w-5.5 h-5.5 text-[#3D5EF6]" />
             <span className={`font-bold tracking-tight text-base ${isDark ? "text-slate-100" : "text-slate-900"}`}>
               Thalassic
             </span>
@@ -71,18 +71,16 @@ export default function SeafearerSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold tracking-normal transition-all duration-150 ${
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold tracking-normal transition-colors duration-200 ${
                   active
-                    ? isDark
-                      ? "bg-slate-800/80 text-white font-bold"
-                      : "bg-slate-200 text-slate-950 font-bold"
+                    ? "bg-[#3D5EF6] text-white font-bold"
                     : isDark
-                    ? "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    ? "text-gray-300 hover:text-white hover:bg-[#1F2937]"
+                    : "text-[#6B7280] hover:text-[#3D5EF6] hover:bg-[#EEF1FE]"
                 }`}
               >
                 <Icon className={`w-4.5 h-4.5 shrink-0 ${
-                  active ? (isDark ? "text-cyan-400" : "text-blue-600") : "text-slate-400"
+                  active ? "text-white" : "text-gray-400"
                 }`} />
                 <span>{item.label}</span>
               </Link>

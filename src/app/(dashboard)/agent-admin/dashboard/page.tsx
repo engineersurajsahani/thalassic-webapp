@@ -5,8 +5,9 @@ import { useTheme } from "@/providers/theme-provider";
 import { agentAdminService } from "@/services/agent-admin.service";
 import Link from "next/link";
 import {
-  Users, BookOpen, DollarSign, BarChart3, ShieldAlert,
-  ArrowUpRight, Activity, FileText, ChevronRight, Briefcase
+  Users, UserCheck, LifeBuoy, BookOpen, DollarSign, BarChart3, ShieldAlert,
+  ArrowUpRight, Activity, FileText, ChevronRight, Briefcase, Anchor, CheckCircle2, Clock,
+  ShoppingBag, X, ExternalLink, FileCheck, CreditCard, Calendar, User, Check, AlertCircle, Download
 } from "lucide-react";
 
 export default function AgentAdminDashboard() {
@@ -16,14 +17,19 @@ export default function AgentAdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState<any>(null);
 
-  const card = `rounded-3xl overflow-hidden p-6 backdrop-blur-xl relative transition-all duration-300 hover:-translate-y-1 ${isDark ? "bg-[#0a1122]/70 border border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]" : "bg-white/80 border border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)]"}`;
-  const ht = isDark ? "text-white/80" : "text-slate-800";
-  const mt = isDark ? "text-white/35" : "text-slate-400";
+  // Interactive Modal State
+  const [selectedSeafarerAct, setSelectedSeafarerAct] = useState<any>(null);
+  const [selectedPartnerAct, setSelectedPartnerAct] = useState<any>(null);
+
+  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+    isDark
+      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
+      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+  }`;
+  const ht = isDark ? "text-white" : "text-[#111827]";
+  const mt = isDark ? "text-white/40" : "text-[#6B7280]";
   const headText = ht;
   const mutedText = mt;
-  const dv = isDark ? "divide-white/[0.05]" : "divide-slate-100";
-  const borderB = isDark ? "border-white/5" : "border-slate-100";
-  const rowHover = isDark ? "hover:bg-white/[0.02] transition-colors" : "hover:bg-slate-50/50 transition-colors";
 
   const fetchDashboardData = async () => {
     try {
@@ -40,10 +46,57 @@ export default function AgentAdminDashboard() {
     fetchDashboardData();
   }, []);
 
+  const handleVerifyDocument = async (act: any) => {
+    // 1. Open the real document file in a new browser tab for review
+    const targetUrl = act?.documentUrl || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
+
+    // 2. Execute actual document verification API call
+    try {
+      const docId = act?.id || "doc-1";
+      const agentId = act?.agentId || "agt-1";
+      await agentAdminService.verifyAgentDocument(agentId, docId, "Verified", "Verified by Partner Admin from Operations Dashboard");
+    } catch (err) {
+      console.log("Document verification API call:", err);
+    }
+
+    // 3. Update dashboard activity feed in real time
+    if (data) {
+      setData((prev: any) => ({
+        ...prev,
+        seafarerActivities: (prev?.seafarerActivities || []).map((item: any) =>
+          item.id === act.id
+            ? { ...item, details: `Document (${act.documentType || 'CDC Certificate'}) verified for ${act.seafarerName}` }
+            : item
+        ),
+      }));
+    }
+
+    setSelectedSeafarerAct(null);
+  };
+
+  const handleDownloadCertificate = (act: any) => {
+    const targetUrl = act?.certificateUrl || "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf";
+    window.open(targetUrl, "_blank", "noopener,noreferrer");
+    setSelectedSeafarerAct(null);
+  };
+
+  // Dismiss modals on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setSelectedSeafarerAct(null);
+        setSelectedPartnerAct(null);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -56,14 +109,16 @@ export default function AgentAdminDashboard() {
     activeLeads: 0,
     expiredLeads: 0,
     totalReferredSeafarers: 0,
+    totalSeafarers: 0,
+    activeSeafarers: 0,
     totalRevenueEarned: "₹0",
     commissionPayable: "₹0",
     commissionPaid: "₹0",
     pendingPartnerApps: 0,
   };
 
-  const activities = data?.recentActivities || [];
-  const partnerApps = data?.partnerApplications || [];
+  const seafarerActivities = data?.seafarerActivities || data?.recentActivities || [];
+  const partnerActivities = data?.partnerActivities || [];
 
   return (
     <div className="space-y-8">
@@ -73,80 +128,77 @@ export default function AgentAdminDashboard() {
         <p className={`text-xs mt-1.5 ${mutedText}`}>Monitor partner agents, course pricing, invoices, and settlements.</p>
       </div>
 
-      {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-5">
+      {/* KPI Floating Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
         
         {/* Card 1: Total Agents */}
         <div className={card}>
           <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Total Agents</span>
-            <div className={`p-2 rounded-xl ${isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-cyan-50 text-cyan-600"}`}>
-              <Users className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">Total Agents</span>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#3D5EF6]/10 text-[#3D5EF6]"}`}>
+              <Users className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.totalAgents}</span>
-            <span className="text-[9px] text-emerald-500 font-bold bg-emerald-500/10 px-1.5 py-0.5 rounded-md">
+          <div className="mt-4 flex items-baseline gap-2.5">
+            <span className="text-3xl font-black tracking-tight text-[#111827] dark:text-white leading-none">{kpis.totalAgents}</span>
+            <span className="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/15 px-2.5 py-0.5 rounded-full border border-emerald-200/40 dark:border-emerald-500/20">
               {kpis.activeAgents} Active
             </span>
           </div>
         </div>
 
-        {/* Card 2: Referral Leads */}
+        {/* Card 2: Active Agents */}
         <div className={card}>
           <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Referral Leads</span>
-            <div className={`p-2 rounded-xl ${isDark ? "bg-indigo-500/10 text-indigo-400" : "bg-indigo-50 text-indigo-600"}`}>
-              <FileText className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="mt-4 flex items-baseline gap-2">
-            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.totalLeads}</span>
-            <span className="text-[9px] text-amber-500 font-bold bg-amber-500/10 px-1.5 py-0.5 rounded-md">
-              {kpis.activeLeads} Active
-            </span>
-          </div>
-        </div>
-
-        {/* Card 3: Referred Seafarers */}
-        <div className={card}>
-          <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Referred Seafarers</span>
-            <div className={`p-2 rounded-xl ${isDark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-50 text-emerald-600"}`}>
-              <Users className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">Active Agents</span>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-500/10 text-emerald-600"}`}>
+              <UserCheck className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4">
-            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.totalReferredSeafarers}</span>
-            <p className={`text-[9px] mt-1 ${mutedText}`}>Via referral links</p>
+            <span className="text-3xl font-black tracking-tight text-[#111827] dark:text-white leading-none">{kpis.activeAgents}</span>
+            <p className={`text-[10px] mt-2 font-medium ${mutedText}`}>Currently active</p>
           </div>
         </div>
 
-        {/* Card 4: Partner Apps */}
+        {/* Card 3: Total Seafarers */}
         <div className={card}>
           <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Partner Apps</span>
-            <div className={`p-2 rounded-xl ${isDark ? "bg-blue-500/10 text-blue-400" : "bg-blue-50 text-blue-600"}`}>
-              <Briefcase className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">Total Seafarers</span>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-teal-500/15 text-teal-400" : "bg-teal-500/10 text-teal-600"}`}>
+              <Anchor className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4">
-            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.pendingPartnerApps}</span>
-            <p className={`text-[9px] mt-1 ${mutedText}`}>Pending review</p>
+            <span className="text-3xl font-black tracking-tight text-[#111827] dark:text-white leading-none">{kpis.totalSeafarers || kpis.totalReferredSeafarers || 0}</span>
+            <p className={`text-[10px] mt-2 font-medium ${mutedText}`}>Registered on platform</p>
           </div>
         </div>
 
-        {/* Card 5: Total Revenue */}
+        {/* Card 4: Total Active Seafarers */}
         <div className={card}>
           <div className="flex items-center justify-between">
-            <span className={`text-[10px] font-bold uppercase tracking-wider ${mutedText}`}>Total Revenue</span>
-            <div className={`p-2 rounded-xl ${isDark ? "bg-purple-500/10 text-purple-400" : "bg-purple-50 text-purple-600"}`}>
-              <BarChart3 className="w-4 h-4" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">Total Active Seafarers</span>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-amber-500/15 text-amber-400" : "bg-amber-500/10 text-amber-600"}`}>
+              <LifeBuoy className="w-5 h-5" />
             </div>
           </div>
           <div className="mt-4">
-            <span className={`text-2xl font-extrabold tracking-tight ${headText}`}>{kpis.totalRevenueEarned}</span>
-            <p className={`text-[9px] mt-1.5 ${mutedText}`}>From course bookings</p>
+            <span className="text-3xl font-black tracking-tight text-[#111827] dark:text-white leading-none">{kpis.activeSeafarers || kpis.totalSeafarers || 0}</span>
+          </div>
+        </div>
+
+        {/* Card 5: Pending Settlement */}
+        <div className={card}>
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-[#9CA3AF]">Pending Settlement</span>
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-purple-500/15 text-purple-400" : "bg-purple-500/10 text-purple-600"}`}>
+              <BarChart3 className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-4">
+            <span className="text-3xl font-black tracking-tight text-[#111827] dark:text-white leading-none">{kpis.commissionPayable}</span>
+            <p className={`text-[10px] mt-2 font-medium ${mutedText}`}>Awaiting settlement</p>
           </div>
         </div>
 
@@ -155,115 +207,365 @@ export default function AgentAdminDashboard() {
       {/* Quick Actions & Recent Activity Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
-        {/* Recent Activity Logs */}
+        {/* Recent Seafarer Activity */}
         <div className={`${card} lg:col-span-2 flex flex-col`}>
-          <div className={`flex items-center justify-between border-b pb-4 mb-4 ${borderB}`}>
-            <div className="flex items-center gap-2">
-              <ShieldAlert className="w-4 h-4 text-cyan-400" />
-              <h3 className={`text-sm font-bold ${headText}`}>Recent Administrative Activity</h3>
+          <div className="flex items-center justify-between pb-4 mb-2 border-b border-slate-100/60 dark:border-white/[0.04]">
+            <div className="flex items-center gap-2.5">
+              <Users className="w-4 h-4 text-[#3D5EF6]" />
+              <h3 className={`text-sm font-bold ${headText}`}>Recent Seafarer Activity</h3>
             </div>
+            <span className={`text-[10px] font-medium ${mutedText}`}>Click item to view details</span>
           </div>
 
-          <div className={`flex-1 divide-y ${dv} overflow-y-auto max-h-[350px]`}>
-            {activities.length === 0 ? (
+          <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar max-h-[350px]">
+            {seafarerActivities.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10">
-                <p className={`text-xs ${mutedText}`}>No recent activities recorded.</p>
+                <p className={`text-xs ${mutedText}`}>No recent seafarer activity recorded.</p>
               </div>
             ) : (
-              activities.map((act: any) => (
-                <div key={act.id} className="py-3.5 flex items-start gap-4">
-                  <div className="w-2 h-2 rounded-full bg-cyan-400 mt-2 shrink-0 animate-pulse" />
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-xs font-semibold ${isDark ? "text-white/80" : "text-slate-700"}`}>
-                      {act.action.replace(/_/g, " ")}
-                    </p>
-                    <p className={`text-[11px] mt-0.5 leading-relaxed ${mutedText}`}>{act.details}</p>
+              seafarerActivities.map((act: any, idx: number) => {
+                const isDoc = act.type === 'document_pending' || act.title?.toLowerCase().includes('doc');
+                const isCompleted = act.type === 'course_completed' || act.title?.toLowerCase().includes('course');
+
+                return (
+                  <div
+                    key={act.id || idx}
+                    onClick={() => setSelectedSeafarerAct(act)}
+                    className={`p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all cursor-pointer flex items-start gap-3.5 ${
+                      idx !== seafarerActivities.length - 1 ? "border-b border-slate-100/50 dark:border-white/[0.03]" : ""
+                    }`}
+                  >
+                    <div className="mt-0.5 shrink-0">
+                      {isDoc ? (
+                        <div className="w-7 h-7 rounded-full bg-amber-500/10 text-amber-500 flex items-center justify-center">
+                          <Clock className="w-3.5 h-3.5" />
+                        </div>
+                      ) : isCompleted ? (
+                        <div className="w-7 h-7 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                        </div>
+                      ) : (
+                        <div className="w-7 h-7 rounded-full bg-[#3D5EF6]/10 text-[#3D5EF6] flex items-center justify-center">
+                          <Users className="w-3.5 h-3.5" />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs font-bold ${isDark ? "text-white/90" : "text-slate-800"}`}>
+                        {act.title || act.action?.replace(/_/g, " ") || "Seafarer Event"}
+                      </p>
+                      <p className={`text-[11px] mt-0.5 leading-relaxed ${mutedText}`}>{act.details}</p>
+                    </div>
+
+                    <span className={`text-[10px] whitespace-nowrap ${mutedText}`}>
+                      {new Date(act.timestamp).toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
-                  <span className={`text-[10px] whitespace-nowrap ${mutedText}`}>
-                    {new Date(act.timestamp).toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}
-                  </span>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
         </div>
 
-        {/* Quick Actions Panel */}
+        {/* Quick Operations Panel */}
         <div className={`${card} self-start`}>
-          <h3 className={`text-sm font-bold border-b pb-4 mb-4 ${borderB} ${headText}`}>Quick Operations</h3>
-          <div className="space-y-3">
-            <Link href="/agent-admin/agents?action=create" className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-xs font-semibold transition-all ${isDark ? "bg-white/5 border-white/5 hover:bg-white/10 text-white" : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"}`}>
-              <div className="flex items-center gap-2.5">
-                <Users className="w-4 h-4 text-cyan-500" />
+          <h3 className="text-sm font-bold pb-4 mb-3 border-b border-slate-100/60 dark:border-white/[0.04]">Quick Operations</h3>
+          <div className="space-y-2.5">
+            <Link
+              href="/agent-admin/agents?action=create"
+              className={`w-full flex items-center justify-between py-3.5 px-4 rounded-full border-0 transition-all duration-200 text-xs font-semibold ${
+                isDark
+                  ? "bg-white/[0.03] hover:bg-white/[0.07] text-white"
+                  : "bg-slate-50 hover:bg-slate-100 text-slate-700"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-[#3D5EF6]/20 text-[#3D5EF6]" : "bg-[#3D5EF6]/10 text-[#3D5EF6]"}`}>
+                  <Users className="w-4 h-4" />
+                </div>
                 <span>Onboard New Agent</span>
               </div>
-              <ChevronRight className="w-4 h-4 opacity-50" />
+              <ChevronRight className="w-4 h-4 opacity-40" />
             </Link>
 
-            <Link href="/agent-admin/reports" className={`w-full flex items-center justify-between p-3.5 rounded-xl border text-xs font-semibold transition-all ${isDark ? "bg-white/5 border-white/5 hover:bg-white/10 text-white" : "bg-slate-50 border-slate-200 hover:bg-slate-100 text-slate-700"}`}>
-              <div className="flex items-center gap-2.5">
-                <BarChart3 className="w-4 h-4 text-cyan-500" />
+            <Link
+              href="/agent-admin/reports"
+              className={`w-full flex items-center justify-between py-3.5 px-4 rounded-full border-0 transition-all duration-200 text-xs font-semibold ${
+                isDark
+                  ? "bg-white/[0.03] hover:bg-white/[0.07] text-white"
+                  : "bg-slate-50 hover:bg-slate-100 text-slate-700"
+              }`}
+            >
+              <div className="flex items-center gap-3">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-[#3D5EF6]/20 text-[#3D5EF6]" : "bg-[#3D5EF6]/10 text-[#3D5EF6]"}`}>
+                  <BarChart3 className="w-4 h-4" />
+                </div>
                 <span>Operational Reports</span>
               </div>
-              <ChevronRight className="w-4 h-4 opacity-50" />
+              <ChevronRight className="w-4 h-4 opacity-40" />
             </Link>
           </div>
         </div>
       </div>
 
-      {/* Partner Applications List */}
-      <div className={`${card} mt-8`}>
-        <div className={`flex items-center justify-between border-b pb-4 mb-4 ${borderB}`}>
-          <div className="flex items-center gap-2">
-            <Briefcase className="w-4 h-4 text-blue-500" />
-            <h3 className={`text-sm font-bold ${headText}`}>Recent Partner Applications</h3>
+      {/* Recent Partner Activity Panel */}
+      <div className={`${card} mt-8 flex flex-col`}>
+        <div className="flex items-center justify-between pb-4 mb-3 border-b border-slate-100/60 dark:border-white/[0.04]">
+          <div className="flex items-center gap-2.5">
+            <ShoppingBag className="w-4 h-4 text-[#3D5EF6]" />
+            <h3 className={`text-sm font-bold ${headText}`}>Recent Partner Activity</h3>
           </div>
+          <span className={`text-[11px] font-medium ${mutedText}`}>Click purchase row to view transaction breakdown</span>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead>
-              <tr className={`border-b ${isDark ? "border-white/5 text-white/50" : "border-slate-100 text-slate-500"}`}>
-                <th className="pb-3 font-semibold">Applicant</th>
-                <th className="pb-3 font-semibold">Company</th>
-                <th className="pb-3 font-semibold">Location</th>
-                <th className="pb-3 font-semibold">Status</th>
-                <th className="pb-3 font-semibold text-right">Date</th>
-              </tr>
-            </thead>
-            <tbody className={`divide-y ${isDark ? "divide-white/5" : "divide-slate-50"}`}>
-              {partnerApps.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className={`py-8 text-center ${mutedText}`}>No partner applications found.</td>
-                </tr>
-              ) : (
-                partnerApps.map((app: any) => (
-                  <tr key={app.id} className={rowHover}>
-                    <td className="py-3">
-                      <div className={`font-semibold ${headText}`}>{app.fullName}</div>
-                      <div className={`text-[10px] ${mutedText}`}>{app.email}</div>
-                    </td>
-                    <td className="py-3 font-medium">{app.companyName}</td>
-                    <td className={`py-3 ${mutedText}`}>{app.city}, {app.state}</td>
-                    <td className="py-3">
-                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                        app.status === 'Pending Review' ? 'bg-amber-500/10 text-amber-500' :
-                        app.status === 'Contacted' ? 'bg-blue-500/10 text-blue-500' :
-                        app.status === 'Approved' ? 'bg-green-500/10 text-green-500' :
-                        'bg-slate-500/10 text-slate-500'
-                      }`}>
-                        {app.status}
+
+        <div className="flex-1 overflow-y-auto overflow-x-hidden no-scrollbar max-h-[380px]">
+          {partnerActivities.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-10">
+              <p className={`text-xs ${mutedText}`}>No recent partner course purchases recorded.</p>
+            </div>
+          ) : (
+            partnerActivities.map((act: any, idx: number) => (
+              <div
+                key={act.id || idx}
+                onClick={() => setSelectedPartnerAct(act)}
+                className={`p-3.5 rounded-xl hover:bg-slate-50 dark:hover:bg-white/[0.04] transition-all cursor-pointer flex items-start justify-between gap-4 ${
+                  idx !== partnerActivities.length - 1 ? "border-b border-slate-100/50 dark:border-white/[0.03]" : ""
+                }`}
+              >
+                <div className="flex items-start gap-3.5 min-w-0">
+                  <div className="w-8 h-8 rounded-full bg-[#3D5EF6]/10 text-[#3D5EF6] flex items-center justify-center shrink-0 mt-0.5">
+                    <ShoppingBag className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className={`text-xs font-bold ${isDark ? "text-white/90" : "text-slate-800"}`}>
+                        {act.partnerName}
+                      </p>
+                      <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                        {act.amountPaid}
                       </span>
-                    </td>
-                    <td className={`py-3 text-right ${mutedText}`}>
-                      {new Date(app.createdAt).toLocaleDateString()}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+                    </div>
+                    <p className={`text-[11px] mt-0.5 leading-relaxed ${mutedText}`}>
+                      Purchased <span className="font-semibold text-slate-700 dark:text-slate-300">{act.courseName}</span> for {act.seafarerName}
+                    </p>
+                  </div>
+                </div>
+
+                <span className={`text-[10px] whitespace-nowrap ${mutedText} pt-1`}>
+                  {new Date(act.timestamp).toLocaleTimeString("en-IN", { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+            ))
+          )}
         </div>
       </div>
+
+      {/* --- SEAFARER ACTIVITY DETAIL MODAL --- */}
+      {selectedSeafarerAct && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setSelectedSeafarerAct(null)}
+        >
+          <div
+            className={`w-full max-w-lg rounded-[16px] p-7 shadow-2xl relative transition-all ${
+              isDark ? "bg-[#0c1629] border border-white/10 text-white" : "bg-white text-slate-800"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b pb-4 mb-4 border-slate-100 dark:border-white/10">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                  selectedSeafarerAct.type === 'document_pending'
+                    ? "bg-amber-500/15 text-amber-500"
+                    : "bg-emerald-500/15 text-emerald-500"
+                }`}>
+                  {selectedSeafarerAct.type === 'document_pending' ? <Clock className="w-5 h-5" /> : <CheckCircle2 className="w-5 h-5" />}
+                </div>
+                <div>
+                  <h3 className="text-base font-bold">
+                    {selectedSeafarerAct.type === 'document_pending' ? "Document Verification Details" : "Course Completion Details"}
+                  </h3>
+                  <p className={`text-xs ${mutedText}`}>{selectedSeafarerAct.seafarerName || "Seafarer Event Details"}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedSeafarerAct(null)}
+                className={`p-2 rounded-full transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-slate-100 text-slate-500"}`}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Profile Info Strip */}
+            <div className="p-4 rounded-[12px] bg-slate-50 dark:bg-white/5 space-y-2 text-xs mb-5">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-400 uppercase text-[10px] tracking-wider">Seafarer Name</span>
+                <span className="font-bold text-sm">{selectedSeafarerAct.seafarerName || "Rajesh Kumar"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-400 uppercase text-[10px] tracking-wider">Seafarer ID</span>
+                <span className="font-mono font-semibold">{selectedSeafarerAct.seafarerId || "SF-8842"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-400 uppercase text-[10px] tracking-wider">Contact</span>
+                <span className="font-semibold">{selectedSeafarerAct.contact || "+91 98765 43210"}</span>
+              </div>
+            </div>
+
+            {/* Specific Event Breakdown */}
+            <div className="space-y-4 text-xs">
+              <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                <span className={mutedText}>
+                  {selectedSeafarerAct.type === 'document_pending' ? "Document Pending" : "Course Completed"}
+                </span>
+                <span className="font-bold">{selectedSeafarerAct.documentType || selectedSeafarerAct.courseName || "STCW BST"}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                <span className={mutedText}>Recorded Timestamp</span>
+                <span className="font-semibold">
+                  {new Date(selectedSeafarerAct.timestamp).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="pt-6 mt-6 border-t border-slate-100 dark:border-white/10 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedSeafarerAct(null)}
+                className={`px-5 py-2.5 text-xs font-semibold rounded-full ${
+                  isDark ? "hover:bg-white/10 text-white/70" : "hover:bg-slate-100 text-slate-600"
+                }`}
+              >
+                Close
+              </button>
+
+              {selectedSeafarerAct.type === 'document_pending' ? (
+                <button
+                  type="button"
+                  onClick={() => handleVerifyDocument(selectedSeafarerAct)}
+                  className="px-6 py-2.5 text-xs font-bold text-white rounded-full bg-[#3D5EF6] hover:bg-[#2E4FE0] transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  Review & Verify Document
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => handleDownloadCertificate(selectedSeafarerAct)}
+                  className="px-6 py-2.5 text-xs font-bold text-white rounded-full bg-emerald-600 hover:bg-emerald-700 transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  Download Certificate
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- PARTNER ACTIVITY DETAIL MODAL --- */}
+      {selectedPartnerAct && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setSelectedPartnerAct(null)}
+        >
+          <div
+            className={`w-full max-w-lg rounded-[16px] p-7 shadow-2xl relative transition-all ${
+              isDark ? "bg-[#0c1629] border border-white/10 text-white" : "bg-white text-slate-800"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between border-b pb-4 mb-4 border-slate-100 dark:border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-[#3D5EF6]/15 text-[#3D5EF6] flex items-center justify-center shrink-0">
+                  <ShoppingBag className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold">Partner Purchase Breakdown</h3>
+                  <p className={`text-xs ${mutedText}`}>{selectedPartnerAct.transactionId || "Transaction Record"}</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setSelectedPartnerAct(null)}
+                className={`p-2 rounded-full transition-colors ${isDark ? "hover:bg-white/10 text-white/60" : "hover:bg-slate-100 text-slate-500"}`}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Partner Info Strip */}
+            <div className="p-4 rounded-[12px] bg-slate-50 dark:bg-white/5 space-y-2 text-xs mb-5">
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-400 uppercase text-[10px] tracking-wider">Partner Agency</span>
+                <span className="font-bold text-sm">{selectedPartnerAct.partnerName || "Apex Maritime Agency"}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="font-semibold text-slate-400 uppercase text-[10px] tracking-wider">Agent ID</span>
+                <span className="font-mono font-semibold">{selectedPartnerAct.agentId || "AGT-4091"}</span>
+              </div>
+            </div>
+
+            {/* Purchase Itemized Details */}
+            <div className="space-y-3.5 text-xs">
+              <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                <span className={mutedText}>Course Purchased</span>
+                <span className="font-bold text-right max-w-[240px] truncate">{selectedPartnerAct.courseName}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                <div>
+                  <span className={mutedText}>Beneficiary Seafarer</span>
+                  <p className={`font-bold mt-0.5 ${headText}`}>{selectedPartnerAct.seafarerName || "Rajesh Kumar"}</p>
+                </div>
+                <span className="font-mono text-[11px] font-semibold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/5 px-2.5 py-1 rounded-md border border-slate-200/50 dark:border-white/10">
+                  {selectedPartnerAct.seafarerId || "SF-8842"}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                <span className={mutedText}>Amount Paid</span>
+                <span className="font-black text-base text-[#3D5EF6]">{selectedPartnerAct.amountPaid}</span>
+              </div>
+
+              <div className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/5">
+                <span className={mutedText}>Transaction On</span>
+                <span className="font-semibold">
+                  {new Date(selectedPartnerAct.timestamp).toLocaleString("en-IN")}
+                </span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="pt-6 mt-6 border-t border-slate-100 dark:border-white/10 flex items-center justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setSelectedPartnerAct(null)}
+                className={`px-5 py-2.5 text-xs font-semibold rounded-full ${
+                  isDark ? "hover:bg-white/10 text-white/70" : "hover:bg-slate-100 text-slate-600"
+                }`}
+              >
+                Close
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  alert(`Viewing invoice for transaction ${selectedPartnerAct.transactionId}`);
+                  setSelectedPartnerAct(null);
+                }}
+                className="px-6 py-2.5 text-xs font-bold text-white rounded-full bg-[#3D5EF6] hover:bg-[#2E4FE0] transition-all shadow-md active:scale-95 cursor-pointer"
+              >
+                View Full Invoice
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

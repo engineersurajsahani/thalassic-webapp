@@ -13,7 +13,11 @@ export default function AuditLogs() {
   const [logs, setLogs] = useState<any[]>([]);
   const [search, setSearch] = useState("");
 
-  const card = `rounded-3xl overflow-hidden p-6 ${isDark ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
+  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+    isDark
+      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
+      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+  }`;
   const labelText = isDark ? "text-white/50" : "text-slate-500";
   const ht = isDark ? "text-white/95" : "text-slate-800";
   const mt = isDark ? "text-white/35" : "text-slate-400";
@@ -76,13 +80,13 @@ export default function AuditLogs() {
       {/* Logs Table List */}
       <div className={card}>
         <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-          <Terminal className="w-4 h-4 text-cyan-400" />
+          <Terminal className="w-4 h-4 text-[#3D5EF6]" />
           <h3 className="text-sm font-bold">Audit Ledger</h3>
         </div>
 
         {loading ? (
           <div className="flex h-40 items-center justify-center">
-            <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : filteredLogs.length === 0 ? (
           <div className="text-center py-10">
@@ -107,7 +111,7 @@ export default function AuditLogs() {
                     {/* Timestamp */}
                     <td className="py-4 px-2 whitespace-nowrap">
                       <p className="flex items-center gap-1.5 text-[10px] font-semibold">
-                        <Calendar className="w-3.5 h-3.5 text-cyan-400" />
+                        <Calendar className="w-3.5 h-3.5 text-[#3D5EF6]" />
                         {new Date(log.created_at).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}
                       </p>
                       <p className={`text-[10px] mt-0.5 ml-5 ${labelText}`}>
@@ -122,7 +126,7 @@ export default function AuditLogs() {
 
                     {/* Action */}
                     <td className="py-4 px-2">
-                      <span className={`font-mono font-bold px-2 py-0.5 rounded text-[10px] ${isDark ? "bg-white/5 text-cyan-400" : "bg-slate-100 text-cyan-600"}`}>
+                      <span className={`font-mono font-bold px-2 py-0.5 rounded text-[10px] ${isDark ? "bg-white/5 text-[#3D5EF6]" : "bg-slate-100 text-[#3D5EF6]"}`}>
                         {log.action}
                       </span>
                     </td>
