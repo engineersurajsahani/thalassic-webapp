@@ -135,14 +135,7 @@ export default function SupportPage() {
     <div className="space-y-8 animate-fadeIn relative pb-10">
       {/* Page Title Header */}
       <div className="flex flex-col gap-1">
-        <span
-          className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full w-fit ${
-            isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
-          }`}
-        >
-          🎧 Help & Support
-        </span>
-        <h1 className="text-3xl font-extrabold tracking-tight mt-1.5">Support Center</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">Support Center</h1>
         <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
           Raise a support request or track existing tickets. Our team will respond within 24 hours.
         </p>
