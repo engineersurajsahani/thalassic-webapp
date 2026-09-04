@@ -127,7 +127,7 @@ export default function AgentAdminsPage() {
             <div className={`flex items-center justify-between px-6 py-4 border-b ${dk ? "border-white/8" : "border-slate-100"}`}>
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-violet-500/15 flex items-center justify-center"><UserCog className="w-4 h-4 text-violet-400" /></div>
-                <p className={`text-sm font-semibold ${ht}`}>{isEdit ? "Edit Agent Admin" : "Add Agent Admin"}</p>
+                <p className={`text-sm font-semibold ${ht}`}>{isEdit ? "Edit Partner Admin" : "Add Partner Admin"}</p>
               </div>
               <button onClick={closeModal} className={`p-1.5 rounded-lg ${dk ? "hover:bg-white/8 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}><X className="w-4 h-4" /></button>
             </div>
@@ -284,11 +284,11 @@ export default function AgentAdminsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-xl font-bold ${ht}`}>Agent Admins</h1>
-          <p className={`text-sm mt-0.5 ${mt}`}>Manage all registered recruitment agent administrators</p>
+          <h1 className={`text-xl font-bold ${ht}`}>Partner Admins</h1>
+          <p className={`text-sm mt-0.5 ${mt}`}>Manage all registered partner administrators</p>
         </div>
         <button onClick={() => openModal("add")} className="flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white text-sm font-semibold rounded-xl transition-colors shadow-md shadow-violet-500/20">
-          <Plus className="w-4 h-4" /> Add Agent Admin
+          <Plus className="w-4 h-4" /> Add Partner Admin
         </button>
       </div>
 
@@ -312,7 +312,7 @@ export default function AgentAdminsPage() {
         <div className={`flex items-center gap-3 px-6 py-4 border-b ${dk ? "border-white/5" : "border-slate-100"}`}>
           <div className="relative flex-1 max-w-xs">
             <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
-            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search agent admins..."
+            <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search partner admins..."
               className={`w-full pl-9 pr-4 py-2 text-sm rounded-lg outline-none ${inputCls}`} />
           </div>
           <div className="flex items-center gap-2">
@@ -328,7 +328,7 @@ export default function AgentAdminsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className={thCls}>
-                {["Agent Admin","Agency","Contact","Location","Clients","Commission","Status","Last Login","Actions"].map(h => (
+                {["Partner Admin","Agency","Contact","Location","Clients","Commission","Status","Last Login","Actions"].map(h => (
                   <th key={h} className="text-left px-6 py-3 text-[10px] font-semibold uppercase tracking-wider">{h}</th>
                 ))}
               </tr>
@@ -386,7 +386,7 @@ export default function AgentAdminsPage() {
           </table>
         </div>
         <div className={`px-6 py-3 border-t ${dk ? "border-white/5" : "border-slate-100"}`}>
-          <p className={`text-[12px] ${mt}`}>Showing {filtered.length} of {agentList.length} agent admins</p>
+          <p className={`text-[12px] ${mt}`}>Showing {filtered.length} of {agentList.length} partner admins</p>
         </div>
       </div>
     </div>

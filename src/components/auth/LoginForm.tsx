@@ -134,17 +134,17 @@ export default function LoginForm() {
             className="sr-only"
           />
           <div className={`
-            w-5 h-5 rounded border flex items-center justify-center transition-all duration-300
+            w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200
             ${
               isDark 
-                ? rememberMe ? "bg-cyan-600 border-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "border-gray-800 bg-[#051625] group-hover:border-gray-700"
-                : rememberMe ? "bg-[#3b71cb] border-[#3b71cb] shadow-sm" : "border-slate-300 bg-white group-hover:border-slate-400"
+                ? rememberMe ? "bg-[#3D5EF6] border-[#3D5EF6]" : "border-[#374151] bg-[#111827] group-hover:border-gray-500"
+                : rememberMe ? "bg-[#3D5EF6] border-[#3D5EF6]" : "border-[#E5E7EB] bg-white group-hover:border-gray-400"
             }
           `}>
             {rememberMe && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
           </div>
-          <span className={`text-xs transition-colors ${
-            isDark ? "text-gray-400 group-hover:text-gray-300" : "text-slate-500 group-hover:text-slate-600"
+          <span className={`text-xs transition-colors duration-200 ${
+            isDark ? "text-gray-400 group-hover:text-gray-300" : "text-[#6B7280] group-hover:text-[#111827]"
           }`}>
             Remember me
           </span>
@@ -152,8 +152,8 @@ export default function LoginForm() {
 
         <Link
           href="/reset-password"
-          className={`text-xs font-semibold transition-colors ${
-            isDark ? "text-cyan-400 hover:text-cyan-300" : "text-[#3b71cb] hover:text-blue-700"
+          className={`text-xs font-semibold transition-colors duration-200 ${
+            isDark ? "text-[#3D5EF6] hover:text-[#2E4FE0]" : "text-[#3D5EF6] hover:text-[#2E4FE0]"
           }`}
         >
           Forgot password?
@@ -165,12 +165,8 @@ export default function LoginForm() {
         type="submit"
         disabled={isLoading}
         className={`
-          w-full mt-2 py-3.5 font-semibold rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed
-          ${
-            isDark 
-              ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white" 
-              : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
-          }
+          w-full mt-2 py-3.5 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed
+          bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white
         `}
       >
         {isLoading ? (
@@ -183,9 +179,9 @@ export default function LoginForm() {
         )}
       </button>
 
-      <p className={`text-center text-sm mt-6 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+      <p className={`text-center text-sm mt-6 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
         Don't have an account?{" "}
-        <Link href="/register" className={`font-semibold transition-colors ${isDark ? "text-cyan-400 hover:text-cyan-300" : "text-[#3b71cb] hover:text-blue-700"}`}>
+        <Link href="/register" className={`font-semibold transition-colors duration-200 ${isDark ? "text-[#3D5EF6] hover:text-[#2E4FE0]" : "text-[#3D5EF6] hover:text-[#2E4FE0]"}`}>
           Sign Up
         </Link>
       </p>

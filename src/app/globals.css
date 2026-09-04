@@ -2,18 +2,86 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  --color-primary: #3D5EF6;
+  --color-primary-hover: #2E4FE0;
+  --color-primary-light: #EEF1FE;
+  --color-bg: #F7F8FA;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+
+  --radius-card: 16px;
+  --radius-btn: 9999px;
+  --radius-badge: 9999px;
+}
+
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  --color-primary: #3D5EF6;
+  --color-primary-hover: #2E4FE0;
+  --color-primary-light: #EEF1FE;
+  --color-bg: #F7F8FA;
+  --color-surface: #FFFFFF;
+  --color-border: #E5E7EB;
+  --color-text-primary: #111827;
+  --color-text-secondary: #6B7280;
+  --color-success: #16A34A;
+  --color-warning: #D97706;
+  --color-danger: #DC2626;
+
+  --radius-card: 16px;
+  --radius-btn: 9999px;
+  --radius-badge: 9999px;
+
+  --background: #F7F8FA;
+  --foreground: #111827;
 }
 
 :root.dark {
-  --background: #030712;
-  --foreground: #f8fafc;
+  --background: #0B0F19;
+  --foreground: #F9FAFB;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+/* Interactive element transition helper */
+.color-transition {
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease;
+}
+
+/* Floating Card Elevation & Pill Radius Tokens */
+.rounded-card {
+  border-radius: var(--radius-card, 16px) !important;
+}
+.rounded-btn {
+  border-radius: var(--radius-btn, 9999px) !important;
+}
+.rounded-badge {
+  border-radius: var(--radius-badge, 9999px) !important;
+}
+
+.shadow-elevation {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.shadow-elevation:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Hide scrollbar utility */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

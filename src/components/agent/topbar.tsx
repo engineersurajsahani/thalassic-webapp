@@ -68,26 +68,26 @@ export default function AgentTopbar() {
 
   return (
     <header
-      className={`h-16 shrink-0 border-b flex items-center justify-between px-6 gap-4 z-20 sticky top-0 ${
-        isDark ? "bg-[#0a1122]/60 backdrop-blur-2xl border-white/5" : "bg-white/60 backdrop-blur-2xl border-slate-200/60"
+      className={`h-16 shrink-0 border-b flex items-center justify-between px-6 gap-4 z-20 sticky top-0 transition-colors duration-200 ${
+        isDark ? "bg-[#0B0F19] border-[#1F2937]" : "bg-[#FFFFFF] border-[#E5E7EB]"
       }`}
     >
       {/* Left */}
       <div className="flex flex-col justify-center min-w-0">
         {isHome ? (
           <>
-            <p className={`text-[11px] font-medium ${isDark ? "text-white/40" : "text-slate-400"}`}>
+            <p className={`text-[11px] font-medium ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
               {getFormattedDate()}
             </p>
-            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white/80" : "text-slate-700"}`}>
+            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}>
               {getGreeting()}, {user?.name || "Authorized Partner"}
             </p>
           </>
         ) : (
-          <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-white/40" : "text-slate-400"}`}>
+          <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
             <span>Partner Portal</span>
             <ChevronRight className="w-3 h-3" />
-            <span className={`font-semibold ${isDark ? "text-cyan-400" : "text-blue-600"}`}>{currentPage}</span>
+            <span className="font-semibold text-[#3D5EF6]">{currentPage}</span>
           </div>
         )}
       </div>
@@ -97,8 +97,8 @@ export default function AgentTopbar() {
         <button
           onClick={toggleTheme}
           aria-label="Toggle theme"
-          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${
-            mounted && isDark ? "text-yellow-300 hover:bg-white/8" : "text-slate-500 hover:bg-slate-100"
+          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors duration-200 ${
+            mounted && isDark ? "text-amber-400 hover:bg-[#1F2937]" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-[#3D5EF6]"
           }`}
         >
           {mounted && isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -107,7 +107,7 @@ export default function AgentTopbar() {
         <div className="relative">
           <Link
             href="/partner/notifications"
-            className={`relative w-8 h-8 flex items-center justify-center rounded-lg transition-colors cursor-pointer ${
+            className={`relative w-8 h-8 flex items-center justify-center rounded-lg transition-colors duration-200 cursor-pointer ${
               isDark ? "text-white/40 hover:bg-white/8 hover:text-white/70" : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
             }`}
             aria-label="Notifications"

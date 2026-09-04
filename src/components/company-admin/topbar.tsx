@@ -62,15 +62,15 @@ export default function CompanyAdminTopbar({ onMenuClick }: TopbarProps) {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <header className={`h-16 shrink-0 border-b flex items-center justify-between px-4 md:px-6 gap-4 ${isDark ? "bg-[#0d1f35] border-white/5" : "bg-white border-slate-200"}`}>
+    <header className={`h-16 shrink-0 border-b flex items-center justify-between px-4 md:px-6 gap-4 transition-colors duration-200 ${isDark ? "bg-[#0B0F19] border-[#1F2937]" : "bg-[#FFFFFF] border-[#E5E7EB]"}`}>
 
       {/* Left Menu toggle & Breadcrumbs */}
       <div className="flex items-center min-w-0">
         <button
           onClick={onMenuClick}
           aria-label="Open navigation menu"
-          className={`md:hidden p-2 rounded-lg border transition-colors mr-3 cursor-pointer ${
-            isDark ? "border-white/10 hover:bg-white/5 text-slate-350" : "border-slate-200 hover:bg-slate-50 text-slate-650"
+          className={`md:hidden p-2 rounded-lg border transition-colors duration-200 mr-3 cursor-pointer ${
+            isDark ? "border-[#374151] hover:bg-[#1F2937] text-gray-300" : "border-[#E5E7EB] hover:bg-[#EEF1FE] text-[#6B7280]"
           }`}
         >
           <Menu className="w-4 h-4" />
@@ -79,8 +79,8 @@ export default function CompanyAdminTopbar({ onMenuClick }: TopbarProps) {
         <div className="flex flex-col justify-center min-w-0">
           {isHome ? (
             <>
-              <p className={`text-[10px] font-medium tracking-wide ${isDark ? "text-white/30" : "text-slate-400"}`}>{getFormattedDate()}</p>
-              <p className={`text-xs font-bold leading-tight ${isDark ? "text-white/85" : "text-slate-800"}`}>{getGreeting()}, Admin</p>
+              <p className={`text-[10px] font-medium tracking-wide ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>{getFormattedDate()}</p>
+              <p className={`text-xs font-bold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}>{getGreeting()}, Admin</p>
             </>
           ) : (
             <div className={`flex items-center gap-1 text-[11px] ${isDark ? "text-white/30" : "text-slate-400"}`}>

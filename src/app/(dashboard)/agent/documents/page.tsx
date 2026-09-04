@@ -77,11 +77,11 @@ export default function AgentDocumentsPage() {
   const [issueDates, setIssueDates] = useState<Record<string, string>>({});
   const [issuePlaces, setIssuePlaces] = useState<Record<string, string>>({});
   const [activeDetailsModal, setActiveDetailsModal] = useState<string | null>(null);
-  const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [expandedCard, setExpandedCard] = useState<string | null>(null);
 
-  const initUploadState = useCallback((): Record<string, UploadState> => {
-    const initial: Record<string, UploadState> = {};
+  const initUploadState = useCallback(() => {
+    const initial: Record<string, any> = {};
     DOCUMENT_CATEGORIES.forEach((cat) => {
       initial[cat.type] = {
         type: cat.type,
@@ -154,8 +154,62 @@ export default function AgentDocumentsPage() {
       alert("File size exceeds 10MB limit.");
       return;
     }
+    setUploads((prev) => ({
+      ...prev,
+      [type]: { ...prev[type], loading: true, error: "", success: "" },
+    }));
+    try {
+      await agentService.uploadDocument(type, file, file.name);
+      setUploads((prev) => ({
+        ...prev,
+        [type]: {
+          ...prev[type],
+          loading: false,
+          file: null,
+          success: "Document uploaded successfully!",
+          error: "",
+        },
+      }));
+      await loadDocuments();
+    } catch (err: any) {
+      const errMsg = err?.response?.data?.message || err.message || "Upload failed.";
+      alert(errMsg);
+      setUploads((prev) => ({
+        ...prev,
+        [type]: { ...prev[type], loading: false, error: errMsg, success: "" },
+      }));
+    }
+  };
 
-    const expiryDate = expiryDates[type] || "";
+  const handleUpload = async (type: string) => {
+    const uploadState = uploads[type];
+    const file = uploadState?.file;
+    if (!file) return;
+
+    // Validate required fields based on PRD requirements
+    if (type === "passport") {
+      if (!docNumbers[type] || !issueDates[type] || !expiryDates[type] || !issuePlaces[type]) {
+        alert("Please fill all Passport details (Number, Issue Date, Expiry Date, Place) before uploading.");
+        return;
+      }
+    } else if (type === "cdc") {
+      if (!docNumbers[type] || !issueDates[type] || !expiryDates[type] || !issuePlaces[type]) {
+        alert("Please fill all CDC Booklet details (Number, Issue Date, Expiry Date, Place) before uploading.");
+        return;
+      }
+    } else if (type === "aadhaar") {
+      if (!docNumbers[type]) {
+        alert("Please enter Aadhaar Number before uploading.");
+        return;
+      }
+    } else if (type === "pan") {
+      if (!docNumbers[type]) {
+        alert("Please enter PAN Card Number before uploading.");
+        return;
+      }
+    }
+
+    const expiryDate = expiryDates[type] || uploadState.expiryDate || "";
 
     setUploads((prev) => ({
       ...prev,
@@ -163,12 +217,13 @@ export default function AgentDocumentsPage() {
     }));
 
     try {
-      await agentService.uploadDocument(type, file, {
-        expiryDate,
-        documentNumber: docNumbers[type] || "",
-        placeOfIssue: issuePlaces[type] || "",
-        dateOfIssue: issueDates[type] || "",
-      });
+      const meta = {
+        number: docNumbers[type] || "",
+        issueDate: issueDates[type] || "",
+        issuePlace: issuePlaces[type] || "",
+      };
+      const serializedName = `${file.name}|||${JSON.stringify(meta)}`;
+      await agentService.uploadDocument(type, file, serializedName, { expiryDate });
       setUploads((prev) => ({
         ...prev,
         [type]: {
@@ -192,6 +247,7 @@ export default function AgentDocumentsPage() {
           success: "",
         },
       }));
+      alert(err?.response?.data?.message || err.message || "Upload failed.");
     }
   };
 
@@ -272,7 +328,7 @@ export default function AgentDocumentsPage() {
           Document Manager
         </h1>
         <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          Upload, replace, and download your verification documents. Documents are reviewed by the Agent Admin.
+          Upload, replace, and download your verification documents. Documents are reviewed by the Partner Admin.
         </p>
       </div>
 

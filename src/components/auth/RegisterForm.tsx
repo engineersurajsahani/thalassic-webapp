@@ -263,26 +263,26 @@ export default function RegisterForm() {
             className="sr-only"
           />
           <div className={`
-            mt-0.5 w-5 h-5 rounded border flex items-center justify-center transition-all duration-300
+            mt-0.5 w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200
             ${
               isDark 
-                ? agreed ? "bg-cyan-600 border-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.4)]" : "border-gray-800 bg-[#051625] group-hover:border-gray-700"
-                : agreed ? "bg-[#3b71cb] border-[#3b71cb] shadow-sm" : "border-slate-300 bg-white group-hover:border-slate-400"
+                ? agreed ? "bg-[#3D5EF6] border-[#3D5EF6]" : "border-[#374151] bg-[#111827] group-hover:border-gray-500"
+                : agreed ? "bg-[#3D5EF6] border-[#3D5EF6]" : "border-[#E5E7EB] bg-white group-hover:border-gray-400"
             }
           `}>
             {agreed && <Check className="w-3.5 h-3.5 text-white stroke-[3px]" />}
           </div>
-          <span className={`text-xs leading-normal transition-colors ${
-            isDark ? "text-gray-400 group-hover:text-gray-300" : "text-slate-500 group-hover:text-slate-600"
+          <span className={`text-xs leading-normal transition-colors duration-200 ${
+            isDark ? "text-gray-400 group-hover:text-gray-300" : "text-[#6B7280] group-hover:text-[#111827]"
           }`}>
-            I agree to the <Link href="/terms" className={`font-semibold ${isDark ? "text-cyan-400 hover:underline" : "text-[#3b71cb] hover:underline"}`}>Terms of Service</Link> and{" "}
-            <Link href="/privacy" className={`font-semibold ${isDark ? "text-cyan-400 hover:underline" : "text-[#3b71cb] hover:underline"}`}>Privacy Policy</Link>
+            I agree to the <Link href="/terms" className="font-semibold text-[#3D5EF6] hover:text-[#2E4FE0] transition-colors duration-200">Terms of Service</Link> and{" "}
+            <Link href="/privacy" className="font-semibold text-[#3D5EF6] hover:text-[#2E4FE0] transition-colors duration-200">Privacy Policy</Link>
           </span>
         </label>
         
         {errors.agree && (
-          <p className={`mt-1.5 text-xs font-medium flex items-center gap-1 ${isDark ? "text-red-400" : "text-red-500"}`}>
-            <span className={`w-1.5 h-1.5 rounded-full inline-block ${isDark ? "bg-red-400" : "bg-red-500"}`} />
+          <p className={`mt-1.5 text-xs font-medium flex items-center gap-1 ${isDark ? "text-red-400" : "text-[#DC2626]"}`}>
+            <span className={`w-1.5 h-1.5 rounded-full inline-block ${isDark ? "bg-red-400" : "bg-[#DC2626]"}`} />
             {errors.agree}
           </p>
         )}
@@ -292,14 +292,7 @@ export default function RegisterForm() {
       <button
         type="submit"
         disabled={isLoading}
-        className={`
-          w-full mt-3 py-3 font-semibold rounded-xl shadow-md transition-all duration-300 transform hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed text-sm
-          ${
-            isDark 
-              ? "bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white" 
-              : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
-          }
-        `}
+        className="w-full mt-3 py-3 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed text-sm bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white"
       >
         {isLoading ? (
           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -311,13 +304,12 @@ export default function RegisterForm() {
         )}
       </button>
 
-      <p className={`text-center text-xs mt-4 ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+      <p className={`text-center text-xs mt-4 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
         Already have an account?{" "}
-        <Link href="/login" className={`font-semibold transition-colors ${isDark ? "text-cyan-400 hover:text-cyan-300" : "text-[#3b71cb] hover:text-blue-700"}`}>
+        <Link href="/login" className="font-semibold text-[#3D5EF6] hover:text-[#2E4FE0] transition-colors duration-200">
           Login
         </Link>
       </p>
     </form>
   );
 }
-

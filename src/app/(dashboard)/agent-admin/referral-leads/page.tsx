@@ -33,7 +33,11 @@ export default function ReferralsTracker() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchPurchases, setSearchPurchases] = useState("");
 
-  const card = `rounded-3xl overflow-hidden p-6 ${isDark ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
+  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+    isDark
+      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
+      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+  }`;
   const labelText = isDark ? "text-white/50" : "text-slate-500";
   const ht = isDark ? "text-white/80" : "text-slate-800";
   const mt = isDark ? "text-white/35" : "text-slate-400";
@@ -116,7 +120,7 @@ export default function ReferralsTracker() {
           onClick={() => setActiveTab("leads")}
           className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
             activeTab === "leads"
-              ? "border-cyan-500 text-cyan-400"
+              ? "border-[#3D5EF6] text-[#3D5EF6]"
               : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
         >
@@ -126,7 +130,7 @@ export default function ReferralsTracker() {
           onClick={() => setActiveTab("purchases")}
           className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
             activeTab === "purchases"
-              ? "border-cyan-500 text-cyan-400"
+              ? "border-[#3D5EF6] text-[#3D5EF6]"
               : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
         >
@@ -136,7 +140,7 @@ export default function ReferralsTracker() {
           onClick={() => setActiveTab("conflicts")}
           className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
             activeTab === "conflicts"
-              ? "border-cyan-500 text-cyan-400"
+              ? "border-[#3D5EF6] text-[#3D5EF6]"
               : "border-transparent text-slate-400 hover:text-slate-200"
           }`}
         >
@@ -187,7 +191,7 @@ export default function ReferralsTracker() {
           <div className={card}>
             {loading ? (
               <div className="flex h-40 items-center justify-center">
-                <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin" />
               </div>
             ) : filteredLeads.length === 0 ? (
               <div className="text-center py-10">
@@ -216,13 +220,13 @@ export default function ReferralsTracker() {
                         </td>
                         <td className="py-4 px-2">
                           <div className="flex items-center gap-1.5">
-                            <User className="w-3.5 h-3.5 text-cyan-400" />
+                            <User className="w-3.5 h-3.5 text-[#3D5EF6]" />
                             <span className="font-semibold">{lead.agentName}</span>
                           </div>
                         </td>
                         <td className="py-4 px-2">
                           <div className="flex items-center gap-1.5">
-                            <Compass className="w-3.5 h-3.5 text-cyan-400" />
+                            <Compass className="w-3.5 h-3.5 text-[#3D5EF6]" />
                             <span className="font-semibold">{lead.remarks ? lead.remarks.replace("Interested in ", "") : "STCW course"}</span>
                           </div>
                           {lead.city && <p className={`text-[10px] mt-0.5 ${labelText}`}>{lead.city}</p>}
@@ -235,18 +239,18 @@ export default function ReferralsTracker() {
                               ? "bg-slate-500/10 text-slate-500" 
                               : lead.status === "Cancelled"
                               ? "bg-red-500/10 text-red-500"
-                              : "bg-amber-500/10 text-amber-500"
+                              : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
                           }`}>
                             {lead.status}
                           </span>
                         </td>
                         <td className="py-4 px-2">
                           <p className="flex items-center gap-1.5 text-[10px]">
-                            <Calendar className="w-3 h-3 text-cyan-400" />
+                            <Calendar className="w-3 h-3 text-[#3D5EF6]" />
                             Created: {new Date(lead.createdAt).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' })}
                           </p>
                           <p className={`flex items-center gap-1.5 text-[10px] mt-1 ${labelText}`}>
-                            <Calendar className="w-3 h-3 text-cyan-400/50" />
+                            <Calendar className="w-3 h-3 text-[#3D5EF6]/50" />
                             Expires: {new Date(lead.expiryAt).toLocaleDateString("en-IN", { day: 'numeric', month: 'short' })}
                           </p>
                         </td>
@@ -254,10 +258,10 @@ export default function ReferralsTracker() {
                         <td className="py-4 px-2 text-right">
                           <button
                             onClick={() => setSelectedLead(lead)}
-                            className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-cyan-500/10 cursor-pointer ml-auto ${
+                            className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm cursor-pointer ml-auto ${
                               isDark 
-                                ? "bg-white/[0.02] border-white/10 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-500/30" 
-                                : "bg-slate-50 border-slate-200 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-50 hover:border-cyan-200"
+                                ? "bg-white/[0.02] border-white/10 text-[#3D5EF6] hover:text-[#3D5EF6] hover:bg-[#3D5EF6]/10 hover:border-[#3D5EF6]/30" 
+                                : "bg-slate-50 border-slate-200 text-[#3D5EF6] hover:text-[#2E4FE0] hover:bg-[#EEF1FE] hover:border-slate-300"
                             }`}
                             title="View Details"
                           >
@@ -299,7 +303,7 @@ export default function ReferralsTracker() {
           <div className={card}>
             {loading ? (
               <div className="flex h-40 items-center justify-center">
-                <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+                <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin" />
               </div>
             ) : filteredSeafarers.length === 0 ? (
               <div className="text-center py-10">
@@ -323,7 +327,7 @@ export default function ReferralsTracker() {
                       <tr key={sf.id} className="hover:bg-white/[0.01] transition-all">
                         <td className="py-4 px-2">
                           <div className="flex items-center gap-1.5">
-                            <User className="w-3.5 h-3.5 text-cyan-400" />
+                            <User className="w-3.5 h-3.5 text-[#3D5EF6]" />
                             <span className="font-bold">{sf.seafarerName}</span>
                           </div>
                         </td>
@@ -388,16 +392,16 @@ export default function ReferralsTracker() {
                           </span>
                           <h3 className="text-sm font-bold mt-2">Seafarer: {conflict.seafarerName}</h3>
                           <div className={`text-[10px] mt-1.5 space-y-1 ${labelText}`}>
-                            <p>Email: <span className="font-semibold text-cyan-400">{conflict.seafarerEmail}</span></p>
-                            <p>Phone: <span className="font-semibold text-cyan-400">{conflict.seafarerPhone}</span></p>
-                            <p>INDOS Number: <span className="font-mono text-amber-500 font-bold">{conflict.indosNumber}</span></p>
+                            <p>Email: <span className="font-semibold text-[#3D5EF6]">{conflict.seafarerEmail}</span></p>
+                            <p>Phone: <span className="font-semibold text-[#3D5EF6]">{conflict.seafarerPhone}</span></p>
+                            <p>INDOS Number: <span className="font-mono text-slate-700 dark:text-slate-300 font-bold">{conflict.indosNumber}</span></p>
                           </div>
                         </div>
 
                         <div className="md:text-right">
                           <p className="text-xs font-bold text-slate-400">Purchased Course</p>
                           <p className="text-xs font-black text-white mt-1">{conflict.courseName}</p>
-                          <p className="text-xs font-black text-cyan-400 mt-1">Fee: ₹{conflict.courseFee.toLocaleString("en-IN")}</p>
+                          <p className="text-xs font-black text-[#3D5EF6] mt-1">Fee: ₹{conflict.courseFee.toLocaleString("en-IN")}</p>
                           <p className={`text-[9px] mt-1.5 ${mt}`}>Purchase Date: {new Date(conflict.createdAt).toLocaleDateString("en-IN")}</p>
                         </div>
                       </div>
@@ -411,14 +415,14 @@ export default function ReferralsTracker() {
                             return (
                               <div key={agent.agentId} className={`p-4 rounded-2xl border flex flex-col justify-between ${
                                 isEarliest 
-                                  ? (isDark ? "bg-cyan-500/5 border-cyan-500/20 text-white" : "bg-cyan-50/50 border-cyan-200 text-slate-900") 
+                                  ? (isDark ? "bg-[#3D5EF6]/5 border-[#3D5EF6]/20 text-white" : "bg-[#EEF1FE] border-slate-300 text-slate-900") 
                                   : (isDark ? "bg-[#0b182d]/80 border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-900")
                               }`}>
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-start gap-2">
                                     <div>
                                       <p className="font-bold text-xs flex items-center gap-1.5">
-                                        <User className="w-3.5 h-3.5 text-cyan-400" />
+                                        <User className="w-3.5 h-3.5 text-[#3D5EF6]" />
                                         {agent.agentName}
                                       </p>
                                       <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.agentEmail}</p>
@@ -453,7 +457,7 @@ export default function ReferralsTracker() {
                                     className={`w-full py-2 rounded-xl font-bold text-[10px] uppercase tracking-wider shadow-sm transition ${
                                       resolvingId === conflict.purchaseId
                                         ? "bg-slate-700 text-slate-400 cursor-not-allowed"
-                                        : "bg-cyan-600 hover:bg-cyan-500 text-white cursor-pointer"
+                                        : "bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white cursor-pointer"
                                     }`}
                                   >
                                     {resolvingId === conflict.purchaseId ? "Resolving..." : `Assign Commission to ${agent.agentName}`}
@@ -489,7 +493,7 @@ export default function ReferralsTracker() {
       {/* Referral Lead Details Modal */}
       {selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className={`w-full max-w-lg p-6 rounded-3xl relative animate-in zoom-in-95 duration-200 ${
+          <div className={`w-full max-w-lg p-6 rounded-lg relative animate-in zoom-in-95 duration-200 ${
             isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
           }`}>
             <button
@@ -500,7 +504,7 @@ export default function ReferralsTracker() {
             </button>
             
             <h3 className="text-base font-bold mb-5 flex items-center gap-2 border-b pb-3 border-white/5">
-              <ClipboardList className="w-4 h-4 text-cyan-400" />
+              <ClipboardList className="w-4 h-4 text-[#3D5EF6]" />
               Referral Lead Details
             </h3>
 
@@ -539,7 +543,7 @@ export default function ReferralsTracker() {
                       ? "bg-slate-500/10 text-slate-500" 
                       : selectedLead.status === "Cancelled"
                       ? "bg-red-500/10 text-red-500"
-                      : "bg-amber-500/10 text-amber-500"
+                      : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
                   }`}>
                     {selectedLead.status}
                   </span>

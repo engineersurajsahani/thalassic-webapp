@@ -457,127 +457,215 @@ export const agentService = {
       };
     }
   },
-  async onboard(data: any) {
-    const response = await api.post("/agent/onboard", data);
-    return response.data;
-  },
 
-  async getLeads(query?: string) {
-    const response = await api.get("/agent/leads", {
-      params: query ? { q: query } : {},
-    });
-    return response.data;
-  },
-
-  async getLeadById(id: string) {
-    const response = await api.get(`/agent/leads/${id}`);
-    return response.data;
-  },
-
-  async createLead(leadData: any) {
-    const response = await api.post("/agent/leads", leadData);
-    return response.data;
-  },
-
-  async updateLead(leadId: string, leadData: any) {
-    const response = await api.patch(`/agent/leads/${leadId}`, leadData);
-    return response.data;
-  },
-
-  async getCommissions() {
-    const response = await api.get("/agent/commissions");
-    return response.data;
-  },
-
+  // --- Agent & Partner Documents ---
   async getDocuments() {
     try {
       const response = await api.get("/agent/documents");
       return response.data;
     } catch (e) {
-      const res = await api.get("/documents");
-      return res.data;
+      try {
+        const res = await api.get("/partner/documents");
+        return res.data;
+      } catch (err) {
+        return [];
+      }
     }
   },
 
   async uploadDocument(
     type: string,
-    file: File,
+    file?: File,
+    serializedNameOrMeta?: string | { expiryDate?: string; documentNumber?: string; placeOfIssue?: string; dateOfIssue?: string },
     metadata?: { expiryDate?: string; documentNumber?: string; placeOfIssue?: string; dateOfIssue?: string }
   ) {
     const formData = new FormData();
-    formData.append("file", file);
+    if (file) {
+      if (typeof serializedNameOrMeta === "string") {
+        formData.append("file", file, serializedNameOrMeta);
+      } else {
+        formData.append("file", file);
+      }
+    }
     formData.append("type", type);
-    if (metadata?.expiryDate) formData.append("expiryDate", metadata.expiryDate);
-    if (metadata?.documentNumber) formData.append("documentNumber", metadata.documentNumber);
-    if (metadata?.placeOfIssue) formData.append("placeOfIssue", metadata.placeOfIssue);
-    if (metadata?.dateOfIssue) formData.append("dateOfIssue", metadata.dateOfIssue);
+
+    const meta = typeof serializedNameOrMeta === "object" ? serializedNameOrMeta : metadata;
+    if (meta?.expiryDate) formData.append("expiryDate", meta.expiryDate);
+    if (meta?.documentNumber) formData.append("documentNumber", meta.documentNumber);
+    if (meta?.placeOfIssue) formData.append("placeOfIssue", meta.placeOfIssue);
+    if (meta?.dateOfIssue) formData.append("dateOfIssue", meta.dateOfIssue);
 
     try {
-      const response = await api.post("/agent/documents", formData, {
+      const response = await api.post("/documents/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       return response.data;
     } catch (e) {
-      const res = await api.post("/documents/upload", formData, {
+      const res = await api.post("/agent/documents", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       return res.data;
+    }
+  },
+
+  async getCommissions() {
+    try {
+      const response = await api.get("/agent/commissions");
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/commissions");
+        return res.data;
+      } catch (err) {
+        return [];
+      }
     }
   },
 
   async downloadDocument(docId: string) {
     try {
-      const response = await api.get(`/agent/documents/${docId}/download`);
+      const response = await api.get(`/documents/${docId}/download`);
       return response.data;
     } catch (e) {
-      const res = await api.get(`/documents/${docId}/download`);
+      const res = await api.get(`/agent/documents/${docId}/download`);
+      return res.data;
+    }
+  },
+
+  // --- Notifications ---
+  async getNotifications() {
+    try {
+      const response = await api.get("/agent/notifications");
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/notifications");
+        return res.data;
+      } catch (err) {
+        return [];
+      }
+    }
+  },
+
+  async markNotificationRead(id: string) {
+    try {
+      const response = await api.patch(`/agent/notifications/${id}/read`);
+      return response.data;
+    } catch (e) {
+      const res = await api.patch(`/partner/notifications/${id}/read`);
+      return res.data;
+    }
+  },
+
+  async deleteNotification(id: string) {
+    try {
+      const response = await api.delete(`/agent/notifications/${id}`);
+      return response.data;
+    } catch (e) {
+      const res = await api.delete(`/partner/notifications/${id}`);
+      return res.data;
+    }
+  },
+
+  // --- Profile & Onboarding ---
+  async onboard(data: any) {
+    try {
+      const response = await api.post("/agent/onboarding", data);
+      return response.data;
+    } catch (e) {
+      const res = await api.post("/partner/onboarding", data);
       return res.data;
     }
   },
 
   async updateProfile(profileData: any) {
-    const response = await api.put("/agent/profile", profileData);
-    return response.data;
+    try {
+      const response = await api.put("/agent/profile", profileData);
+      return response.data;
+    } catch (e) {
+      const res = await api.put("/partner/profile", profileData);
+      return res.data;
+    }
   },
 
   async changePassword(passwordData: any) {
-    const response = await api.put("/agent/settings/password", passwordData);
-    return response.data;
+    try {
+      const response = await api.put("/agent/settings/password", passwordData);
+      return response.data;
+    } catch (e) {
+      const res = await api.put("/partner/settings/password", passwordData);
+      return res.data;
+    }
   },
 
+  // --- Referral Leads ---
+  async getLeads(query?: string) {
+    try {
+      const response = await api.get("/agent/leads", { params: { query } });
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/leads", { params: { query } });
+        return res.data;
+      } catch (err) {
+        return [];
+      }
+    }
+  },
+
+  async createLead(leadData: any) {
+    try {
+      const response = await api.post("/agent/leads", leadData);
+      return response.data;
+    } catch (e) {
+      const res = await api.post("/partner/leads", leadData);
+      return res.data;
+    }
+  },
+
+  async updateLead(id: string, leadData: any) {
+    try {
+      const response = await api.put(`/agent/leads/${id}`, leadData);
+      return response.data;
+    } catch (e) {
+      const res = await api.put(`/partner/leads/${id}`, leadData);
+      return res.data;
+    }
+  },
+
+  // --- Support Tickets ---
   async getSupportTickets() {
-    const response = await api.get("/agent/support");
-    return response.data;
-  },
-
-  async getSupportTicketById(id: string) {
-    const response = await api.get(`/agent/support/${id}`);
-    return response.data;
+    try {
+      const response = await api.get("/agent/support");
+      return response.data;
+    } catch (e) {
+      try {
+        const res = await api.get("/partner/support");
+        return res.data;
+      } catch (err) {
+        return [];
+      }
+    }
   },
 
   async createSupportTicket(ticketData: any) {
-    const response = await api.post("/agent/support", ticketData);
-    return response.data;
+    try {
+      const response = await api.post("/agent/support", ticketData);
+      return response.data;
+    } catch (e) {
+      const res = await api.post("/partner/support", ticketData);
+      return res.data;
+    }
   },
 
-  async getInvoices() {
-    const response = await api.get("/agent/invoices");
-    return response.data;
-  },
-
-  async getNotifications() {
-    const response = await api.get("/agent/notifications");
-    return response.data;
-  },
-
-  async markNotificationRead(id: string) {
-    const response = await api.patch(`/agent/notifications/${id}/read`);
-    return response.data;
-  },
-
-  async deleteNotification(id: string) {
-    const response = await api.delete(`/agent/notifications/${id}`);
-    return response.data;
+  async getSupportTicketById(id: string) {
+    try {
+      const response = await api.get(`/agent/support/${id}`);
+      return response.data;
+    } catch (e) {
+      const res = await api.get(`/partner/support/${id}`);
+      return res.data;
+    }
   },
 };
 

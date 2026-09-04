@@ -200,9 +200,7 @@ export default function SeafearerTopbar() {
         {/* Profile Avatar Triggering Profile Page */}
         <Link
           href="/seafearer/profile"
-          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-md transition-transform hover:scale-105 ${
-            isDark ? "bg-cyan-600 hover:bg-cyan-500" : "bg-[#3b71cb] hover:bg-[#2c5fb3]"
-          }`}
+          className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-md transition-colors duration-200 bg-[#3D5EF6] hover:bg-[#2E4FE0]"
         >
           {user?.name?.charAt(0) || "S"}
         </Link>

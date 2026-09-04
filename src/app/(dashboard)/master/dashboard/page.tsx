@@ -24,7 +24,7 @@ const fmt=(n:number)=>`\u20B9${n.toLocaleString("en-IN")}`;
 
 const ACTIVITIES = [
   { icon: Building2, color: "#0ea5e9", bg: "bg-sky-500/15",     label: "Company Admin Created",   name: "Rajesh Kumar",    time: "2 min ago"   },
-  { icon: UserCog,   color: "#8b5cf6", bg: "bg-violet-500/15",  label: "Agent Admin Created",     name: "Suresh Patel",    time: "18 min ago"  },
+  { icon: UserCog,   color: "#8b5cf6", bg: "bg-violet-500/15",  label: "Partner Admin Created",   name: "Suresh Patel",    time: "18 min ago"  },
   { icon: Handshake, color: "#6366f1", bg: "bg-indigo-500/15",  label: "New Agent Registered",    name: "Anand Verma",     time: "45 min ago"  },
   { icon: TrendingUp,color: "#10b981", bg: "bg-emerald-500/15", label: "Referral Converted",      name: "Lead #RL-0092",   time: "1 hr ago"    },
   { icon: CheckCircle2,color:"#14b8a6",bg: "bg-teal-500/15",    label: "Commission Approved",     name: "₹12,400 · AG002", time: "3 hr ago"    },
@@ -109,8 +109,8 @@ export default function MasterDashboard(){
       <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
         {[
           { label: "Company Admins",         value: "8",       sub: "Registered",         Icon: Building2,     ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
-          { label: "Agent Admins",           value: "7",       sub: "Registered",         Icon: UserCog,       ib: dk?"bg-violet-500/15":"bg-violet-50",  ic: "#8b5cf6" },
-          { label: "Registered Agents",      value: "41",      sub: "Under agent admins", Icon: Handshake,     ib: dk?"bg-indigo-500/15":"bg-indigo-50",  ic: "#6366f1" },
+          { label: "Partner Admins",         value: "7",       sub: "Registered",         Icon: UserCog,       ib: dk?"bg-violet-500/15":"bg-violet-50",  ic: "#8b5cf6" },
+          { label: "Registered Agents",      value: "41",      sub: "Under partner admins", Icon: Handshake,     ib: dk?"bg-indigo-500/15":"bg-indigo-50",  ic: "#6366f1" },
           { label: "Referral Leads",         value: "128",     sub: "All time",           Icon: GitMerge,      ib: dk?"bg-amber-500/15":"bg-amber-50",    ic: "#f59e0b" },
           { label: "Referral Conversions",   value: "74",      sub: "57.8% rate",         Icon: TrendingUp,    ib: dk?"bg-emerald-500/15":"bg-emerald-50", ic: "#10b981" },
           { label: "Commissions Payable",    value: "₹1.24L",  sub: "Awaiting payout",    Icon: Wallet,        ib: dk?"bg-orange-500/15":"bg-orange-50",   ic: "#f97316" },
@@ -192,7 +192,7 @@ export default function MasterDashboard(){
           <div className="p-4 grid grid-cols-2 gap-3">
             {[
               { label:"Create Company Admin", Icon:Building2, color:"bg-sky-500 hover:bg-sky-600",     href:"/master/company-admins" },
-              { label:"Create Agent Admin",   Icon:UserCog,   color:"bg-violet-500 hover:bg-violet-600", href:"/master/agent-admins"   },
+              { label:"Create Partner Admin", Icon:UserCog,   color:"bg-violet-500 hover:bg-violet-600", href:"/master/agent-admins"   },
               { label:"View Finance",         Icon:BarChart2, color:"bg-emerald-500 hover:bg-emerald-600",href:"/master/finance"      },
               { label:"Platform Reports",     Icon:FileText,  color:"bg-indigo-500 hover:bg-indigo-600", href:"/master/reports"        },
             ].map(q=>(

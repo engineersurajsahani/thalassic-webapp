@@ -130,6 +130,7 @@ export default function OnboardingPage() {
           await agentService.uploadDocument(
             cat,
             doc.file,
+            doc.file.name,
             { expiryDate: expiryStr || undefined }
           );
         }
