@@ -1,3 +1,17 @@
+export interface Institute {
+  id: string;
+  name: string;
+  code?: string;
+  idtNumber: string;
+  address: string;
+  city: string;
+  phone: string;
+  email: string;
+  schedule: string;
+  batchDates?: string[];
+  facilities?: string;
+}
+
 export interface Course {
   id: string;
   code: string;
@@ -12,4 +26,29 @@ export interface Course {
   documentsRequired: string[];
   rating?: number;
   ratingCount?: number;
+  trainingType?: string;
+  deliveryMode?: string;
+  institutes?: Institute[];
+  availableInstitutesCount?: number;
 }
+
+export interface CourseEnrollment {
+  id: string;
+  status: 'active' | 'ongoing' | 'on_hold' | 'completed';
+  purchaseDate: string;
+  course: Course;
+  courseId: string;
+  progress: number;
+  trainingType?: string;
+  institute?: Institute;
+  batchSchedule?: string;
+  enrollmentDetails?: {
+    batchId: string;
+    reportingAddress: string;
+    coordinatorContact: string;
+    coordinatorEmail: string;
+    facilities?: string;
+    onHoldNotice?: string | null;
+  };
+}
+

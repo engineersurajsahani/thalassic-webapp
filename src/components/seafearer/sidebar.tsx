@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
@@ -12,7 +13,6 @@ import {
   FileText,
   User,
   LogOut,
-  Anchor,
   ShoppingBag,
   Receipt,
   GitFork,
@@ -24,9 +24,9 @@ const menuItems = [
   { label: "My Courses", href: "/seafearer/my-courses", icon: BookOpen },
   { label: "Browse Courses", href: "/seafearer/browse-courses", icon: Compass },
   { label: "Documents", href: "/seafearer/documents", icon: FileText },
-  { label: "Profile", href: "/seafearer/profile", icon: User },
   { label: "Purchase History", href: "/seafearer/purchase-history", icon: ShoppingBag },
   { label: "Referral Dashboard", href: "/seafearer/referral-dashboard", icon: GitFork },
+  { label: "Profile", href: "/seafearer/profile", icon: User },
   { label: "Support", href: "/seafearer/support", icon: LifeBuoy },
 ];
 
@@ -52,11 +52,22 @@ export default function SeafearerSidebar() {
       <div className="flex flex-col flex-1">
         
         {/* Brand / Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-transparent">
-          <Link href="/seafearer/dashboard" className="flex items-center gap-3">
-            <Anchor className="w-5.5 h-5.5 text-[#3D5EF6]" />
-            <span className={`font-bold tracking-tight text-base ${isDark ? "text-slate-100" : "text-slate-900"}`}>
-              Thalassic
+        <div className="h-16 flex items-center px-5 border-b border-transparent">
+          <Link href="/seafearer/dashboard" className="flex items-center gap-2.5 min-w-0 group">
+            <Image
+              src="/logo.jpeg"
+              alt="Hari Om Thalassic"
+              width={34}
+              height={34}
+              className="w-[34px] h-[34px] rounded-full object-contain shrink-0 border border-slate-200 dark:border-white/10 shadow-xs"
+              priority
+            />
+            <span
+              className={`font-bold tracking-tight text-[15px] whitespace-nowrap ${
+                isDark ? "text-slate-100" : "text-slate-900"
+              }`}
+            >
+              Hari Om Thalassic
             </span>
           </Link>
         </div>

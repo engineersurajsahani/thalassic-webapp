@@ -446,7 +446,7 @@ function Hero() {
             
             {/* Brand Subheading */}
             <p className="final-hero-sub text-lg sm:text-2xl font-light tracking-[0.2em] uppercase text-slate-300 font-outfit mb-12 opacity-0">
-              A Complete Seafarer's Home
+              A Complete Seafarer&apos;s Home
             </p>
 
             {/* Action buttons */}
@@ -750,7 +750,7 @@ export default function HomePage() {
                   <span className={`text-xs font-black uppercase tracking-widest px-3.5 py-1 rounded-full border inline-block ${
                     isDark ? "bg-blue-500/5 border-blue-500/10 text-blue-300" : "bg-blue-50 border-blue-200 text-blue-655"
                   }`}>
-                    // MARITIME TRAINING MATRIX
+                    {"// MARITIME TRAINING MATRIX"}
                   </span>
                   <h2 className={`text-4xl lg:text-5xl font-black tracking-tight leading-none bg-clip-text text-transparent bg-gradient-to-r ${
                     isDark ? "from-white via-slate-100 to-slate-350" : "from-slate-900 via-blue-950 to-slate-800"

@@ -1,16 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { useAuth } from "@/providers/auth-provider";
 import { useTheme } from "@/providers/theme-provider";
 import { User, Shield, Anchor, Heart, Plus, Trash2, Calendar, Phone, Mail, Award } from "lucide-react";
 
-export default function ProfilePage() {
+function ProfileContent() {
   const { theme } = useTheme();
   const { user, updateProfile, updateSecurity, addSeaService, deleteSeaService } = useAuth();
   const isDark = theme === "dark";
+  const searchParams = useSearchParams();
+  const tabParam = searchParams?.get("tab");
 
-  const [activeTab, setActiveTab] = useState<"personal" | "sea-service" | "emergency" | "security">("personal");
+  const [activeTab, setActiveTab] = useState<"personal" | "sea-service" | "emergency" | "security">(
+    tabParam === "sea-service" ? "sea-service" : "personal"
+  );
+
+  useEffect(() => {
+    if (tabParam === "sea-service" || tabParam === "personal" || tabParam === "emergency" || tabParam === "security") {
+      setActiveTab(tabParam);
+    }
+  }, [tabParam]);
   const [profileLoading, setProfileLoading] = useState(false);
   const [securityLoading, setSecurityLoading] = useState(false);
   const [seaServiceLoading, setSeaServiceLoading] = useState(false);
@@ -753,3 +764,12 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+export default function ProfilePage() {
+  return (
+    <Suspense fallback={<div className="p-8 animate-pulse text-sm text-slate-400">Loading Profile...</div>}>
+      <ProfileContent />
+    </Suspense>
+  );
+}
+

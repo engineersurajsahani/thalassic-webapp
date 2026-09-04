@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { User, Mail, Phone, Check, UserCheck, Shield, Anchor, Plus, Tag } from "lucide-react";
+import { User, Mail, Phone, Check, UserCheck, Shield, Anchor, Plus } from "lucide-react";
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
 import { useTheme } from "@/providers/theme-provider";
@@ -51,7 +51,6 @@ export default function RegisterForm() {
     phone: "",
     password: "",
     confirmPassword: "",
-    referralCode: "",
   });
 
   const [role, setRole] = useState("seafarer");
@@ -62,14 +61,6 @@ export default function RegisterForm() {
 
   useEffect(() => {
     setMounted(true);
-    // Auto-populate referral code from URL query params (e.g. ?ref=REFAGENT123 or ?referralCode=...)
-    if (typeof window !== "undefined") {
-      const searchParams = new URLSearchParams(window.location.search);
-      const refCode = searchParams.get("ref") || searchParams.get("referralCode") || searchParams.get("referral_code");
-      if (refCode) {
-        setFormData((prev) => ({ ...prev, referralCode: refCode.toUpperCase() }));
-      }
-    }
   }, []);
 
   const isDark = mounted ? theme === "dark" : true;
@@ -125,7 +116,6 @@ export default function RegisterForm() {
       password: formData.password,
       phone: formData.phone,
       role: role,
-      referralCode: formData.referralCode.trim() ? formData.referralCode.trim().toUpperCase() : undefined,
     })
       .then(() => {
         setIsSuccess(true);
@@ -229,18 +219,6 @@ export default function RegisterForm() {
         />
       </div>
 
-      {/* Referral Code (Optional) */}
-      <AuthInput
-        label="Referral Code (Optional)"
-        name="referralCode"
-        placeholder="Enter Agent Referral Code (e.g. REFAGENT123)"
-        icon={Tag}
-        value={formData.referralCode}
-        onChange={(e) => {
-          const val = e.target.value.toUpperCase();
-          setFormData((prev) => ({ ...prev, referralCode: val }));
-        }}
-      />
 
       {/* Passwords - Side by Side on Desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
