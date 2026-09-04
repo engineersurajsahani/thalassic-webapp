@@ -37,7 +37,8 @@ export default function PartnerRegistrationPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.agreeTerms) return;
+
+if (!isFormValid) return;
 
     setStatus("submitting");
     setErrorMessage("");
@@ -60,6 +61,14 @@ export default function PartnerRegistrationPage() {
       setErrorMessage(error.response?.data?.message || "Something went wrong. Please try again.");
     }
   };
+  const isFormValid =
+  formData.fullName.trim() !== "" &&
+  formData.companyName.trim() !== "" &&
+  /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+  formData.phone.trim() !== "" &&
+  formData.city.trim() !== "" &&
+  formData.state.trim() !== "" &&
+  formData.agreeTerms;
 
   const inputBg = isDark 
     ? "bg-slate-900/60 border-slate-800 text-white placeholder:text-slate-650 focus:border-blue-500" 
@@ -288,8 +297,7 @@ export default function PartnerRegistrationPage() {
 
                   <button
                     type="submit"
-                    disabled={status === "submitting" || !formData.agreeTerms}
-                    className="w-full py-3 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-55 flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md mt-4"
+                    disabled={status === "submitting" || !isFormValid}                    className="w-full py-3 rounded-xl font-bold text-xs bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-55 flex items-center justify-center gap-1.5 transition cursor-pointer shadow-md mt-4"
                   >
                     {status === "submitting" ? (
                       <>
