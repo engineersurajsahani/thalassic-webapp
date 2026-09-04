@@ -64,7 +64,11 @@ export default function Reports() {
     }
   };
 
-  const card = `rounded-3xl overflow-hidden p-6 ${isDark ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
+  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+    isDark
+      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
+      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+  }`;
   const labelText = isDark ? "text-white/50" : "text-slate-500";
   const ht = isDark ? "text-white/95" : "text-slate-800";
   const mt = isDark ? "text-white/35" : "text-slate-400";
@@ -88,7 +92,7 @@ export default function Reports() {
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -103,7 +107,7 @@ export default function Reports() {
     globalConversionRate: "0%",
   };
   const regionStats = reportsData?.regionStats || [];
-  const CHART_COLORS = ["#06b6d4", "#3b82f6", "#6366f1", "#14b8a6", "#0ea5e9"];
+  const CHART_COLORS = ["#3D5EF6", "#2E4FE0", "#6366f1", "#14b8a6", "#3B82F6"];
 
   return (
     <div className="space-y-6">
@@ -122,7 +126,7 @@ export default function Reports() {
       </div>
 
       {/* Filters and Exports Toolbar */}
-      <div className={`p-5 rounded-3xl border flex flex-col md:flex-row gap-4 items-end justify-between ${
+      <div className={`p-5 rounded-lg border flex flex-col md:flex-row gap-4 items-end justify-between ${
         isDark ? "bg-[#0d1f35]/50 border-white/5" : "bg-slate-50/50 border-slate-200/60"
       }`}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto">
@@ -212,7 +216,7 @@ export default function Reports() {
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Total Pipeline Leads</span>
-            <Users className="w-4 h-4 text-cyan-500" />
+            <Users className="w-4 h-4 text-[#3D5EF6]" />
           </div>
           <p className={`text-3xl font-bold mt-4 ${ht}`}>{conversion.totalLeads}</p>
         </div>
@@ -221,7 +225,7 @@ export default function Reports() {
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Converted Referrals</span>
-            <Sparkles className="w-4 h-4 text-cyan-500" />
+            <Sparkles className="w-4 h-4 text-[#3D5EF6]" />
           </div>
           <p className={`text-3xl font-bold mt-4 text-emerald-500`}>{conversion.convertedLeads}</p>
         </div>
@@ -230,9 +234,9 @@ export default function Reports() {
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Global Conversion Rate</span>
-            <TrendingUp className="w-4 h-4 text-cyan-500" />
+            <TrendingUp className="w-4 h-4 text-[#3D5EF6]" />
           </div>
-          <p className={`text-3xl font-bold mt-4 text-cyan-400`}>{conversion.globalConversionRate}</p>
+          <p className={`text-3xl font-bold mt-4 text-[#3D5EF6]`}>{conversion.globalConversionRate}</p>
         </div>
 
       </div>
@@ -242,7 +246,7 @@ export default function Reports() {
         {/* Top Referring Agents (Bar Chart) */}
         <div className={card}>
           <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-            <BarChart3 className="w-4 h-4 text-cyan-400" />
+            <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
             <h3 className="text-sm font-bold">Top Referring Agents</h3>
           </div>
           <div className="h-72 w-full text-xs">
@@ -257,7 +261,7 @@ export default function Reports() {
                     color: isDark ? "#f8fafc" : "#0f172a" 
                   }} 
                 />
-                <Bar dataKey="leads" name="Total Referrals" fill="#06b6d4" barSize={32} radius={[6, 6, 0, 0]} />
+                <Bar dataKey="leads" name="Total Referrals" fill="#3D5EF6" barSize={32} radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -266,7 +270,7 @@ export default function Reports() {
         {/* Region-wise Referrals (Pie Chart) */}
         <div className={card}>
           <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-            <BarChart3 className="w-4 h-4 text-cyan-400" />
+            <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
             <h3 className="text-sm font-bold">Region-Wise Referrals (by City)</h3>
           </div>
           <div className="h-72 w-full text-xs flex flex-col sm:flex-row items-center justify-center">
@@ -353,7 +357,7 @@ export default function Reports() {
       {/* Agent Performance List Table */}
       <div className={card}>
         <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-          <BarChart3 className="w-4 h-4 text-cyan-400" />
+          <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
           <h3 className="text-sm font-bold">Placement Agent Performance Ledger</h3>
         </div>
 
@@ -379,7 +383,7 @@ export default function Reports() {
                   <tr key={idx} className="hover:bg-white/[0.01] transition-all">
                     {/* Agent Name */}
                     <td className="py-4 px-2 font-bold flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-cyan-500" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#3D5EF6]" />
                       {p.agentName}
                     </td>
 
@@ -394,7 +398,7 @@ export default function Reports() {
                     </td>
 
                     {/* Rate */}
-                    <td className="py-4 px-2 text-center font-bold text-cyan-400">
+                    <td className="py-4 px-2 text-center font-bold text-[#3D5EF6]">
                       {p.conversionRate}
                     </td>
 

@@ -156,30 +156,15 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
             {/* Payment Details */}
             <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px", marginBottom: "20px" }}>
               <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Payment Details</div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
+              <div style={{ display: "grid", gridTemplateColumns: invoice.agent_name ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr", gap: "12px" }}>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Gateway:</span><br/><strong>{invoice.payment_gateway}</strong></div>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Method:</span><br/><strong>{invoice.payment_method}</strong></div>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Transaction ID:</span><br/><strong style={{ wordBreak: "break-all" }}>{invoice.transaction_id}</strong></div>
-              </div>
-            </div>
-
-            {/* HAC Agent Section */}
-            {isHac && (
-              <div style={{ background: "#eff6ff", border: "1px solid #bfdbfe", borderRadius: "10px", padding: "16px", marginBottom: "20px" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#1d4ed8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Referring Agent Information (HAC)</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" }}>
-                  <div><span style={{ color: "#3b82f6", fontSize: "11px" }}>Agent Name:</span><br/><strong>{invoice.agent_name || "—"}</strong></div>
-                  <div><span style={{ color: "#3b82f6", fontSize: "11px" }}>Referral Code:</span><br/><strong>{invoice.agent_referral_code || "—"}</strong></div>
-                  <div><span style={{ color: "#3b82f6", fontSize: "11px" }}>Snapshot Ref ID:</span><br/><strong style={{ fontSize: "10px", wordBreak: "break-all" }}>{invoice.commission_snapshot_id || "—"}</strong></div>
-                </div>
-                {invoice.commissionSnapshot && (
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginTop: "12px", paddingTop: "12px", borderTop: "1px solid #bfdbfe" }}>
-                    <div><span style={{ color: "#3b82f6", fontSize: "11px" }}>Commission Rate:</span><br/><strong>{invoice.commissionSnapshot.commission_rate}%</strong> <span style={{ color: "#64748b", fontSize: "10px" }}>({invoice.commissionSnapshot.commission_source})</span></div>
-                    <div><span style={{ color: "#3b82f6", fontSize: "11px" }}>Commission Amount:</span><br/><strong style={{ color: "#15803d" }}>{fmt(invoice.commissionSnapshot.commission_amount)}</strong></div>
-                  </div>
+                {invoice.agent_name && (
+                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Agent Name:</span><br/><strong>{invoice.agent_name}</strong></div>
                 )}
               </div>
-            )}
+            </div>
 
             {/* Amount Summary */}
             <div style={{ marginBottom: "20px" }}>

@@ -61,7 +61,11 @@ export default function AgentManagement() {
   const [commError, setCommError] = useState("");
   const [commSuccess, setCommSuccess] = useState(false);
 
-  const card = `rounded-3xl overflow-hidden p-6 ${isDark ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
+  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+    isDark
+      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
+      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+  }`;
   const inputBg = isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/20" : "bg-slate-50 border-slate-200 text-slate-700 placeholder:text-slate-400";
   const labelText = isDark ? "text-white/50" : "text-slate-500";
   const ht = isDark ? "text-white/80" : "text-slate-800";
@@ -269,7 +273,7 @@ export default function AgentManagement() {
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-semibold text-xs shadow-md transition cursor-pointer self-start sm:self-center"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white font-semibold text-xs shadow-md transition cursor-pointer self-start sm:self-center"
         >
           <Plus className="w-4 h-4" />
           Add Manning Agent
@@ -314,7 +318,7 @@ export default function AgentManagement() {
       <div className={card}>
         {loading ? (
           <div className="flex h-40 items-center justify-center">
-            <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
+            <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin" />
           </div>
         ) : filteredAgents.length === 0 ? (
           <div className="text-center py-10">
@@ -352,7 +356,7 @@ export default function AgentManagement() {
                             ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20" 
                             : agent.onboardingStatus === "Inactive"
                             ? "bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                            : "bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"
+                            : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
                         }`}
                       >
                         <CheckSquare className="w-3.5 h-3.5" />
@@ -364,12 +368,12 @@ export default function AgentManagement() {
                     <td className="py-4 px-2">
                       {agent.referralCode ? (
                         <div className="flex items-center gap-2">
-                          <span className={`font-mono font-bold px-2 py-0.5 rounded ${isDark ? "bg-white/5 text-cyan-400" : "bg-slate-100 text-cyan-600"}`}>
+                          <span className={`font-mono font-bold px-2 py-0.5 rounded ${isDark ? "bg-white/5 text-[#3D5EF6]" : "bg-slate-100 text-[#3D5EF6]"}`}>
                             {agent.referralCode}
                           </span>
                           <button
                             onClick={() => openQrModal(agent)}
-                            className={`p-1 rounded hover:bg-white/5 text-cyan-400`}
+                            className={`p-1 rounded hover:bg-white/5 text-[#3D5EF6]`}
                             title="View QR Code Link"
                           >
                             <QrCode className="w-3.5 h-3.5" />
@@ -438,7 +442,7 @@ export default function AgentManagement() {
       {/* --- CREATE AGENT MODAL --- */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-3xl relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-md p-6 rounded-lg relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
             <button 
               onClick={() => setShowCreateModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -446,8 +450,8 @@ export default function AgentManagement() {
               <X className="w-4 h-4" />
             </button>
             <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-              <Users className="w-5 h-5 text-cyan-500" />
-              <h3 className="text-sm font-bold">Onboard New Agent</h3>
+              <Users className="w-5 h-5 text-[#3D5EF6]" />
+              <h3 className="text-sm font-bold">Onboard New Manning Placement Agent</h3>
             </div>
 
             {createError && <p className="mb-4 text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">{createError}</p>}
@@ -461,7 +465,7 @@ export default function AgentManagement() {
                   required
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
-                  placeholder="e.g. Pacific Ship Management"
+                  placeholder="e.g. Suraj Sahani"
                   className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
                 />
               </div>
@@ -473,19 +477,19 @@ export default function AgentManagement() {
                   required
                   value={newEmail}
                   onChange={(e) => setNewEmail(e.target.value)}
-                  placeholder="e.g. operations@pacificship.com"
+                  placeholder="e.g. agent@manning.com"
                   className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
                 />
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Temporary Password *</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>Initial Account Password *</label>
                 <input
                   type="password"
                   required
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="e.g. TemporaryPass123!"
+                  placeholder="••••••••"
                   className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
                 />
               </div>
@@ -516,7 +520,7 @@ export default function AgentManagement() {
 
               <button
                 type="submit"
-                className="w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
+                className="w-full mt-4 py-3 bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
               >
                 Onboard Agent
               </button>
@@ -528,7 +532,7 @@ export default function AgentManagement() {
       {/* --- RESET PASSWORD MODAL --- */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-sm p-6 rounded-3xl relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-sm p-6 rounded-lg relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
             <button 
               onClick={() => setShowPasswordModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -536,7 +540,7 @@ export default function AgentManagement() {
               <X className="w-4 h-4" />
             </button>
             <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-              <Key className="w-5 h-5 text-cyan-500" />
+              <Key className="w-5 h-5 text-[#3D5EF6]" />
               <h3 className="text-sm font-bold">Reset Password</h3>
             </div>
             <p className={`text-[11px] mb-4 ${labelText}`}>Reset password for {selectedAgent?.name}. The agent will use this to sign in.</p>
@@ -559,7 +563,7 @@ export default function AgentManagement() {
 
               <button
                 type="submit"
-                className="w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
+                className="w-full mt-4 py-3 bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
               >
                 Update Password
               </button>
@@ -571,7 +575,7 @@ export default function AgentManagement() {
       {/* --- EDIT COMMISSIONS MODAL --- */}
       {showCommissionModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-3xl relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-md p-6 rounded-lg relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
             <button 
               onClick={() => setShowCommissionModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -579,7 +583,7 @@ export default function AgentManagement() {
               <X className="w-4 h-4" />
             </button>
             <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-              <Percent className="w-5 h-5 text-cyan-500" />
+              <Percent className="w-5 h-5 text-[#3D5EF6]" />
               <h3 className="text-sm font-bold">Commission overrides</h3>
             </div>
             <p className={`text-[11px] mb-4 ${labelText}`}>Edit commission percentages for {selectedAgent?.name}.</p>
@@ -623,7 +627,7 @@ export default function AgentManagement() {
 
               <button
                 type="submit"
-                className="w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
+                className="w-full mt-4 py-3 bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
               >
                 Save Commissions
               </button>
@@ -635,7 +639,7 @@ export default function AgentManagement() {
       {/* --- ONBOARDING DETAILS MODAL --- */}
       {showOnboardingModal && onboardingChecklist && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-2xl p-6 rounded-3xl relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-2xl p-6 rounded-lg relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
             <button 
               onClick={() => setShowOnboardingModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -643,7 +647,7 @@ export default function AgentManagement() {
               <X className="w-4 h-4" />
             </button>
             <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-              <CheckSquare className="w-5 h-5 text-cyan-500" />
+              <CheckSquare className="w-5 h-5 text-[#3D5EF6]" />
               <h3 className="text-sm font-bold">Onboarding & KYC Verification</h3>
             </div>
             
@@ -655,7 +659,7 @@ export default function AgentManagement() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Checklist Column */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">Checklist Steps</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">Checklist Steps</h4>
                 {onboardingChecklist.checklist.map((step: any) => (
                   <div key={step.step} className="flex items-start gap-3">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
@@ -677,7 +681,7 @@ export default function AgentManagement() {
 
               {/* Documents Verification Column */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-cyan-400 mb-2">KYC Credentials Documents</h4>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">KYC Credentials Documents</h4>
                 {(!onboardingChecklist.documents || onboardingChecklist.documents.length === 0) ? (
                   <p className={`text-xs italic ${mt}`}>No verification credentials uploaded yet.</p>
                 ) : (
@@ -691,7 +695,7 @@ export default function AgentManagement() {
                               href={`http://localhost:4000${doc.url}`}
                               target="_blank"
                               rel="noreferrer"
-                              className="text-[10px] text-cyan-400 hover:underline mt-0.5 block truncate max-w-[180px]"
+                              className="text-[10px] text-[#3D5EF6] hover:underline mt-0.5 block truncate max-w-[180px]"
                             >
                               {(doc.name || "").split("|||")[0]}
                             </a>
@@ -724,7 +728,7 @@ export default function AgentManagement() {
                               ? "bg-emerald-500/10 text-emerald-500"
                               : doc.status === 'Rejected'
                               ? "bg-red-500/10 text-red-500"
-                              : "bg-amber-500/10 text-amber-500"
+                              : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
                           }`}>
                             {doc.status}
                           </span>
@@ -789,7 +793,7 @@ export default function AgentManagement() {
       {/* --- EDIT AGENT MODAL --- */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-3xl relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-md p-6 rounded-lg relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
             <button 
               onClick={() => setShowEditModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -797,7 +801,7 @@ export default function AgentManagement() {
               <X className="w-4 h-4" />
             </button>
             <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-              <Edit2 className="w-5 h-5 text-cyan-500" />
+              <Edit2 className="w-5 h-5 text-[#3D5EF6]" />
               <h3 className="text-sm font-bold">Edit Agent Information</h3>
             </div>
 
@@ -859,7 +863,7 @@ export default function AgentManagement() {
 
               <button
                 type="submit"
-                className="w-full mt-4 py-3 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
+                className="w-full mt-4 py-3 bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white rounded-xl font-bold text-xs shadow-md transition cursor-pointer"
               >
                 Save Details
               </button>
@@ -871,7 +875,7 @@ export default function AgentManagement() {
       {/* --- QR CODE DISPLAY MODAL --- */}
       {showQrModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-sm p-6 rounded-3xl relative text-center shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-sm p-6 rounded-lg relative text-center shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
             <button 
               onClick={() => setShowQrModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -880,19 +884,19 @@ export default function AgentManagement() {
             </button>
             
             <div className="flex flex-col items-center justify-center py-4 space-y-4">
-              <div className="p-3 rounded-2xl bg-cyan-500/10 text-cyan-500">
+              <div className="p-3 rounded-2xl bg-[#3D5EF6]/10 text-[#3D5EF6]">
                 <QrCode className="w-8 h-8" />
               </div>
               <div>
                 <h3 className="text-sm font-bold">{selectedAgent?.name}</h3>
-                <p className={`text-[10px] mt-1 ${labelText}`}>Referral Code: <span className="font-mono font-bold text-cyan-400">{selectedAgent?.referralCode}</span></p>
+                <p className={`text-[10px] mt-1 ${labelText}`}>Referral Code: <span className="font-mono font-bold text-[#3D5EF6]">{selectedAgent?.referralCode}</span></p>
               </div>
 
               {/* Mock QR code container */}
               <div className={`w-44 h-44 rounded-2xl p-4 flex flex-col items-center justify-center border ${isDark ? "bg-white border-white/10" : "bg-slate-50 border-slate-200 shadow-inner"}`}>
-                <div className="w-36 h-36 relative flex items-center justify-center border-4 border-dashed border-cyan-500/30 rounded-xl bg-slate-900 text-white font-mono text-[10px] text-center p-2 leading-relaxed">
+                <div className="w-36 h-36 relative flex items-center justify-center border-4 border-dashed border-[#3D5EF6]/30 rounded-xl bg-slate-900 text-white font-mono text-[10px] text-center p-2 leading-relaxed">
                   <div>
-                    <Sparkles className="w-5 h-5 text-cyan-400 mx-auto mb-1 animate-pulse" />
+                    <Sparkles className="w-5 h-5 text-[#3D5EF6] mx-auto mb-1 animate-pulse" />
                     QR Code Link:<br />
                     thalassic.in/?ref={selectedAgent?.referralCode}
                   </div>

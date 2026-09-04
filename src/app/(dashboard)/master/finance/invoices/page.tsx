@@ -333,8 +333,8 @@ function InvoicesContent() {
                 ))}
                 {selected.agent_name && (
                   <div>
-                    <p className={`text-[10px] ${subtext}`}>Referring Agent</p>
-                    <p className={`text-xs font-medium mt-0.5 ${text}`}>{selected.agent_name} {selected.agent_referral_code ? `(${selected.agent_referral_code})` : ""}</p>
+                    <p className={`text-[10px] ${subtext}`}>Agent Name</p>
+                    <p className={`text-xs font-medium mt-0.5 ${text}`}>{selected.agent_name}</p>
                   </div>
                 )}
               </div>
