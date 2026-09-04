@@ -135,7 +135,10 @@ export default function FinancePage() {
                 <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.05)"} />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.3)" : "#94a3b8" }} axisLine={false} tickLine={false} />
                 <YAxis tickFormatter={v => `₹${v/1000}K`} tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.3)" : "#94a3b8" }} axisLine={false} tickLine={false} />
-                <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`₹${v.toLocaleString()}`, ""]} />
+                <Tooltip contentStyle={ttStyle} formatter={(v) => [
+                  `₹${(v ?? 0).toLocaleString()}`,
+                  "Amount"
+              ]} />
                 <Area type="monotone" dataKey="revenue"  name="Revenue"  stroke="#0ea5e9" strokeWidth={2} fill="url(#gRev)" dot={{ r: 3, fill: "#0ea5e9", strokeWidth: 0 }} activeDot={{ r: 5 }} />
                 <Area type="monotone" dataKey="expenses" name="Expenses" stroke="#f87171" strokeWidth={2} fill="url(#gExp)" dot={{ r: 3, fill: "#f87171", strokeWidth: 0 }} activeDot={{ r: 5 }} />
               </AreaChart>
@@ -155,7 +158,13 @@ export default function FinancePage() {
                 <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.05)"} horizontal={false} />
                 <XAxis type="number" tickFormatter={v => `₹${v/1000}K`} tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.3)" : "#94a3b8" }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#64748b" }} axisLine={false} tickLine={false} width={90} />
-                <Tooltip contentStyle={ttStyle} formatter={(v: number) => [`₹${v.toLocaleString()}`, "Revenue"]} />
+                <Tooltip
+                  contentStyle={ttStyle}
+                  formatter={(v) => [
+                 `₹${Number(v ?? 0).toLocaleString()}`,
+                  "Revenue"
+              ]}
+             />
                 <Bar dataKey="value" radius={[0, 6, 6, 0]}>
                   {REVENUE_BY_SOURCE.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Bar>
