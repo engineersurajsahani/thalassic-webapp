@@ -284,8 +284,8 @@ export default function AgentAdminsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-xl font-bold ${ht}`}>Partner Admins</h1>
-          <p className={`text-sm mt-0.5 ${mt}`}>Manage all registered partner administrators</p>
+          <h1 className={`text-xl font-bold ${ht}`}>Partner Management</h1>
+          <p className={`text-sm mt-0.5 ${mt}`}>Manage maritime recruitment partners, agents, and agency administrators</p>
         </div>
         <button onClick={() => openModal("add")} className="flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white text-sm font-semibold rounded-xl transition-colors shadow-md shadow-violet-500/20">
           <Plus className="w-4 h-4" /> Add Partner Admin
