@@ -8,15 +8,20 @@ import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, BookOpen, Users, BarChart3,
   Settings, LogOut, Anchor, ChevronRight, CheckSquare,
+  Building2, Handshake, GraduationCap, Wallet,
 } from "lucide-react";
 
 const menuItems = [
-  { label: "Dashboard",        href: "/master/dashboard", icon: LayoutDashboard },
-  { label: "Course Management",href: "/master/courses",   icon: BookOpen        },
-  { label: "Pricing Approvals",href: "/master/pricing-approvals", icon: CheckSquare },
-  { label: "User Management",  href: "/master/users",     icon: Users           },
-  { label: "Reports",          href: "/master/reports",   icon: BarChart3       },
-  { label: "Settings",         href: "/master/settings",  icon: Settings        },
+  { label: "Dashboard",           href: "/master/dashboard",        icon: LayoutDashboard },
+  { label: "Course Management",   href: "/master/courses",          icon: BookOpen        },
+  { label: "Pricing Approvals",   href: "/master/pricing-approvals",icon: CheckSquare     },
+  { label: "Seafarer Management", href: "/master/seafarers",        icon: Users           },
+  { label: "Admin Management",    href: "/master/company-admins",   icon: Building2       },
+  { label: "Partner Management",  href: "/master/agent-admins",     icon: Handshake       },
+  { label: "Institute Management",href: "/master/institutes",       icon: GraduationCap   },
+  { label: "Finance",             href: "/master/finance",          icon: Wallet          },
+  { label: "Reports",             href: "/master/reports",          icon: BarChart3       },
+  { label: "Settings",            href: "/master/settings",         icon: Settings        },
 ];
 
 export default function MasterSidebar() {
