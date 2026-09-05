@@ -23,13 +23,13 @@ const YC:Record<string,string>={"2025":"#6366f1","2024":"#10b981","2023":"#f59e0
 const fmt=(n:number)=>`\u20B9${n.toLocaleString("en-IN")}`;
 
 const ACTIVITIES = [
-  { icon: Building2, color: "#0ea5e9", bg: "bg-sky-500/15",     label: "Company Admin Created",   name: "Rajesh Kumar",    time: "2 min ago"   },
-  { icon: UserCog,   color: "#8b5cf6", bg: "bg-violet-500/15",  label: "Partner Admin Created",   name: "Suresh Patel",    time: "18 min ago"  },
-  { icon: Handshake, color: "#6366f1", bg: "bg-indigo-500/15",  label: "New Agent Registered",    name: "Anand Verma",     time: "45 min ago"  },
-  { icon: TrendingUp,color: "#10b981", bg: "bg-emerald-500/15", label: "Referral Converted",      name: "Lead #RL-0092",   time: "1 hr ago"    },
-  { icon: CheckCircle2,color:"#14b8a6",bg: "bg-teal-500/15",    label: "Commission Approved",     name: "₹12,400 · AG002", time: "3 hr ago"    },
-  { icon: Receipt,   color: "#f43f5e", bg: "bg-rose-500/15",    label: "Invoice Generated",       name: "INV-1049",        time: "5 hr ago"    },
-  { icon: Wallet,    color: "#f97316", bg: "bg-orange-500/15",  label: "Settlement Completed",    name: "₹38,400 · CA004", time: "Yesterday"   },
+  { icon: Users,       color: "#0ea5e9", bg: "bg-sky-500/15",     label: "Seafarer Master Record Updated", name: "Raj Kumar (SEA-4821)",  time: "2 min ago"   },
+  { icon: Receipt,     color: "#10b981", bg: "bg-emerald-500/15", label: "Partner Payment Received",       name: "₹1,45,000 · Ocean Maritime",time: "18 min ago"  },
+  { icon: GraduationCap,color:"#8b5cf6", bg: "bg-violet-500/15",  label: "Institute Batch Completed",      name: "Anglo-Eastern Academy",    time: "45 min ago"  },
+  { icon: BookOpen,    color: "#6366f1", bg: "bg-indigo-500/15",  label: "Course Enrollment",              name: "Ship Navigation · 14 Enrolled", time: "1 hr ago"    },
+  { icon: Building2,   color: "#0ea5e9", bg: "bg-sky-500/15",     label: "Company Seafarer Added",         name: "ABC Shipping · Priya Singh",time: "3 hr ago"    },
+  { icon: Receipt,     color: "#f43f5e", bg: "bg-rose-500/15",    label: "Partner Invoice Generated",      name: "INV-1049 · XYZ Marine",    time: "5 hr ago"    },
+  { icon: Wallet,      color: "#f97316", bg: "bg-orange-500/15",  label: "Monthly Settlement Finalized",   name: "₹3,88,400 · September Cycle",time: "Yesterday"   },
 ];
 
 function DonutRing({v,t,color,label,dk}:{v:number;t:number;color:string;label:string;dk:boolean}){
@@ -105,31 +105,42 @@ export default function MasterDashboard(){
   return(
     <div className="space-y-5">
 
-      {/*  10 Additional KPI Cards ─ */}
-      <div className="grid grid-cols-2 xl:grid-cols-5 gap-4">
-        {[
-          { label: "Company Admins",         value: "8",       sub: "Registered",         Icon: Building2,     ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
-          { label: "Partner Admins",         value: "7",       sub: "Registered",         Icon: UserCog,       ib: dk?"bg-violet-500/15":"bg-violet-50",  ic: "#8b5cf6" },
-          { label: "Registered Agents",      value: "41",      sub: "Under partner admins", Icon: Handshake,     ib: dk?"bg-indigo-500/15":"bg-indigo-50",  ic: "#6366f1" },
-          { label: "Referral Leads",         value: "128",     sub: "All time",           Icon: GitMerge,      ib: dk?"bg-amber-500/15":"bg-amber-50",    ic: "#f59e0b" },
-          { label: "Referral Conversions",   value: "74",      sub: "57.8% rate",         Icon: TrendingUp,    ib: dk?"bg-emerald-500/15":"bg-emerald-50", ic: "#10b981" },
-          { label: "Commissions Payable",    value: "₹1.24L",  sub: "Awaiting payout",    Icon: Wallet,        ib: dk?"bg-orange-500/15":"bg-orange-50",   ic: "#f97316" },
-          { label: "Commissions Paid",       value: "₹4.87L",  sub: "All time",           Icon: CheckCircle2,  ib: dk?"bg-teal-500/15":"bg-teal-50",      ic: "#14b8a6" },
-          { label: "Platform Invoices",      value: "312",     sub: "Total raised",       Icon: Receipt,       ib: dk?"bg-rose-500/15":"bg-rose-50",      ic: "#f43f5e" },
-          { label: "Pending Settlements",    value: "₹38.4K",  sub: "Unresolved",         Icon: Clock,         ib: dk?"bg-red-500/15":"bg-red-50",        ic: "#ef4444" },
-          { label: "Monthly Revenue",        value: "₹3.88L",  sub: "Current month",      Icon: BarChart3,     ib: dk?"bg-purple-500/15":"bg-purple-50",   ic: "#a855f7" },
-        ].map((k) => (
-          <div key={k.label} className={`${card} flex items-center gap-3 px-5 py-4`}>
-            <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${k.ib}`}>
-              <k.Icon className="w-5 h-5" style={{ color: k.ic }} />
+      {/*  Section 1.3 Operational & Financial Metrics Grid  */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <p className={`text-xs font-semibold uppercase tracking-wider ${mt}`}>Operational & Financial Metrics</p>
+          <span className={`text-[11px] ${mt}`}>Live Platform Overview</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+          {[
+            { label: "Total Seafarers",             value: "1,420",   sub: "Master records",        Icon: Users,         ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
+            { label: "Company Seafarers",           value: "890",     sub: "Direct / Company-side", Icon: Building2,     ib: dk?"bg-blue-500/15":"bg-blue-50",     ic: "#3b82f6" },
+            { label: "Partner Seafarers",           value: "530",     sub: "Partner-side network",  Icon: Handshake,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
+            { label: "Candidates on Hold",          value: "14",      sub: "Action required",       Icon: AlertCircle,   ib: dk?"bg-amber-500/15":"bg-amber-50",   ic: "#f59e0b" },
+            { label: "Total Partners",              value: "28",      sub: "Active partners",       Icon: UserCog,       ib: dk?"bg-violet-500/15":"bg-violet-50", ic: "#8b5cf6" },
+            { label: "Total Institutes",            value: "14",      sub: "Training academies",    Icon: GraduationCap, ib: dk?"bg-emerald-500/15":"bg-emerald-50",ic: "#10b981" },
+            { label: "Active Courses",              value: "42",      sub: "Live in catalog",       Icon: BookOpen,      ib: dk?"bg-cyan-500/15":"bg-cyan-50",     ic: "#06b6d4" },
+            { label: "Ongoing Courses",             value: "18",      sub: "Active batches",        Icon: Clock,         ib: dk?"bg-purple-500/15":"bg-purple-50", ic: "#a855f7" },
+            { label: "Completed Courses",           value: "124",     sub: "Archived batches",      Icon: CheckCircle2,  ib: dk?"bg-teal-500/15":"bg-teal-50",     ic: "#14b8a6" },
+            { label: "Total Revenue",               value: "₹28.4L",  sub: "All-time platform",     Icon: Wallet,        ib: dk?"bg-emerald-500/15":"bg-emerald-50",ic: "#10b981" },
+            { label: "Revenue (Current Month)",     value: "₹3.88L",  sub: "Current cycle",         Icon: BarChart3,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
+            { label: "Received from Partners",      value: "₹14.2L",  sub: "Settled collections",   Icon: Receipt,       ib: dk?"bg-green-500/15":"bg-green-50",   ic: "#22c55e" },
+            { label: "Pending from Partners",       value: "₹2.60L",  sub: "Outstanding balance",   Icon: Clock,         ib: dk?"bg-rose-500/15":"bg-rose-50",     ic: "#f43f5e" },
+          ].map((k) => (
+            <div key={k.label} className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}>
+              <div className="flex items-center justify-between mb-2">
+                <span className={`text-[11px] font-semibold truncate ${ht} opacity-80`}>{k.label}</span>
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}>
+                  <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
+                </div>
+              </div>
+              <div>
+                <p className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
+                <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className={`text-[19px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
-              <p className={`text-[11px] font-semibold truncate mt-0.5 ${ht} opacity-75`}>{k.label}</p>
-              <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
@@ -191,10 +202,10 @@ export default function MasterDashboard(){
           <CH title="Quick Actions" dk={dk} action={<Zap className={`w-4 h-4 ${dk?"text-amber-400":"text-amber-500"}`}/>}/>
           <div className="p-4 grid grid-cols-2 gap-3">
             {[
-              { label:"Create Company Admin", Icon:Building2, color:"bg-sky-500 hover:bg-sky-600",     href:"/master/company-admins" },
-              { label:"Create Partner Admin", Icon:UserCog,   color:"bg-violet-500 hover:bg-violet-600", href:"/master/agent-admins"   },
-              { label:"View Finance",         Icon:BarChart2, color:"bg-emerald-500 hover:bg-emerald-600",href:"/master/finance"      },
-              { label:"Platform Reports",     Icon:FileText,  color:"bg-indigo-500 hover:bg-indigo-600", href:"/master/reports"        },
+              { label:"Seafarer Directory", Icon:Users,         color:"bg-sky-500 hover:bg-sky-600",       href:"/master/seafarers"     },
+              { label:"Partner Management", Icon:Handshake,     color:"bg-violet-500 hover:bg-violet-600", href:"/master/agent-admins"  },
+              { label:"Institutes List",    Icon:GraduationCap, color:"bg-emerald-500 hover:bg-emerald-600",href:"/master/institutes"   },
+              { label:"Course Catalog",     Icon:BookOpen,      color:"bg-indigo-500 hover:bg-indigo-600", href:"/master/courses"      },
             ].map(q=>(
               <button key={q.label} onClick={()=>router.push(q.href)}
                 className={`flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl text-white text-[12px] font-semibold text-center transition-all active:scale-95 shadow-md ${q.color}`}>
