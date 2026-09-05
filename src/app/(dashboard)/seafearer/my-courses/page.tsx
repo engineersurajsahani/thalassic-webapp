@@ -21,7 +21,171 @@ import {
   Info
 } from "lucide-react";
 import Link from "next/link";
-import { CourseEnrollment } from "@/types/course";
+import { CourseEnrollment, Course } from "@/types/course";
+
+interface CourseDetailInfo {
+  topics: string[];
+  guidelines: string[];
+}
+
+function getCourseDetails(course?: Course | { code?: string; name?: string; description?: string } | null): CourseDetailInfo {
+  const code = (course?.code || "").toUpperCase();
+  const name = (course?.name || "").toLowerCase();
+
+  if (code.includes("PSCRB") || name.includes("survival craft") || name.includes("rescue boat")) {
+    return {
+      topics: [
+        "Survival craft launching and handling mechanisms",
+        "Rescue boat operations and in-water recovery drills",
+        "Emergency procedures and rough-sea navigation",
+        "Practical safety training and capsize righting drills",
+        "Required attendance logging and DGS documentation"
+      ],
+      guidelines: [
+        "Boiler suit and steel-toed safety boots are required for practical boat davit drills.",
+        "Carry original Passport, CDC, and INDoS registration certificate for physical identity verification.",
+        "100% biometric attendance is required for DGS completion certificate issuance."
+      ]
+    };
+  }
+
+  if (code.includes("STSDSD") || code.includes("STSDSSD") || name.includes("designated security duties")) {
+    return {
+      topics: [
+        "Maritime security threats, piracy mitigation, and armed robbery defense",
+        "Ship Security Plan (SSP) execution and designated security protocols",
+        "Security screening, search procedures, and recognition of security risks",
+        "Emergency security communications and drill coordination"
+      ],
+      guidelines: [
+        "Carry original CDC / Passport and INDoS certificate for identity verification.",
+        "Active participation in ISPS code security case study assessments is mandatory.",
+        "100% attendance required for DGS accredited certificate issuance."
+      ]
+    };
+  }
+
+  if (code.includes("OCTCO") || name.includes("oil") || name.includes("chemical tanker")) {
+    return {
+      topics: [
+        "Physical and chemical properties of oil and liquid chemical cargoes",
+        "Cargo containment systems, piping layouts, and deepwell pumping operations",
+        "Inert Gas Systems (IGS), tank venting, and gas-freeing protocols",
+        "Chemical reactivity hazards, enclosed space entry, and emergency response"
+      ],
+      guidelines: [
+        "Review basic tanker familiarization modules prior to practical simulator drills.",
+        "Mandatory compliance with ISGOTT and IBC Code safety checklists.",
+        "Original CDC and INDoS certificate required for registrar verification."
+      ]
+    };
+  }
+
+  if (code.includes("EFA") || name.includes("first aid") || name.includes("elementary first aid")) {
+    return {
+      topics: [
+        "Emergency casualty assessment, vital signs monitoring, and triage protocols",
+        "Cardiopulmonary Resuscitation (CPR) & Automated External Defibrillator (AED) execution",
+        "Hemorrhage control, tourniquet application, and shock management",
+        "Bandaging techniques, fracture splinting, and maritime burns treatment"
+      ],
+      guidelines: [
+        "Wear comfortable training attire suitable for floor-level CPR manikin simulations.",
+        "Demonstrated practical proficiency in CPR is required for course sign-off.",
+        "100% biometric attendance is required for DGS certificate generation."
+      ]
+    };
+  }
+
+  if (code.includes("AFF") || name.includes("advanced fire")) {
+    return {
+      topics: [
+        "Fire command organization, communication tactics, and tactical leadership",
+        "Self-Contained Breathing Apparatus (SCBA) endurance drills in smoke chambers",
+        "Fixed fire-extinguishing systems (CO2, foam, dry chemical, and water mist)",
+        "Hazardous cargo fire isolation, ventilation controls, and post-fire inspection"
+      ],
+      guidelines: [
+        "Flame-retardant boiler suit, safety footwear, and valid medical fitness clearance mandatory.",
+        "Active participation in live fire ground simulator drills is required for accreditation.",
+        "Original INDoS and CDC required for physical verification."
+      ]
+    };
+  }
+
+  if (code.includes("PST") || code.includes("BST") || name.includes("personal survival") || name.includes("basic safety")) {
+    return {
+      topics: [
+        "Emergency station bill muster, donning lifejackets, and immersion suits",
+        "Abandon ship jumps from height, in-water survival clusters, and hypothermia defense",
+        "Liferaft boarding, righting an inverted raft, and sea anchor deployment",
+        "Pyrotechnic distress signaling and helicopter hoist rescue procedures"
+      ],
+      guidelines: [
+        "Swimming attire, towel, and clean boiler suit required for pool survival drills.",
+        "Medical fitness declaration required prior to high-jump water exercises.",
+        "100% biometric attendance required conforming to DGS regulations."
+      ]
+    };
+  }
+
+  if (code.includes("GMDSS") || code.includes("GMDS") || name.includes("gmdss")) {
+    return {
+      topics: [
+        "VHF, MF/HF DSC radio installations and distress alert transmission",
+        "Inmarsat satellite communications (C, Fleet Broadband) and SafetyNET",
+        "EPIRB, SART, and NAVTEX operation, testing routines, and battery checks",
+        "SOLAS radio regulations and official maritime radio logbook maintenance"
+      ],
+      guidelines: [
+        "Valid GMDSS logbook and passport required for practical simulator logging.",
+        "Daily communication logs must be completed and signed by the instructor.",
+        "Full simulator hours must be completed before terminal competency assessment."
+      ]
+    };
+  }
+
+  if (code.includes("MFA") || name.includes("medical first aid")) {
+    return {
+      topics: [
+        "Advanced trauma care, clinical dressing, wound closure, and sutures",
+        "Shipboard medical chest inventory, drug administration, and injections",
+        "Telemedical Maritime Assistance Service (TMAS) protocols and vital reporting",
+        "Spinal immobilization, Neil Robertson stretcher evacuation, and patient stabilization"
+      ],
+      guidelines: [
+        "Hands-on clinical demonstrations and practical suture/injection drills are mandatory.",
+        "Compliance with WHO International Medical Guide for Ships standards.",
+        "Valid CDC, Passport, and INDoS verification required."
+      ]
+    };
+  }
+
+  const descPoints = course?.description
+    ? course.description
+        .split(/[.,;]/)
+        .map(s => s.trim())
+        .filter(s => s.length > 12)
+        .slice(0, 4)
+    : [];
+
+  const topics = descPoints.length >= 2
+    ? descPoints
+    : [
+        "Standard DGS & STCW operational procedures and maritime safety compliance",
+        "Core competency training, practical drills, and technical assessment modules",
+        "Emergency response coordination, hazard recognition, and team communication",
+        "Equipment operation, compliance logging, and industry best practices"
+      ];
+
+  const guidelines = [
+    "Report at the campus training registrar office 15 minutes prior to session commencement.",
+    "Carry original Passport, CDC, and INDoS registration certificate for physical identity verification.",
+    "100% biometric attendance is required for DGS completion certificate issuance."
+  ];
+
+  return { topics, guidelines };
+}
 
 export default function MyCoursesPage() {
   const { theme } = useTheme();
@@ -186,7 +350,7 @@ export default function MyCoursesPage() {
             return (
               <div
                 key={item.id}
-                className={`rounded-2xl p-6 border shadow-sm flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${
+                className={`rounded-2xl px-6 pt-3.5 pb-6 border shadow-sm flex flex-col justify-between relative overflow-hidden transition-all duration-300 ${
                   isOnHold
                     ? isDark
                       ? "bg-[#14120a] border-amber-500/40 text-white"
@@ -196,66 +360,58 @@ export default function MyCoursesPage() {
                     : "bg-white border-slate-200 hover:border-[#3b71cb]/40 text-slate-900"
                 }`}
               >
-                <div className="space-y-4">
-                  {/* Top Badges */}
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className={`inline-block px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${
-                        isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-[#3b71cb] border border-blue-100"
-                      }`}>
-                        {item.course?.code || "DGS-CRS"}
-                      </span>
-                      <span className="text-[9px] font-bold text-slate-400 bg-slate-800/60 px-2 py-0.5 rounded uppercase tracking-wider">
-                        🏫 Physical Training
-                      </span>
-                    </div>
-                    
+                <div className="flex-1 flex flex-col justify-between space-y-3">
+                  <div>
                     {/* Visual Status Indicator */}
-                    {isOnHold ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-500/30">
-                        <AlertTriangle className="w-3.5 h-3.5" /> On Hold
-                      </span>
-                    ) : isCompleted ? (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-500/30">
-                        <CheckCircle className="w-3.5 h-3.5" /> Completed
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-cyan-400 bg-cyan-400/10 px-3 py-1 rounded-full border border-cyan-500/30">
-                        <Clock className="w-3.5 h-3.5" /> Ongoing
-                      </span>
+                    <div className="flex items-center justify-end">
+                      {isOnHold ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-3 py-1 rounded-full border border-amber-500/30">
+                          <AlertTriangle className="w-3.5 h-3.5" /> On Hold
+                        </span>
+                      ) : isCompleted ? (
+                        <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-3 py-1 rounded-full border border-emerald-500/30">
+                          <CheckCircle className="w-3.5 h-3.5" /> Completed
+                        </span>
+                      ) : (
+                        <span className={`inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider ${
+                          isDark ? "text-emerald-400" : "text-emerald-600"
+                        }`}>
+                          <Clock className="w-3.5 h-3.5" /> Ongoing
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Course Title */}
+                    <div className="mt-1.5">
+                      <h3 className="font-extrabold text-base leading-snug truncate" title={item.course?.name}>
+                        {item.course?.name}
+                      </h3>
+                      <p className={`text-xs mt-1 line-clamp-2 leading-relaxed ${isDark ? "text-slate-300" : "text-slate-700"}`}>
+                        {item.course?.description}
+                      </p>
+                    </div>
+
+                    {/* On Hold Explanatory Warning Notice */}
+                    {isOnHold && (
+                      <div className="mt-3 p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
+                        <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                        <div>
+                          <div className="font-bold">Training Status: On Hold</div>
+                          <p className="text-[10px] text-amber-200/80 leading-normal mt-0.5">
+                            This course schedule is temporarily on hold for document or administrative verification. All previous purchases, documents, and records remain securely linked to your master profile.
+                          </p>
+                        </div>
+                      </div>
                     )}
                   </div>
-
-                  {/* Course Title */}
-                  <div>
-                    <h3 className="font-extrabold text-base leading-snug truncate" title={item.course?.name}>
-                      {item.course?.name}
-                    </h3>
-                    <p className={`text-xs mt-1 line-clamp-2 leading-relaxed ${isDark ? "text-gray-400" : "text-slate-500"}`}>
-                      {item.course?.description}
-                    </p>
-                  </div>
-
-                  {/* On Hold Explanatory Warning Notice */}
-                  {isOnHold && (
-                    <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-start gap-2.5">
-                      <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-                      <div>
-                        <div className="font-bold">Training Status: On Hold</div>
-                        <p className="text-[10px] text-amber-200/80 leading-normal mt-0.5">
-                          This course schedule is temporarily on hold for document or administrative verification. All previous purchases, documents, and records remain securely linked to your master profile.
-                        </p>
-                      </div>
-                    </div>
-                  )}
 
                   {/* Batch Schedule */}
                   <div className={`p-3 rounded-xl border flex items-center gap-2 ${
                     isDark ? "bg-slate-900/60 border-slate-800" : "bg-slate-50 border-slate-200"
                   }`}>
-                    <Calendar className="w-3.5 h-3.5 shrink-0 text-cyan-400" />
-                    <span className="text-xs font-medium text-slate-300">
-                      Schedule: <strong className="font-bold text-white">{item.batchSchedule || "Mon - Fri | 09:00 - 17:30 IST"}</strong>
+                    <Calendar className={`w-3.5 h-3.5 shrink-0 ${isDark ? "text-cyan-400" : "text-[#3b71cb]"}`} />
+                    <span className={`text-xs font-medium ${isDark ? "text-slate-300" : "text-slate-600"}`}>
+                      Schedule: <strong className={`font-bold ${isDark ? "text-white" : "text-slate-800"}`}>{item.batchSchedule || "Mon - Fri | 09:00 - 17:30 IST"}</strong>
                     </span>
                   </div>
 
@@ -312,92 +468,166 @@ export default function MyCoursesPage() {
         </div>
       )}
 
-      {/* Physical Training Schedule & Campus Dossier Modal */}
-      {dossierEnrollment && (
-        <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
-          <div className={`w-full max-w-2xl rounded-3xl border shadow-2xl p-6 md:p-8 space-y-6 ${
-            isDark ? "bg-[#09162c] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
-          }`}>
-            <div className="flex justify-between items-start border-b border-slate-800/40 pb-4">
-              <div>
-                <span className={`text-[9px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded ${
-                  isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
-                }`}>
-                  Physical Course Reporting Dossier
-                </span>
-                <h3 className="text-xl font-black tracking-tight mt-1.5">
-                  {dossierEnrollment.course?.name} ({dossierEnrollment.course?.code})
-                </h3>
-              </div>
-              <button
-                onClick={() => setDossierEnrollment(null)}
-                className={`p-2 rounded-xl border font-bold text-xs cursor-pointer ${
-                  isDark ? "border-slate-800 hover:bg-slate-800 text-white" : "border-slate-200 hover:bg-slate-100 text-slate-700"
-                }`}
-              >
-                Close
-              </button>
-            </div>
+      {/* Course Schedule & Dossier Modal */}
+      {dossierEnrollment && (() => {
+        const courseDetails = getCourseDetails(dossierEnrollment.course);
+        const isOnHold = dossierEnrollment.status === "on_hold";
+        const isCompleted = dossierEnrollment.status === "completed";
+        const batchText = dossierEnrollment.enrollmentDetails?.batchId || "BATCH 2026";
+        const durationText = dossierEnrollment.course?.duration || "5 Days";
+        const trainingModeText = dossierEnrollment.course?.trainingType || dossierEnrollment.course?.deliveryMode || "Physical Campus";
+        const scheduleText = dossierEnrollment.batchSchedule || "Monday – Friday | 09:00 – 17:30 IST";
+        const attendanceText = isOnHold 
+          ? "On Hold" 
+          : isCompleted 
+          ? "100% (Certified)" 
+          : dossierEnrollment.progress && dossierEnrollment.progress > 0 
+          ? `${dossierEnrollment.progress}% (In Progress)`
+          : "In Progress";
 
-            {/* Status Highlight */}
-            <div className={`p-4 rounded-2xl border flex items-center justify-between ${
-              dossierEnrollment.status === "on_hold"
-                ? "bg-amber-500/10 border-amber-500/30 text-amber-300"
-                : dossierEnrollment.status === "completed"
-                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
-                : "bg-cyan-500/10 border-cyan-500/30 text-cyan-300"
+        return (
+          <div className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto animate-fadeIn">
+            <div className={`w-full max-w-2xl rounded-3xl border shadow-2xl p-6 md:p-8 space-y-5 my-8 max-h-[90vh] overflow-y-auto ${
+              isDark ? "bg-[#09162c] border-slate-800 text-white" : "bg-white border-slate-200 text-slate-900"
             }`}>
-              <div className="flex items-center gap-2.5">
-                {dossierEnrollment.status === "on_hold" ? (
-                  <AlertTriangle className="w-5 h-5 text-amber-400" />
-                ) : dossierEnrollment.status === "completed" ? (
-                  <CheckCircle className="w-5 h-5 text-emerald-400" />
-                ) : (
-                  <Clock className="w-5 h-5 text-cyan-400" />
-                )}
-                <div>
-                  <div className="font-extrabold text-xs uppercase">
-                    Status: {dossierEnrollment.status === "on_hold" ? "On Hold" : dossierEnrollment.status === "completed" ? "Completed & Accredited" : "Ongoing Physical Training"}
-                  </div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">
-                    {dossierEnrollment.status === "on_hold"
-                      ? "Placed on hold for verification. Your course history and account remain connected."
-                      : "Attending offline training sessions and practical simulator modules."}
-                  </div>
+              {/* 1. Course Name & Close Button */}
+              <div className="flex justify-between items-start gap-4 pb-4 border-b border-slate-200 dark:border-slate-800/60">
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-xl md:text-2xl font-black tracking-tight leading-snug break-words text-slate-900 dark:text-white">
+                    {dossierEnrollment.course?.name}
+                    {dossierEnrollment.course?.code ? ` (${dossierEnrollment.course.code})` : ""}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setDossierEnrollment(null)}
+                  className={`p-2 px-3 rounded-xl border font-bold text-xs cursor-pointer shrink-0 transition-colors ${
+                    isDark 
+                      ? "border-slate-800 hover:bg-slate-800 text-slate-300 hover:text-white" 
+                      : "border-slate-200 hover:bg-slate-100 text-slate-700 hover:text-slate-950"
+                  }`}
+                >
+                  Close
+                </button>
+              </div>
+
+              {/* 2. Status | Batch */}
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">Status:</span>
+                  {isOnHold ? (
+                    <span className="inline-flex items-center gap-1.5 font-black uppercase tracking-wider text-amber-500">
+                      <AlertTriangle className="w-4 h-4" /> On Hold
+                    </span>
+                  ) : isCompleted ? (
+                    <span className="inline-flex items-center gap-1.5 font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle className="w-4 h-4" /> Completed
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400">
+                      <Clock className="w-4 h-4" /> Ongoing
+                    </span>
+                  )}
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold text-slate-500 dark:text-slate-400">Batch:</span>
+                  <span className="font-bold text-slate-900 dark:text-white">
+                    {batchText}
+                  </span>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold bg-slate-900/80 px-2.5 py-1 rounded-lg">
-                {dossierEnrollment.enrollmentDetails?.batchId || "BATCH-2026"}
-              </span>
-            </div>
 
+              {/* 3. Duration | Training Mode | Attendance */}
+              <div className={`grid grid-cols-3 gap-3 p-4 rounded-2xl border ${
+                isDark ? "bg-slate-900/60 border-slate-800" : "bg-slate-50 border-slate-200"
+              }`}>
+                <div>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Duration
+                  </span>
+                  <span className="text-xs font-bold mt-1 block text-slate-900 dark:text-white">
+                    {durationText}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Training Mode
+                  </span>
+                  <span className="text-xs font-bold mt-1 block text-slate-900 dark:text-white">
+                    {trainingModeText}
+                  </span>
+                </div>
+                <div>
+                  <span className="block text-[10px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                    Attendance / Progress
+                  </span>
+                  <span className={`text-xs font-bold mt-1 block ${
+                    isOnHold 
+                      ? "text-amber-500" 
+                      : "text-emerald-600 dark:text-emerald-400"
+                  }`}>
+                    {attendanceText}
+                  </span>
+                </div>
+              </div>
 
-            {/* Reporting Guidelines */}
-            <div className="space-y-2">
-              <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
-                <FileText className="w-4 h-4 text-indigo-400" /> Physical Reporting Guidelines & Gear Checklist
-              </h4>
-              <ul className="text-xs space-y-1.5 text-slate-300 list-disc pl-4">
-                <li>Report at the campus training registrar office 15 minutes prior to session commencement.</li>
-                <li>Carry original Passport, CDC, and INDOS registration certificate for physical identity verification.</li>
-                <li>Boiler suit and steel-toed safety boots are required for practical fire-fighting and survival craft modules.</li>
-                <li>100% biometric attendance is required for DGS completion certificate issuance.</li>
-              </ul>
-            </div>
+              {/* 4. Schedule */}
+              <div className={`p-3.5 rounded-2xl border flex items-center gap-3 ${
+                isDark ? "bg-slate-900/40 border-slate-800" : "bg-white border-slate-200"
+              }`}>
+                <Calendar className="w-4 h-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                <div className="text-xs">
+                  <span className="text-slate-500 dark:text-slate-400 font-medium">Schedule: </span>
+                  <strong className="font-bold text-slate-900 dark:text-white">
+                    {scheduleText}
+                  </strong>
+                </div>
+              </div>
 
-            <div className="border-t border-slate-800/40 pt-4 flex justify-end">
-              <button
-                onClick={() => setDossierEnrollment(null)}
-                className={`px-5 py-2.5 rounded-xl font-bold text-xs cursor-pointer ${
-                  isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
-                }`}
-              >
-                Acknowledge & Close
-              </button>
+              {/* 5. Course Information */}
+              <div className="space-y-2.5">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-slate-200 flex items-center gap-2">
+                  <BookOpen className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> COURSE INFORMATION & FOCUS AREAS
+                </h4>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2.5 items-start">
+                  {courseDetails.topics.map((topic, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 leading-snug">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 mt-[5px]" />
+                      <span className="flex-1 min-w-0">{topic}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* 6. Important Guidelines / Requirements */}
+              <div className="space-y-2.5">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 dark:text-slate-200 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" /> Important Guidelines & Requirements
+                </h4>
+                <ul className="space-y-2">
+                  {courseDetails.guidelines.map((guide, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-xs text-slate-700 dark:text-slate-300 leading-snug">
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-400 dark:bg-slate-500 shrink-0 mt-[5px]" />
+                      <span className="flex-1 min-w-0">{guide}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Footer: Acknowledge & Close */}
+              <div className="border-t border-slate-200 dark:border-slate-800/60 pt-4 flex justify-end">
+                <button
+                  onClick={() => setDossierEnrollment(null)}
+                  className={`px-6 py-2.5 rounded-xl font-bold text-xs cursor-pointer shadow-sm transition-colors ${
+                    isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
+                  }`}
+                >
+                  Acknowledge & Close
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
 
       {/* Renders Printable Certificate Overlay Modal */}
       {certificateItem && (

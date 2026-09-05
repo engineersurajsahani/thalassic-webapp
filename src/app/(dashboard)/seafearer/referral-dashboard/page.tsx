@@ -4,15 +4,12 @@ import React, { useEffect, useState } from "react";
 import { referralService } from "@/services/referral.service";
 import { useTheme } from "@/providers/theme-provider";
 import {
-  Users,
   Copy,
   CheckCircle,
   Clock,
   Sparkles,
   CloudLightning,
-  Gift,
   Star,
-  TrendingUp,
 } from "lucide-react";
 
 export default function ReferralDashboardPage() {
@@ -60,7 +57,7 @@ export default function ReferralDashboardPage() {
         <div className={`h-20 rounded-2xl ${isDark ? "bg-[#0A192F]" : "bg-slate-100"}`} />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className={`h-36 rounded-2xl ${isDark ? "bg-[#0A192F]" : "bg-slate-100"}`} />
+            <div key={i} className={`h-20 rounded-2xl ${isDark ? "bg-[#0A192F]" : "bg-slate-100"}`} />
           ))}
         </div>
         <div className={`h-72 rounded-3xl ${isDark ? "bg-[#0A192F]" : "bg-slate-100"}`} />
@@ -72,30 +69,22 @@ export default function ReferralDashboardPage() {
     {
       label: "Total Referrals",
       value: referralData?.totalReferrals ?? 0,
-      icon: Users,
       color: isDark ? "text-cyan-400" : "text-[#3b71cb]",
-      bg: isDark ? "bg-cyan-500/10" : "bg-blue-50",
     },
     {
       label: "Successful Registrations",
       value: referralData?.successfulRegistrations ?? 0,
-      icon: CheckCircle,
       color: "text-emerald-400",
-      bg: isDark ? "bg-emerald-500/10" : "bg-emerald-50",
     },
     {
       label: "Earned Credits",
       value: `₹${Number(referralData?.earnedCredits ?? 0).toLocaleString("en-IN")}`,
-      icon: Gift,
       color: "text-amber-400",
-      bg: isDark ? "bg-amber-500/10" : "bg-amber-50",
     },
     {
       label: "Referral History",
       value: referralData?.history?.length ?? 0,
-      icon: TrendingUp,
       color: "text-purple-400",
-      bg: isDark ? "bg-purple-500/10" : "bg-purple-50",
     },
   ];
 
@@ -175,35 +164,27 @@ export default function ReferralDashboardPage() {
 
       {/* Stats Grid */}
       <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <div
-              key={stat.label}
-              className={`rounded-2xl p-5 border shadow-lg flex flex-col gap-3 transition-all duration-300 hover:shadow-xl ${
-                isDark
-                  ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white hover:border-cyan-500/20"
-                  : "bg-white border-slate-200 text-slate-900 hover:border-[#3b71cb]/20"
+        {stats.map((stat) => (
+          <div
+            key={stat.label}
+            className={`rounded-2xl py-3.5 px-5 border shadow-lg flex flex-col justify-center transition-all duration-300 hover:shadow-xl ${
+              isDark
+                ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white hover:border-cyan-500/20"
+                : "bg-white border-slate-200 text-slate-900 hover:border-[#3b71cb]/20"
+            }`}
+          >
+            <p
+              className={`text-[10px] font-black uppercase tracking-wider ${
+                isDark ? "text-slate-400" : "text-slate-600"
               }`}
             >
-              <div className={`p-2 rounded-lg w-fit ${stat.bg}`}>
-                <Icon className={`w-4 h-4 ${stat.color}`} />
-              </div>
-              <div>
-                <p
-                  className={`text-[10px] font-black uppercase tracking-wider ${
-                    isDark ? "text-slate-500" : "text-slate-400"
-                  }`}
-                >
-                  {stat.label}
-                </p>
-                <p className={`text-2xl font-extrabold tracking-tight mt-0.5 ${stat.color}`}>
-                  {stat.value}
-                </p>
-              </div>
-            </div>
-          );
-        })}
+              {stat.label}
+            </p>
+            <p className={`text-2xl font-black tracking-tight mt-1 ${stat.color}`}>
+              {stat.value}
+            </p>
+          </div>
+        ))}
       </section>
 
       {/* Referral History Table */}

@@ -12,6 +12,7 @@ interface User {
   role: string;
   firstName?: string;
   lastName?: string;
+  profilePicture?: string;
   onboardingStatus?: string;
   profile?: {
     firstName?: string;
@@ -40,6 +41,7 @@ interface AuthContextType {
   register: (userDetails: any) => Promise<any>;
   logout: () => Promise<void>;
   updateProfile: (details: any) => Promise<void>;
+  uploadProfilePhoto: (file: File) => Promise<string>;
   updateSecurity: (securityDetails: any) => Promise<void>;
   addSeaService: (record: any) => Promise<any>;
   deleteSeaService: (recordId: string) => Promise<void>;
@@ -230,6 +232,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const uploadProfilePhoto = async (file: File): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await api.post("/users/profile/photo", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      await refreshProfile();
+      return res.data.profilePicture;
+    } catch (err: any) {
+      throw new Error(err.response?.data?.message || "Profile photo upload failed. Please try again.");
+    }
+  };
+
   const updateSecurity = async (securityDetails: any) => {
     try {
       await api.put("/users/security", securityDetails);
@@ -267,6 +283,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         logout,
         updateProfile,
+        uploadProfilePhoto,
         updateSecurity,
         addSeaService,
         deleteSeaService,

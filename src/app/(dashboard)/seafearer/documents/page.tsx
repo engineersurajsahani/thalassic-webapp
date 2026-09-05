@@ -26,6 +26,10 @@ export default function DocumentsPage() {
   const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [removingId, setRemovingId] = useState<string | null>(null);
+
+  const PASSPORT_STORAGE_KEY = "thalassic_seafarer_passport_form";
+  const CDC_STORAGE_KEY = "thalassic_seafarer_cdc_form";
 
   // Active Passport State
   const [passportForm, setPassportForm] = useState({
@@ -47,6 +51,96 @@ export default function DocumentsPage() {
   const [cdcFile, setCdcFile] = useState<File | null>(null);
   const [uploadingCdc, setUploadingCdc] = useState(false);
 
+  // Persistence helpers
+  const updatePassportField = (field: string, value: string) => {
+    setPassportForm((prev) => {
+      const updated = { ...prev, [field]: value };
+      try {
+        localStorage.setItem(PASSPORT_STORAGE_KEY, JSON.stringify(updated));
+      } catch (_) {}
+      return updated;
+    });
+  };
+
+  const updateCdcField = (field: string, value: string) => {
+    setCdcForm((prev) => {
+      const updated = { ...prev, [field]: value };
+      try {
+        localStorage.setItem(CDC_STORAGE_KEY, JSON.stringify(updated));
+      } catch (_) {}
+      return updated;
+    });
+  };
+
+  // Date validation: Expiry must be strictly later than Issue Date (minimum 1 day difference required)
+  const isDateOrderValid = (issueDateStr: string, expiryDateStr: string) => {
+    if (!issueDateStr || !expiryDateStr) return true;
+    const issue = new Date(issueDateStr + "T00:00:00");
+    const expiry = new Date(expiryDateStr + "T00:00:00");
+    if (isNaN(issue.getTime()) || isNaN(expiry.getTime())) return false;
+    return expiry.getTime() > issue.getTime();
+  };
+
+  const getMinExpiryDate = (issueDateStr: string) => {
+    if (!issueDateStr) return undefined;
+    const d = new Date(issueDateStr + "T00:00:00");
+    if (isNaN(d.getTime())) return undefined;
+    d.setDate(d.getDate() + 1);
+    return d.toISOString().split("T")[0];
+  };
+
+  // Helper to format date consistently as DD/MM/YYYY
+  const formatTableDate = (dateStr?: string | null) => {
+    if (!dateStr) return "—";
+    const trimmed = String(dateStr).trim();
+    if (!trimmed) return "—";
+    if (/^\d{2}\/\d{2}\/\d{4}$/.test(trimmed)) return trimmed;
+    const ymdMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (ymdMatch) {
+      const [, y, m, d] = ymdMatch;
+      return `${d}/${m}/${y}`;
+    }
+    try {
+      const d = new Date(trimmed);
+      if (isNaN(d.getTime())) return trimmed;
+      const day = String(d.getDate()).padStart(2, "0");
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const year = d.getFullYear();
+      return `${day}/${month}/${year}`;
+    } catch {
+      return trimmed;
+    }
+  };
+
+  // Validation checkers
+  const isPassportNumberValid = (num: string) => {
+    const trimmed = num.trim();
+    return trimmed.length > 0 && trimmed.length <= 8;
+  };
+
+  const isCdcNumberValid = (cdc: string) => {
+    const trimmed = cdc.trim();
+    return trimmed.length > 0 && trimmed.length <= 8;
+  };
+
+  const isPassportDateValid = isDateOrderValid(passportForm.issueDate, passportForm.expiryDate);
+  const passportDateError =
+    passportForm.issueDate && passportForm.expiryDate && !isPassportDateValid
+      ? "Date of Expiry must be later than Date of Issue (minimum 1-day difference required)."
+      : "";
+
+  const isCdcDateValid = isDateOrderValid(cdcForm.issueDate, cdcForm.expiryDate);
+  const cdcDateError =
+    cdcForm.issueDate && cdcForm.expiryDate && !isCdcDateValid
+      ? "Date of Expiry must be later than Date of Issue (minimum 1-day difference required)."
+      : "";
+
+  const isCdcNumValid = isCdcNumberValid(cdcForm.cdcNumber);
+  const cdcNumError =
+    cdcForm.cdcNumber.trim().length > 8
+      ? "CDC Number must not exceed 8 characters."
+      : "";
+
   // Certificate State (Multi-certificate form & editing)
   const [showCertForm, setShowCertForm] = useState(false);
   const [editingCertId, setEditingCertId] = useState<string | null>(null);
@@ -66,25 +160,37 @@ export default function DocumentsPage() {
       const data = await documentService.getDocuments();
       setDocuments(data);
 
-      // Populate Passport form if existing passport document exists
+      // Populate Passport form ONLY if fields are currently empty or backend has non-empty values
       const passDoc = data.find((d: any) => d.type?.toLowerCase() === "passport");
       if (passDoc) {
-        setPassportForm({
-          passportNumber: passDoc.passportNumber || passDoc.metadata?.passportNumber || "",
-          issueDate: passDoc.issueDate || passDoc.metadata?.issueDate || "",
-          expiryDate: passDoc.expiryDate || passDoc.metadata?.expiryDate || "",
-          placeOfIssue: passDoc.placeOfIssue || passDoc.metadata?.placeOfIssue || "",
+        setPassportForm((prev) => {
+          const updated = {
+            passportNumber: prev.passportNumber || passDoc.passportNumber || passDoc.metadata?.passportNumber || "",
+            issueDate: prev.issueDate || passDoc.issueDate || passDoc.metadata?.issueDate || "",
+            expiryDate: prev.expiryDate || passDoc.expiryDate || passDoc.metadata?.expiryDate || "",
+            placeOfIssue: prev.placeOfIssue || passDoc.placeOfIssue || passDoc.metadata?.placeOfIssue || "",
+          };
+          try {
+            localStorage.setItem(PASSPORT_STORAGE_KEY, JSON.stringify(updated));
+          } catch (_) {}
+          return updated;
         });
       }
 
-      // Populate CDC form if existing cdc document exists
+      // Populate CDC form ONLY if fields are currently empty or backend has non-empty values
       const cdcDoc = data.find((d: any) => d.type?.toLowerCase() === "cdc");
       if (cdcDoc) {
-        setCdcForm({
-          cdcNumber: cdcDoc.cdcNumber || cdcDoc.metadata?.cdcNumber || "",
-          issueDate: cdcDoc.issueDate || cdcDoc.metadata?.issueDate || "",
-          expiryDate: cdcDoc.expiryDate || cdcDoc.metadata?.expiryDate || "",
-          placeOfIssue: cdcDoc.placeOfIssue || cdcDoc.metadata?.placeOfIssue || "",
+        setCdcForm((prev) => {
+          const updated = {
+            cdcNumber: prev.cdcNumber || cdcDoc.cdcNumber || cdcDoc.metadata?.cdcNumber || "",
+            issueDate: prev.issueDate || cdcDoc.issueDate || cdcDoc.metadata?.issueDate || "",
+            expiryDate: prev.expiryDate || cdcDoc.expiryDate || cdcDoc.metadata?.expiryDate || "",
+            placeOfIssue: prev.placeOfIssue || cdcDoc.placeOfIssue || cdcDoc.metadata?.placeOfIssue || "",
+          };
+          try {
+            localStorage.setItem(CDC_STORAGE_KEY, JSON.stringify(updated));
+          } catch (_) {}
+          return updated;
         });
       }
     } catch (err) {
@@ -95,21 +201,38 @@ export default function DocumentsPage() {
   };
 
   useEffect(() => {
+    // Restore persisted form data from localStorage
+    try {
+      const savedPass = localStorage.getItem(PASSPORT_STORAGE_KEY);
+      if (savedPass) {
+        const parsed = JSON.parse(savedPass);
+        setPassportForm((prev) => ({ ...prev, ...parsed }));
+      }
+      const savedCdc = localStorage.getItem(CDC_STORAGE_KEY);
+      if (savedCdc) {
+        const parsed = JSON.parse(savedCdc);
+        setCdcForm((prev) => ({ ...prev, ...parsed }));
+      }
+    } catch (_) {}
     loadDocuments();
   }, []);
 
   // Validation Rules for Field-First Upload Flow
   const isPassportFieldsValid = Boolean(
-    passportForm.passportNumber.trim() &&
+    isPassportNumberValid(passportForm.passportNumber) &&
+    passportForm.passportNumber.trim().length <= 8 &&
     passportForm.issueDate &&
     passportForm.expiryDate &&
+    isPassportDateValid &&
     passportForm.placeOfIssue.trim()
   );
 
   const isCdcFieldsValid = Boolean(
+    isCdcNumValid &&
     cdcForm.cdcNumber.trim() &&
     cdcForm.issueDate &&
     cdcForm.expiryDate &&
+    isCdcDateValid &&
     cdcForm.placeOfIssue.trim()
   );
 
@@ -139,7 +262,13 @@ export default function DocumentsPage() {
   const handleUploadPassport = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isPassportFieldsValid) {
-      alert("Please complete all required Passport metadata fields first.");
+      if (passportDateError) {
+        alert(passportDateError);
+      } else if (passportForm.passportNumber.length > 8) {
+        alert("Passport Number must not exceed 8 characters.");
+      } else {
+        alert("Please complete all required Passport metadata fields correctly first.");
+      }
       return;
     }
     if (!passportFile) {
@@ -148,20 +277,36 @@ export default function DocumentsPage() {
     }
     if (!validateFile(passportFile)) return;
 
+    // Snapshot form data to preserve exactly what user entered
+    const preservedForm = { ...passportForm };
+    try {
+      localStorage.setItem(PASSPORT_STORAGE_KEY, JSON.stringify(preservedForm));
+    } catch (_) {}
+
     setUploadingPassport(true);
     try {
       await documentService.uploadDocument(
         "passport",
         passportFile,
-        passportForm.expiryDate,
+        preservedForm.expiryDate,
         undefined,
-        passportForm
+        preservedForm
       );
+      setUploadingPassport(false);
       alert("Passport uploaded successfully!");
       setPassportFile(null);
       await loadDocuments();
+      // Ensure entered fields are kept intact in form state
+      setPassportForm({
+        passportNumber: preservedForm.passportNumber,
+        issueDate: preservedForm.issueDate,
+        expiryDate: preservedForm.expiryDate,
+        placeOfIssue: preservedForm.placeOfIssue,
+      });
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || "Failed to upload Passport");
+      setUploadingPassport(false);
+      const errorMsg = err.response?.data?.message || err.message || "Failed to upload Passport";
+      alert(errorMsg);
     } finally {
       setUploadingPassport(false);
     }
@@ -171,7 +316,13 @@ export default function DocumentsPage() {
   const handleUploadCdc = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isCdcFieldsValid) {
-      alert("Please complete all required CDC metadata fields first.");
+      if (cdcDateError) {
+        alert(cdcDateError);
+      } else if (cdcNumError) {
+        alert(cdcNumError);
+      } else {
+        alert("Please complete all required CDC metadata fields correctly first.");
+      }
       return;
     }
     if (!cdcFile) {
@@ -180,22 +331,69 @@ export default function DocumentsPage() {
     }
     if (!validateFile(cdcFile)) return;
 
+    // Snapshot form data to preserve exactly what user entered
+    const preservedForm = { ...cdcForm };
+    try {
+      localStorage.setItem(CDC_STORAGE_KEY, JSON.stringify(preservedForm));
+    } catch (_) {}
+
     setUploadingCdc(true);
     try {
       await documentService.uploadDocument(
         "cdc",
         cdcFile,
-        cdcForm.expiryDate,
+        preservedForm.expiryDate,
         undefined,
-        cdcForm
+        preservedForm
       );
+      setUploadingCdc(false);
       alert("CDC uploaded successfully!");
       setCdcFile(null);
       await loadDocuments();
+      // Ensure entered fields are kept intact in form state
+      setCdcForm({
+        cdcNumber: preservedForm.cdcNumber,
+        issueDate: preservedForm.issueDate,
+        expiryDate: preservedForm.expiryDate,
+        placeOfIssue: preservedForm.placeOfIssue,
+      });
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || "Failed to upload CDC");
+      setUploadingCdc(false);
+      const errorMsg = err.response?.data?.message || err.message || "Failed to upload CDC";
+      alert(errorMsg);
     } finally {
       setUploadingCdc(false);
+    }
+  };
+
+  // Remove Document Handler (Passport or CDC)
+  const handleRemoveDocument = async (doc: any, type: "passport" | "cdc") => {
+    if (!doc) return;
+    const label = type === "passport" ? "Passport" : "CDC";
+    if (!confirm(`Are you sure you want to remove this ${label} file?`)) return;
+
+    setRemovingId(doc.id);
+    try {
+      if (doc.id) {
+        await documentService.deleteDocument(doc.id);
+      }
+      // Remove only this document record so UI immediately reflects removal
+      setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
+      if (type === "passport") {
+        setPassportFile(null);
+      } else {
+        setCdcFile(null);
+      }
+    } catch (err: any) {
+      console.error(`Failed to delete ${type} document:`, err);
+      setDocuments((prev) => prev.filter((d) => d.id !== doc.id));
+      if (type === "passport") {
+        setPassportFile(null);
+      } else {
+        setCdcFile(null);
+      }
+    } finally {
+      setRemovingId(null);
     }
   };
 
@@ -218,6 +416,7 @@ export default function DocumentsPage() {
     try {
       if (editingCertId) {
         await documentService.updateDocument(editingCertId, certForm, certFile);
+        setUploadingCert(false);
         alert("Certificate updated successfully!");
       } else {
         await documentService.uploadDocument(
@@ -227,6 +426,7 @@ export default function DocumentsPage() {
           undefined,
           certForm
         );
+        setUploadingCert(false);
         alert("Certificate added successfully!");
       }
 
@@ -243,7 +443,9 @@ export default function DocumentsPage() {
       setShowCertForm(false);
       await loadDocuments();
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || "Failed to save certificate");
+      setUploadingCert(false);
+      const errorMsg = err.response?.data?.message || err.message || "Failed to save certificate";
+      alert(errorMsg);
     } finally {
       setUploadingCert(false);
     }
@@ -352,97 +554,122 @@ export default function DocumentsPage() {
       </div>
 
       {/* 1. PASSPORT & CDC SECTION (Grid of 2) */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         
         {/* PASSPORT CARD */}
-        <section className={`rounded-3xl border p-6 md:p-8 shadow-lg flex flex-col justify-between ${
+        <section className={`rounded-3xl border p-4 sm:p-5 shadow-sm flex flex-col justify-between h-full ${
           isDark ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white" : "bg-white border-slate-200 text-slate-900"
         }`}>
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800/40 pb-3.5">
+          <div>
+            <div className={`flex items-center justify-between border-b pb-2.5 mb-3 ${isDark ? "border-slate-800/60" : "border-slate-100"}`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"}`}>
-                  <FileText className="w-4.5 h-4.5" />
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"}`}>
+                  <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-extrabold tracking-tight">Passport Credentials</h2>
+                  <h2 className="text-sm sm:text-base font-extrabold tracking-tight">Passport Credentials</h2>
                   <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Primary identification & nationality certificate</p>
                 </div>
               </div>
             </div>
 
-            <form onSubmit={handleUploadPassport} className="space-y-5">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Passport Number *</label>
+            <form onSubmit={handleUploadPassport} className="space-y-2.5">
+              <div className="grid sm:grid-cols-2 gap-2.5">
+                <div className="space-y-1">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-700"}`}>Passport Number *</label>
                   <input
                     type="text"
                     required
+                    maxLength={8}
                     placeholder="e.g. Z1234567"
                     value={passportForm.passportNumber}
-                    onChange={(e) => setPassportForm({ ...passportForm, passportNumber: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
+                    onChange={(e) => updatePassportField("passportNumber", e.target.value.toUpperCase().slice(0, 8))}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData("text");
+                      if (pasted.length > 8) {
+                        e.preventDefault();
+                        updatePassportField("passportNumber", pasted.toUpperCase().slice(0, 8));
+                      }
+                    }}
+                    className={`w-full px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
                       isDark ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40" : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
                     }`}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Place of Issue *</label>
+                <div className="space-y-1">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-700"}`}>Place of Issue *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Mumbai / RPO"
                     value={passportForm.placeOfIssue}
-                    onChange={(e) => setPassportForm({ ...passportForm, placeOfIssue: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
+                    onChange={(e) => updatePassportField("placeOfIssue", e.target.value)}
+                    className={`w-full px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
                       isDark ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40" : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
                     }`}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Date of Issue *</label>
+                <div className="space-y-1">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-700"}`}>Date of Issue *</label>
                   <input
                     type="date"
                     required
                     value={passportForm.issueDate}
-                    onChange={(e) => setPassportForm({ ...passportForm, issueDate: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
+                    onChange={(e) => updatePassportField("issueDate", e.target.value)}
+                    className={`w-full px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
                       isDark ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40" : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
                     }`}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Date of Expiry *</label>
+                <div className="space-y-1">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-700"}`}>Date of Expiry *</label>
                   <input
                     type="date"
                     required
+                    min={getMinExpiryDate(passportForm.issueDate)}
                     value={passportForm.expiryDate}
-                    onChange={(e) => setPassportForm({ ...passportForm, expiryDate: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
-                      isDark ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40" : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
+                    onChange={(e) => updatePassportField("expiryDate", e.target.value)}
+                    className={`w-full px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
+                      passportDateError
+                        ? "border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/40"
+                        : isDark
+                        ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40"
+                        : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
                     }`}
                   />
                 </div>
               </div>
 
-              {/* Field-First Upload Trigger */}
-              <div className="pt-3 border-t border-slate-800/40">
-                {!isPassportFieldsValid && (
-                  <p className="text-[11px] text-amber-400 font-semibold mb-2.5 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 shrink-0" /> Complete all required Passport fields above to enable file selection.
-                  </p>
-                )}
+              {passportDateError && (
+                <p className="text-[11px] text-rose-500 font-semibold -mt-1">
+                  {passportDateError}
+                </p>
+              )}
 
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
-                  <label className={`flex-1 w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
+              {/* Field-First Upload Trigger */}
+              <div className={`pt-2.5 border-t ${isDark ? "border-slate-800/60" : "border-slate-100"}`}>
+                <div className="min-h-[18px] mb-2 flex items-center">
+                  {!isPassportFieldsValid ? (
+                    <p className={`text-[11px] font-medium flex items-center gap-1.5 leading-tight ${isDark ? "text-amber-400" : "text-amber-600"}`}>
+                      <Clock className="w-3.5 h-3.5 shrink-0" /> Complete all required Passport fields above to enable file selection.
+                    </p>
+                  ) : (
+                    <p className={`text-[11px] font-medium flex items-center gap-1.5 leading-tight ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>
+                      <FileCheck className="w-3.5 h-3.5 shrink-0" /> All required Passport fields complete.
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 items-center">
+                  <label className={`flex-1 w-full py-2 px-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
                     !isPassportFieldsValid
-                      ? "opacity-50 cursor-not-allowed border-slate-700 bg-slate-800/30 text-slate-500"
+                      ? isDark ? "opacity-50 cursor-not-allowed border-slate-700 bg-slate-800/30 text-slate-500" : "opacity-50 cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
                       : isDark
                       ? "border-cyan-500/40 bg-cyan-500/10 text-cyan-400 hover:bg-cyan-500/20 cursor-pointer shadow-sm"
                       : "border-blue-200 bg-blue-50 text-[#3b71cb] hover:bg-blue-100 cursor-pointer shadow-sm"
                   }`}>
-                    <Upload className="w-4 h-4" />
-                    {passportFile ? passportFile.name : "SELECT PASSPORT FILE"}
+                    <Upload className="w-3.5 h-3.5" />
+                    <span className="truncate max-w-[200px]">{passportFile ? passportFile.name : "SELECT PASSPORT FILE"}</span>
                     <input
                       type="file"
                       disabled={!isPassportFieldsValid}
@@ -458,7 +685,7 @@ export default function DocumentsPage() {
                   <button
                     type="submit"
                     disabled={!isPassportFieldsValid || !passportFile || uploadingPassport}
-                    className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                    className={`w-full sm:w-auto px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0 ${
                       isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
                     }`}
                   >
@@ -469,134 +696,195 @@ export default function DocumentsPage() {
             </form>
           </div>
 
-          {/* Active Passport Card Action Footer */}
-          {activePassport && (
-            <div className={`mt-5 p-3.5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+          {/* Active Passport Card Action Footer or Pending Placeholder */}
+          {activePassport ? (
+            <div className={`mt-3 p-2 sm:p-2.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
               isDark ? "bg-slate-900/80 border-slate-800/90 shadow-inner" : "bg-slate-50 border-slate-200 shadow-sm"
             }`}>
-              <div className="flex items-center gap-2.5 min-w-0">
-                <FileCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`p-1.5 rounded-lg shrink-0 ${isDark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-50 text-emerald-600"}`}>
+                  <FileCheck className="w-3.5 h-3.5" />
+                </div>
                 <div className="min-w-0">
-                  <span className={`font-bold block truncate max-w-[220px] ${isDark ? "text-slate-100" : "text-slate-900"}`}>{activePassport.label}</span>
+                  <span className={`font-bold block truncate max-w-[180px] sm:max-w-[220px] text-xs ${isDark ? "text-slate-100" : "text-slate-900"}`}>{activePassport.label}</span>
                   <span className={`text-[10px] block ${isDark ? "text-slate-400" : "text-slate-500"}`}>Current Uploaded Document</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => handleView(activePassport)}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
                     isDark ? "border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-700 hover:text-white" : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
                   }`}
                   title="View Passport"
                 >
-                  <Eye className="w-3.5 h-3.5 text-cyan-400" /> View
+                  <Eye className="w-3 h-3 text-cyan-400" /> View
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDownload(activePassport)}
                   disabled={downloadingId === activePassport.id}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
                     isDark ? "border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-700 hover:text-white" : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
                   }`}
                   title="Download Passport"
                 >
-                  <Download className="w-3.5 h-3.5 text-cyan-400" /> Download
+                  {downloadingId === activePassport.id ? (
+                    <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Download className="w-3 h-3 text-cyan-400" />
+                  )}
+                  Download
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveDocument(activePassport, "passport")}
+                  disabled={removingId === activePassport.id}
+                  className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
+                    isDark
+                      ? "border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/50"
+                      : "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:border-rose-300"
+                  }`}
+                  title="Remove Passport"
+                >
+                  <Trash2 className="w-3 h-3 text-rose-500" /> {removingId === activePassport.id ? "Removing..." : "Remove"}
                 </button>
               </div>
+            </div>
+          ) : (
+            <div className={`mt-3 p-2 sm:p-2.5 rounded-xl border border-dashed flex items-center justify-between gap-2 text-xs ${
+              isDark ? "border-slate-800/80 bg-slate-900/30 text-slate-500" : "border-slate-200 bg-slate-50/50 text-slate-400"
+            }`}>
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`p-1.5 rounded-lg shrink-0 ${isDark ? "bg-slate-800/60 text-slate-500" : "bg-slate-100 text-slate-400"}`}>
+                  <FileText className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-[11px] font-medium truncate">No passport document uploaded yet</span>
+              </div>
+              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
+                isDark ? "bg-slate-800 text-slate-400" : "bg-slate-200/70 text-slate-500"
+              }`}>
+                Pending
+              </span>
             </div>
           )}
         </section>
 
         {/* CDC CARD */}
-        <section className={`rounded-3xl border p-6 md:p-8 shadow-lg flex flex-col justify-between ${
+        <section className={`rounded-3xl border p-4 sm:p-5 shadow-sm flex flex-col justify-between h-full ${
           isDark ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white" : "bg-white border-slate-200 text-slate-900"
         }`}>
-          <div className="space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-800/40 pb-3.5">
+          <div>
+            <div className={`flex items-center justify-between border-b pb-2.5 mb-3 ${isDark ? "border-slate-800/60" : "border-slate-100"}`}>
               <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-xl flex items-center justify-center ${isDark ? "bg-indigo-500/10 text-indigo-400" : "bg-indigo-50 text-indigo-600"}`}>
-                  <FileText className="w-4.5 h-4.5" />
+                <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 ${isDark ? "bg-indigo-500/10 text-indigo-400" : "bg-indigo-50 text-indigo-600"}`}>
+                  <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-extrabold tracking-tight">CDC Booklet (Continuous Discharge)</h2>
+                  <h2 className="text-sm sm:text-base font-extrabold tracking-tight">CDC Booklet (Continuous Discharge)</h2>
                   <p className={`text-[11px] ${isDark ? "text-slate-400" : "text-slate-500"}`}>Official record of seafarer sea service</p>
                 </div>
               </div>
             </div>
 
-            <form onSubmit={handleUploadCdc} className="space-y-5">
-              <div className="grid sm:grid-cols-2 gap-4">
-                <div className="space-y-1.5">
-                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>CDC Number *</label>
+            <form onSubmit={handleUploadCdc} className="space-y-2.5">
+              <div className="grid sm:grid-cols-2 gap-2.5">
+                <div className="space-y-1">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-700"}`}>CDC Number *</label>
                   <input
                     type="text"
                     required
+                    maxLength={8}
                     placeholder="e.g. MUM123456"
                     value={cdcForm.cdcNumber}
-                    onChange={(e) => setCdcForm({ ...cdcForm, cdcNumber: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
+                    onChange={(e) => updateCdcField("cdcNumber", e.target.value.toUpperCase().slice(0, 8))}
+                    onPaste={(e) => {
+                      const pasted = e.clipboardData.getData("text");
+                      if (pasted.length > 8) {
+                        e.preventDefault();
+                        updateCdcField("cdcNumber", pasted.toUpperCase().slice(0, 8));
+                      }
+                    }}
+                    className={`w-full px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
                       isDark ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40" : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
                     }`}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Place of Issue *</label>
+                <div className="space-y-1">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-700"}`}>Place of Issue *</label>
                   <input
                     type="text"
                     required
                     placeholder="e.g. Mumbai / MMD"
                     value={cdcForm.placeOfIssue}
-                    onChange={(e) => setCdcForm({ ...cdcForm, placeOfIssue: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
+                    onChange={(e) => updateCdcField("placeOfIssue", e.target.value)}
+                    className={`w-full px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
                       isDark ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40" : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
                     }`}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Date of Issue *</label>
+                <div className="space-y-1">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-700"}`}>Date of Issue *</label>
                   <input
                     type="date"
                     required
                     value={cdcForm.issueDate}
-                    onChange={(e) => setCdcForm({ ...cdcForm, issueDate: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
+                    onChange={(e) => updateCdcField("issueDate", e.target.value)}
+                    className={`w-full px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
                       isDark ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40" : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
                     }`}
                   />
                 </div>
-                <div className="space-y-1.5">
-                  <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Date of Expiry *</label>
+                <div className="space-y-1">
+                  <label className={`block text-[11px] font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-700"}`}>Date of Expiry *</label>
                   <input
                     type="date"
                     required
+                    min={getMinExpiryDate(cdcForm.issueDate)}
                     value={cdcForm.expiryDate}
-                    onChange={(e) => setCdcForm({ ...cdcForm, expiryDate: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
-                      isDark ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40" : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
+                    onChange={(e) => updateCdcField("expiryDate", e.target.value)}
+                    className={`w-full px-3 py-1.5 sm:py-2 text-xs font-semibold rounded-xl border outline-none transition-all shadow-sm ${
+                      cdcDateError
+                        ? "border-rose-500 focus:border-rose-500 focus:ring-1 focus:ring-rose-500/40"
+                        : isDark
+                        ? "bg-[#0b182d] border-slate-700 text-white placeholder:text-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/40"
+                        : "bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-[#3b71cb] focus:ring-1 focus:ring-blue-500/30"
                     }`}
                   />
                 </div>
               </div>
 
-              {/* Field-First Upload Trigger */}
-              <div className="pt-3 border-t border-slate-800/40">
-                {!isCdcFieldsValid && (
-                  <p className="text-[11px] text-amber-400 font-semibold mb-2.5 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 shrink-0" /> Complete all required CDC fields above to enable file selection.
-                  </p>
-                )}
+              {cdcDateError && (
+                <p className="text-[11px] text-rose-500 font-semibold -mt-1">
+                  {cdcDateError}
+                </p>
+              )}
 
-                <div className="flex flex-col sm:flex-row gap-3 items-center">
-                  <label className={`flex-1 w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
+              {/* Field-First Upload Trigger */}
+              <div className={`pt-2.5 border-t ${isDark ? "border-slate-800/60" : "border-slate-100"}`}>
+                <div className="min-h-[18px] mb-2 flex items-center">
+                  {!isCdcFieldsValid ? (
+                    <p className={`text-[11px] font-medium flex items-center gap-1.5 leading-tight ${isDark ? "text-amber-400" : "text-amber-600"}`}>
+                      <Clock className="w-3.5 h-3.5 shrink-0" /> Complete all required CDC fields above to enable file selection.
+                    </p>
+                  ) : (
+                    <p className={`text-[11px] font-medium flex items-center gap-1.5 leading-tight ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>
+                      <FileCheck className="w-3.5 h-3.5 shrink-0" /> All required CDC fields complete.
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 items-center">
+                  <label className={`flex-1 w-full py-2 px-3.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 border transition-all ${
                     !isCdcFieldsValid
-                      ? "opacity-50 cursor-not-allowed border-slate-700 bg-slate-800/30 text-slate-500"
+                      ? isDark ? "opacity-50 cursor-not-allowed border-slate-700 bg-slate-800/30 text-slate-500" : "opacity-50 cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400"
                       : isDark
                       ? "border-indigo-500/40 bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 cursor-pointer shadow-sm"
                       : "border-indigo-200 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 cursor-pointer shadow-sm"
                   }`}>
-                    <Upload className="w-4 h-4" />
-                    {cdcFile ? cdcFile.name : "SELECT CDC FILE"}
+                    <Upload className="w-3.5 h-3.5" />
+                    <span className="truncate max-w-[200px]">{cdcFile ? cdcFile.name : "SELECT CDC FILE"}</span>
                     <input
                       type="file"
                       disabled={!isCdcFieldsValid}
@@ -612,7 +900,7 @@ export default function DocumentsPage() {
                   <button
                     type="submit"
                     disabled={!isCdcFieldsValid || !cdcFile || uploadingCdc}
-                    className={`w-full sm:w-auto px-6 py-2.5 rounded-xl font-bold text-xs shadow-md transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                    className={`w-full sm:w-auto px-4 py-2 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed shrink-0 ${
                       isDark ? "bg-indigo-600 hover:bg-indigo-500 text-white" : "bg-indigo-600 hover:bg-indigo-700 text-white"
                     }`}
                   >
@@ -623,41 +911,77 @@ export default function DocumentsPage() {
             </form>
           </div>
 
-          {/* Active CDC Card Action Footer */}
-          {activeCdc && (
-            <div className={`mt-5 p-3.5 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${
+          {/* Active CDC Card Action Footer or Pending Placeholder */}
+          {activeCdc ? (
+            <div className={`mt-3 p-2 sm:p-2.5 rounded-xl border flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs ${
               isDark ? "bg-slate-900/80 border-slate-800/90 shadow-inner" : "bg-slate-50 border-slate-200 shadow-sm"
             }`}>
-              <div className="flex items-center gap-2.5 min-w-0">
-                <FileCheck className="w-4 h-4 text-emerald-400 shrink-0" />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`p-1.5 rounded-lg shrink-0 ${isDark ? "bg-emerald-500/10 text-emerald-400" : "bg-emerald-50 text-emerald-600"}`}>
+                  <FileCheck className="w-3.5 h-3.5" />
+                </div>
                 <div className="min-w-0">
-                  <span className={`font-bold block truncate max-w-[220px] ${isDark ? "text-slate-100" : "text-slate-900"}`}>{activeCdc.label}</span>
+                  <span className={`font-bold block truncate max-w-[180px] sm:max-w-[220px] text-xs ${isDark ? "text-slate-100" : "text-slate-900"}`}>{activeCdc.label}</span>
                   <span className={`text-[10px] block ${isDark ? "text-slate-400" : "text-slate-500"}`}>Current Uploaded Document</span>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-1.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => handleView(activeCdc)}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
                     isDark ? "border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-700 hover:text-white" : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
                   }`}
                   title="View CDC"
                 >
-                  <Eye className="w-3.5 h-3.5 text-cyan-400" /> View
+                  <Eye className="w-3 h-3 text-cyan-400" /> View
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDownload(activeCdc)}
                   disabled={downloadingId === activeCdc.id}
-                  className={`px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition-colors cursor-pointer ${
+                  className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
                     isDark ? "border-slate-700 bg-slate-800/80 text-slate-200 hover:bg-slate-700 hover:text-white" : "border-slate-200 bg-white text-slate-800 hover:bg-slate-100"
                   }`}
                   title="Download CDC"
                 >
-                  <Download className="w-3.5 h-3.5 text-cyan-400" /> Download
+                  {downloadingId === activeCdc.id ? (
+                    <span className="w-3 h-3 border-2 border-current border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    <Download className="w-3 h-3 text-cyan-400" />
+                  )}
+                  Download
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleRemoveDocument(activeCdc, "cdc")}
+                  disabled={removingId === activeCdc.id}
+                  className={`px-2 py-1 rounded-lg border text-[11px] font-bold flex items-center gap-1 transition-colors cursor-pointer ${
+                    isDark
+                      ? "border-rose-500/30 bg-rose-500/10 text-rose-400 hover:bg-rose-500/20 hover:border-rose-500/50"
+                      : "border-rose-200 bg-rose-50 text-rose-600 hover:bg-rose-100 hover:border-rose-300"
+                  }`}
+                  title="Remove CDC"
+                >
+                  <Trash2 className="w-3 h-3 text-rose-500" /> {removingId === activeCdc.id ? "Removing..." : "Remove"}
                 </button>
               </div>
+            </div>
+          ) : (
+            <div className={`mt-3 p-2 sm:p-2.5 rounded-xl border border-dashed flex items-center justify-between gap-2 text-xs ${
+              isDark ? "border-slate-800/80 bg-slate-900/30 text-slate-500" : "border-slate-200 bg-slate-50/50 text-slate-400"
+            }`}>
+              <div className="flex items-center gap-2 min-w-0">
+                <div className={`p-1.5 rounded-lg shrink-0 ${isDark ? "bg-slate-800/60 text-slate-500" : "bg-slate-100 text-slate-400"}`}>
+                  <FileText className="w-3.5 h-3.5" />
+                </div>
+                <span className="text-[11px] font-medium truncate">No CDC booklet uploaded yet</span>
+              </div>
+              <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full shrink-0 ${
+                isDark ? "bg-slate-800 text-slate-400" : "bg-slate-200/70 text-slate-500"
+              }`}>
+                Pending
+              </span>
             </div>
           )}
         </section>
@@ -759,7 +1083,7 @@ export default function DocumentsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Duration From Date *</label>
+                <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Start Date *</label>
                 <input
                   type="date"
                   required
@@ -772,7 +1096,7 @@ export default function DocumentsPage() {
               </div>
 
               <div className="space-y-1.5">
-                <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>Duration To Date *</label>
+                <label className={`block text-xs font-bold uppercase tracking-wider ${isDark ? "text-slate-200" : "text-slate-800"}`}>End Date *</label>
                 <input
                   type="date"
                   required
@@ -870,7 +1194,8 @@ export default function DocumentsPage() {
                 }`}>
                   <th className="pb-3.5 pr-4">Course Name</th>
                   <th className="pb-3.5 pr-4">Course Type</th>
-                  <th className="pb-3.5 pr-4">Duration</th>
+                  <th className="pb-3.5 pr-4">Start Date</th>
+                  <th className="pb-3.5 pr-4">End Date</th>
                   <th className="pb-3.5 pr-4">Issue Date</th>
                   <th className="pb-3.5 text-right">Actions</th>
                 </tr>
@@ -879,8 +1204,8 @@ export default function DocumentsPage() {
                 {certificatesList.map((cert) => {
                   const courseName = cert.courseName || cert.metadata?.courseName || cert.label || cert.name;
                   const courseType = cert.courseType || cert.metadata?.courseType || "Basic";
-                  const durFrom = cert.durationFrom || cert.metadata?.durationFrom;
-                  const durTo = cert.durationTo || cert.metadata?.durationTo;
+                  const durFrom = cert.durationFrom || cert.metadata?.durationFrom || cert.startDate || cert.metadata?.startDate;
+                  const durTo = cert.durationTo || cert.metadata?.durationTo || cert.endDate || cert.metadata?.endDate;
                   const issueDt = cert.issueDate || cert.metadata?.issueDate;
 
                   return (
@@ -890,18 +1215,21 @@ export default function DocumentsPage() {
                       <td className={`py-4 pr-4 font-bold max-w-[220px] truncate ${isDark ? "text-slate-100" : "text-slate-900"}`} title={courseName}>
                         {courseName}
                       </td>
-                      <td className="py-4 pr-4">
+                      <td className="py-4 pr-4 whitespace-nowrap">
                         <span className={`text-[10px] font-black uppercase tracking-wider ${
                           isDark ? "text-cyan-400" : "text-[#3b71cb]"
                         }`}>
                           {courseType}
                         </span>
                       </td>
-                      <td className={`py-4 pr-4 font-semibold ${isDark ? "text-slate-200" : "text-slate-700"}`}>
-                        {durFrom && durTo ? `${durFrom} – ${durTo}` : "—"}
+                      <td className={`py-4 pr-4 font-semibold whitespace-nowrap ${isDark ? "text-slate-200" : "text-slate-700"}`}>
+                        {formatTableDate(durFrom)}
                       </td>
-                      <td className={`py-4 pr-4 font-semibold ${isDark ? "text-slate-200" : "text-slate-700"}`}>
-                        {issueDt || (cert.uploadedAt ? new Date(cert.uploadedAt).toLocaleDateString() : "—")}
+                      <td className={`py-4 pr-4 font-semibold whitespace-nowrap ${isDark ? "text-slate-200" : "text-slate-700"}`}>
+                        {formatTableDate(durTo)}
+                      </td>
+                      <td className={`py-4 pr-4 font-semibold whitespace-nowrap ${isDark ? "text-slate-200" : "text-slate-700"}`}>
+                        {formatTableDate(issueDt) !== "—" ? formatTableDate(issueDt) : (cert.uploadedAt ? formatTableDate(cert.uploadedAt) : "—")}
                       </td>
                       <td className="py-4 text-right flex justify-end gap-2">
                         <button

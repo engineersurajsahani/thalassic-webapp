@@ -105,10 +105,18 @@ export default function SeafearerSidebar() {
         
         {/* Flat Profile Panel */}
         <div className="flex items-center gap-3.5 px-2 py-2 mb-3">
-          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 select-none ${
+          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 select-none overflow-hidden ${
             isDark ? "bg-slate-800 text-slate-100" : "bg-slate-200 text-slate-800"
           }`}>
-            {user?.name?.charAt(0) || "S"}
+            {(user?.profile?.profilePicture || user?.profilePicture) ? (
+              <img
+                src={user?.profile?.profilePicture || user?.profilePicture}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              user?.name?.charAt(0) || "S"
+            )}
           </div>
           <div className="overflow-hidden min-w-0">
             <h4 className={`font-semibold text-sm truncate ${isDark ? "text-slate-200" : "text-slate-800"}`}>
