@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { User, Mail, Phone, Check, UserCheck, Shield, Anchor, Plus } from "lucide-react";
+import { User, Mail, Phone, Check, UserCheck, Shield, Anchor, Plus, Hash } from "lucide-react";
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
 import { useTheme } from "@/providers/theme-provider";
@@ -49,6 +49,7 @@ export default function RegisterForm() {
     lastName: "",
     email: "",
     phone: "",
+    indosNumber: "",
     password: "",
     confirmPassword: "",
   });
@@ -81,23 +82,60 @@ export default function RegisterForm() {
     e.preventDefault();
     const newErrors: Record<string, string> = {};
 
-    if (!formData.firstName.trim()) newErrors.firstName = "First name is required";
-    if (!formData.lastName.trim()) newErrors.lastName = "Last name is required";
+    // 1. First Name & Last Name (mandatory, separate fields)
+    if (!formData.firstName.trim()) {
+      newErrors.firstName = "First name is required";
+    }
+    if (!formData.lastName.trim()) {
+      newErrors.lastName = "Last name is required";
+    }
     
-    if (!formData.email) newErrors.email = "Email is required";
-    else if (!/\S+@\S+\.\S+/.test(formData.email)) newErrors.email = "Invalid email format";
+    // 2. Email Address (valid format)
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!formData.email.trim()) {
+      newErrors.email = "Email is required";
+    } else if (!emailRegex.test(formData.email.trim())) {
+      newErrors.email = "Invalid email format";
+    }
     
-    if (!formData.phone) newErrors.phone = "Phone number is required";
-    
-    if (!formData.password) newErrors.password = "Password is required";
-    else if (formData.password.length < 8) newErrors.password = "Password must be at least 8 characters";
+    // 3. Phone Number (required and valid)
+    const digitsOnly = formData.phone.replace(/\D/g, "");
+    if (!formData.phone.trim()) {
+      newErrors.phone = "Phone number is required";
+    } else if (digitsOnly.length < 7 || digitsOnly.length > 15) {
+      newErrors.phone = "Please enter a valid phone number";
+    }
 
-    if (formData.password !== formData.confirmPassword) {
+    // 4. INDOS Number (mandatory)
+    if (!formData.indosNumber.trim()) {
+      newErrors.indosNumber = "INDOS Number is required";
+    }
+    
+    // 5. Password Requirements (min 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char)
+    const pwd = formData.password;
+    const hasMinLength = pwd.length >= 8;
+    const hasUpper = /[A-Z]/.test(pwd);
+    const hasLower = /[a-z]/.test(pwd);
+    const hasNumber = /[0-9]/.test(pwd);
+    const hasSpecial = /[^A-Za-z0-9]/.test(pwd);
+    const isPasswordValid = hasMinLength && hasUpper && hasLower && hasNumber && hasSpecial;
+
+    if (!pwd) {
+      newErrors.password = "Password is required";
+    } else if (!isPasswordValid) {
+      newErrors.password = "Password must be at least 8 characters and include uppercase, lowercase, number, and special character";
+    }
+
+    // 6. Confirm Password (must match)
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Confirm password is required";
+    } else if (formData.password !== formData.confirmPassword) {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
+    // 7. Terms & Privacy Checkbox
     if (!agreed) {
-      newErrors.agree = "You must agree to the Terms of Service";
+      newErrors.agree = "You must agree to the Terms of Service and Privacy Policy";
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -112,9 +150,10 @@ export default function RegisterForm() {
       name: fullName,
       firstName: formData.firstName.trim(),
       lastName: formData.lastName.trim(),
-      email: formData.email,
+      email: formData.email.trim(),
+      phone: formData.phone.trim(),
+      indosNumber: formData.indosNumber.trim().toUpperCase(),
       password: formData.password,
-      phone: formData.phone,
       role: role,
     })
       .then(() => {
@@ -160,7 +199,7 @@ export default function RegisterForm() {
   }
 
   return (
-    <form onSubmit={handleRegister} className="space-y-3.5">
+    <form onSubmit={handleRegister} className="space-y-3">
       {errors.submit && (
         <div className={`p-3 rounded-lg text-xs font-semibold ${isDark ? "bg-red-950/40 border border-red-500/30 text-red-400" : "bg-red-50 border border-red-200 text-red-600"}`}>
           {errors.submit}
@@ -219,6 +258,22 @@ export default function RegisterForm() {
         />
       </div>
 
+      {/* INDOS Number - 2-Column Responsive Layout */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+        <div className="md:col-span-2">
+          <AuthInput
+            label="INDOS Number *"
+            name="indosNumber"
+            type="text"
+            placeholder="e.g. 22GL4567"
+            icon={Hash}
+            value={formData.indosNumber}
+            onChange={handleChange}
+            error={errors.indosNumber}
+            required
+          />
+        </div>
+      </div>
 
       {/* Passwords - Side by Side on Desktop */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">

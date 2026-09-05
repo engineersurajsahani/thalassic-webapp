@@ -188,25 +188,13 @@ export default function BrowseCoursesPage() {
                 : "bg-white border-slate-200 text-slate-900"
             }`}
           >
-            <div className="flex justify-between items-start mb-6">
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className={`px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${
-                    isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-[#3b71cb] border border-blue-100"
-                  }`}>
-                    {activeDetailCourse.code}
-                  </span>
-                  <span className="text-[9px] font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20 uppercase tracking-wider">
-                    🏫 Physical Training
-                  </span>
-                </div>
-                <h2 className="text-xl font-extrabold tracking-tight mt-3">
-                  {activeDetailCourse.name}
-                </h2>
-              </div>
+            <div className="flex justify-between items-start gap-4 mb-6">
+              <h2 className="text-xl font-extrabold tracking-tight">
+                {activeDetailCourse.name}
+              </h2>
               <button
                 onClick={() => setDetailCourseId(null)}
-                className={`w-8 h-8 rounded-lg flex items-center justify-center border font-bold text-sm cursor-pointer hover:scale-105 active:scale-95 ${
+                className={`w-8 h-8 rounded-lg flex items-center justify-center border font-bold text-sm cursor-pointer hover:scale-105 active:scale-95 shrink-0 ${
                   isDark 
                     ? "border-slate-800 hover:bg-slate-900 text-white" 
                     : "border-slate-200 hover:bg-slate-50 text-slate-700"
@@ -253,7 +241,7 @@ export default function BrowseCoursesPage() {
                 <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
                   <BookOpen className="w-4.5 h-4.5 text-cyan-400" /> Physical Course Syllabus & Practical Overview
                 </h4>
-                <p className={`text-xs leading-relaxed ${isDark ? "text-slate-350" : "text-slate-600"}`}>
+                <p className={`text-xs leading-relaxed ${isDark ? "text-slate-300" : "text-slate-800"}`}>
                   {activeDetailCourse.description}
                 </p>
               </div>
@@ -261,13 +249,17 @@ export default function BrowseCoursesPage() {
 
               {/* Required Documents Checklist */}
               <div className="space-y-3">
-                <h4 className="font-extrabold text-xs uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
-                  <Tag className="w-4.5 h-4.5 text-indigo-400" /> Required Documents for Physical Verification
+                <h4 className={`font-extrabold text-xs uppercase tracking-wider flex items-center gap-1.5 ${
+                  isDark ? "text-cyan-400" : "text-[#1e429f]"
+                }`}>
+                  <Tag className={`w-4.5 h-4.5 shrink-0 ${isDark ? "text-cyan-400" : "text-[#3b71cb]"}`} /> REQUIRED DOCUMENTS FOR PHYSICAL VERIFICATION
                 </h4>
                 <div className="space-y-2.5">
                   {(activeDetailCourse.documentsRequired || "Passport, CDC, Passport-sized photograph, INDOS").toString().split(",").map((doc: string, idx: number) => (
                     <div key={idx} className={`flex items-center gap-2.5 text-xs p-2.5 rounded-xl border ${
-                      isDark ? "bg-slate-900/40 border-slate-800 text-slate-300" : "bg-slate-50/50 border-slate-200 text-slate-700"
+                      isDark 
+                        ? "bg-slate-900/40 border-slate-800 text-slate-200" 
+                        : "bg-slate-50/50 border-slate-200 text-slate-800 font-medium"
                     }`}>
                       <div className={`w-1.5 h-1.5 rounded-full shrink-0 ${isDark ? "bg-cyan-400 animate-pulse" : "bg-[#3b71cb]"}`} />
                       <span>{doc.trim()}</span>
@@ -332,23 +324,8 @@ export default function BrowseCoursesPage() {
                     : "bg-white border-slate-200 hover:border-[#3b71cb]/30 text-slate-900"
                 }`}
               >
-                <div className="space-y-4">
-                  {/* Category Ribbon */}
-                  <div className="flex justify-between items-start gap-4">
-                    <div className="flex items-center gap-2">
-                      <span className={`inline-block px-2.5 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider ${
-                        isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-[#3b71cb] border border-blue-100"
-                      }`}>
-                        {course.code}
-                      </span>
-                      <span className="text-[9px] font-bold text-amber-400/90 bg-amber-400/10 px-2 py-0.5 rounded uppercase tracking-wider">
-                        🏫 Physical
-                      </span>
-                    </div>
-                    <div className="text-2xl group-hover:scale-110 transition-transform">{course.icon || getCourseIcon(course.code)}</div>
-                  </div>
-
-                  <h3 className="font-extrabold text-base leading-snug group-hover:text-cyan-400 transition-colors truncate max-w-[240px]" title={course.name}>
+                <div className="space-y-3">
+                  <h3 className="font-extrabold text-base leading-snug group-hover:text-cyan-400 transition-colors truncate" title={course.name}>
                     {course.name}
                   </h3>
 
@@ -371,8 +348,8 @@ export default function BrowseCoursesPage() {
                     <span className="text-xs font-black text-emerald-400">{course.fees}</span>
                   </div>
                   {enrolled ? (
-                    <span className="inline-flex items-center gap-1 text-[10px] font-bold text-green-500 bg-green-500/10 px-2.5 py-1.5 rounded-xl border border-green-500/20">
-                      <Check className="w-3 h-3 stroke-[3px]" /> Enrolled
+                    <span className="inline-flex items-center gap-1 text-[11px] font-bold text-green-600 dark:text-green-500">
+                      <Check className="w-3.5 h-3.5 stroke-[2.5px]" /> Enrolled
                     </span>
                   ) : (
                     <span className={`px-4 py-2 rounded-xl font-bold text-[10px] uppercase shadow-sm transition-all duration-300 inline-flex items-center gap-1 group-hover:translate-x-0.5 ${

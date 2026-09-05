@@ -48,29 +48,31 @@ export default function PasswordInput({
       return;
     }
 
-    let score = 0;
-    if (val.length >= 8) score += 1;
-    if (/[0-9]/.test(val)) score += 1;
-    if (/[A-Z]/.test(val) || /[^A-Za-z0-9]/.test(val)) score += 1;
+    const hasMinLength = val.length >= 8;
+    const hasUpper = /[A-Z]/.test(val);
+    const hasLower = /[a-z]/.test(val);
+    const hasNumber = /[0-9]/.test(val);
+    const hasSpecial = /[^A-Za-z0-9]/.test(val);
 
-    setStrength(score);
+    const isAllMet = hasMinLength && hasUpper && hasLower && hasNumber && hasSpecial;
+    const scoreCount = [hasMinLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
 
-    if (score === 1) {
-      setStrengthLabel("Weak password");
-      setStrengthColor("bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]");
-    } else if (score === 2) {
-      setStrengthLabel("Medium strength");
-      setStrengthColor("bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.3)]");
-    } else if (score === 3) {
-      setStrengthLabel(isDark ? "Strong maritime password" : "Strong password");
+    if (isAllMet) {
+      setStrength(3);
+      setStrengthLabel("Strong password");
       setStrengthColor(
         isDark 
           ? "bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" 
           : "bg-green-600 shadow-[0_0_8px_rgba(22,163,74,0.3)]"
       );
+    } else if (hasMinLength && scoreCount >= 3) {
+      setStrength(2);
+      setStrengthLabel("Medium strength");
+      setStrengthColor("bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.3)]");
     } else {
-      setStrengthLabel("Too short");
-      setStrengthColor("bg-red-500");
+      setStrength(1);
+      setStrengthLabel("Weak password");
+      setStrengthColor("bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]");
     }
   }, [value, showStrength, isDark]);
 
@@ -151,7 +153,7 @@ export default function PasswordInput({
         </div>
       )}
       
-      {error && !showStrength && (
+      {error && (
         <p className={`mt-1.5 text-xs font-medium flex items-center gap-1 animate-fadeIn ${
           isDark ? "text-red-400" : "text-red-500"
         }`}>

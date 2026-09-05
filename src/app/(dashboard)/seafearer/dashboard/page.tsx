@@ -210,33 +210,29 @@ export default function DashboardPage() {
       </section>
 
       {/* 2. Visual Metric Widgets Row */}
-      <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
+      <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
         {[
           { 
             label: "Time at Sea", 
             value: `${totalDaysAtSea} Days`, 
-            sub: `${seaServiceRecords.length} Voyages Logged`, 
             icon: Ship, 
             color: "text-cyan-400 bg-cyan-500/10" 
           },
           { 
             label: "Completed Training", 
             value: `${courses.completedCount || 0} Courses`, 
-            sub: "DGS Accredited Certificates", 
             icon: Award, 
             color: "text-emerald-400 bg-emerald-500/10" 
           },
           { 
             label: "Ongoing Physical Training", 
             value: courses.active ? "1 Active Course" : `${courses.ongoingCount || 0} Ongoing`, 
-            sub: courses.active ? courses.active.name : "All sessions completed", 
             icon: BookOpen, 
             color: "text-indigo-400 bg-indigo-500/10" 
           },
           { 
             label: "Status / On Hold", 
             value: (courses.onHold || (courses.onHoldCount && courses.onHoldCount > 0) || dashboardData?.userStatus === "On Hold") ? "On Hold" : "Active / Verified", 
-            sub: (courses.onHold || (courses.onHoldCount && courses.onHoldCount > 0)) ? "Action / Review pending" : (user?.profile?.indosNumber ? `INDoS: ${user.profile.indosNumber}` : "DGS Profile Linked"), 
             icon: (courses.onHold || (courses.onHoldCount && courses.onHoldCount > 0)) ? AlertCircle : FileSignature, 
             color: (courses.onHold || (courses.onHoldCount && courses.onHoldCount > 0)) ? "text-amber-400 bg-amber-500/10" : "text-cyan-400 bg-cyan-500/10" 
           },
@@ -245,22 +241,23 @@ export default function DashboardPage() {
           return (
             <div
               key={idx}
-              className={`rounded-2xl p-5 border shadow-sm transition-all duration-300 ${
+              className={`rounded-2xl py-3.5 px-4 border shadow-sm flex items-center transition-all duration-300 hover:shadow-md ${
                 isDark ? "bg-[#09162c]/60 border-slate-800/80 text-white" : "bg-white border-slate-200 text-slate-900"
               }`}
             >
-              <div className="flex items-center gap-3.5">
+              <div className="flex items-center gap-3 min-w-0 w-full">
                 <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${stat.color}`}>
                   <IconComp className="w-5 h-5" />
                 </div>
-                <div className="min-w-0">
-                  <p className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                <div className="min-w-0 flex-1">
+                  <p className={`uppercase tracking-wider truncate ${
+                    stat.label === "Time at Sea"
+                      ? `text-[10px] font-black ${isDark ? "text-cyan-400" : "text-[#1e429f]"}`
+                      : `text-[10px] font-black ${isDark ? "text-slate-400" : "text-slate-500"}`
+                  }`}>
                     {stat.label}
                   </p>
-                  <h3 className="text-lg font-black tracking-tight mt-0.5 truncate">{stat.value}</h3>
-                  <p className={`text-[9px] truncate mt-0.5 ${isDark ? "text-slate-500" : "text-slate-400"}`}>
-                    {stat.sub}
-                  </p>
+                  <h3 className="text-base md:text-lg font-black tracking-tight mt-0.5 truncate">{stat.value}</h3>
                 </div>
               </div>
             </div>
