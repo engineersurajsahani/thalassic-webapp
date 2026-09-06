@@ -8,7 +8,8 @@ export async function POST(request: NextRequest) {
 
     // 1. Attempt to forward request to NestJS backend
     try {
-      const backendRes = await fetch("http://localhost:4000/api/auth/login", {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "https://thalassic-api.onrender.com/api/v1";
+      const backendRes = await fetch(`${apiUrl}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: cleanEmail, password }),

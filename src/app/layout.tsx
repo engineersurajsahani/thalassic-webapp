@@ -42,7 +42,7 @@ export default function RootLayout({
         {/* ISSUE-005: CSP meta tag as fallback (primary CSP should be in next.config.ts) */}
         <meta
           httpEquiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:4000 https://*.supabase.co; frame-ancestors 'none';"
+          content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:4000 https://thalassic-api.onrender.com https://*.onrender.com https://*.supabase.co; frame-ancestors 'none';"
         />
       </head>
       <body className="antialiased font-sans">
