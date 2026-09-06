@@ -4,9 +4,11 @@ import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { agentAdminService } from "@/services/agent-admin.service";
+import { partnerPricingService, CoursePricingItem } from "@/services/partner-pricing.service";
 import { 
   Users, Plus, Search, Edit2, Key, ToggleLeft, ToggleRight, Check,
-  QrCode, AlertCircle, RefreshCw, X, Percent, CheckSquare, Sparkles
+  QrCode, AlertCircle, RefreshCw, X, Percent, CheckSquare, Sparkles,
+  Tag, Send, DollarSign, Clock, CheckCircle2, XCircle
 } from "lucide-react";
 
 export default function AgentManagement() {
@@ -26,6 +28,11 @@ export default function AgentManagement() {
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showCoursePricingModal, setShowCoursePricingModal] = useState(false);
+  const [coursePricings, setCoursePricings] = useState<CoursePricingItem[]>([]);
+  const [pricingInputMap, setPricingInputMap] = useState<Record<string, string>>({});
+  const [pricingSubmittingId, setPricingSubmittingId] = useState<string | null>(null);
+  const [pricingFeedback, setPricingFeedback] = useState<{ courseId: string; msg: string; type: "success" | "error" } | null>(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -195,6 +202,48 @@ export default function AgentManagement() {
     setShowPasswordModal(true);
   };
 
+  const openCoursePricingModal = async (agent: any) => {
+    setSelectedAgent(agent);
+    setPricingFeedback(null);
+    try {
+      const pricings = await partnerPricingService.getCoursePricings();
+      setCoursePricings(pricings);
+      const initialMap: Record<string, string> = {};
+      pricings.forEach((item) => {
+        initialMap[item.id] = (item.proposedPayableAmount ?? item.activePayableAmount).toString();
+      });
+      setPricingInputMap(initialMap);
+    } catch (e) {
+      console.error("Failed to load course pricings for agent:", e);
+    }
+    setShowCoursePricingModal(true);
+  };
+
+  const handleProposePrice = async (courseId: string) => {
+    const rawVal = pricingInputMap[courseId];
+    const proposedNum = parseFloat(rawVal);
+    if (isNaN(proposedNum) || proposedNum <= 0) {
+      setPricingFeedback({ courseId, msg: "Please enter a valid positive amount", type: "error" });
+      return;
+    }
+
+    setPricingSubmittingId(courseId);
+    setPricingFeedback(null);
+    try {
+      const updatedItem = await partnerPricingService.submitProposedPrice(courseId, proposedNum);
+      setCoursePricings((prev) => prev.map((item) => (item.id === courseId ? updatedItem : item)));
+      setPricingFeedback({
+        courseId,
+        msg: `Proposed Hari Om payable price of ₹${proposedNum.toLocaleString("en-IN")} submitted for Master approval.`,
+        type: "success",
+      });
+    } catch (err: any) {
+      setPricingFeedback({ courseId, msg: err.message || "Failed to submit proposed price", type: "error" });
+    } finally {
+      setPricingSubmittingId(null);
+    }
+  };
+
   const openQrModal = (agent: any) => {
     setSelectedAgent(agent);
     setShowQrModal(true);
@@ -332,17 +381,17 @@ export default function AgentManagement() {
                   <th className="py-3.5 px-2">Name & Info</th>
                   <th className="py-3.5 px-2">Onboarding</th>
                   <th className="py-3.5 px-2">Referral Code</th>
-                  <th className="py-3.5 px-2 text-center">Comm. (Gen)</th>
+                  <th className="py-3.5 px-2 text-center">Course Pricing</th>
                   <th className="py-3.5 px-2">Status</th>
                   <th className="py-3.5 px-2 text-right">Actions</th>
                 </tr>
               </thead>
               <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
                 {filteredAgents.map((agent) => (
-                  <tr key={agent.id} className="hover:bg-white/[0.01] transition-all">
-                    {/* User Info */}
-                    <td className="py-4 px-2">
-                      <p className={`font-bold ${isDark ? "text-white/95" : "text-slate-800"}`}>{agent.name}</p>
+                  <tr key={agent.id} className="hover:bg-white/[0.03] transition-all cursor-pointer group">
+                    {/* User Info - Click opens Course Pricing */}
+                    <td className="py-4 px-2" onClick={() => openCoursePricingModal(agent)}>
+                      <p className={`font-bold group-hover:text-[#3D5EF6] transition ${isDark ? "text-white/95" : "text-slate-800"}`}>{agent.name}</p>
                       <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.email}</p>
                       {agent.phone && <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.phone}</p>}
                     </td>
@@ -384,9 +433,16 @@ export default function AgentManagement() {
                       )}
                     </td>
 
-                    {/* Commissions */}
-                    <td className="py-4 px-2 text-center font-semibold">
-                      {agent.generalCommission}%
+                    {/* Course Pricing Action Button */}
+                    <td className="py-4 px-2 text-center">
+                      <button
+                        onClick={() => openCoursePricingModal(agent)}
+                        className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#3D5EF6]/10 text-[#3D5EF6] hover:bg-[#3D5EF6]/20 transition flex items-center gap-1.5 mx-auto cursor-pointer"
+                        title="Click to manage Hari Om course pricing and price proposals"
+                      >
+                        <Tag className="w-3.5 h-3.5" />
+                        Course Pricing
+                      </button>
                     </td>
 
                     {/* Status */}
@@ -402,18 +458,18 @@ export default function AgentManagement() {
                     <td className="py-4 px-2 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
+                          onClick={() => openCoursePricingModal(agent)}
+                          className={`p-1.5 rounded-lg border transition ${isDark ? "border-[#3D5EF6]/20 bg-[#3D5EF6]/10 text-[#3D5EF6] hover:bg-[#3D5EF6]/20" : "border-[#3D5EF6]/30 bg-[#3D5EF6]/10 text-[#3D5EF6] hover:bg-[#3D5EF6]/20"}`}
+                          title="Manage Course Pricing & Proposals"
+                        >
+                          <Tag className="w-3.5 h-3.5" />
+                        </button>
+                        <button
                           onClick={() => openEditModal(agent)}
                           className={`p-1.5 rounded-lg border transition ${isDark ? "border-white/5 hover:bg-white/5 text-white/50 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800"}`}
                           title="Edit Agent Info"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
-                        </button>
-                        <button
-                          onClick={() => openCommissionModal(agent)}
-                          className={`p-1.5 rounded-lg border transition ${isDark ? "border-white/5 hover:bg-white/5 text-white/50 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800"}`}
-                          title="Manage Commissions"
-                        >
-                          <Percent className="w-3.5 h-3.5" />
                         </button>
                         <button
                           onClick={() => openPasswordModal(agent)}
@@ -912,6 +968,218 @@ export default function AgentManagement() {
                   className={`w-full px-3 py-2 rounded-xl border text-[10px] font-mono select-all outline-none ${inputBg}`}
                 />
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* --- COURSE PRICING & PROPOSALS MODAL FOR SELECTED AGENT --- */}
+      {showCoursePricingModal && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className={`w-full max-w-4xl p-6 sm:p-8 rounded-2xl relative shadow-2xl my-8 ${isDark ? "bg-[#0b1424] border border-white/10 text-white" : "bg-white border border-slate-200 text-slate-900"}`}>
+            {/* Close Button */}
+            <button 
+              onClick={() => setShowCoursePricingModal(false)}
+              className="absolute top-5 right-5 p-2 rounded-xl bg-white/5 hover:bg-white/10 opacity-70 hover:opacity-100 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            {/* Modal Title */}
+            <div className="flex items-start gap-4 mb-6">
+              <div className="p-3 rounded-2xl bg-[#3D5EF6]/10 text-[#3D5EF6] shrink-0 mt-0.5">
+                <Tag className="w-6 h-6" />
+              </div>
+              <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6] px-2.5 py-0.5 rounded-full bg-[#3D5EF6]/10">
+                  Agent Course Pricing Management
+                </span>
+                <h2 className="text-xl font-bold mt-1">
+                  Course Pricing & Proposals — {selectedAgent?.name}
+                </h2>
+                <p className={`text-xs mt-1 ${labelText}`}>
+                  View applicable course fees, set Hari Om payable amounts, and submit price changes for Master approval.
+                </p>
+              </div>
+            </div>
+
+            {/* Status KPI Summary Strip */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+              <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-500 shrink-0">
+                  <CheckCircle2 className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Active Prices</p>
+                  <p className="text-sm font-bold text-emerald-500">
+                    {coursePricings.filter(c => c.status === "Active").length} Courses In Use
+                  </p>
+                </div>
+              </div>
+
+              <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                <div className="p-2 rounded-lg bg-amber-500/10 text-amber-500 shrink-0">
+                  <Clock className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Pending Master Review</p>
+                  <p className="text-sm font-bold text-amber-500">
+                    {coursePricings.filter(c => c.status === "Pending Approval").length} Proposals
+                  </p>
+                </div>
+              </div>
+
+              <div className={`p-3.5 rounded-xl border flex items-center gap-3 ${isDark ? "bg-white/5 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                <div className="p-2 rounded-lg bg-red-500/10 text-red-500 shrink-0">
+                  <XCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Rejected Proposals</p>
+                  <p className="text-sm font-bold text-red-500">
+                    {coursePricings.filter(c => c.status === "Rejected").length} Proposals
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Course Pricings Table */}
+            <div className={`rounded-xl border overflow-hidden ${isDark ? "border-white/10" : "border-slate-200"}`}>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className={`border-b ${isDark ? "bg-white/5 border-white/10 text-white/50" : "bg-slate-50 border-slate-200 text-slate-500"} uppercase text-[10px] font-bold`}>
+                      <th className="py-3 px-4">Course Name & Code</th>
+                      <th className="py-3 px-4 text-right">Standard Fee</th>
+                      <th className="py-3 px-4 text-right">Active Hari Om Payable</th>
+                      <th className="py-3 px-4 text-center">Proposed Hari Om Payable</th>
+                      <th className="py-3 px-4 text-center">Status</th>
+                      <th className="py-3 px-4 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
+                    {coursePricings.map((item) => {
+                      const inputVal = pricingInputMap[item.id] ?? (item.proposedPayableAmount ?? item.activePayableAmount).toString();
+                      const isPending = item.status === "Pending Approval";
+                      const isRejected = item.status === "Rejected";
+                      const feedback = pricingFeedback?.courseId === item.id ? pricingFeedback : null;
+
+                      return (
+                        <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                          {/* Course Name & Category */}
+                          <td className="py-3.5 px-4">
+                            <p className="font-bold">{item.courseName}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#3D5EF6]/10 text-[#3D5EF6]">
+                                {item.courseCode}
+                              </span>
+                              <span className={`text-[10px] ${labelText}`}>{item.category}</span>
+                            </div>
+                          </td>
+
+                          {/* Standard Fee */}
+                          <td className="py-3.5 px-4 text-right font-medium opacity-70">
+                            ₹{item.standardFee.toLocaleString("en-IN")}
+                          </td>
+
+                          {/* Active Hari Om Payable */}
+                          <td className="py-3.5 px-4 text-right">
+                            <span className="font-bold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-lg text-xs">
+                              ₹{item.activePayableAmount.toLocaleString("en-IN")}
+                            </span>
+                          </td>
+
+                          {/* Proposed Price Input */}
+                          <td className="py-3.5 px-4 text-center">
+                            <div className="flex flex-col items-center gap-1 max-w-[150px] mx-auto">
+                              <div className="relative w-full">
+                                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold opacity-60">₹</span>
+                                <input
+                                  type="number"
+                                  value={inputVal}
+                                  onChange={(e) =>
+                                    setPricingInputMap({ ...pricingInputMap, [item.id]: e.target.value })
+                                  }
+                                  placeholder="Amount"
+                                  className={`w-full pl-7 pr-3 py-1.5 rounded-lg border text-xs font-bold outline-none transition ${inputBg}`}
+                                />
+                              </div>
+                              {item.proposedPayableAmount && (
+                                <span className="text-[10px] font-semibold text-amber-500">
+                                  Proposed: ₹{item.proposedPayableAmount.toLocaleString("en-IN")}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Status */}
+                          <td className="py-3.5 px-4 text-center">
+                            <div className="flex flex-col items-center gap-1">
+                              <span
+                                className={`px-2.5 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1 ${
+                                  isPending
+                                    ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                    : isRejected
+                                    ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                                    : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                                }`}
+                              >
+                                {isPending && <Clock className="w-3 h-3 animate-spin" />}
+                                {isRejected && <XCircle className="w-3 h-3" />}
+                                {!isPending && !isRejected && <CheckCircle2 className="w-3 h-3" />}
+                                {item.status}
+                              </span>
+                              {isRejected && item.rejectionReason && (
+                                <span className="text-[9px] text-red-400 max-w-[120px] truncate" title={item.rejectionReason}>
+                                  {item.rejectionReason}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Submit Action */}
+                          <td className="py-3.5 px-4 text-right">
+                            <button
+                              onClick={() => handleProposePrice(item.id)}
+                              disabled={pricingSubmittingId === item.id}
+                              className={`px-3 py-1.5 rounded-xl font-bold text-[11px] flex items-center gap-1.5 ml-auto transition cursor-pointer ${
+                                isPending
+                                  ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
+                                  : "bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-md"
+                              }`}
+                            >
+                              {pricingSubmittingId === item.id ? (
+                                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <Send className="w-3.5 h-3.5" />
+                              )}
+                              {isPending ? "Update Proposal" : "Submit Price"}
+                            </button>
+
+                            {feedback && (
+                              <p className={`text-[10px] mt-1 font-semibold ${feedback.type === "success" ? "text-emerald-400" : "text-red-400"}`}>
+                                {feedback.msg}
+                              </p>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="mt-6 flex items-center justify-between">
+              <p className={`text-[11px] ${labelText}`}>
+                Note: Submitted price proposals remain in <span className="text-amber-500 font-bold">Pending Approval</span> until reviewed and approved by Master Admin.
+              </p>
+              <button
+                onClick={() => setShowCoursePricingModal(false)}
+                className="px-5 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-bold transition cursor-pointer"
+              >
+                Close Window
+              </button>
             </div>
           </div>
         </div>

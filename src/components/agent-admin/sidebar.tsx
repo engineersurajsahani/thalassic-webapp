@@ -15,7 +15,6 @@ import {
 const menuItems = [
   { label: "Dashboard",          href: "/agent-admin/dashboard",      icon: LayoutDashboard },
   { label: "Agents",             href: "/agent-admin/agents",         icon: Users           },
-  { label: "Course Pricing",     href: "/agent-admin/pricing",        icon: Tag             },
   { label: "Invoices",           href: "/agent-admin/invoices",        icon: Receipt         },
   { label: "Reports",            href: "/agent-admin/reports",         icon: BarChart3       },
   { label: "Profile",            href: "/agent-admin/profile",         icon: User            },
