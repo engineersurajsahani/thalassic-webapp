@@ -9,12 +9,8 @@ import {
   Receipt,
   Eye,
   Download,
-  CheckCircle,
-  Clock,
-  XCircle,
   Sparkles,
   CloudLightning,
-  User,
   CreditCard,
   Search,
 } from "lucide-react";
@@ -48,7 +44,6 @@ export default function PurchaseHistoryPage() {
 
   useEffect(() => {
     fetchPurchases();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [typeFilter]);
 
   const handleSearch = (e: React.FormEvent) => {
@@ -74,21 +69,33 @@ export default function PurchaseHistoryPage() {
       case "paid":
       case "completed":
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-400/10 px-2.5 py-0.5 rounded-full border border-emerald-500/20">
-            <CheckCircle className="w-3 h-3" /> Paid
+          <span
+            className={`text-[11px] font-bold uppercase tracking-wider ${
+              isDark ? "text-emerald-400" : "text-emerald-600"
+            }`}
+          >
+            Paid
           </span>
         );
       case "processing":
       case "pending":
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-400/10 px-2.5 py-0.5 rounded-full border border-amber-500/20 animate-pulse">
-            <Clock className="w-3 h-3" /> Processing
+          <span
+            className={`text-[11px] font-bold uppercase tracking-wider ${
+              isDark ? "text-amber-400" : "text-amber-600"
+            }`}
+          >
+            Processing
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider text-red-400 bg-red-400/10 px-2.5 py-0.5 rounded-full border border-red-500/20">
-            <XCircle className="w-3 h-3" /> {status || "Unknown"}
+          <span
+            className={`text-[11px] font-bold uppercase tracking-wider ${
+              isDark ? "text-red-400" : "text-red-600"
+            }`}
+          >
+            {status || "Unknown"}
           </span>
         );
     }
@@ -110,14 +117,7 @@ export default function PurchaseHistoryPage() {
     <div className="space-y-8 animate-fadeIn relative pb-10">
       {/* Page Title Header */}
       <div className="flex flex-col gap-1">
-        <span
-          className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full w-fit ${
-            isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
-          }`}
-        >
-          🛒 Purchase & Invoice Ledger
-        </span>
-        <h1 className="text-3xl font-extrabold tracking-tight mt-1.5">Purchase History</h1>
+        <h1 className="text-3xl font-extrabold tracking-tight">Purchase History</h1>
         <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
           View all your course purchases, payment details, transaction records, and manage HOC & HAC invoices.
         </p>
@@ -224,10 +224,8 @@ export default function PurchaseHistoryPage() {
                   <th className="pb-3 pr-4">Purchase Date</th>
                   <th className="pb-3 pr-4">Amount Paid</th>
                   <th className="pb-3 pr-4">Payment Method</th>
-                  <th className="pb-3 pr-4">Transaction ID</th>
                   <th className="pb-3 pr-4">Invoice No.</th>
-                  <th className="pb-3 pr-4">Type</th>
-                  <th className="pb-3 pr-4">Referring Agent</th>
+                  <th className="pb-3 pr-4">Transaction ID</th>
                   <th className="pb-3 pr-4">Status</th>
                   <th className="pb-3 text-right">Invoice Actions</th>
                 </tr>
@@ -242,67 +240,35 @@ export default function PurchaseHistoryPage() {
                         isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
                       }`}
                     >
-                      <td className="py-4 pr-4 font-bold max-w-[170px] truncate" title={p.course_name}>
+                      <td className="py-4 pr-4 font-bold max-w-[240px] truncate" title={p.course_name}>
                         {p.course_name || "—"}
                       </td>
-                      <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                      <td className={`py-4 pr-4 whitespace-nowrap ${isDark ? "text-slate-400" : "text-slate-550"}`}>
                         {fmtDate(p.payment_date || p.created_at)}
                       </td>
-                      <td className="py-4 pr-4 font-extrabold">{fmt(p.final_amount)}</td>
-                      <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                      <td className="py-4 pr-4 font-extrabold whitespace-nowrap">{fmt(p.final_amount)}</td>
+                      <td className={`py-4 pr-4 whitespace-nowrap ${isDark ? "text-slate-400" : "text-slate-550"}`}>
                         <span className="flex items-center gap-1">
                           <CreditCard className="w-3 h-3 text-slate-400" />
                           {p.payment_method || "Online"}
                         </span>
                       </td>
                       <td
-                        className={`py-4 pr-4 font-mono text-[10px] max-w-[110px] truncate ${
+                        className={`py-4 pr-4 font-black uppercase tracking-wider text-[10px] whitespace-nowrap ${
+                          p.invoice_type === "HAC" ? "text-blue-400" : "text-cyan-400"
+                        }`}
+                      >
+                        {p.invoice_number || "—"}
+                      </td>
+                      <td
+                        className={`py-4 pr-4 font-mono text-[10px] max-w-[130px] truncate ${
                           isDark ? "text-slate-400" : "text-slate-500"
                         }`}
                         title={p.transaction_id}
                       >
                         {p.transaction_id || "—"}
                       </td>
-                      <td
-                        className={`py-4 pr-4 font-black uppercase tracking-wider text-[10px] ${
-                          p.invoice_type === "HAC" ? "text-blue-400" : "text-cyan-400"
-                        }`}
-                      >
-                        {p.invoice_number || "—"}
-                      </td>
-                      <td className="py-4 pr-4">
-                        {p.invoice_type ? (
-                          <span
-                            className={`text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-wider ${
-                              p.invoice_type === "HAC"
-                                ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
-                                : "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
-                            }`}
-                          >
-                            {p.invoice_type}
-                          </span>
-                        ) : (
-                          <span className={isDark ? "text-slate-600" : "text-slate-300"}>—</span>
-                        )}
-                      </td>
-                      <td className="py-4 pr-4">
-                        {p.invoice_type === "HAC" && p.agent_name ? (
-                          <div>
-                            <div className="font-semibold flex items-center gap-1">
-                              <User className="w-3 h-3 text-blue-400" />
-                              {p.agent_name}
-                            </div>
-                            {p.agent_referral_code && (
-                              <div className={`text-[10px] font-mono ${isDark ? "text-slate-600" : "text-slate-400"}`}>
-                                Code: {p.agent_referral_code}
-                              </div>
-                            )}
-                          </div>
-                        ) : (
-                          <span className={isDark ? "text-slate-600" : "text-slate-300"}>—</span>
-                        )}
-                      </td>
-                      <td className="py-4 pr-4">{getStatusBadge(p.status)}</td>
+                      <td className="py-4 pr-4 whitespace-nowrap">{getStatusBadge(p.status)}</td>
                       <td className="py-4 text-right">
                         {isPaid && p.invoice_number ? (
                           <div className="flex justify-end gap-1.5">

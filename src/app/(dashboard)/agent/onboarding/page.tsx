@@ -105,18 +105,10 @@ export default function OnboardingPage() {
     try {
       // 1. Submit Onboarding Data to Backend
       await agentService.onboard({
-        name: profile.name,
-        phone: profile.phone,
-        alternatePhone: profile.alternatePhone || null,
         agencyName: profile.agencyName,
-        officeAddress: profile.officeAddress,
-        city: profile.city || profile.agencyCity,
-        state: profile.state || profile.agencyState,
-        pinCode: profile.pinCode || profile.agencyPinCode,
-        agencyCity: profile.agencyCity || profile.city,
-        agencyState: profile.agencyState || profile.state,
-        agencyPinCode: profile.agencyPinCode || profile.pinCode
+        phone: profile.phone,
       });
+      // ISSUE-012/013: Expanded onboarding payload removed - backend contract only accepts agencyName + phone
 
       // 2. Upload verification documents (Simulated or REST)
       const docCategories = Object.keys(documents) as (keyof typeof documents)[];
@@ -127,12 +119,7 @@ export default function OnboardingPage() {
           if (cat === "passport" || cat === "cdc") {
             expiryStr = (doc as any).expiry || "";
           }
-          await agentService.uploadDocument(
-            cat,
-            doc.file,
-            doc.file.name,
-            { expiryDate: expiryStr || undefined }
-          );
+          await agentService.uploadDocument(cat, doc.file, { documentNumber: doc.file.name, expiryDate: expiryStr || undefined });
         }
       }
 

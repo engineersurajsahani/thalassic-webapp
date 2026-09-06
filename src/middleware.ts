@@ -1,96 +1,89 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+// ISSUE-010: Middleware for server-side route protection
+// This prevents unauthorized access to protected routes at the server level
+// before the page even renders
+
+const PROTECTED_ROUTES = [
+  '/dashboard',
+  '/master',
+  '/agent-admin',
+  '/agent',
+  '/company-admin',
+  '/seafarer',
+  '/seafearer',
+];
+
+const PUBLIC_ROUTES = [
+  '/login',
+  '/register',
+  '/reset-password',
+  '/forgot-password',
+  '/',
+];
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  
-  let token = request.cookies.get("auth_token")?.value;
-  let role = request.cookies.get("user_role")?.value;
-  let onboardingStatus = request.cookies.get("onboarding_status")?.value;
 
-  if (pathname.startsWith("/agent-admin")) {
-    token = request.cookies.get("auth_token_agent-admin")?.value || token;
-    role = request.cookies.get("user_role_agent-admin")?.value || role;
-  } else if (pathname.startsWith("/partner") || pathname.startsWith("/agent")) {
-    token = request.cookies.get("auth_token_partner")?.value || request.cookies.get("auth_token_agent")?.value || token;
-    role = request.cookies.get("user_role_partner")?.value || request.cookies.get("user_role_agent")?.value || role;
-    onboardingStatus = request.cookies.get("onboarding_status_partner")?.value || request.cookies.get("onboarding_status_agent")?.value || onboardingStatus;
-  } else if (pathname.startsWith("/company-admin")) {
-    token = request.cookies.get("auth_token_company-admin")?.value || token;
-    role = request.cookies.get("user_role_company-admin")?.value || role;
-  } else if (pathname.startsWith("/master")) {
-    token = request.cookies.get("auth_token_master")?.value || token;
-    role = request.cookies.get("user_role_master")?.value || role;
-  } else if (pathname.startsWith("/seafarer") || pathname.startsWith("/seafearer")) {
-    token = request.cookies.get("auth_token_seafarer")?.value || token;
-    role = request.cookies.get("user_role_seafarer")?.value || role;
+  // Check if the route is protected
+  const isProtectedRoute = PROTECTED_ROUTES.some(route =>
+    pathname.startsWith(route)
+  );
+
+  const isPublicRoute = PUBLIC_ROUTES.some(route =>
+    pathname === route || pathname.startsWith(route)
+  );
+
+  // Get the auth token from cookies
+  const authToken = request.cookies.get('auth_token')?.value;
+  const userRole = request.cookies.get('user_role')?.value;
+
+  // If accessing a protected route without auth, redirect to login
+  if (isProtectedRoute && !authToken) {
+    const loginUrl = new URL('/login', request.url);
+    loginUrl.searchParams.set('redirect', pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
-  const roleNorm = role?.toLowerCase().replace('_', '-'); // Normalize roles (e.g. company_admin -> company-admin)
+  // If accessing login/register while already authenticated, redirect to dashboard
+  if (isPublicRoute && authToken) {
+    // Determine the appropriate dashboard based on role
+    if (userRole) {
+      const roleDashboards: Record<string, string> = {
+        'MASTER': '/master/dashboard',
+        'SEAFARER': '/seafarer/dashboard',
+        'AGENT_ADMIN': '/agent-admin/dashboard',
+        'AGENT': '/agent/dashboard',
+        'COMPANY_ADMIN': '/company-admin/dashboard',
+      };
 
-  // Auth bypass for login/register pages (already handled by Next.js routing, but good to keep clear)
-  if (!token) {
-    if (
-      pathname.startsWith("/seafearer") ||
-      pathname.startsWith("/seafarer") ||
-      pathname.startsWith("/master") ||
-      pathname.startsWith("/company-admin") ||
-      pathname.startsWith("/agent-admin") ||
-      pathname.startsWith("/agent") ||
-      pathname.startsWith("/partner")
-    ) {
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
+      const targetDashboard = roleDashboards[userRole.toUpperCase()];
+      if (targetDashboard) {
+        return NextResponse.redirect(new URL(targetDashboard, request.url));
+      }
     }
-  }
 
-  // Intercept seafarer routes
-  if (pathname.startsWith("/seafearer") || pathname.startsWith("/seafarer")) {
-    if (roleNorm !== "seafarer" && roleNorm !== "seafearer") {
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-  // Intercept master routes
-  else if (pathname.startsWith("/master")) {
-    if (roleNorm !== "master") {
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-  // Intercept company admin routes
-  else if (pathname.startsWith("/company-admin")) {
-    if (roleNorm !== "company-admin") {
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-  // Intercept agent admin routes
-  else if (pathname.startsWith("/agent-admin")) {
-    if (roleNorm !== "agent-admin") {
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-  }
-  // Intercept partner/agent routes
-  else if (pathname.startsWith("/partner") || pathname.startsWith("/agent")) {
-    if (roleNorm !== "agent" && roleNorm !== "partner") {
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
-    }
+    // Default redirect for authenticated users without a known role
+    return NextResponse.redirect(new URL('/master/dashboard', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
+  // Only run middleware on these paths
   matcher: [
-    "/seafearer/:path*",
-    "/seafarer/:path*",
-    "/master/:path*",
-    "/company-admin/:path*",
-    "/agent-admin/:path*",
-    "/agent/:path*",
-    "/partner/:path*",
+    '/dashboard/:path*',
+    '/master/:path*',
+    '/agent-admin/:path*',
+    '/agent/:path*',
+    '/company-admin/:path*',
+    '/seafarer/:path*',
+    '/seafearer/:path*',
+    '/login',
+    '/register',
+    '/reset-password',
+    '/forgot-password',
   ],
 };

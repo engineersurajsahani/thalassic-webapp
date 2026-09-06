@@ -28,7 +28,7 @@ export default function AgentAdminLayout({
         isDarkActive ? "bg-blue-500/10" : "bg-blue-400/5"
       }`} />
       <div className={`absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 ${
-        isDarkActive ? "bg-sky-500/10" : "bg-cyan-400/5"
+        isDarkActive ? "bg-[#3D5EF6]/10" : "bg-[#3D5EF6]/5"
       }`} />
 
       {/* Sidebar */}

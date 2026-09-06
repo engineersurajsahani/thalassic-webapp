@@ -2,23 +2,21 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, Users, FileText, ClipboardList,
   DollarSign, BarChart3, ShieldAlert, User, LogOut,
-  Anchor, ChevronRight, Receipt,
+  Anchor, ChevronRight, Receipt, Tag,
 } from "lucide-react";
 
 const menuItems = [
   { label: "Dashboard",          href: "/agent-admin/dashboard",      icon: LayoutDashboard },
   { label: "Agents",             href: "/agent-admin/agents",         icon: Users           },
-  { label: "Referrals Tracker",  href: "/agent-admin/referral-leads", icon: FileText        },
-  { label: "Commissions",        href: "/agent-admin/commissions",     icon: DollarSign      },
   { label: "Invoices",           href: "/agent-admin/invoices",        icon: Receipt         },
   { label: "Reports",            href: "/agent-admin/reports",         icon: BarChart3       },
-  { label: "Audit Logs",         href: "/agent-admin/audit-logs",      icon: ShieldAlert     },
   { label: "Profile",            href: "/agent-admin/profile",         icon: User            },
 ];
 
@@ -37,32 +35,38 @@ export default function AgentAdminSidebar() {
     pathname === href || pathname.startsWith(href + "/");
 
   // ── theme tokens ──────────────────────────────────────────────────────────
-  const sidebarBg   = isDark ? "bg-[#0a1122]/60 backdrop-blur-2xl border-r border-white/5 shadow-[4px_0_24px_rgba(0,0,0,0.2)]" : "bg-white/60 backdrop-blur-2xl border-r border-slate-200 shadow-[4px_0_24px_rgba(0,0,0,0.02)]";
-  const brandBorder = isDark ? "border-white/5"                               : "border-slate-200/60";
-  const logoText    = isDark ? "text-white"                                   : "text-slate-800";
-  const logoSub     = isDark ? "text-cyan-400"                                 : "text-blue-600";
-  const navLabel    = isDark ? "text-white/30"                                : "text-slate-500 font-bold";
-  const activeLink  = isDark ? "bg-cyan-500/15 text-cyan-400 border border-cyan-500/10 shadow-inner shadow-cyan-500/20" : "bg-blue-600 shadow-md shadow-blue-500/20 text-white";
-  const activeIcon  = isDark ? "text-cyan-400"                                 : "text-white";
-  const activeChev  = isDark ? "text-cyan-400/60"                              : "text-white/70";
-  const inactiveLink= isDark ? "text-white/50 hover:bg-white/5 hover:text-white/80 border border-transparent" : "text-slate-600 hover:bg-slate-100/50 hover:text-slate-900 border border-transparent";
-  const inactiveIcon= isDark ? "text-white/40 group-hover:text-white/60"     : "text-slate-400 group-hover:text-blue-500";
-  const footBorder  = isDark ? "border-white/5"                              : "border-slate-200/60";
-  const userName    = isDark ? "text-white/90"                               : "text-slate-800 font-bold";
-  const userEmail   = isDark ? "text-white/40"                               : "text-slate-500";
-  const signOutBtn  = isDark ? "text-white/40 hover:bg-red-500/10 hover:text-red-400" : "text-slate-500 hover:bg-red-50 hover:text-red-600";
+  const sidebarBg   = isDark ? "bg-[#0B0F19] border-r border-[#1F2937]" : "bg-[#FFFFFF] border-r border-[#E5E7EB]";
+  const brandBorder = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const logoText    = isDark ? "text-white" : "text-[#111827]";
+  const logoSub     = isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]";
+  const navLabel    = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const activeLink  = isDark ? "bg-[#3D5EF6] text-white" : "bg-[#3D5EF6] text-white";
+  const activeIcon  = "text-white";
+  const activeChev  = "text-white/80";
+  const inactiveLink= isDark ? "text-gray-300 hover:bg-[#1F2937] hover:text-white transition-colors duration-200" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-[#3D5EF6] transition-colors duration-200";
+  const inactiveIcon= isDark ? "text-gray-400 group-hover:text-white" : "text-[#6B7280] group-hover:text-[#3D5EF6]";
+  const footBorder  = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const userName    = isDark ? "text-white" : "text-[#111827]";
+  const userEmail   = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const signOutBtn  = isDark ? "text-gray-400 hover:bg-[#DC2626]/10 hover:text-[#DC2626] transition-colors duration-200" : "text-[#6B7280] hover:bg-red-50 hover:text-[#DC2626] transition-colors duration-200";
 
   return (
     <aside className={`w-60 h-screen flex flex-col shrink-0 ${sidebarBg}`}>
 
-      {/* Brand */}
+      {/* Brand Logo */}
       <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
-        <div className="w-8 h-8 rounded-md bg-cyan-500 flex items-center justify-center shrink-0">
-          <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
+        <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#3D5EF6]/20 shrink-0">
+          <Image
+            src="/logo.jpeg"
+            alt="Hari Om Thalassic"
+            width={36}
+            height={36}
+            className="object-cover w-full h-full"
+          />
         </div>
         <div className="leading-tight">
-          <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>
-          <p className={`text-[11px] font-medium tracking-wider uppercase ${logoSub}`}>Agent Admin</p>
+          <p className={`text-sm font-bold tracking-wide ${logoText}`}>Hari Om</p>
+          <p className={`text-[11px] font-semibold tracking-wider uppercase ${logoSub}`}>Partner Admin</p>
         </div>
       </div>
 
@@ -95,11 +99,11 @@ export default function AgentAdminSidebar() {
       {/* User + logout */}
       <div className={`p-3 border-t ${footBorder} space-y-1`}>
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
-          <div className="w-7 h-7 rounded-full bg-cyan-500 flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
-            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "AA"}
+          <div className="w-7 h-7 rounded-full bg-[#3D5EF6] flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
+            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "PA"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className={`text-xs font-semibold truncate ${userName}`}>{user?.name || "Agent Admin"}</p>
+            <p className={`text-xs font-semibold truncate ${userName}`}>{user?.name || "Partner Admin"}</p>
             <p className={`text-[11px] truncate ${userEmail}`}>{user?.email || "ops@thalassic.in"}</p>
           </div>
         </div>

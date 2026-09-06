@@ -11,12 +11,22 @@ export const courseService = {
     return response.data;
   },
 
-  async enrollInCourse(courseId: string, referralCode?: string) {
-    console.log("[courseService] Enrolling in course with referralCode:", referralCode);
+  async enrollInCourse(
+    courseId: string,
+    optionsOrReferralCode?: string | { referralCode?: string; instituteId?: string; instituteName?: string; batchSchedule?: string }
+  ) {
+    const payload = typeof optionsOrReferralCode === 'string'
+      ? { referralCode: optionsOrReferralCode || null }
+      : {
+          referralCode: optionsOrReferralCode?.referralCode || null,
+          instituteId: optionsOrReferralCode?.instituteId || null,
+          instituteName: optionsOrReferralCode?.instituteName || null,
+          batchSchedule: optionsOrReferralCode?.batchSchedule || null,
+        };
 
-    const response = await api.post(`/courses/${courseId}/enroll`, {
-      referralCode: referralCode || null,
-    });
+    console.log("[courseService] Enrolling in course with payload:", payload);
+
+    const response = await api.post(`/courses/${courseId}/enroll`, payload);
     return response.data;
   },
 

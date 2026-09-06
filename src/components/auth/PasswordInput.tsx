@@ -48,29 +48,31 @@ export default function PasswordInput({
       return;
     }
 
-    let score = 0;
-    if (val.length >= 8) score += 1;
-    if (/[0-9]/.test(val)) score += 1;
-    if (/[A-Z]/.test(val) || /[^A-Za-z0-9]/.test(val)) score += 1;
+    const hasMinLength = val.length >= 8;
+    const hasUpper = /[A-Z]/.test(val);
+    const hasLower = /[a-z]/.test(val);
+    const hasNumber = /[0-9]/.test(val);
+    const hasSpecial = /[^A-Za-z0-9]/.test(val);
 
-    setStrength(score);
+    const isAllMet = hasMinLength && hasUpper && hasLower && hasNumber && hasSpecial;
+    const scoreCount = [hasMinLength, hasUpper, hasLower, hasNumber, hasSpecial].filter(Boolean).length;
 
-    if (score === 1) {
-      setStrengthLabel("Weak password");
-      setStrengthColor("bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]");
-    } else if (score === 2) {
-      setStrengthLabel("Medium strength");
-      setStrengthColor("bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.3)]");
-    } else if (score === 3) {
-      setStrengthLabel(isDark ? "Strong maritime password" : "Strong password");
+    if (isAllMet) {
+      setStrength(3);
+      setStrengthLabel("Strong password");
       setStrengthColor(
         isDark 
           ? "bg-cyan-500 shadow-[0_0_8px_rgba(6,182,212,0.5)]" 
           : "bg-green-600 shadow-[0_0_8px_rgba(22,163,74,0.3)]"
       );
+    } else if (hasMinLength && scoreCount >= 3) {
+      setStrength(2);
+      setStrengthLabel("Medium strength");
+      setStrengthColor("bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.3)]");
     } else {
-      setStrengthLabel("Too short");
-      setStrengthColor("bg-red-500");
+      setStrength(1);
+      setStrengthLabel("Weak password");
+      setStrengthColor("bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.3)]");
     }
   }, [value, showStrength, isDark]);
 
@@ -102,18 +104,18 @@ export default function PasswordInput({
           value={value}
           onChange={onChange}
           className={`
-            block w-full rounded-xl border outline-none transition-all duration-300 text-sm pl-11 pr-12 py-3
+            block w-full rounded-xl border outline-none transition-colors duration-200 text-sm pl-11 pr-12 py-3
             ${
               isDark 
-                ? `bg-[#051625] text-white placeholder-gray-500 shadow-[inset_0_2px_4px_rgba(0,0,0,0.4)]
+                ? `bg-[#111827] text-white placeholder-gray-500
                    ${error 
-                     ? "border-red-500/80 focus:border-red-500 focus:ring-1 focus:ring-red-500" 
-                     : "border-gray-800 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 focus:shadow-[0_0_15px_rgba(6,182,212,0.15),inset_0_2px_4px_rgba(0,0,0,0.4)]"
+                     ? "border-[#DC2626] focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]" 
+                     : "border-[#374151] focus:border-[#3D5EF6] focus:ring-1 focus:ring-[#3D5EF6]"
                    }`
-                : `bg-white text-slate-900 placeholder-slate-400
+                : `bg-white text-[#111827] placeholder-[#6B7280]
                    ${error 
-                     ? "border-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500" 
-                     : "border-slate-300 focus:border-[#3b71cb] focus:ring-1 focus:ring-[#3b71cb] focus:shadow-[0_0_8px_rgba(59,113,203,0.15)]"
+                     ? "border-[#DC2626] focus:border-[#DC2626] focus:ring-1 focus:ring-[#DC2626]" 
+                     : "border-[#E5E7EB] focus:border-[#3D5EF6] focus:ring-1 focus:ring-[#3D5EF6]"
                    }`
             }
             ${className}
@@ -124,8 +126,8 @@ export default function PasswordInput({
         <button
           type="button"
           onClick={togglePasswordVisibility}
-          className={`absolute inset-y-0 right-0 pr-3 flex items-center focus:outline-none transition-colors ${
-            isDark ? "text-gray-500 hover:text-cyan-400" : "text-slate-400 hover:text-[#3b71cb]"
+          className={`absolute inset-y-0 right-0 pr-3 flex items-center focus:outline-none transition-colors duration-200 ${
+            isDark ? "text-gray-400 hover:text-[#3D5EF6]" : "text-gray-400 hover:text-[#3D5EF6]"
           }`}
           tabIndex={-1}
         >
@@ -151,7 +153,7 @@ export default function PasswordInput({
         </div>
       )}
       
-      {error && !showStrength && (
+      {error && (
         <p className={`mt-1.5 text-xs font-medium flex items-center gap-1 animate-fadeIn ${
           isDark ? "text-red-400" : "text-red-500"
         }`}>

@@ -49,7 +49,7 @@ export default function PartnerDocumentsPage() {
     if (!file) return;
     setUploading(type);
     try {
-      await partnerService.uploadDocument(type, undefined, file.name);
+      await partnerService.uploadDocument(type, file);
       await loadDocuments();
     } catch (err) {
       console.error("Upload error:", err);

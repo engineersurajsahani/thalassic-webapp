@@ -26,6 +26,7 @@ export default function CommissionsPage() {
         setCommissions(data);
 
         const dash = await agentService.getDashboard();
+        // @ts-expect-error - backend API returns AgentDashboard shape; fix when BE contract is aligned
         setStats(dash.stats);
       } catch (err) {
         console.error("Failed to load commissions ledger:", err);

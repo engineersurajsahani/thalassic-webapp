@@ -70,7 +70,7 @@ export default function AgentDocumentsPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  const [documents, setDocuments] = useState<DocumentRecord[]>([]);
+  const [documents, setDocuments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [expiryDates, setExpiryDates] = useState<Record<string, string>>({});
   const [docNumbers, setDocNumbers] = useState<Record<string, string>>({});
@@ -105,7 +105,7 @@ export default function AgentDocumentsPage() {
   const loadDocuments = async () => {
     try {
       const data = await agentService.getDocuments();
-      setDocuments(data);
+      setDocuments(data as any);
 
       const loadedDocNumbers: Record<string, string> = {};
       const loadedIssueDates: Record<string, string> = {};
@@ -159,7 +159,7 @@ export default function AgentDocumentsPage() {
       [type]: { ...prev[type], loading: true, error: "", success: "" },
     }));
     try {
-      await agentService.uploadDocument(type, file, file.name);
+      await agentService.uploadDocument(type, file, { documentNumber: file.name });
       setUploads((prev) => ({
         ...prev,
         [type]: {
@@ -223,7 +223,7 @@ export default function AgentDocumentsPage() {
         issuePlace: issuePlaces[type] || "",
       };
       const serializedName = `${file.name}|||${JSON.stringify(meta)}`;
-      await agentService.uploadDocument(type, file, serializedName, { expiryDate });
+      await agentService.uploadDocument(type, file, { documentNumber: serializedName, expiryDate });
       setUploads((prev) => ({
         ...prev,
         [type]: {
@@ -255,10 +255,10 @@ export default function AgentDocumentsPage() {
     setDownloadingId(docId);
     try {
       const result = await agentService.downloadDocument(docId);
-      if (result?.signedUrl) {
+      if (result?.url) {
         const link = document.createElement("a");
-        link.href = result.signedUrl;
-        link.download = result.fileName || "document";
+        link.href = result.url;
+        link.download = result.name || "document";
         link.target = "_blank";
         document.body.appendChild(link);
         link.click();
@@ -328,7 +328,7 @@ export default function AgentDocumentsPage() {
           Document Manager
         </h1>
         <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          Upload, replace, and download your verification documents. Documents are reviewed by the Agent Admin.
+          Upload, replace, and download your verification documents. Documents are reviewed by the Partner Admin.
         </p>
       </div>
 

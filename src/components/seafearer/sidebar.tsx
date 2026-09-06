@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
@@ -12,7 +13,6 @@ import {
   FileText,
   User,
   LogOut,
-  Anchor,
   ShoppingBag,
   Receipt,
   GitFork,
@@ -24,9 +24,9 @@ const menuItems = [
   { label: "My Courses", href: "/seafearer/my-courses", icon: BookOpen },
   { label: "Browse Courses", href: "/seafearer/browse-courses", icon: Compass },
   { label: "Documents", href: "/seafearer/documents", icon: FileText },
-  { label: "Profile", href: "/seafearer/profile", icon: User },
   { label: "Purchase History", href: "/seafearer/purchase-history", icon: ShoppingBag },
   { label: "Referral Dashboard", href: "/seafearer/referral-dashboard", icon: GitFork },
+  { label: "Profile", href: "/seafearer/profile", icon: User },
   { label: "Support", href: "/seafearer/support", icon: LifeBuoy },
 ];
 
@@ -52,11 +52,22 @@ export default function SeafearerSidebar() {
       <div className="flex flex-col flex-1">
         
         {/* Brand / Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-transparent">
-          <Link href="/seafearer/dashboard" className="flex items-center gap-3">
-            <Anchor className={`w-5.5 h-5.5 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
-            <span className={`font-bold tracking-tight text-base ${isDark ? "text-slate-100" : "text-slate-900"}`}>
-              Thalassic
+        <div className="h-16 flex items-center px-5 border-b border-transparent">
+          <Link href="/seafearer/dashboard" className="flex items-center gap-2.5 min-w-0 group">
+            <Image
+              src="/logo.jpeg"
+              alt="Hari Om Thalassic"
+              width={34}
+              height={34}
+              className="w-[34px] h-[34px] rounded-full object-contain shrink-0 border border-slate-200 dark:border-white/10 shadow-xs"
+              priority
+            />
+            <span
+              className={`font-bold tracking-tight text-[15px] whitespace-nowrap ${
+                isDark ? "text-slate-100" : "text-slate-900"
+              }`}
+            >
+              Hari Om Thalassic
             </span>
           </Link>
         </div>
@@ -71,18 +82,16 @@ export default function SeafearerSidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold tracking-normal transition-all duration-150 ${
+                className={`flex items-center gap-3.5 px-4 py-3 rounded-xl text-sm font-semibold tracking-normal transition-colors duration-200 ${
                   active
-                    ? isDark
-                      ? "bg-slate-800/80 text-white font-bold"
-                      : "bg-slate-200 text-slate-950 font-bold"
+                    ? "bg-[#3D5EF6] text-white font-bold"
                     : isDark
-                    ? "text-slate-400 hover:text-slate-200 hover:bg-slate-900"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                    ? "text-gray-300 hover:text-white hover:bg-[#1F2937]"
+                    : "text-[#6B7280] hover:text-[#3D5EF6] hover:bg-[#EEF1FE]"
                 }`}
               >
                 <Icon className={`w-4.5 h-4.5 shrink-0 ${
-                  active ? (isDark ? "text-cyan-400" : "text-blue-600") : "text-slate-400"
+                  active ? "text-white" : "text-gray-400"
                 }`} />
                 <span>{item.label}</span>
               </Link>
@@ -96,10 +105,18 @@ export default function SeafearerSidebar() {
         
         {/* Flat Profile Panel */}
         <div className="flex items-center gap-3.5 px-2 py-2 mb-3">
-          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 select-none ${
+          <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm shrink-0 select-none overflow-hidden ${
             isDark ? "bg-slate-800 text-slate-100" : "bg-slate-200 text-slate-800"
           }`}>
-            {user?.name?.charAt(0) || "S"}
+            {(user?.profile?.profilePicture || user?.profilePicture) ? (
+              <img
+                src={user?.profile?.profilePicture || user?.profilePicture}
+                alt="Profile"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              user?.name?.charAt(0) || "S"
+            )}
           </div>
           <div className="overflow-hidden min-w-0">
             <h4 className={`font-semibold text-sm truncate ${isDark ? "text-slate-200" : "text-slate-800"}`}>

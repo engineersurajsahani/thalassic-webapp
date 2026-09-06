@@ -45,20 +45,20 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
   };
 
   // ── theme tokens (Matching Master Portal) ──────────────────────────────
-  const sidebarBg   = isDark ? "bg-[#0c1a2e] border-r border-white/5"        : "bg-white border-r border-slate-200";
-  const brandBorder = isDark ? "border-white/8"                               : "border-slate-100";
-  const logoText    = isDark ? "text-white"                                   : "text-slate-800";
-  const logoSub     = isDark ? "text-sky-400"                                 : "text-sky-500";
-  const navLabel    = isDark ? "text-white/25"                                : "text-slate-400";
-  const activeLink  = isDark ? "bg-sky-500/15 text-sky-400"                  : "bg-sky-50 text-sky-600";
-  const activeIcon  = isDark ? "text-sky-400"                                 : "text-sky-600";
-  const activeChev  = isDark ? "text-sky-400/60"                              : "text-sky-400";
-  const inactiveLink= isDark ? "text-white/50 hover:bg-white/5 hover:text-white/80" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700";
-  const inactiveIcon= isDark ? "text-white/40 group-hover:text-white/60"     : "text-slate-400 group-hover:text-slate-600";
-  const footBorder  = isDark ? "border-white/8"                              : "border-slate-100";
-  const userName    = isDark ? "text-white/80"                               : "text-slate-700";
-  const userEmail   = isDark ? "text-white/30"                               : "text-slate-400";
-  const signOutBtn  = isDark ? "text-white/40 hover:bg-red-500/10 hover:text-red-400" : "text-slate-400 hover:bg-red-50 hover:text-red-500";
+  const sidebarBg   = isDark ? "bg-[#0B0F19] border-r border-[#1F2937]" : "bg-[#FFFFFF] border-r border-[#E5E7EB]";
+  const brandBorder = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const logoText    = isDark ? "text-white" : "text-[#111827]";
+  const logoSub     = isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]";
+  const navLabel    = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const activeLink  = isDark ? "bg-[#3D5EF6] text-white" : "bg-[#3D5EF6] text-white";
+  const activeIcon  = "text-white";
+  const activeChev  = "text-white/80";
+  const inactiveLink= isDark ? "text-gray-300 hover:bg-[#1F2937] hover:text-white transition-colors duration-200" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-[#3D5EF6] transition-colors duration-200";
+  const inactiveIcon= isDark ? "text-gray-400 group-hover:text-white" : "text-[#6B7280] group-hover:text-[#3D5EF6]";
+  const footBorder  = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const userName    = isDark ? "text-white" : "text-[#111827]";
+  const userEmail   = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const signOutBtn  = isDark ? "text-gray-400 hover:bg-[#DC2626]/10 hover:text-[#DC2626] transition-colors duration-200" : "text-[#6B7280] hover:bg-red-50 hover:text-[#DC2626] transition-colors duration-200";
 
   const renderContent = () => (
     <div className="flex flex-col h-full">
@@ -73,6 +73,9 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
               height={32}
               className="w-full h-full object-contain"
             />
+
+          <div className="w-8 h-8 rounded-md bg-[#3D5EF6] flex items-center justify-center shrink-0">
+            <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
           </div>
           <div className="leading-tight">
             <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>
