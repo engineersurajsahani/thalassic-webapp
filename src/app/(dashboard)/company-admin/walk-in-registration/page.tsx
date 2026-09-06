@@ -4,27 +4,22 @@ import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import {
   ClipboardList, User, Phone, Mail, MapPin, FileText,
-  BookOpen, CheckCircle2, Clock, AlertCircle, Plus, X,
-  Calendar, Anchor,
+  CheckCircle2, Clock, AlertCircle, Plus, X,
+  Calendar, Anchor, Search,
 } from "lucide-react";
+import { mockSeafarers } from "@/components/company-admin/mockData";
 
 // ─── Mock Data ───────────────────────────────────────────────────────────────
 
 const WALK_INS = [
-  { id: "WI-001", name: "Arun Nair",       rank: "Deck Cadet",      phone: "+91 98765 11111", email: "arun.n@email.com",    course: "STCW Basic Safety",      status: "Active",   date: "Aug 2, 2026",  location: "Mumbai"    },
-  { id: "WI-002", name: "Seema Pillai",    rank: "Able Seaman",     phone: "+91 87654 22222", email: "seema.p@email.com",   course: "Ship Navigation",        status: "Pending",  date: "Aug 1, 2026",  location: "Kochi"     },
-  { id: "WI-003", name: "Rahul Varma",     rank: "Second Officer",  phone: "+91 76543 33333", email: "rahul.v@email.com",   course: "Advanced Fire Fighting", status: "Active",   date: "Jul 31, 2026", location: "Chennai"   },
-  { id: "WI-004", name: "Divya Menon",     rank: "Engine Cadet",    phone: "+91 65432 44444", email: "divya.m@email.com",   course: "Engine Room Watch",      status: "Pending",  date: "Jul 30, 2026", location: "Kochi"     },
-  { id: "WI-005", name: "Sanjay Tiwari",   rank: "Bosun",           phone: "+91 54321 55555", email: "sanjay.t@email.com",  course: "Tanker Cargo Ops",       status: "Active",   date: "Jul 29, 2026", location: "Kolkata"   },
-  { id: "WI-006", name: "Pooja Rao",       rank: "Chief Cook",      phone: "+91 43210 66666", email: "pooja.r@email.com",   course: "Maritime Catering",      status: "Dropped",  date: "Jul 28, 2026", location: "Hyderabad" },
-  { id: "WI-007", name: "Mukesh Singh",    rank: "AB Seaman",       phone: "+91 32109 77777", email: "mukesh.s@email.com",  course: "STCW Basic Safety",      status: "Active",   date: "Jul 27, 2026", location: "Mumbai"    },
-  { id: "WI-008", name: "Latha Krishnan",  rank: "Navigating Officer",phone:"+91 21098 88888",email: "latha.k@email.com",   course: "Advanced Navigation",    status: "Active",   date: "Jul 26, 2026", location: "Trivandrum"},
-];
-
-const COURSES_LIST = [
-  "STCW Basic Safety", "Advanced Fire Fighting", "Ship Navigation & Radar",
-  "Tanker Cargo Operations", "Engine Room Watch", "Maritime Catering",
-  "Maritime Law & Compliance", "Maritime Communication", "Deck Watchkeeping", "Advanced Navigation",
+  { id: "WI-001", name: "Arun Nair",       rank: "Deck Cadet",      phone: "+91 98765 11111", email: "arun.n@email.com",    status: "Active",   date: "Aug 2, 2026",  location: "Mumbai"    },
+  { id: "WI-002", name: "Seema Pillai",    rank: "Able Seaman",     phone: "+91 87654 22222", email: "seema.p@email.com",   status: "Pending",  date: "Aug 1, 2026",  location: "Kochi"     },
+  { id: "WI-003", name: "Rahul Varma",     rank: "Second Officer",  phone: "+91 76543 33333", email: "rahul.v@email.com",   status: "Active",   date: "Jul 31, 2026", location: "Chennai"   },
+  { id: "WI-004", name: "Divya Menon",     rank: "Engine Cadet",    phone: "+91 65432 44444", email: "divya.m@email.com",   status: "Pending",  date: "Jul 30, 2026", location: "Kochi"     },
+  { id: "WI-005", name: "Sanjay Tiwari",   rank: "Bosun",           phone: "+91 54321 55555", email: "sanjay.t@email.com",  status: "Active",   date: "Jul 29, 2026", location: "Kolkata"   },
+  { id: "WI-006", name: "Pooja Rao",       rank: "Chief Cook",      phone: "+91 43210 66666", email: "pooja.r@email.com",   status: "Dropped",  date: "Jul 28, 2026", location: "Hyderabad" },
+  { id: "WI-007", name: "Mukesh Singh",    rank: "AB Seaman",       phone: "+91 32109 77777", email: "mukesh.s@email.com",  status: "Active",   date: "Jul 27, 2026", location: "Mumbai"    },
+  { id: "WI-008", name: "Latha Krishnan",  rank: "Navigating Officer",phone:"+91 21098 88888",email: "latha.k@email.com",   status: "Active",   date: "Jul 26, 2026", location: "Trivandrum"},
 ];
 
 const RANKS_LIST = [
@@ -45,7 +40,7 @@ const statusMeta: Record<string, { cls: [string,string]; icon: React.ReactNode }
 
 // ─── Form State ───────────────────────────────────────────────────────────────
 
-const EMPTY_FORM = { name: "", rank: "", phone: "", email: "", course: "", location: "", cdcNo: "" };
+const EMPTY_FORM = { name: "", rank: "", phone: "", email: "", location: "", cdcNo: "" };
 
 // ─── Main Page ────────────────────────────────────────────────────────────────
 
@@ -56,6 +51,10 @@ export default function WalkInRegistrationPage() {
   const [form,    setForm]    = useState(EMPTY_FORM);
   const [records, setRecords] = useState(WALK_INS);
   const [saved,   setSaved]   = useState(false);
+  
+  const [existingSeafarerId, setExistingSeafarerId] = useState<string | null>(null);
+  const [searchStatus, setSearchStatus] = useState<"idle" | "searching" | "found" | "not_found">("idle");
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const card    = `rounded-2xl overflow-hidden ${dk ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
   const ht      = dk ? "text-white/80"  : "text-slate-800";
@@ -72,18 +71,55 @@ export default function WalkInRegistrationPage() {
     { label: "Pending",        value: records.filter(r => r.status === "Pending").length,  color: dk ? "text-amber-400"   : "text-amber-600"   },
     { label: "Today",          value: records.filter(r => r.date === "Aug 2, 2026").length, color: dk ? "text-indigo-400"  : "text-indigo-600"  },
   ];
+  
+  const handleSearchExisting = () => {
+    if (!form.email && !form.phone) {
+      setValidationError("Please enter an Email or Phone number to check for an existing seafarer.");
+      return;
+    }
+
+    setSearchStatus("searching");
+    
+    // Simulate API delay
+    setTimeout(() => {
+      const found = mockSeafarers.find(s => 
+        (form.email && s.email.toLowerCase() === form.email.toLowerCase()) || 
+        (form.phone && s.phone === form.phone)
+      );
+      
+      if (found) {
+        setSearchStatus("found");
+        setExistingSeafarerId(found.id);
+        setForm({
+          name: found.name,
+          rank: found.rank,
+          email: found.email,
+          phone: found.phone,
+          location: found.nationality || "Indian",
+          cdcNo: ""
+        });
+        setValidationError(null);
+      } else {
+        setSearchStatus("not_found");
+        setExistingSeafarerId(null);
+        setValidationError(null);
+      }
+    }, 600);
+  };
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!form.name || !form.rank || !form.phone || !form.course) return;
+    if (!form.name || !form.rank || !form.phone) return;
     const newRecord = {
-      id: `WI-${String(records.length + 1).padStart(3,"0")}`,
+      id: existingSeafarerId ? existingSeafarerId : `WI-${String(records.length + 1).padStart(3,"0")}`,
       name: form.name, rank: form.rank, phone: form.phone,
-      email: form.email, course: form.course, location: form.location,
-      status: "Pending", date: "Aug 2, 2026", cdcNo: form.cdcNo,
+      email: form.email, location: form.location,
+      status: existingSeafarerId ? "Active" : "Pending", date: "Aug 2, 2026", cdcNo: form.cdcNo,
     };
     setRecords(prev => [newRecord, ...prev]);
     setForm(EMPTY_FORM);
+    setExistingSeafarerId(null);
+    setSearchStatus("idle");
     setSaved(true);
     setTimeout(() => setSaved(false), 3000);
   }
@@ -93,8 +129,8 @@ export default function WalkInRegistrationPage() {
 
       {/* Page header */}
       <div>
-        <h1 className={`text-xl font-bold ${ht}`}>Walk-in Registration</h1>
-        <p className={`text-sm mt-0.5 ${mt}`}>Register seafarers who visit in person</p>
+        <h1 className={`text-xl font-bold ${ht}`}>Walk-in Registration Log</h1>
+        <p className={`text-sm mt-0.5 ${mt}`}>Quickly add seafarers who visit in person</p>
       </div>
 
       {/* Stats strip */}
@@ -113,14 +149,76 @@ export default function WalkInRegistrationPage() {
 
         {/* ── Registration Form ──────────────────────────────────────────────── */}
         <div className={`${card} xl:col-span-2`}>
-          <div className={`flex items-center gap-3 px-6 py-4 border-b ${dk ? "border-white/5" : "border-slate-100"}`}>
-            <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${dk ? "bg-emerald-500/15" : "bg-emerald-50"}`}>
-              <ClipboardList className="w-4 h-4 text-emerald-500" />
+          <div className={`flex items-center justify-between px-6 py-4 border-b ${dk ? "border-white/5" : "border-slate-100"}`}>
+            <div className="flex items-center gap-3">
+              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${dk ? "bg-emerald-500/15" : "bg-emerald-50"}`}>
+                <ClipboardList className="w-4 h-4 text-emerald-500" />
+              </div>
+              <p className={`text-sm font-semibold ${ht}`}>New Walk-in</p>
             </div>
-            <p className={`text-sm font-semibold ${ht}`}>New Walk-in</p>
+            <button
+              type="button"
+              onClick={handleSearchExisting}
+              disabled={searchStatus === "searching"}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded text-[10px] font-bold transition-colors border cursor-pointer ${
+                dk 
+                  ? "bg-sky-500/10 text-sky-400 border-sky-500/20 hover:bg-sky-500/20" 
+                  : "bg-sky-50 text-sky-600 border-sky-200 hover:bg-sky-100"
+              }`}
+            >
+              <Search className="w-3.5 h-3.5" />
+              {searchStatus === "searching" ? "Checking..." : "Check Existing"}
+            </button>
           </div>
 
           <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+            {searchStatus === "found" && existingSeafarerId && (
+              <div className="p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-xs font-semibold flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 shrink-0" />
+                <div>Existing Seafarer Found! Form auto-filled.</div>
+              </div>
+            )}
+            {searchStatus === "not_found" && (
+              <div className="p-3 bg-sky-500/10 border border-sky-500/20 text-sky-600 dark:text-sky-400 rounded-lg text-xs font-semibold flex items-center gap-2">
+                <User className="w-4 h-4 shrink-0" />
+                <div>No seafarer found. You can register them as new.</div>
+              </div>
+            )}
+            {validationError && (
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 rounded-lg text-xs font-semibold flex items-center gap-2">
+                <X className="w-3 h-3 cursor-pointer shrink-0" onClick={() => setValidationError(null)} />
+                {validationError}
+              </div>
+            )}
+
+            {/* Email */}
+            <div>
+              <label className={labelCls}>Email</label>
+              <div className="relative">
+                <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
+                <input
+                  type="email" value={form.email}
+                  onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                  placeholder="email@example.com"
+                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`}
+                />
+              </div>
+            </div>
+            
+            {/* Phone */}
+            <div>
+              <label className={labelCls}>Phone *</label>
+              <div className="relative">
+                <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
+                <input
+                  required value={form.phone}
+                  onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
+                  placeholder="+91 XXXXX XXXXX"
+                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`}
+                />
+              </div>
+            </div>
+
             {/* Full Name */}
             <div>
               <label className={labelCls}>Full Name *</label>
@@ -147,50 +245,6 @@ export default function WalkInRegistrationPage() {
                 >
                   <option value="">Select rank</option>
                   {RANKS_LIST.map(r => <option key={r}>{r}</option>)}
-                </select>
-              </div>
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label className={labelCls}>Phone *</label>
-              <div className="relative">
-                <Phone className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
-                <input
-                  required value={form.phone}
-                  onChange={e => setForm(p => ({ ...p, phone: e.target.value }))}
-                  placeholder="+91 XXXXX XXXXX"
-                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`}
-                />
-              </div>
-            </div>
-
-            {/* Email */}
-            <div>
-              <label className={labelCls}>Email</label>
-              <div className="relative">
-                <Mail className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
-                <input
-                  type="email" value={form.email}
-                  onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
-                  placeholder="email@example.com"
-                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`}
-                />
-              </div>
-            </div>
-
-            {/* Course */}
-            <div>
-              <label className={labelCls}>Course *</label>
-              <div className="relative">
-                <BookOpen className={`absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 ${mt}`} />
-                <select
-                  required value={form.course}
-                  onChange={e => setForm(p => ({ ...p, course: e.target.value }))}
-                  className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors appearance-none ${inputBg}`}
-                >
-                  <option value="">Select course</option>
-                  {COURSES_LIST.map(c => <option key={c}>{c}</option>)}
                 </select>
               </div>
             </div>
@@ -227,7 +281,11 @@ export default function WalkInRegistrationPage() {
             <div className="flex gap-2 pt-1">
               <button
                 type="button"
-                onClick={() => setForm(EMPTY_FORM)}
+                onClick={() => {
+                  setForm(EMPTY_FORM);
+                  setSearchStatus("idle");
+                  setExistingSeafarerId(null);
+                }}
                 className={`flex-1 py-2.5 rounded-xl text-sm font-medium border transition-colors ${
                   dk ? "border-white/10 text-white/50 hover:bg-white/5" : "border-slate-200 text-slate-500 hover:bg-slate-50"
                 }`}
@@ -236,10 +294,10 @@ export default function WalkInRegistrationPage() {
               </button>
               <button
                 type="submit"
-                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors"
+                className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold bg-emerald-600 hover:bg-emerald-500 text-white transition-colors cursor-pointer"
               >
                 <Plus className="w-4 h-4" />
-                Register
+                {existingSeafarerId ? "Link Walk-in" : "Register"}
               </button>
             </div>
 
@@ -247,7 +305,9 @@ export default function WalkInRegistrationPage() {
             {saved && (
               <div className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/20">
                 <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                <p className="text-xs font-medium text-emerald-400">Seafarer registered successfully!</p>
+                <p className="text-xs font-medium text-emerald-400">
+                  {existingSeafarerId ? "Walk-in linked successfully!" : "Walk-in logged successfully!"}
+                </p>
               </div>
             )}
           </form>
@@ -263,14 +323,14 @@ export default function WalkInRegistrationPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className={dk ? "border-b border-white/5" : "border-b border-slate-100"}>
-                  {["Seafarer","Rank","Course","Status","Date"].map(h => (
+                  {["Seafarer","Rank","Status","Date"].map(h => (
                     <th key={h} className={`text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider whitespace-nowrap ${mt}`}>{h}</th>
                   ))}
                 </tr>
               </thead>
               <tbody className={`divide-y ${divider}`}>
                 {records.map((r, i) => {
-                  const meta = statusMeta[r.status];
+                  const meta = statusMeta[r.status] || statusMeta["Pending"];
                   return (
                     <tr key={r.id} className={`transition-colors ${dk ? "hover:bg-white/[0.03]" : "hover:bg-slate-50"}`}>
                       <td className="px-5 py-3.5">
@@ -285,7 +345,6 @@ export default function WalkInRegistrationPage() {
                         </div>
                       </td>
                       <td className={`px-5 py-3.5 text-[12px] ${dk ? "text-white/55" : "text-slate-500"}`}>{r.rank}</td>
-                      <td className={`px-5 py-3.5 text-[12px] max-w-[160px] truncate ${mt}`}>{r.course}</td>
                       <td className="px-5 py-3.5">
                         <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${dk ? meta.cls[1] : meta.cls[0]}`}>
                           {meta.icon}{r.status}

@@ -12,7 +12,7 @@ export interface SeafarerDocument {
   id: string;
   name: string;
   type: string; // e.g., "Passport", "CoC", "STCW"
-  status: "Pending" | "Approved" | "Rejected" | "Expiring";
+  status: "Pending" | "Approved" | "Rejected" | "Expired" | "Expiring";
   issueDate: string;
   expiryDate: string;
   previewUrl?: string;
@@ -117,7 +117,7 @@ export const mockSeafarers: Seafarer[] = [
       { id: "doc1", name: "Certificate of Competency (CoC)", type: "CoC", status: "Approved", issueDate: "2022-08-10", expiryDate: "2027-08-09", previewUrl: "/mock-pdf-placeholder.png" },
       { id: "doc2", name: "Seaman Book (CDC)", type: "CDC", status: "Approved", issueDate: "2023-04-12", expiryDate: "2033-04-11", previewUrl: "/mock-pdf-placeholder.png" },
       { id: "doc3", name: "Passport", type: "Passport", status: "Approved", issueDate: "2020-11-20", expiryDate: "2030-11-19", previewUrl: "/mock-pdf-placeholder.png" },
-      { id: "doc4", name: "Medical Certificate (ENG1)", type: "Medical", status: "Expiring", issueDate: "2024-09-01", expiryDate: "2026-08-31", previewUrl: "/mock-pdf-placeholder.png" },
+      { id: "doc4", name: "Medical Certificate (ENG1)", type: "Medical", status: "Expired", issueDate: "2024-09-01", expiryDate: "2026-08-31", previewUrl: "/mock-pdf-placeholder.png" },
     ],
     seaService: [
       { id: "ss1", vesselName: "Thalassic Wave", vesselType: "Crude Oil Tanker", rank: "Master", signOn: "2025-01-15", signOff: "2025-06-15", duration: 151 },
@@ -271,4 +271,35 @@ export const mockNotifications: NotificationAlert[] = [
   { id: "nt2", message: "New support ticket TCK-102 created for urgent course enrollment.", type: "info", timestamp: "3 hours ago" },
   { id: "nt3", message: "Passport verification for Sandeep Nair is pending.", type: "warning", timestamp: "1 day ago" },
   { id: "nt4", message: "Course compliance for Thalassic Webapp is at 84% (+2.4% this week).", type: "success", timestamp: "2 days ago" }
+];
+
+export interface PaymentRecord {
+  id: string;
+  seafarerId: string;
+  seafarerName: string;
+  course: string;
+  instituteId: string;
+  instituteName: string;
+  amount: number;
+  amountReceived?: number;
+  status: "Paid" | "Pending" | "Overdue" | "Partial";
+  method: string;
+  date: string;
+  txnId: string;
+  invoiceNumber?: string;
+}
+
+export const mockPayments: PaymentRecord[] = [
+  { id: "PAY-001", seafarerId: "sf1", seafarerName: "Capt. Rajesh Kumar", course: "STCW Basic Safety Training", instituteId: "inst_1", instituteName: "Hari Om Thalassic Maritime Training Institute", amount: 5000, status: "Paid", method: "UPI", date: "Aug 20, 2026", txnId: "TXN20260820001" },
+  { id: "PAY-002", seafarerId: "sf2", seafarerName: "Amit Patel", course: "Advanced Fire Fighting", instituteId: "inst_4", instituteName: "Apex Marine Training", amount: 7200, status: "Pending", method: "Bank Transfer", date: "Aug 19, 2026", txnId: "—" },
+  { id: "PAY-003", seafarerId: "sf1", seafarerName: "Capt. Rajesh Kumar", course: "Ship Navigation & Radar", instituteId: "inst_3", instituteName: "Oceanic Maritime Center", amount: 6800, status: "Paid", method: "Cash", date: "Aug 18, 2026", txnId: "TXN20260818003" },
+  { id: "PAY-004", seafarerId: "sf3", seafarerName: "Vikram Singh", course: "Advanced Fire Fighting", instituteId: "inst_1", instituteName: "Hari Om Thalassic Maritime Training Institute", amount: 7200, status: "Paid", method: "UPI", date: "Aug 17, 2026", txnId: "TXN20260817004" },
+  { id: "PAY-005", seafarerId: "sf4", seafarerName: "Sandeep Nair", course: "Engine Room Operations", instituteId: "inst_2", instituteName: "Global Seafarers Academy", amount: 8100, status: "Overdue", method: "Bank Transfer", date: "Aug 15, 2026", txnId: "—" },
+  { id: "PAY-006", seafarerId: "sf5", seafarerName: "Neha Sharma", course: "Medical First Aid at Sea", instituteId: "inst_2", instituteName: "Global Seafarers Academy", amount: 4500, status: "Paid", method: "UPI", date: "Aug 14, 2026", txnId: "TXN20260814006" },
+  { id: "PAY-007", seafarerId: "sf1", seafarerName: "Capt. Rajesh Kumar", course: "Tanker Cargo Operations", instituteId: "inst_1", instituteName: "Hari Om Thalassic Maritime Training Institute", amount: 9400, status: "Pending", method: "—", date: "Aug 13, 2026", txnId: "—" },
+  { id: "PAY-008", seafarerId: "sf3", seafarerName: "Vikram Singh", course: "STCW Basic Safety Training", instituteId: "inst_3", instituteName: "Oceanic Maritime Center", amount: 5000, status: "Paid", method: "Cash", date: "Aug 12, 2026", txnId: "TXN20260812008" },
+  { id: "PAY-009", seafarerId: "sf2", seafarerName: "Amit Patel", course: "Tanker Cargo Operations", instituteId: "inst_1", instituteName: "Hari Om Thalassic Maritime Training Institute", amount: 9400, status: "Paid", method: "UPI", date: "Aug 11, 2026", txnId: "TXN20260811009" },
+  { id: "PAY-010", seafarerId: "sf4", seafarerName: "Sandeep Nair", course: "Maritime Law & Compliance", instituteId: "inst_4", instituteName: "Apex Marine Training", amount: 3200, status: "Overdue", method: "—", date: "Aug 10, 2026", txnId: "—" },
+  { id: "PAY-011", seafarerId: "sf5", seafarerName: "Neha Sharma", course: "Engine Room Operations", instituteId: "inst_4", instituteName: "Apex Marine Training", amount: 8100, status: "Paid", method: "Bank Transfer", date: "Aug 09, 2026", txnId: "TXN20260809011" },
+  { id: "PAY-012", seafarerId: "sf1", seafarerName: "Capt. Rajesh Kumar", course: "Maritime Law & Compliance", instituteId: "inst_2", instituteName: "Global Seafarers Academy", amount: 3200, status: "Paid", method: "UPI", date: "Aug 08, 2026", txnId: "TXN20260808012" },
 ];

@@ -1,14 +1,15 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
-  LayoutDashboard, Users, UserPlus, FileCheck,
+  LayoutDashboard, Users, UserPlus, FileCheck, BookOpen,
   CreditCard, FileText, BarChart3, Settings,
-  LogOut, Anchor, ChevronRight, X
+  LogOut, ChevronRight, X, Building, DollarSign
 } from "lucide-react";
 
 interface SidebarProps {
@@ -18,9 +19,11 @@ interface SidebarProps {
 
 const menuItems = [
   { label: "Dashboard",            href: "/company-admin/dashboard",    icon: LayoutDashboard },
-  { label: "Seafarers",            href: "/company-admin/seafearers",   icon: Users },
+  { label: "Seafarers",            href: "/company-admin/seafarers",    icon: Users },
+  { label: "Course Management",    href: "/company-admin/courses",      icon: BookOpen },
   { label: "Walk-in Registration", href: "/company-admin/registration", icon: UserPlus },
   { label: "Documents",            href: "/company-admin/documents",    icon: FileCheck },
+  { label: "Finance",              href: "/company-admin/finance",      icon: DollarSign },
   { label: "Reports",              href: "/company-admin/reports",      icon: BarChart3 },
   { label: "Profile",              href: "/company-admin/profile",      icon: Settings },
 ];
@@ -31,8 +34,15 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
   const isDark = theme === "dark";
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  const isActive = (href: string) => {
+    if (href === "/company-admin/seafarers") {
+      return pathname.startsWith("/company-admin/seafarers") || pathname.startsWith("/company-admin/seafearers");
+    }
+    if (href === "/company-admin/finance") {
+      return pathname.startsWith("/company-admin/finance") || pathname.startsWith("/company-admin/payments");
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   // ── theme tokens (Matching Master Portal) ──────────────────────────────
   const sidebarBg   = isDark ? "bg-[#0B0F19] border-r border-[#1F2937]" : "bg-[#FFFFFF] border-r border-[#E5E7EB]";
@@ -55,6 +65,15 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
       {/* Brand Header */}
       <div className={`px-5 py-5 flex items-center justify-between border-b ${brandBorder}`}>
         <Link href="/company-admin/dashboard" className="flex items-center gap-3 group/logo">
+          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+            <Image
+              src="/logo/hariom_logo.png"
+              alt="Hari Om logo"
+              width={32}
+              height={32}
+              className="w-full h-full object-contain"
+            />
+
           <div className="w-8 h-8 rounded-md bg-[#3D5EF6] flex items-center justify-center shrink-0">
             <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
           </div>

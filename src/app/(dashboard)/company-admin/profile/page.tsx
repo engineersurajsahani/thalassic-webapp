@@ -16,7 +16,6 @@ export default function ProfilePage() {
     email: user?.email || "admin@shipping.com",
     phone: user?.phone || "+91 98765 43210",
     address: "Andheri East, Mumbai, Maharashtra 400069, India",
-    rpsl: "RPSL-MUM-12345"
   });
 
   const [formData, setFormData] = useState(profileData);
@@ -73,9 +72,6 @@ export default function ProfilePage() {
             <h2 className={`text-lg font-bold ${isDark ? "text-white" : "text-slate-800"}`}>
               {profileData.name}
             </h2>
-            <p className={`text-xs mt-1 ${isDark ? "text-white/60" : "text-slate-500"}`}>
-              RPSL Number: {profileData.rpsl}
-            </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
