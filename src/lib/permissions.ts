@@ -17,11 +17,11 @@ export function canAccessDashboard(userRole: Role | undefined | null, targetPath
   if (!userRole) return false;
   if (userRole === 'MASTER') return true;
 
-  if (targetPath.startsWith('/master') && userRole !== 'MASTER') return false;
+  if (targetPath.startsWith('/master')) return false;
   if (targetPath.startsWith('/agent-admin') && userRole !== 'AGENT_ADMIN') return false;
   if (targetPath.startsWith('/company-admin') && userRole !== 'COMPANY_ADMIN') return false;
   if (targetPath.startsWith('/agent') && userRole !== 'AGENT' && userRole !== 'AGENT_ADMIN') return false;
-  if ((targetPath.startsWith('/seafarer') || targetPath.startsWith('/seafarer')) && userRole !== 'SEAFARER') return false;
+  if ((targetPath.startsWith('/seafarer') || targetPath.startsWith('/seafearer')) && userRole !== 'SEAFARER') return false;
 
   return true;
 }
