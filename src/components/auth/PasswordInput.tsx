@@ -1,25 +1,25 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, forwardRef } from "react";
 import { Lock, Eye, EyeOff } from "lucide-react";
 import { useTheme } from "@/providers/theme-provider";
 
-interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface PasswordInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
   showStrength?: boolean;
 }
 
-export default function PasswordInput({
+const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(({
   label,
   error,
   showStrength = false,
   className = "",
   id,
-  value = "",
+  value,
   onChange,
   ...props
-}: PasswordInputProps) {
+}, ref) => {
   const { theme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
@@ -40,7 +40,7 @@ export default function PasswordInput({
   useEffect(() => {
     if (!showStrength) return;
     
-    const val = String(value);
+    const val = value !== undefined ? String(value) : "";
     if (!val) {
       setStrength(0);
       setStrengthLabel("");
@@ -80,6 +80,15 @@ export default function PasswordInput({
     setShowPassword((prev) => !prev);
   };
 
+  // Build input props without overriding uncontrolled state when value is undefined
+  const inputProps: React.InputHTMLAttributes<HTMLInputElement> = { ...props };
+  if (value !== undefined) {
+    inputProps.value = value;
+  }
+  if (onChange) {
+    inputProps.onChange = onChange;
+  }
+
   return (
     <div className="w-full">
       <label
@@ -99,10 +108,9 @@ export default function PasswordInput({
         </div>
         
         <input
+          ref={ref}
           id={inputId}
           type={showPassword ? "text" : "password"}
-          value={value}
-          onChange={onChange}
           className={`
             block w-full rounded-xl border outline-none transition-colors duration-200 text-sm pl-11 pr-12 py-3
             ${
@@ -120,7 +128,7 @@ export default function PasswordInput({
             }
             ${className}
           `}
-          {...props}
+          {...inputProps}
         />
         
         <button
@@ -163,4 +171,8 @@ export default function PasswordInput({
       )}
     </div>
   );
-}
+});
+
+PasswordInput.displayName = "PasswordInput";
+
+export default PasswordInput;

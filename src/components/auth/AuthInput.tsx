@@ -1,26 +1,26 @@
 "use client";
 
-import React from "react";
+import React, { forwardRef, useState, useEffect } from "react";
 import { LucideIcon } from "lucide-react";
 import { useTheme } from "@/providers/theme-provider";
 
-interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface AuthInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   icon?: LucideIcon;
   error?: string;
 }
 
-export default function AuthInput({
+const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
   label,
   icon: Icon,
   error,
   className = "",
   id,
   ...props
-}: AuthInputProps) {
+}, ref) => {
   const { theme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-  React.useEffect(() => {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
     setMounted(true);
   }, []);
 
@@ -50,6 +50,7 @@ export default function AuthInput({
         )}
         
         <input
+          ref={ref}
           id={inputId}
           className={`
             block w-full rounded-xl border outline-none transition-colors duration-200 text-sm pr-4 py-3
@@ -83,4 +84,8 @@ export default function AuthInput({
       )}
     </div>
   );
-}
+});
+
+AuthInput.displayName = "AuthInput";
+
+export default AuthInput;
