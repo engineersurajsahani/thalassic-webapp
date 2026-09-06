@@ -360,7 +360,7 @@ export default function AgentManagement() {
                   Course Pricing & Proposals — {selectedAgentForPricing.name}
                 </h1>
                 <p className={`text-xs mt-1 ${mt}`}>
-                  {selectedAgentForPricing.email} • {selectedAgentForPricing.phone || "No phone registered"} • Referral Code: <span className="font-mono text-[#3D5EF6] font-bold">{selectedAgentForPricing.referralCode || "PENDING"}</span>
+                  {selectedAgentForPricing.email} • {selectedAgentForPricing.phone || "No phone registered"}
                 </p>
               </div>
             </div>
@@ -578,7 +578,7 @@ export default function AgentManagement() {
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search agents by name, email, or referral code..."
+            placeholder="Search agents by name or email..."
             className="bg-transparent outline-none w-full text-xs"
           />
         </label>
@@ -621,7 +621,6 @@ export default function AgentManagement() {
                 <tr className={`border-b pb-3 ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}>
                   <th className="py-3.5 px-2">Name & Info</th>
                   <th className="py-3.5 px-2">Onboarding</th>
-                  <th className="py-3.5 px-2">Referral Code</th>
                   <th className="py-3.5 px-2 text-center">Course Pricing</th>
                   <th className="py-3.5 px-2">Status</th>
                   <th className="py-3.5 px-2 text-right">Actions</th>
@@ -652,26 +651,6 @@ export default function AgentManagement() {
                         <CheckSquare className="w-3.5 h-3.5" />
                         {agent.onboardingStatus}
                       </button>
-                    </td>
-
-                    {/* Referral details */}
-                    <td className="py-4 px-2">
-                      {agent.referralCode ? (
-                        <div className="flex items-center gap-2">
-                          <span className={`font-mono font-bold px-2 py-0.5 rounded ${isDark ? "bg-white/5 text-[#3D5EF6]" : "bg-slate-100 text-[#3D5EF6]"}`}>
-                            {agent.referralCode}
-                          </span>
-                          <button
-                            onClick={() => openQrModal(agent)}
-                            className={`p-1 rounded hover:bg-white/5 text-[#3D5EF6]`}
-                            title="View QR Code Link"
-                          >
-                            <QrCode className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      ) : (
-                        <span className={`text-[10px] italic ${labelText}`}>No Code Created (Pending Onboarding)</span>
-                      )}
                     </td>
 
                     {/* Course Pricing Action Button */}
@@ -1165,51 +1144,6 @@ export default function AgentManagement() {
                 Save Details
               </button>
             </form>
-          </div>
-        </div>
-      )}
-
-      {/* --- QR CODE DISPLAY MODAL --- */}
-      {showQrModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-sm p-6 rounded-lg relative text-center shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
-            <button 
-              onClick={() => setShowQrModal(false)}
-              className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
-            >
-              <X className="w-4 h-4" />
-            </button>
-            
-            <div className="flex flex-col items-center justify-center py-4 space-y-4">
-              <div className="p-3 rounded-2xl bg-[#3D5EF6]/10 text-[#3D5EF6]">
-                <QrCode className="w-8 h-8" />
-              </div>
-              <div>
-                <h3 className="text-sm font-bold">{selectedAgent?.name}</h3>
-                <p className={`text-[10px] mt-1 ${labelText}`}>Referral Code: <span className="font-mono font-bold text-[#3D5EF6]">{selectedAgent?.referralCode}</span></p>
-              </div>
-
-              {/* Mock QR code container */}
-              <div className={`w-44 h-44 rounded-2xl p-4 flex flex-col items-center justify-center border ${isDark ? "bg-white border-white/10" : "bg-slate-50 border-slate-200 shadow-inner"}`}>
-                <div className="w-36 h-36 relative flex items-center justify-center border-4 border-dashed border-[#3D5EF6]/30 rounded-xl bg-slate-900 text-white font-mono text-[10px] text-center p-2 leading-relaxed">
-                  <div>
-                    <Sparkles className="w-5 h-5 text-[#3D5EF6] mx-auto mb-1 animate-pulse" />
-                    QR Code Link:<br />
-                    thalassic.in/?ref={selectedAgent?.referralCode}
-                  </div>
-                </div>
-              </div>
-
-              <div className="text-left w-full space-y-2">
-                <p className={`text-[10px] font-bold ${labelText}`}>Referral Link</p>
-                <input
-                  type="text"
-                  readOnly
-                  value={`https://hariomthalassic.com/?ref=${selectedAgent?.referralCode}`}
-                  className={`w-full px-3 py-2 rounded-xl border text-[10px] font-mono select-all outline-none ${inputBg}`}
-                />
-              </div>
-            </div>
           </div>
         </div>
       )}
