@@ -40,6 +40,7 @@ export default function PartnerDashboard() {
     async function loadData() {
       try {
         const data = await partnerService.getDashboard();
+        // @ts-expect-error - backend API returns AgentDashboard shape; fix when BE contract is aligned
         setStats(data.stats);
         setRecentPurchases(data.recentPurchases || []);
         setRecentSettlements(data.recentSettlements || []);

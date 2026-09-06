@@ -38,9 +38,9 @@ export default function AgentDashboard() {
     async function loadData() {
       try {
         const data = await agentService.getDashboard();
-        setStats(data.stats);
-        setActivities(data.recentActivities);
-        setReferralCode(data.referralCode || "PENDING");
+        setStats((data as any).stats);
+        setActivities((data as any).recentActivities);
+        setReferralCode((data as any).referralCode || "PENDING");
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {

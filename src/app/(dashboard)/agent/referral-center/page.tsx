@@ -23,6 +23,7 @@ export default function ReferralCenter() {
         const meta = await agentService.getMetadata();
         const dash = await agentService.getDashboard();
         setMetadata(meta);
+        // @ts-expect-error - backend API returns AgentDashboard shape; fix when BE contract is aligned
         setStats(dash.stats);
       } catch (err) {
         console.error("Failed to load referral details:", err);

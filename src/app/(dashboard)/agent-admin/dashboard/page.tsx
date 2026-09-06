@@ -9,6 +9,7 @@ import {
   ArrowUpRight, Activity, FileText, ChevronRight, Briefcase, Anchor, CheckCircle2, Clock,
   ShoppingBag, X, ExternalLink, FileCheck, CreditCard, Calendar, User, Check, AlertCircle, Download
 } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 export default function AgentAdminDashboard() {
   const { theme } = useTheme();
@@ -57,7 +58,8 @@ export default function AgentAdminDashboard() {
       const agentId = act?.agentId || "agt-1";
       await agentAdminService.verifyAgentDocument(agentId, docId, "Verified", "Verified by Partner Admin from Operations Dashboard");
     } catch (err) {
-      console.log("Document verification API call:", err);
+      // ISSUE-003: Removed console.log - use proper error handling
+      toast.error("Document verification failed. Please try again.");
     }
 
     // 3. Update dashboard activity feed in real time

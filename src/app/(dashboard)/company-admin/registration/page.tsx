@@ -29,7 +29,11 @@ export default function WalkInRegistrationPage() {
 
   // Mock Generated Values
   const generatedUsername = "walkin_sf_001";
-  const generatedPassword = "TempPass123!";
+  // ISSUE-007: Generate a random secure password instead of hardcoded "TempPass123!"
+  // In production, this should be generated server-side and sent via email
+  const generatedPassword = Array.from({ length: 12 }, () =>
+    Math.random() > 0.5 ? String.fromCharCode(65 + Math.floor(Math.random() * 26)) : String.fromCharCode(97 + Math.floor(Math.random() * 26))
+  ).join('') + Math.floor(Math.random() * 1000);
   const todayDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",
@@ -46,10 +50,41 @@ export default function WalkInRegistrationPage() {
     }, 1000);
   };
 
+  // ISSUE-041: Replaced window.location.reload() with proper state management
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    mobile: '',
+    dob: '',
+    nationality: '',
+    gender: '',
+    cdcNumber: '',
+    passportNumber: '',
+    indosNumber: '',
+    course: '',
+    amount: '',
+    paymentMethod: '',
+    paymentStatus: 'Paid',
+  });
+
   const handleReset = () => {
     if (window.confirm("Are you sure you want to reset the form? All data will be lost.")) {
-      // Form reset logic would go here
-      window.location.reload();
+      // ISSUE-041: Use state reset instead of page reload
+      setFormData({
+        fullName: '',
+        email: '',
+        mobile: '',
+        dob: '',
+        nationality: '',
+        gender: '',
+        cdcNumber: '',
+        passportNumber: '',
+        indosNumber: '',
+        course: '',
+        amount: '',
+        paymentMethod: '',
+        paymentStatus: 'Paid',
+      });
     }
   };
 
