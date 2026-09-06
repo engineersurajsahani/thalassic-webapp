@@ -26,6 +26,11 @@ import {
   User,
   Activity,
   UserCheck,
+  Info,
+  ShoppingBag,
+  ShoppingCart,
+  Ship,
+  History,
 } from "lucide-react";
 
 export default function SeafarerManagementPage() {
@@ -51,15 +56,17 @@ export default function SeafarerManagementPage() {
 
   // Selected seafarer for Details Drawer
   const [selectedSeafarer, setSelectedSeafarer] = useState<Seafarer | null>(null);
-  const [drawerTab, setDrawerTab] = useState<"profile" | "documents" | "courses" | "seaService">("profile");
+  const [drawerTab, setDrawerTab] = useState<
+    "profile" | "documents" | "courses" | "seaService" | "info" | "docPurchases" | "purchases" | "vesselHistory"
+  >("profile");
   const [isDrawerLoading, setIsDrawerLoading] = useState(false);
 
   // Edit modal states
   const [editingSeafarer, setEditingSeafarer] = useState<Seafarer | null>(null);
   const [editFormData, setEditFormData] = useState<Seafarer | null>(null);
 
-  // Active action menu id
-  const [activeMenuSeafarerId, setActiveMenuSeafarerId] = useState<string | null>(null);
+  // Active action modal seafarer for centered popup
+  const [actionModalSeafarer, setActionModalSeafarer] = useState<Seafarer | null>(null);
 
   // Extract unique filters from state for dropdowns
   const ranks = ["All", ...Array.from(new Set(seafarersList.map((sf) => sf.rank)))];
@@ -117,7 +124,10 @@ export default function SeafarerManagementPage() {
   };
 
   // Drawer Handlers
-  const openDetails = (sf: Seafarer, tab: "profile" | "documents" | "courses" | "seaService" = "profile") => {
+  const openDetails = (
+    sf: Seafarer,
+    tab: "profile" | "documents" | "courses" | "seaService" | "info" | "docPurchases" | "purchases" | "vesselHistory" = "profile"
+  ) => {
     setIsDrawerLoading(true);
     setSelectedSeafarer(sf);
     setDrawerTab(tab);
@@ -126,7 +136,9 @@ export default function SeafarerManagementPage() {
     }, 300);
   };
 
-  const handleDrawerTabChange = (tab: "profile" | "documents" | "courses" | "seaService") => {
+  const handleDrawerTabChange = (
+    tab: "profile" | "documents" | "courses" | "seaService" | "info" | "docPurchases" | "purchases" | "vesselHistory"
+  ) => {
     setIsDrawerLoading(true);
     setDrawerTab(tab);
     setTimeout(() => {
@@ -334,94 +346,24 @@ export default function SeafarerManagementPage() {
                       <StatusBadge status={sf.status} />
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <div className="relative inline-block text-left">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setActiveMenuSeafarerId(activeMenuSeafarerId === sf.id ? null : sf.id);
-                          }}
-                          className={`p-1.5 rounded-lg border transition-all hover:scale-105 cursor-pointer ${
-                            isDark
-                              ? "border-white/10 hover:bg-white/5 text-slate-300"
-                              : "border-slate-200 hover:bg-slate-50 text-slate-600"
-                          }`}
-                          title="Actions Menu"
-                        >
-                          <MoreVertical className="w-3.5 h-3.5" />
-                        </button>
-
-                        {activeMenuSeafarerId === sf.id && (
-                          <>
-                            <div className="fixed inset-0 z-20" onClick={() => setActiveMenuSeafarerId(null)} />
-                            <div
-                              className={`absolute right-0 mt-1 w-44 border rounded-xl shadow-xl z-30 p-1.5 animate-fadeIn ${
-                                isDark ? "bg-[#0c1a2e] border-white/5 text-white" : "bg-white border-slate-200 text-slate-900"
-                              }`}
-                            >
-                              <button
-                                onClick={() => {
-                                  openDetails(sf, "profile");
-                                  setActiveMenuSeafarerId(null);
-                                }}
-                                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors ${
-                                  isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
-                                }`}
-                              >
-                                <Eye className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                                View Profile
-                              </button>
-                              <button
-                                onClick={() => {
-                                  handleOpenEdit(sf);
-                                  setActiveMenuSeafarerId(null);
-                                }}
-                                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors ${
-                                  isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
-                                }`}
-                              >
-                                <Edit2 className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                                Edit Details
-                              </button>
-                              <button
-                                onClick={() => {
-                                  openDetails(sf, "documents");
-                                  setActiveMenuSeafarerId(null);
-                                }}
-                                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors ${
-                                  isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
-                                }`}
-                              >
-                                <FileText className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-                                Certificates & CDC
-                              </button>
-                              <button
-                                onClick={() => {
-                                  openDetails(sf, "courses");
-                                  setActiveMenuSeafarerId(null);
-                                }}
-                                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors ${
-                                  isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
-                                }`}
-                              >
-                                <BookOpen className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                                STCW Training
-                              </button>
-                              <button
-                                onClick={() => {
-                                  openDetails(sf, "seaService");
-                                  setActiveMenuSeafarerId(null);
-                                }}
-                                className={`w-full text-left px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-colors ${
-                                  isDark ? "hover:bg-white/5" : "hover:bg-slate-50"
-                                }`}
-                              >
-                                <Anchor className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-                                Sea Service Logs
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setActionModalSeafarer(sf);
+                        }}
+                        className={`p-1.5 rounded-lg border transition-all hover:scale-105 cursor-pointer ${
+                          actionModalSeafarer?.id === sf.id
+                            ? isDark
+                              ? "bg-sky-500/20 border-sky-500/40 text-sky-400"
+                              : "bg-sky-50 border-sky-300 text-sky-600"
+                            : isDark
+                            ? "border-white/10 hover:bg-white/5 text-slate-300"
+                            : "border-slate-200 hover:bg-slate-50 text-slate-600"
+                        }`}
+                        title="Actions Menu"
+                      >
+                        <MoreVertical className="w-3.5 h-3.5" />
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -516,9 +458,13 @@ export default function SeafarerManagementPage() {
             >
               {[
                 { id: "profile", label: "Overview Details" },
+                { id: "info", label: "Seafarer Info" },
                 { id: "documents", label: "Certificates & CDC" },
                 { id: "courses", label: "STCW Training Progress" },
                 { id: "seaService", label: "Vessel Sea Service" },
+                { id: "vesselHistory", label: "Vessel History" },
+                { id: "docPurchases", label: "Doc Purchase History" },
+                { id: "purchases", label: "Purchase History" },
               ].map((tab) => {
                 const active = drawerTab === tab.id;
                 return (
@@ -734,6 +680,232 @@ export default function SeafarerManagementPage() {
                           </div>
                         ))
                       )}
+                    </div>
+                  )}
+                  {/* Tab 5: Seafarer Info */}
+                  {drawerTab === "info" && (
+                    <div className="space-y-5 animate-fadeIn">
+                      <div className={`p-4 rounded-xl border ${isDark ? "bg-[#0f1f35] border-white/5" : "bg-slate-50 border-slate-200"}`}>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-sky-400 mb-3">Seafarer Identification & Info</h4>
+                        <div className="grid grid-cols-2 gap-3.5 text-xs">
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">Full Legal Name</span>
+                            <span className="font-bold">{selectedSeafarer.name}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">INDOS Number</span>
+                            <span className="font-mono font-bold text-sky-400">{selectedSeafarer.indosNumber}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">Assigned Rank</span>
+                            <span className="font-semibold">{selectedSeafarer.rank}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">Operational Department</span>
+                            <span className="font-semibold">{selectedSeafarer.department}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">Current Status</span>
+                            <span className="inline-block mt-0.5"><StatusBadge status={selectedSeafarer.status} /></span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">Nationality</span>
+                            <span className="font-semibold">{selectedSeafarer.nationality}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">Date of Birth</span>
+                            <span className="font-semibold">{selectedSeafarer.dob}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">Primary Contact</span>
+                            <span className="font-semibold">{selectedSeafarer.phone}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className={`p-4 rounded-xl border flex items-center justify-between gap-4 ${isDark ? "bg-[#0f1f35] border-white/5" : "bg-slate-50 border-slate-200"}`}>
+                        <div>
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-sky-400 mb-1">Manage Profile</h4>
+                          <p className="text-[11px] opacity-70">Update rank, department, contact information & status</p>
+                        </div>
+                        <button
+                          onClick={() => handleOpenEdit(selectedSeafarer)}
+                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold cursor-pointer transition-colors shadow-sm"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          <span>Edit Details</span>
+                        </button>
+                      </div>
+
+                      <div className={`p-4 rounded-xl border ${isDark ? "bg-[#0f1f35] border-white/5" : "bg-slate-50 border-slate-200"}`}>
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-sky-400 mb-2">Registered Address</h4>
+                        <p className="text-xs leading-relaxed opacity-80">{selectedSeafarer.address}</p>
+                        <p className="text-xs opacity-60 mt-2">Email: {selectedSeafarer.email}</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tab 6: Vessel History */}
+                  {drawerTab === "vesselHistory" && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                        <span className="text-xs font-bold">Recorded Vessel Deployments</span>
+                        <span className="text-[11px] opacity-60">{selectedSeafarer.seaService.length} voyages</span>
+                      </div>
+                      {selectedSeafarer.seaService.length === 0 ? (
+                        <div className="text-center py-8 text-xs text-gray-500">
+                          No vessel history records on file.
+                        </div>
+                      ) : (
+                        selectedSeafarer.seaService.map((service, idx) => (
+                          <div
+                            key={service.id || idx}
+                            className={`p-4 rounded-xl border space-y-2.5 transition-all ${
+                              isDark ? "bg-[#0f1f35] border-white/5" : "bg-slate-50 border-slate-200"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <Ship className="w-4 h-4 text-sky-400" />
+                                <span className="text-xs font-bold">{service.vesselName}</span>
+                              </div>
+                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                                isDark ? "bg-sky-500/15 text-sky-400" : "bg-sky-100 text-sky-700"
+                              }`}>
+                                {service.duration} Days at Sea
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 text-xs">
+                              <div>
+                                <span className="text-[10px] opacity-40 uppercase block">Vessel Type</span>
+                                <span className="font-semibold">{service.vesselType}</span>
+                              </div>
+                              <div>
+                                <span className="text-[10px] opacity-40 uppercase block">Served Rank</span>
+                                <span className="font-semibold">{service.rank}</span>
+                              </div>
+                            </div>
+                            <div className="text-[10px] opacity-60 pt-1 border-t border-white/5 flex items-center gap-1.5">
+                              <Calendar className="w-3 h-3" />
+                              <span>Sign-on: {service.signOn} • Sign-off: {service.signOff}</span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
+
+                  {/* Tab 7: Document Purchase History */}
+                  {drawerTab === "docPurchases" && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                        <span className="text-xs font-bold">Document Order Records</span>
+                        <span className="text-[10px] font-mono opacity-50 font-bold">VERIFIED CDC & STCW</span>
+                      </div>
+                      <div className="space-y-3">
+                        {[
+                          {
+                            orderId: `DOC-${selectedSeafarer.indosNumber.slice(-4)}-01`,
+                            docName: "STCW Advanced Safety & Firefighting Package",
+                            amount: "₹4,500",
+                            date: "14/08/26",
+                            status: "Completed",
+                            inv: `INV-${selectedSeafarer.indosNumber.slice(-4)}-A`,
+                          },
+                          {
+                            orderId: `DOC-${selectedSeafarer.indosNumber.slice(-4)}-02`,
+                            docName: "Continuous Discharge Certificate (CDC) Endorsement",
+                            amount: "₹2,200",
+                            date: "28/07/26",
+                            status: "Completed",
+                            inv: `INV-${selectedSeafarer.indosNumber.slice(-4)}-B`,
+                          },
+                        ].map((rec) => (
+                          <div
+                            key={rec.orderId}
+                            className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 ${
+                              isDark ? "bg-[#0f1f35] border-white/5" : "bg-slate-50 border-slate-200"
+                            }`}
+                          >
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-2">
+                                <FileText className="w-3.5 h-3.5 text-emerald-400" />
+                                <span className="text-xs font-bold">{rec.docName}</span>
+                              </div>
+                              <div className="text-[10px] opacity-50 flex items-center gap-2">
+                                <span>Order: {rec.orderId}</span>
+                                <span>•</span>
+                                <span>Purchased: {rec.date}</span>
+                                <span>•</span>
+                                <span className="font-mono">{rec.inv}</span>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-bold text-emerald-400 block">{rec.amount}</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold">
+                                {rec.status}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tab 8: Purchase History */}
+                  {drawerTab === "purchases" && (
+                    <div className="space-y-4 animate-fadeIn">
+                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                        <span className="text-xs font-bold">Course & Service Purchases</span>
+                        <span className="text-[10px] font-mono opacity-50 font-bold">ALL TRANSACTIONS</span>
+                      </div>
+                      <div className="space-y-3">
+                        {[
+                          {
+                            item: "Shipboard Medical Care Training Enrollment",
+                            type: "Course Booking",
+                            amount: "₹8,500",
+                            date: "02/08/26",
+                            status: "Paid",
+                            method: "Company Credit Card",
+                          },
+                          {
+                            item: "Bridge Resource Management (BRM) Module",
+                            type: "Simulation Training",
+                            amount: "₹12,000",
+                            date: "15/07/26",
+                            status: "Paid",
+                            method: "Bank Transfer",
+                          },
+                        ].map((p, idx) => (
+                          <div
+                            key={idx}
+                            className={`p-3.5 rounded-xl border flex items-center justify-between gap-3 ${
+                              isDark ? "bg-[#0f1f35] border-white/5" : "bg-slate-50 border-slate-200"
+                            }`}
+                          >
+                            <div className="space-y-0.5">
+                              <div className="flex items-center gap-2">
+                                <ShoppingBag className="w-3.5 h-3.5 text-indigo-400" />
+                                <span className="text-xs font-bold">{p.item}</span>
+                              </div>
+                              <div className="text-[10px] opacity-50 flex items-center gap-2">
+                                <span>Type: {p.type}</span>
+                                <span>•</span>
+                                <span>Date: {p.date}</span>
+                                <span>•</span>
+                                <span>Paid via {p.method}</span>
+                              </div>
+                            </div>
+                            <div className="text-right shrink-0">
+                              <span className="text-xs font-bold text-indigo-400 block">{p.amount}</span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-semibold">
+                                {p.status}
+                              </span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   )}
                 </>
@@ -955,6 +1127,171 @@ export default function SeafarerManagementPage() {
             </form>
           </div>
         </>
+      )}
+      {/* ========================================================================= */}
+      {/* SEAFARER 3-DOT ACTION MODAL (COMPACT CENTERED POPUP OVERLAY — 4 OPTIONS) */}
+      {/* ========================================================================= */}
+      {actionModalSeafarer && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setActionModalSeafarer(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className={`w-full max-w-md rounded-2xl border shadow-2xl p-5 relative animate-fadeIn flex flex-col ${
+              isDark ? "bg-[#0B1528] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"
+            }`}
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between pb-3.5 border-b border-white/5 shrink-0">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-md shrink-0">
+                  {actionModalSeafarer.name
+                    .split(" ")
+                    .map((n) => n[0])
+                    .join("")
+                    .slice(0, 2)}
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold leading-tight">{actionModalSeafarer.name}</h3>
+                  <div className="flex items-center gap-1.5 mt-0.5 text-[11px] opacity-60">
+                    <span>{actionModalSeafarer.rank}</span>
+                    <span>•</span>
+                    <span className="font-mono text-[10px]">{actionModalSeafarer.indosNumber}</span>
+                  </div>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setActionModalSeafarer(null)}
+                className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                  isDark ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {/* Exactly 4 Clean Compact Options */}
+            <div className="py-3 space-y-2">
+              <span className="text-[10px] uppercase font-bold tracking-wider opacity-40 px-1 block">
+                Seafarer Actions
+              </span>
+
+              {/* 1. INFO */}
+              <button
+                onClick={() => {
+                  const target = actionModalSeafarer;
+                  setActionModalSeafarer(null);
+                  openDetails(target, "info");
+                }}
+                className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition-all group cursor-pointer ${
+                  isDark
+                    ? "bg-white/[0.02] border-white/5 hover:bg-sky-500/10 hover:border-sky-500/30"
+                    : "bg-slate-50 border-slate-200 hover:bg-sky-50 hover:border-sky-200"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-sky-500/10 text-sky-400 group-hover:scale-105 transition-transform">
+                    <Info className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs font-bold block">INFO</span>
+                    <span className="text-[10px] opacity-60">Profile, contact, documents & edit details</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-40 group-hover:translate-x-0.5 group-hover:opacity-100 transition-all" />
+              </button>
+
+              {/* 2. DOCUMENT PURCHASE HISTORY */}
+              <button
+                onClick={() => {
+                  const target = actionModalSeafarer;
+                  setActionModalSeafarer(null);
+                  openDetails(target, "docPurchases");
+                }}
+                className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition-all group cursor-pointer ${
+                  isDark
+                    ? "bg-white/[0.02] border-white/5 hover:bg-emerald-500/10 hover:border-emerald-500/30"
+                    : "bg-slate-50 border-slate-200 hover:bg-emerald-50 hover:border-emerald-200"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 group-hover:scale-105 transition-transform">
+                    <FileText className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs font-bold block">DOCUMENT PURCHASE HISTORY</span>
+                    <span className="text-[10px] opacity-60">Purchased documents, invoices & CDC orders</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-40 group-hover:translate-x-0.5 group-hover:opacity-100 transition-all" />
+              </button>
+
+              {/* 3. PURCHASE HISTORY */}
+              <button
+                onClick={() => {
+                  const target = actionModalSeafarer;
+                  setActionModalSeafarer(null);
+                  openDetails(target, "purchases");
+                }}
+                className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition-all group cursor-pointer ${
+                  isDark
+                    ? "bg-white/[0.02] border-white/5 hover:bg-indigo-500/10 hover:border-indigo-500/30"
+                    : "bg-slate-50 border-slate-200 hover:bg-indigo-50 hover:border-indigo-200"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-indigo-500/10 text-indigo-400 group-hover:scale-105 transition-transform">
+                    <ShoppingBag className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs font-bold block">PURCHASE HISTORY</span>
+                    <span className="text-[10px] opacity-60">Course bookings, STCW training & payments</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-40 group-hover:translate-x-0.5 group-hover:opacity-100 transition-all" />
+              </button>
+
+              {/* 4. VESSEL HISTORY */}
+              <button
+                onClick={() => {
+                  const target = actionModalSeafarer;
+                  setActionModalSeafarer(null);
+                  openDetails(target, "vesselHistory");
+                }}
+                className={`w-full p-2.5 rounded-xl border flex items-center justify-between transition-all group cursor-pointer ${
+                  isDark
+                    ? "bg-white/[0.02] border-white/5 hover:bg-amber-500/10 hover:border-amber-500/30"
+                    : "bg-slate-50 border-slate-200 hover:bg-amber-50 hover:border-amber-200"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-amber-500/10 text-amber-400 group-hover:scale-105 transition-transform">
+                    <Ship className="w-4 h-4" />
+                  </div>
+                  <div className="text-left">
+                    <span className="text-xs font-bold block">VESSEL HISTORY</span>
+                    <span className="text-[10px] opacity-60">Sea service logs, voyages & sign-on/off</span>
+                  </div>
+                </div>
+                <ChevronRight className="w-4 h-4 opacity-40 group-hover:translate-x-0.5 group-hover:opacity-100 transition-all" />
+              </button>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="pt-2.5 border-t border-white/5 flex items-center justify-end shrink-0">
+              <button
+                onClick={() => setActionModalSeafarer(null)}
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-colors cursor-pointer ${
+                  isDark ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-200 hover:bg-slate-100"
+                }`}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

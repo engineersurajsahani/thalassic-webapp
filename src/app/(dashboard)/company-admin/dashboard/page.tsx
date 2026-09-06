@@ -140,32 +140,21 @@ export default function DashboardPage() {
           title="Total Seafarers"
           value={totalSeafarers}
           icon={Users}
-          change="+1"
-          changeType="positive"
-          description="registered seafarers"
         />
         <StatsCard
           title="Active Courses"
           value={activeCourses}
           icon={BookOpen}
-          change="84%"
-          changeType="positive"
-          description="compliance rate"
         />
         <StatsCard
           title="Pending Documents"
           value={pendingDocs}
           icon={FileCheck}
-          change={pendingDocs > 0 ? "Action required" : "All clear"}
-          changeType={pendingDocs > 0 ? "negative" : "positive"}
-          description="verifications waiting"
         />
         <StatsCard
           title="Active Applications"
           value={activeApplications}
           icon={ClipboardList}
-          changeType="neutral"
-          description="candidates vetting"
         />
       </div>
 

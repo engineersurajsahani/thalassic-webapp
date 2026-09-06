@@ -15,11 +15,22 @@ interface TopbarProps {
 }
 
 const pageNames: Record<string, string> = {
-  "/company-admin/dashboard": "Dashboard",
-  "/company-admin/seafearers": "Seafarer Management",
-  "/company-admin/courses":    "Course Management",
-  "/company-admin/documents":  "Document Verification",
-  "/company-admin/support":    "Help & Support",
+  "/company-admin/dashboard":          "Dashboard",
+  "/company-admin/seafarers":          "Seafarer Management",
+  "/company-admin/seafearers":         "Seafarer Management",
+  "/company-admin/courses":            "Course Management",
+  "/company-admin/registration":       "Walk-in Registration",
+  "/company-admin/walk-in-registration":"Walk-in Registration",
+  "/company-admin/documents":          "Document Verification",
+  "/company-admin/finance":            "Company Finance",
+  "/company-admin/finance/overview":   "Company Finance",
+  "/company-admin/finance/payments":   "Company Finance",
+  "/company-admin/finance/seafarer":   "Company Finance",
+  "/company-admin/finance/institute":  "Company Finance",
+  "/company-admin/payments":           "Company Finance",
+  "/company-admin/reports":            "Reports & Analytics",
+  "/company-admin/profile":            "Company Profile",
+  "/company-admin/support":            "Help & Support",
 };
 
 function getGreeting() {
