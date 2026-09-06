@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState } from "react";
 import { documentService } from "@/services/document.service";
@@ -57,7 +58,9 @@ export default function DocumentsPage() {
       const updated = { ...prev, [field]: value };
       try {
         localStorage.setItem(PASSPORT_STORAGE_KEY, JSON.stringify(updated));
-      } catch (_) {}
+      } catch (storageErr) {
+        console.warn('LocalStorage operation warning:', storageErr);
+      }
       return updated;
     });
   };
@@ -67,7 +70,9 @@ export default function DocumentsPage() {
       const updated = { ...prev, [field]: value };
       try {
         localStorage.setItem(CDC_STORAGE_KEY, JSON.stringify(updated));
-      } catch (_) {}
+      } catch (storageErr) {
+        console.warn('LocalStorage operation warning:', storageErr);
+      }
       return updated;
     });
   };
@@ -172,7 +177,9 @@ export default function DocumentsPage() {
           };
           try {
             localStorage.setItem(PASSPORT_STORAGE_KEY, JSON.stringify(updated));
-          } catch (_) {}
+          } catch (storageErr) {
+        console.warn('LocalStorage operation warning:', storageErr);
+      }
           return updated;
         });
       }
@@ -189,7 +196,9 @@ export default function DocumentsPage() {
           };
           try {
             localStorage.setItem(CDC_STORAGE_KEY, JSON.stringify(updated));
-          } catch (_) {}
+          } catch (storageErr) {
+        console.warn('LocalStorage operation warning:', storageErr);
+      }
           return updated;
         });
       }
@@ -247,12 +256,12 @@ export default function DocumentsPage() {
   // File Upload Helper
   const validateFile = (file: File) => {
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size exceeds 5MB limit. Please choose a smaller file.");
+      toast.error("File size exceeds 5MB limit. Please choose a smaller file.");
       return false;
     }
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
-      alert("Invalid file format. Please upload PDF, JPG, or PNG.");
+      toast.error("Invalid file format. Please upload PDF, JPG, or PNG.");
       return false;
     }
     return true;
@@ -263,16 +272,16 @@ export default function DocumentsPage() {
     e.preventDefault();
     if (!isPassportFieldsValid) {
       if (passportDateError) {
-        alert(passportDateError);
+        toast(passportDateError);
       } else if (passportForm.passportNumber.length > 8) {
-        alert("Passport Number must not exceed 8 characters.");
+        toast("Passport Number must not exceed 8 characters.");
       } else {
-        alert("Please complete all required Passport metadata fields correctly first.");
+        toast.error("Please complete all required Passport metadata fields correctly first.");
       }
       return;
     }
     if (!passportFile) {
-      alert("Please select a Passport file to upload.");
+      toast.error("Please select a Passport file to upload.");
       return;
     }
     if (!validateFile(passportFile)) return;
@@ -293,7 +302,7 @@ export default function DocumentsPage() {
         preservedForm
       );
       setUploadingPassport(false);
-      alert("Passport uploaded successfully!");
+      toast.success("Passport uploaded successfully!");
       setPassportFile(null);
       await loadDocuments();
       // Ensure entered fields are kept intact in form state
@@ -306,7 +315,7 @@ export default function DocumentsPage() {
     } catch (err: any) {
       setUploadingPassport(false);
       const errorMsg = err.response?.data?.message || err.message || "Failed to upload Passport";
-      alert(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setUploadingPassport(false);
     }
@@ -317,16 +326,16 @@ export default function DocumentsPage() {
     e.preventDefault();
     if (!isCdcFieldsValid) {
       if (cdcDateError) {
-        alert(cdcDateError);
+        toast(cdcDateError);
       } else if (cdcNumError) {
-        alert(cdcNumError);
+        toast(cdcNumError);
       } else {
-        alert("Please complete all required CDC metadata fields correctly first.");
+        toast.error("Please complete all required CDC metadata fields correctly first.");
       }
       return;
     }
     if (!cdcFile) {
-      alert("Please select a CDC file to upload.");
+      toast.error("Please select a CDC file to upload.");
       return;
     }
     if (!validateFile(cdcFile)) return;
@@ -347,7 +356,7 @@ export default function DocumentsPage() {
         preservedForm
       );
       setUploadingCdc(false);
-      alert("CDC uploaded successfully!");
+      toast.success("CDC uploaded successfully!");
       setCdcFile(null);
       await loadDocuments();
       // Ensure entered fields are kept intact in form state
@@ -360,7 +369,7 @@ export default function DocumentsPage() {
     } catch (err: any) {
       setUploadingCdc(false);
       const errorMsg = err.response?.data?.message || err.message || "Failed to upload CDC";
-      alert(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setUploadingCdc(false);
     }
@@ -401,12 +410,12 @@ export default function DocumentsPage() {
   const handleSaveCertificate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isCertFieldsValid) {
-      alert("Please complete all required certificate fields first.");
+      toast.error("Please complete all required certificate fields first.");
       return;
     }
 
     if (!editingCertId && !certFile) {
-      alert("Please select a certificate document file to upload.");
+      toast.error("Please select a certificate document file to upload.");
       return;
     }
 
@@ -417,7 +426,7 @@ export default function DocumentsPage() {
       if (editingCertId) {
         await documentService.updateDocument(editingCertId, certForm, certFile);
         setUploadingCert(false);
-        alert("Certificate updated successfully!");
+        toast.success("Certificate updated successfully!");
       } else {
         await documentService.uploadDocument(
           "certificate",
@@ -427,7 +436,7 @@ export default function DocumentsPage() {
           certForm
         );
         setUploadingCert(false);
-        alert("Certificate added successfully!");
+        toast.success("Certificate added successfully!");
       }
 
       setCertForm({
@@ -445,7 +454,7 @@ export default function DocumentsPage() {
     } catch (err: any) {
       setUploadingCert(false);
       const errorMsg = err.response?.data?.message || err.message || "Failed to save certificate";
-      alert(errorMsg);
+      toast.error(errorMsg);
     } finally {
       setUploadingCert(false);
     }
@@ -473,10 +482,10 @@ export default function DocumentsPage() {
       if (data?.signedUrl) {
         window.open(data.signedUrl, "_blank");
       } else {
-        alert("Document file is unavailable.");
+        toast.error("Document file is unavailable.");
       }
     } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || "Document file is unavailable.");
+      toast.error(err?.response?.data?.message || err?.message || "Document file is unavailable.");
     }
   };
 
@@ -486,13 +495,13 @@ export default function DocumentsPage() {
     try {
       const data = await documentService.downloadDocument(doc.id);
       if (!data || !data.signedUrl) {
-        alert("Document file is unavailable.");
+        toast.error("Document file is unavailable.");
         return;
       }
 
       const response = await fetch(data.signedUrl);
       if (!response.ok) {
-        alert("Document file is unavailable.");
+        toast.error("Document file is unavailable.");
         return;
       }
 
@@ -506,7 +515,7 @@ export default function DocumentsPage() {
       document.body.removeChild(link);
       window.URL.revokeObjectURL(blobUrl);
     } catch (err: any) {
-      alert(err?.response?.data?.message || err?.message || "Document file is unavailable.");
+      toast.error(err?.response?.data?.message || err?.message || "Document file is unavailable.");
     } finally {
       setDownloadingId(null);
     }
@@ -519,7 +528,7 @@ export default function DocumentsPage() {
       await documentService.deleteDocument(id);
       await loadDocuments();
     } catch (err: any) {
-      alert(err.message || "Failed to delete document");
+      toast.error(err.message || "Failed to delete document");
     }
   };
 

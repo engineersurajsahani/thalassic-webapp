@@ -60,7 +60,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Only call seafarer profile endpoint for seafarer roles
       const role = getCookie("user_role") || "";
       const roleNorm = role?.toLowerCase().replace('_', '-');
-      if (roleNorm === "seafarer" || roleNorm === "seafearer") {
+      if (roleNorm === "seafarer" || roleNorm === "seafarer") {
         const response = await api.get("/users/profile").catch(() => null);
         if (response && response.data && response.data.id) {
           return response.data;
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           currentRole = "company-admin";
         } else if (pathname.startsWith("/master")) {
           currentRole = "master";
-        } else if (pathname.startsWith("/seafarer") || pathname.startsWith("/seafearer")) {
+        } else if (pathname.startsWith("/seafarer") || pathname.startsWith("/seafarer")) {
           currentRole = "seafarer";
         }
       }

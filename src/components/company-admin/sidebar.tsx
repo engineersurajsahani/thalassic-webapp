@@ -36,7 +36,7 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
 
   const isActive = (href: string) => {
     if (href === "/company-admin/seafarers") {
-      return pathname.startsWith("/company-admin/seafarers") || pathname.startsWith("/company-admin/seafearers");
+      return pathname.startsWith("/company-admin/seafarers") || pathname.startsWith("/company-admin/seafarers");
     }
     if (href === "/company-admin/finance") {
       return pathname.startsWith("/company-admin/finance") || pathname.startsWith("/company-admin/payments");
@@ -73,9 +73,6 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
               height={32}
               className="w-full h-full object-contain"
             />
-
-          <div className="w-8 h-8 rounded-md bg-[#3D5EF6] flex items-center justify-center shrink-0">
-            <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
           </div>
           <div className="leading-tight">
             <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>

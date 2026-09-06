@@ -44,8 +44,8 @@ export default function LoginForm() {
     try {
       const user = await login(data);
       const role = user.role?.toLowerCase();
-      if (role === "seafarer" || role === "seafearer") {
-        router.push("/seafearer/dashboard");
+      if (role === "seafarer" || role === "seafarer") {
+        router.push("/seafarer/dashboard");
       } else if (role === "company_admin" || role === "company-admin") {
         router.push("/company-admin/dashboard");
       } else if (role === "agent_admin" || role === "agent-admin") {

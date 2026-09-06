@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useTheme } from "@/providers/theme-provider";
@@ -84,7 +85,7 @@ export default function InvoicesPage() {
   const exportCSV = async () => {
     try {
       const rows = await invoicesService.exportInvoices(activeParams);
-      if (!rows || rows.length === 0) { alert("No records to export."); return; }
+      if (!rows || rows.length === 0) { toast("No records to export."); return; }
       const headers = Object.keys(rows[0]);
       const csv = [
         headers.join(","),

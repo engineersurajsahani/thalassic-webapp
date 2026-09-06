@@ -52,13 +52,14 @@ export default function WalkInRegistrationPage() {
   const generatedUsername = existingSeafarerId 
     ? (email || "existing_user")
     : "walkin_sf_" + Math.floor(Math.random() * 1000).toString().padStart(3, '0');
-  const generatedPassword = existingSeafarerId ? "****** (Existing)" : "TempPass123!";
-  const generatedUsername = "walkin_sf_001";
   // ISSUE-007: Generate a random secure password instead of hardcoded "TempPass123!"
-  // In production, this should be generated server-side and sent via email
-  const generatedPassword = Array.from({ length: 12 }, () =>
-    Math.random() > 0.5 ? String.fromCharCode(65 + Math.floor(Math.random() * 26)) : String.fromCharCode(97 + Math.floor(Math.random() * 26))
-  ).join('') + Math.floor(Math.random() * 1000);
+  const generatedPassword = existingSeafarerId
+    ? "****** (Existing)"
+    : Array.from({ length: 12 }, () =>
+        Math.random() > 0.5
+          ? String.fromCharCode(65 + Math.floor(Math.random() * 26))
+          : String.fromCharCode(97 + Math.floor(Math.random() * 26))
+      ).join('') + Math.floor(Math.random() * 1000);
   const todayDate = new Date().toLocaleDateString("en-US", {
     year: "numeric",
     month: "short",

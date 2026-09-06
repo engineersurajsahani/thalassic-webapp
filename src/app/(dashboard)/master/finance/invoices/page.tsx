@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -157,7 +158,7 @@ function InvoicesContent() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      alert("Could not generate invoice PDF.");
+      toast.error("Could not generate invoice PDF.");
     }
   };
 

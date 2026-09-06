@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState } from "react";
 import { courseService } from "@/services/course.service";
@@ -69,12 +70,12 @@ export default function BrowseCoursesPage() {
     setBookingLoading(true);
     try {
       await courseService.enrollInCourse(courseId);
-      alert(`🎉 Course booking confirmed! View details in My Courses.`);
+      toast.success(`🎉 Course booking confirmed! View details in My Courses.`);
       setDetailCourseId(null);
       await loadData();
     } catch (err: any) {
       const msg = err.response?.data?.message || err.message || "Failed to book course. Please try again.";
-      alert(msg);
+      toast.error(msg);
     } finally {
       setBookingLoading(false);
     }

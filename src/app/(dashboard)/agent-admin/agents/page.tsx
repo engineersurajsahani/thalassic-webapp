@@ -988,7 +988,9 @@ export default function AgentManagement() {
                                       {meta.issuePlace && <p><span className="opacity-60">Place:</span> {meta.issuePlace}</p>}
                                     </div>
                                   );
-                                } catch (e) {}
+                                } catch (e) {
+                                  console.warn("Failed to parse document metadata JSON:", e);
+                                }
                               } else if (doc.expiryDate) {
                                 return (
                                   <div className={`mt-2 space-y-0.5 text-[9px] border-l pl-2 font-semibold ${isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}>

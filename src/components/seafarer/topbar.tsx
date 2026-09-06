@@ -9,17 +9,17 @@ import { Bell, Sun, Moon, Check, MessageSquare, BookOpen, AlertCircle, ChevronDo
 import Link from "next/link";
 
 const pageNames: { [key: string]: string } = {
-  "/seafearer/dashboard": "Dashboard",
-  "/seafearer/my-courses": "My Enrolled Courses",
-  "/seafearer/browse-courses": "Browse DGS Courses",
-  "/seafearer/documents": "Document Repository",
-  "/seafearer/profile": "Seafarer Profile Settings",
-  "/seafearer/purchase-history": "Purchase History",
-  "/seafearer/referral-dashboard": "Referral Dashboard",
-  "/seafearer/support": "Support Center",
+  "/seafarer/dashboard": "Dashboard",
+  "/seafarer/my-courses": "My Enrolled Courses",
+  "/seafarer/browse-courses": "Browse DGS Courses",
+  "/seafarer/documents": "Document Repository",
+  "/seafarer/profile": "Seafarer Profile Settings",
+  "/seafarer/purchase-history": "Purchase History",
+  "/seafarer/referral-dashboard": "Referral Dashboard",
+  "/seafarer/support": "Support Center",
 };
 
-export default function SeafearerTopbar() {
+export default function SeafarerTopbar() {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const isDark = theme === "dark";
@@ -245,7 +245,7 @@ export default function SeafearerTopbar() {
 
         {/* Profile Avatar Triggering Profile Page */}
         <Link
-          href="/seafearer/profile"
+          href="/seafarer/profile"
           className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-md transition-colors duration-200 overflow-hidden bg-[#3D5EF6] hover:bg-[#2E4FE0]"
         >
           {(user?.profile?.profilePicture || user?.profilePicture) ? (

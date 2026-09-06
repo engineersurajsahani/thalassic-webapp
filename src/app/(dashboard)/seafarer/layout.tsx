@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import SeafearerSidebar from "@/components/seafearer/sidebar";
-import SeafearerTopbar from "@/components/seafearer/topbar";
+import SeafarerSidebar from "@/components/seafarer/sidebar";
+import SeafarerTopbar from "@/components/seafarer/topbar";
 import { useAuth } from "@/providers/auth-provider";
 import { useTheme } from "@/providers/theme-provider";
 import { useRouter } from "next/navigation";
@@ -15,7 +15,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const role = user?.role?.toLowerCase();
-    if (!isLoading && (!user || (role !== "seafarer" && role !== "seafearer"))) {
+    if (!isLoading && (!user || (role !== "seafarer" && role !== "seafarer"))) {
       router.push("/login");
     }
   }, [user, isLoading, router]);
@@ -40,7 +40,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
   // Fallback check (although middleware handles route guarding)
   const role = user?.role?.toLowerCase();
-  if (!user || (role !== "seafarer" && role !== "seafearer")) {
+  if (!user || (role !== "seafarer" && role !== "seafarer")) {
     return null;
   }
 
@@ -49,12 +49,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       isDark ? "bg-[#031525]" : "bg-slate-50"
     }`}>
       {/* Desktop Sidebar */}
-      <SeafearerSidebar />
+      <SeafarerSidebar />
 
       {/* Main Content Pane */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
         {/* Portal top bar */}
-        <SeafearerTopbar />
+        <SeafarerTopbar />
 
         {/* Scrollable Viewport */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8">

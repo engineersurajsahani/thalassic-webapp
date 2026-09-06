@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useTheme } from "@/providers/theme-provider";
@@ -245,7 +246,7 @@ export default function Commissions() {
       await api.patch(`/agent-admin/settlements/${id}/pay`);
       await fetchData();
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Failed to process payment.");
+      toast.error(err?.response?.data?.message || "Failed to process payment.");
     }
   };
 

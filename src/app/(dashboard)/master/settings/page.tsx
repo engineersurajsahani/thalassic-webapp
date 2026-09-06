@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
@@ -73,7 +74,7 @@ export default function SettingsPage() {
       setSuccess(true);
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      alert("Failed to save system configuration");
+      toast.error("Failed to save system configuration");
     } finally {
       setSaving(false);
     }
@@ -82,7 +83,7 @@ export default function SettingsPage() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (adminForm.password !== adminForm.confirmPassword) {
-      alert("Passwords do not match");
+      toast.error("Passwords do not match");
       return;
     }
     setSaving(true);
@@ -96,7 +97,7 @@ export default function SettingsPage() {
       setAdminForm(prev => ({ ...prev, password: "", confirmPassword: "" }));
       setTimeout(() => setSuccess(false), 3000);
     } catch (err) {
-      alert("Failed to save profile updates");
+      toast.error("Failed to save profile updates");
     } finally {
       setSaving(false);
     }

@@ -302,7 +302,7 @@ export default function MyCoursesPage() {
         </div>
 
         <Link
-          href="/seafearer/browse-courses"
+          href="/seafarer/browse-courses"
           className={`px-4 py-2.5 rounded-xl font-bold text-xs inline-flex items-center gap-1.5 transition-transform hover:scale-[1.01] ${
             isDark ? "bg-cyan-600/10 text-cyan-400 hover:bg-cyan-600/20" : "bg-blue-50 text-[#3b71cb] hover:bg-blue-100"
           }`}
@@ -332,7 +332,7 @@ export default function MyCoursesPage() {
               : `You do not have any ${activeTab === "active" ? "ongoing" : "completed"} physical trainings registered.`}
           </p>
           <Link
-            href="/seafearer/browse-courses"
+            href="/seafarer/browse-courses"
             className={`mt-4 px-6 py-2.5 rounded-xl font-bold text-xs inline-block transition-transform hover:scale-[1.01] ${
               isDark ? "bg-cyan-600 text-white hover:bg-cyan-500" : "bg-[#3b71cb] text-white hover:bg-[#2c5fb3]"
             }`}

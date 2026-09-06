@@ -17,7 +17,6 @@ interface TopbarProps {
 const pageNames: Record<string, string> = {
   "/company-admin/dashboard":          "Dashboard",
   "/company-admin/seafarers":          "Seafarer Management",
-  "/company-admin/seafearers":         "Seafarer Management",
   "/company-admin/courses":            "Course Management",
   "/company-admin/registration":       "Walk-in Registration",
   "/company-admin/walk-in-registration":"Walk-in Registration",
@@ -262,7 +261,7 @@ export default function CompanyAdminTopbar({ onMenuClick }: TopbarProps) {
                     Control Panel
                   </a>
                   <a
-                    href="/company-admin/seafearers"
+                    href="/company-admin/seafarers"
                     onClick={() => setShowProfileDropdown(false)}
                     className={`block w-full px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
                       isDark ? "hover:bg-white/5 text-slate-300" : "hover:bg-slate-50 text-slate-700"

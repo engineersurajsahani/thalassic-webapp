@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useState, useMemo } from "react";
 import { useTheme } from "@/providers/theme-provider";
@@ -266,7 +267,7 @@ export default function DocumentVerificationPage() {
   const handleRejectSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!rejectionReason.trim()) {
-      alert("Please enter a rejection justification.");
+      toast.error("Please enter a rejection justification.");
       return;
     }
 
@@ -296,7 +297,7 @@ export default function DocumentVerificationPage() {
 
   // Download Handler
   const handleDownload = (docName: string) => {
-    alert(`Mock Download: Starting download for file "${docName}" (UI Only)`);
+    toast(`Mock Download: Starting download for file "${docName}" (UI Only)`);
   };
 
   return (

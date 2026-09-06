@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState, useCallback } from "react";
 import { agentService } from "@/services/agent.service";
@@ -151,7 +152,7 @@ export default function AgentDocumentsPage() {
 
   const handleInstantUpload = async (type: string, file: File) => {
     if (file.size > 10 * 1024 * 1024) {
-      alert("File size exceeds 10MB limit.");
+      toast.error("File size exceeds 10MB limit.");
       return;
     }
     setUploads((prev) => ({
@@ -173,7 +174,7 @@ export default function AgentDocumentsPage() {
       await loadDocuments();
     } catch (err: any) {
       const errMsg = err?.response?.data?.message || err.message || "Upload failed.";
-      alert(errMsg);
+      toast.error(errMsg);
       setUploads((prev) => ({
         ...prev,
         [type]: { ...prev[type], loading: false, error: errMsg, success: "" },
@@ -189,22 +190,22 @@ export default function AgentDocumentsPage() {
     // Validate required fields based on PRD requirements
     if (type === "passport") {
       if (!docNumbers[type] || !issueDates[type] || !expiryDates[type] || !issuePlaces[type]) {
-        alert("Please fill all Passport details (Number, Issue Date, Expiry Date, Place) before uploading.");
+        toast.error("Please fill all Passport details (Number, Issue Date, Expiry Date, Place) before uploading.");
         return;
       }
     } else if (type === "cdc") {
       if (!docNumbers[type] || !issueDates[type] || !expiryDates[type] || !issuePlaces[type]) {
-        alert("Please fill all CDC Booklet details (Number, Issue Date, Expiry Date, Place) before uploading.");
+        toast.error("Please fill all CDC Booklet details (Number, Issue Date, Expiry Date, Place) before uploading.");
         return;
       }
     } else if (type === "aadhaar") {
       if (!docNumbers[type]) {
-        alert("Please enter Aadhaar Number before uploading.");
+        toast.error("Please enter Aadhaar Number before uploading.");
         return;
       }
     } else if (type === "pan") {
       if (!docNumbers[type]) {
-        alert("Please enter PAN Card Number before uploading.");
+        toast.error("Please enter PAN Card Number before uploading.");
         return;
       }
     }
@@ -237,7 +238,7 @@ export default function AgentDocumentsPage() {
       await loadDocuments();
     } catch (err: any) {
       const errMsg = err?.response?.data?.message || err.message || "Upload failed.";
-      alert(errMsg);
+      toast.error(errMsg);
       setUploads((prev) => ({
         ...prev,
         [type]: {
@@ -247,7 +248,7 @@ export default function AgentDocumentsPage() {
           success: "",
         },
       }));
-      alert(err?.response?.data?.message || err.message || "Upload failed.");
+      toast.error(err?.response?.data?.message || err.message || "Upload failed.");
     }
   };
 
@@ -265,7 +266,7 @@ export default function AgentDocumentsPage() {
         document.body.removeChild(link);
       }
     } catch (err: any) {
-      alert(err?.response?.data?.message || "Download failed.");
+      toast.error(err?.response?.data?.message || "Download failed.");
     } finally {
       setDownloadingId(null);
     }

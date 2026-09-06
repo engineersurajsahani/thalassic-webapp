@@ -557,7 +557,7 @@ export default function AgentAdminDashboard() {
               <button
                 type="button"
                 onClick={() => {
-                  alert(`Viewing invoice for transaction ${selectedPartnerAct.transactionId}`);
+                  toast(`Viewing invoice for transaction ${selectedPartnerAct.transactionId}`);
                   setSelectedPartnerAct(null);
                 }}
                 className="px-6 py-2.5 text-xs font-bold text-white rounded-full bg-[#3D5EF6] hover:bg-[#2E4FE0] transition-all shadow-md active:scale-95 cursor-pointer"

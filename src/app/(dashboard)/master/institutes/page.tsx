@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
@@ -233,7 +234,7 @@ export default function InstitutesManagementPage() {
         </div>
         <div className="flex items-center gap-3">
           <button
-            onClick={() => alert("Exporting Institute directory...")}
+            onClick={() => toast("Exporting Institute directory...")}
             className={`flex items-center gap-2 px-3.5 py-2 text-sm font-medium rounded-xl border transition-colors ${
               dk ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"
             }`}

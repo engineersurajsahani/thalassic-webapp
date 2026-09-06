@@ -19,29 +19,10 @@ const getApiUrl = () => {
   return url.trim();
 };
 
-// ISSUE-016: Extract shared token resolution logic to avoid duplicate code
-// This function resolves the correct token based on the current route
+// ISSUE-016, ISSUE-017: Single canonical token resolution
 function resolveAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
-
-  const pathname = window.location.pathname;
-  const tokens: Record<string, string | null> = {
-    '/agent-admin': getCookie('auth_token'),
-    '/agent': getCookie('auth_token'),
-    '/company-admin': getCookie('auth_token'),
-    '/master': getCookie('auth_token'),
-    '/seafarer': getCookie('auth_token'),
-    '/seafearer': getCookie('auth_token'),
-  };
-
-  // Find the matching route prefix and return the token
-  for (const [prefix, token] of Object.entries(tokens)) {
-    if (pathname.startsWith(prefix)) {
-      return token;
-    }
-  }
-
-  return getCookie('auth_token');
+  return getCookie('auth_token') || getCookie('token');
 }
 
 // Determine base API URL

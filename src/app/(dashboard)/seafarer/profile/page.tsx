@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -83,13 +84,13 @@ function ProfileContent() {
     // Validate image format
     const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type.toLowerCase())) {
-      alert("Invalid image format. Please upload a JPG, JPEG, PNG, or WEBP image.");
+      toast.error("Invalid image format. Please upload a JPG, JPEG, PNG, or WEBP image.");
       return;
     }
 
     // Validate size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert("File size exceeds 5MB. Please choose a smaller image.");
+      toast.error("File size exceeds 5MB. Please choose a smaller image.");
       return;
     }
 
@@ -103,7 +104,7 @@ function ProfileContent() {
       }
     };
     reader.onerror = () => {
-      alert("Failed to read the selected image file. Please try again.");
+      toast.error("Failed to read the selected image file. Please try again.");
     };
     reader.readAsDataURL(file);
 
@@ -166,7 +167,7 @@ function ProfileContent() {
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validatePersonalForm()) {
-      alert("Please correct the validation errors in the form before saving.");
+      toast.error("Please correct the validation errors in the form before saving.");
       return;
     }
     setProfileLoading(true);
@@ -179,7 +180,7 @@ function ProfileContent() {
         try {
           finalPhotoUrl = await uploadProfilePhoto(selectedFile);
         } catch (uploadErr: any) {
-          alert("Profile photo upload failed. Please try again.");
+          toast.error("Profile photo upload failed. Please try again.");
           setProfileLoading(false);
           return;
         }
@@ -197,9 +198,9 @@ function ProfileContent() {
       setIsPhotoRemoved(false);
       setPersonalForm((prev) => ({ ...prev, profilePicture: finalPhotoUrl }));
 
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
     } catch (err: any) {
-      alert(err.message || "Failed to update profile info");
+      toast.error(err.message || "Failed to update profile info");
     } finally {
       setProfileLoading(false);
     }
@@ -208,7 +209,7 @@ function ProfileContent() {
   const handleUpdateSecurity = async (e: React.FormEvent) => {
     e.preventDefault();
     if (securityForm.newPassword !== securityForm.confirmPassword) {
-      alert("New passwords do not match.");
+      toast.error("New passwords do not match.");
       return;
     }
     setSecurityLoading(true);
@@ -217,10 +218,10 @@ function ProfileContent() {
         currentPassword: securityForm.currentPassword,
         newPassword: securityForm.newPassword,
       });
-      alert("Password updated successfully!");
+      toast.success("Password updated successfully!");
       setSecurityForm({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (err: any) {
-      alert(err.message || "Failed to update password");
+      toast.error(err.message || "Failed to update password");
     } finally {
       setSecurityLoading(false);
     }
@@ -231,11 +232,11 @@ function ProfileContent() {
     setSeaServiceLoading(true);
     try {
       await addSeaService(seaServiceForm);
-      alert("Sea service record added successfully!");
+      toast.success("Sea service record added successfully!");
       setSeaServiceForm({ vesselName: "", imoNumber: "", rank: "", signOn: "", signOff: "", company: "" });
       setShowAddSeaService(false);
     } catch (err: any) {
-      alert(err.message || "Failed to add sea service record");
+      toast.error(err.message || "Failed to add sea service record");
     } finally {
       setSeaServiceLoading(false);
     }
@@ -246,7 +247,7 @@ function ProfileContent() {
     try {
       await deleteSeaService(id);
     } catch (err: any) {
-      alert(err.message || "Failed to delete record");
+      toast.error(err.message || "Failed to delete record");
     }
   };
 
@@ -743,7 +744,7 @@ function ProfileContent() {
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              alert("Emergency contact updated successfully (Simulation).");
+              toast.success("Emergency contact updated successfully (Simulation).");
             }}
             className="space-y-6"
           >

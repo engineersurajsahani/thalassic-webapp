@@ -12,7 +12,6 @@ const PROTECTED_ROUTES = [
   '/agent',
   '/company-admin',
   '/seafarer',
-  '/seafearer',
 ];
 
 const PUBLIC_ROUTES = [
@@ -35,9 +34,9 @@ export function middleware(request: NextRequest) {
     pathname === route || pathname.startsWith(route)
   );
 
-  // Get the auth token from cookies
-  const authToken = request.cookies.get('auth_token')?.value;
-  const userRole = request.cookies.get('user_role')?.value;
+  // Get the auth token and role from cookies
+  const authToken = request.cookies.get('auth_token')?.value || request.cookies.get('token')?.value;
+  const userRole = request.cookies.get('user_role')?.value?.toUpperCase();
 
   // If accessing a protected route without auth, redirect to login
   if (isProtectedRoute && !authToken) {
@@ -46,9 +45,36 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // If accessing login/register while already authenticated, redirect to dashboard
-  if (isPublicRoute && authToken) {
-    // Determine the appropriate dashboard based on role
+  // RBAC route enforcement for authenticated users on protected routes
+  if (isProtectedRoute && authToken && userRole) {
+    const roleDashboards: Record<string, string> = {
+      'MASTER': '/master/dashboard',
+      'SEAFARER': '/seafarer/dashboard',
+      'AGENT_ADMIN': '/agent-admin/dashboard',
+      'AGENT': '/agent/dashboard',
+      'COMPANY_ADMIN': '/company-admin/dashboard',
+    };
+
+    // Prevent cross-role unauthorized access
+    if (pathname.startsWith('/master') && userRole !== 'MASTER') {
+      return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
+    }
+    if (pathname.startsWith('/agent-admin') && userRole !== 'AGENT_ADMIN' && userRole !== 'MASTER') {
+      return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
+    }
+    if (pathname.startsWith('/company-admin') && userRole !== 'COMPANY_ADMIN' && userRole !== 'MASTER') {
+      return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
+    }
+    if (pathname.startsWith('/agent') && !pathname.startsWith('/agent-admin') && userRole !== 'AGENT' && userRole !== 'MASTER') {
+      return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
+    }
+    if (pathname.startsWith('/seafarer') && userRole !== 'SEAFARER' && userRole !== 'MASTER') {
+      return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
+    }
+  }
+
+  // If accessing login/register while already authenticated, redirect to role dashboard
+  if ((pathname === '/login' || pathname === '/register') && authToken) {
     if (userRole) {
       const roleDashboards: Record<string, string> = {
         'MASTER': '/master/dashboard',
@@ -58,13 +84,12 @@ export function middleware(request: NextRequest) {
         'COMPANY_ADMIN': '/company-admin/dashboard',
       };
 
-      const targetDashboard = roleDashboards[userRole.toUpperCase()];
+      const targetDashboard = roleDashboards[userRole];
       if (targetDashboard) {
         return NextResponse.redirect(new URL(targetDashboard, request.url));
       }
     }
 
-    // Default redirect for authenticated users without a known role
     return NextResponse.redirect(new URL('/master/dashboard', request.url));
   }
 
@@ -72,7 +97,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Only run middleware on these paths
   matcher: [
     '/dashboard/:path*',
     '/master/:path*',
@@ -80,7 +104,6 @@ export const config = {
     '/agent/:path*',
     '/company-admin/:path*',
     '/seafarer/:path*',
-    '/seafearer/:path*',
     '/login',
     '/register',
     '/reset-password',

@@ -120,7 +120,14 @@ export default function AgentTopbar() {
 
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0 shadow-sm shadow-cyan-500/20">
-            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "HP"}
+            {user?.name
+              ? user.name
+                  .trim()
+                  .split(/\s+/)
+                  .map((n: string) => n[0])
+                  .join('')
+                  .toUpperCase()
+              : "AP"}
           </div>
           <div className="hidden sm:flex flex-col items-start leading-tight">
             <span className={`text-xs font-semibold ${isDark ? "text-white/85" : "text-slate-800"}`}>

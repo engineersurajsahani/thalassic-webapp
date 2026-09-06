@@ -20,17 +20,17 @@ import {
 } from "lucide-react";
 
 const menuItems = [
-  { label: "Dashboard", href: "/seafearer/dashboard", icon: LayoutDashboard },
-  { label: "My Courses", href: "/seafearer/my-courses", icon: BookOpen },
-  { label: "Browse Courses", href: "/seafearer/browse-courses", icon: Compass },
-  { label: "Documents", href: "/seafearer/documents", icon: FileText },
-  { label: "Purchase History", href: "/seafearer/purchase-history", icon: ShoppingBag },
-  { label: "Referral Dashboard", href: "/seafearer/referral-dashboard", icon: GitFork },
-  { label: "Profile", href: "/seafearer/profile", icon: User },
-  { label: "Support", href: "/seafearer/support", icon: LifeBuoy },
+  { label: "Dashboard", href: "/seafarer/dashboard", icon: LayoutDashboard },
+  { label: "My Courses", href: "/seafarer/my-courses", icon: BookOpen },
+  { label: "Browse Courses", href: "/seafarer/browse-courses", icon: Compass },
+  { label: "Documents", href: "/seafarer/documents", icon: FileText },
+  { label: "Purchase History", href: "/seafarer/purchase-history", icon: ShoppingBag },
+  { label: "Referral Dashboard", href: "/seafarer/referral-dashboard", icon: GitFork },
+  { label: "Profile", href: "/seafarer/profile", icon: User },
+  { label: "Support", href: "/seafarer/support", icon: LifeBuoy },
 ];
 
-export default function SeafearerSidebar() {
+export default function SeafarerSidebar() {
   const { theme } = useTheme();
   const { logout, user } = useAuth();
   const isDark = theme === "dark";
@@ -53,7 +53,7 @@ export default function SeafearerSidebar() {
         
         {/* Brand / Logo */}
         <div className="h-16 flex items-center px-5 border-b border-transparent">
-          <Link href="/seafearer/dashboard" className="flex items-center gap-2.5 min-w-0 group">
+          <Link href="/seafarer/dashboard" className="flex items-center gap-2.5 min-w-0 group">
             <Image
               src="/logo.jpeg"
               alt="Hari Om Thalassic"

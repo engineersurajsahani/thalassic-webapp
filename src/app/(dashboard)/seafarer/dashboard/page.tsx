@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -145,7 +146,7 @@ export default function DashboardPage() {
             
             <div className="flex flex-wrap gap-4 pt-2">
               <Link
-                href="/seafearer/browse-courses"
+                href="/seafarer/browse-courses"
                 className={`px-5 py-3 rounded-xl font-bold text-xs shadow-lg inline-flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 ${
                   isDark 
                     ? "bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:shadow-cyan-500/20 hover:brightness-110" 
@@ -155,7 +156,7 @@ export default function DashboardPage() {
                 Browse Curriculum <Compass className="w-4.5 h-4.5" />
               </Link>
               <Link
-                href="/seafearer/documents"
+                href="/seafarer/documents"
                 className={`px-5 py-3 rounded-xl font-bold text-xs border inline-flex items-center gap-2 transition-all duration-300 hover:-translate-y-0.5 ${
                   isDark 
                     ? "border-slate-800 bg-slate-900/40 hover:bg-slate-900/80 text-white hover:border-slate-700" 
@@ -299,7 +300,7 @@ export default function DashboardPage() {
                 return (
                   <Link
                     key={cert.label}
-                    href="/seafearer/documents"
+                    href="/seafarer/documents"
                     className={`group flex items-center justify-between px-4 py-3 rounded-2xl border transition-all duration-200 ${
                       isDark
                         ? "bg-[#0b1b36]/40 border-slate-800/80 hover:bg-[#0f2244]/70 hover:border-slate-700/80 shadow-xs"
@@ -352,7 +353,7 @@ export default function DashboardPage() {
           
           <div className={`pt-5 border-t ${isDark ? "border-slate-800/40" : "border-slate-200"} mt-6`}>
             <Link
-              href="/seafearer/documents"
+              href="/seafarer/documents"
               className={`font-black text-xs tracking-wider inline-flex items-center gap-1.5 hover:translate-x-1 transition-transform group ${
                 isDark ? "text-cyan-400" : "text-[#3b71cb]"
               }`}
@@ -402,7 +403,7 @@ export default function DashboardPage() {
           <div className="pt-5 border-t border-slate-800/40 mt-6">
             <button
               onClick={() => {
-                alert("Click the notification bell icon in the top navigation bar to access the full read operations list!");
+                toast("Click the notification bell icon in the top navigation bar to access the full read operations list!");
               }}
               className={`font-black text-xs tracking-wider inline-flex items-center gap-1.5 hover:translate-x-1 transition-transform group text-left cursor-pointer ${
                 isDark ? "text-cyan-400" : "text-[#3b71cb]"
@@ -424,10 +425,10 @@ export default function DashboardPage() {
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[
-            { label: "Book Courses", href: "/seafearer/browse-courses", icon: Compass, desc: "Curriculum booking registry" },
-            { label: "Upload Documents", href: "/seafearer/documents", icon: FileText, desc: "Upload and verify credentials" },
-            { label: "Seafarer profile", href: "/seafearer/profile", icon: User, desc: "Modify INDoS info" },
-            { label: "Vessel Sign-On Logs", href: "/seafearer/profile?tab=sea-service", icon: FileSignature, desc: "Log active ship signs" },
+            { label: "Book Courses", href: "/seafarer/browse-courses", icon: Compass, desc: "Curriculum booking registry" },
+            { label: "Upload Documents", href: "/seafarer/documents", icon: FileText, desc: "Upload and verify credentials" },
+            { label: "Seafarer profile", href: "/seafarer/profile", icon: User, desc: "Modify INDoS info" },
+            { label: "Vessel Sign-On Logs", href: "/seafarer/profile?tab=sea-service", icon: FileSignature, desc: "Log active ship signs" },
           ].map((act, idx) => {
             const IconComp = act.icon;
             return (

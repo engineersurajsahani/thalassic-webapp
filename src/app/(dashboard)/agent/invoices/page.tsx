@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState, useCallback } from "react";
 import { useTheme } from "@/providers/theme-provider";
@@ -65,7 +66,7 @@ export default function AgentInvoicesPage() {
         startDate: startDate || undefined,
         endDate: endDate || undefined,
       });
-      if (!rows || rows.length === 0) { alert("No records to export."); return; }
+      if (!rows || rows.length === 0) { toast("No records to export."); return; }
       const headers = Object.keys(rows[0]);
       const csv = [headers.join(","), ...rows.map((r: any) => headers.map((h: string) => `"${String(r[h] ?? "").replace(/"/g, '""')}"`).join(","))].join("\n");
       const blob = new Blob([csv], { type: "text/csv" });

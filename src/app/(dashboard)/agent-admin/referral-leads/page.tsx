@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
@@ -66,10 +67,10 @@ export default function ReferralsTracker() {
     setResolvingId(purchaseId);
     try {
       await agentAdminService.resolveConflict(purchaseId, approvedAgentId, remarks);
-      alert("Referral dispute resolved successfully!");
+      toast.success("Referral dispute resolved successfully!");
       await loadData();
     } catch (err: any) {
-      alert(err.response?.data?.message || err.message || "Failed to resolve conflict.");
+      toast.error(err.response?.data?.message || err.message || "Failed to resolve conflict.");
     } finally {
       setResolvingId(null);
     }
