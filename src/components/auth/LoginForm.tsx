@@ -43,18 +43,30 @@ export default function LoginForm() {
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
       const user = await login(data);
-      const role = user.role?.toLowerCase();
-      if (role === "seafarer" || role === "seafarer") {
-        router.push("/seafarer/dashboard");
-      } else if (role === "company_admin" || role === "company-admin") {
-        router.push("/company-admin/dashboard");
-      } else if (role === "agent_admin" || role === "agent-admin") {
-        router.push("/agent-admin/dashboard");
+      const role = (user.role || "").toLowerCase().replace('_', '-');
+      const redirectUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
+
+      let targetPath = "/master/dashboard";
+      if (role === "seafarer") {
+        targetPath = "/seafarer/dashboard";
+      } else if (role === "company-admin") {
+        targetPath = "/company-admin/dashboard";
+      } else if (role === "agent-admin") {
+        targetPath = "/agent-admin/dashboard";
       } else if (role === "agent") {
-        router.push("/agent/dashboard");
+        targetPath = "/agent/dashboard";
       } else {
-        router.push("/master/dashboard");
+        targetPath = "/master/dashboard";
       }
+
+      if (redirectUrl && redirectUrl.startsWith("/") && !redirectUrl.startsWith("//")) {
+        const roleFolder = role === "master" ? "/master" : `/${role}`;
+        if (redirectUrl.startsWith(roleFolder)) {
+          targetPath = redirectUrl;
+        }
+      }
+
+      router.push(targetPath);
       toast.success("Login successful! Redirecting...");
     } catch (err: any) {
       const message = err.message || "Invalid email or password";
