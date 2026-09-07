@@ -14,7 +14,6 @@ import {
 const menuItems = [
   { label: "Dashboard",           href: "/master/dashboard",        icon: LayoutDashboard },
   { label: "Course Management",   href: "/master/courses",          icon: BookOpen        },
-  { label: "Pricing Approvals",   href: "/master/pricing-approvals",icon: CheckSquare     },
   { label: "Seafarer Management", href: "/master/seafarers",        icon: Users           },
   { label: "Admin Management",    href: "/master/company-admins",   icon: Building2       },
   { label: "Partner Management",  href: "/master/agent-admins",     icon: Handshake       },

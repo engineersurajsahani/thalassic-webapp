@@ -228,10 +228,12 @@ const INITIAL_SEAFARERS: Seafarer[] = [
 ];
 
 const STATUS_CONFIG = {
-  active:   { label: "Active",   icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400" },
-  on_hold:  { label: "On Hold",  icon: AlertCircle,  cls: "bg-amber-500/15 text-amber-400"    },
-  pending:  { label: "Pending",  icon: Clock,        cls: "bg-sky-500/15 text-sky-400"        },
-  inactive: { label: "Inactive", icon: XCircle,      cls: "bg-red-500/15 text-red-400"        },
+  active:    { label: "Active",    icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400" },
+  ongoing:   { label: "Ongoing",   icon: Clock,        cls: "bg-indigo-500/15 text-indigo-400"  },
+  on_hold:   { label: "On Hold",   icon: AlertCircle,  cls: "bg-amber-500/15 text-amber-400"    },
+  completed: { label: "Completed", icon: CheckCircle2, cls: "bg-teal-500/15 text-teal-400"      },
+  pending:   { label: "Pending",   icon: Clock,        cls: "bg-sky-500/15 text-sky-400"        },
+  inactive:  { label: "Inactive",  icon: XCircle,      cls: "bg-red-500/15 text-red-400"        },
 };
 
 const SOURCE_BADGES: Record<string, { cls: string; icon: React.ElementType }> = {
@@ -420,7 +422,7 @@ export default function SeafarerManagementPage() {
             {/* Status Filter */}
             <div className="flex items-center gap-1.5">
               <span className={`text-[11px] font-semibold uppercase tracking-wider ${mt}`}>Status:</span>
-              {["all", "active", "on_hold", "pending", "inactive"].map(st => (
+              {["all", "active", "ongoing", "on_hold", "completed", "inactive"].map(st => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
