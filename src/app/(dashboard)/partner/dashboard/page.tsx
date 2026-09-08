@@ -139,13 +139,6 @@ export default function PartnerDashboard() {
             >
               ⚓ Authorized Partner Portal
             </span>
-            <span
-              className={`text-[11px] font-bold uppercase tracking-widest px-3 py-1 rounded-full ${
-                isDark ? "bg-white/5 text-slate-300" : "bg-slate-100 text-slate-600"
-              }`}
-            >
-              Physical Training Operations
-            </span>
           </div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-2.5">
             Partner Operations Dashboard
@@ -157,17 +150,6 @@ export default function PartnerDashboard() {
 
         {/* Action Buttons */}
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <Link
-            href="/partner/seafarers/search"
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              isDark
-                ? "bg-white/10 hover:bg-white/15 text-white border border-white/10"
-                : "bg-slate-100 hover:bg-slate-200 text-slate-800"
-            }`}
-          >
-            <Search className="w-4 h-4 text-cyan-400" />
-            Search Seafarer
-          </Link>
           <Link
             href="/partner/purchases/create"
             className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 transition-all"
@@ -211,7 +193,7 @@ export default function PartnerDashboard() {
       {/* Quick Launchpad */}
       <section className={`p-5 rounded-2xl border ${cardBg}`}>
         <h2 className="text-sm font-bold uppercase tracking-wider text-cyan-400 mb-4 flex items-center gap-2">
-          <span>⚡</span> Quick Partner Workflows
+          Quick Partner Workflows
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link

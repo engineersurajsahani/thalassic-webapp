@@ -198,6 +198,11 @@ export const agentService = {
     paymentMethod?: string;
     paymentDate?: string;
     remarks?: string;
+    paymentMode?: string;
+    paidAmount?: number;
+    remainingAmount?: number;
+    expectedDueDate?: string;
+    totalAmount?: number;
   }): Promise<Settlement> {
     const response = await api.post("/partner/settlements", settlementData);
     return response.data;
