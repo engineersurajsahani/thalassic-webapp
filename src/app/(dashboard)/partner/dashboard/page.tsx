@@ -315,47 +315,55 @@ export default function PartnerDashboard() {
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs">
+              <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className={`border-b ${isDark ? "border-white/10 text-slate-400" : "border-slate-200 text-slate-700 font-bold"}`}>
-                    <th className="pb-3 font-semibold">Purchase ID</th>
-                    <th className="pb-3 font-semibold">Seafarer</th>
-                    <th className="pb-3 font-semibold">Course</th>
-                    <th className="pb-3 font-semibold text-right">Hari Om Payable</th>
-                    <th className="pb-3 font-semibold text-center">Settlement</th>
-                    <th className="pb-3 font-semibold text-right">Action</th>
+                  <tr className={`border-b ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-500"} uppercase text-[10px] font-bold tracking-wider`}>
+                    <th className="py-3 px-3 font-bold">Purchase ID</th>
+                    <th className="py-3 px-3 font-bold">Seafarer</th>
+                    <th className="py-3 px-3 font-bold">Course</th>
+                    <th className="py-3 px-3 font-bold text-right">Hari Om Payable</th>
+                    <th className="py-3 px-3 font-bold text-center">Settlement Status</th>
+                    <th className="py-3 px-3 font-bold text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-200"}>
-                  {recentPurchases.map((p) => (
-                    <tr key={p.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}>
-                      <td className={`py-3 font-mono font-bold ${isDark ? "text-cyan-400" : "text-blue-700"}`}>{p.id}</td>
-                      <td className={`py-3 font-bold ${headingText}`}>{p.seafarerName}</td>
-                      <td className={`py-3 truncate max-w-[180px] ${isDark ? "text-slate-300" : "text-slate-800 font-medium"}`}>{p.courseName}</td>
-                      <td className={`py-3 font-extrabold text-right ${headingText}`}>₹{Number(p.payableAmount).toLocaleString("en-IN")}</td>
-                      <td className="py-3 text-center">
-                        <span
-                          className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
-                            p.settlementStatus === "Completed"
-                              ? isDark ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-emerald-100 text-emerald-900 border-emerald-300"
-                              : p.settlementStatus === "Submitted"
-                              ? isDark ? "bg-blue-500/10 text-blue-400 border-blue-500/20" : "bg-blue-100 text-blue-900 border-blue-300"
-                              : isDark ? "bg-amber-500/10 text-amber-400 border-amber-500/20" : "bg-amber-100 text-amber-900 border-amber-300"
-                          }`}
-                        >
-                          {p.settlementStatus}
-                        </span>
-                      </td>
-                      <td className="py-3 text-right">
-                        <Link
-                          href={`/partner/purchases/${p.id}`}
-                          className={`text-xs font-bold hover:underline ${isDark ? "text-cyan-400" : "text-blue-700"}`}
-                        >
-                          Details
-                        </Link>
-                      </td>
-                    </tr>
-                  ))}
+                <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
+                  {recentPurchases.map((p) => {
+                    const isSettled = p.settlementStatus === "Completed" || p.settlementStatus === "Settled" || p.settlementStatus === "Paid";
+                    const isSubmitted = p.settlementStatus === "Submitted";
+                    const displayId = p.id?.includes("-") ? `PUR-${p.id.substring(0, 6).toUpperCase()}` : p.id;
+
+                    return (
+                      <tr key={p.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50/80 transition-colors"}>
+                        <td className={`py-3.5 px-3 font-mono font-bold ${isDark ? "text-cyan-400" : "text-blue-600"}`} title={p.id}>
+                          {displayId}
+                        </td>
+                        <td className={`py-3.5 px-3 font-bold ${headingText}`}>{p.seafarerName}</td>
+                        <td className={`py-3.5 px-3 truncate max-w-[180px] ${isDark ? "text-slate-300" : "text-slate-700 font-medium"}`}>{p.courseName}</td>
+                        <td className={`py-3.5 px-3 font-black text-right ${headingText}`}>₹{Number(p.payableAmount).toLocaleString("en-IN")}</td>
+                        <td className="py-3.5 px-3 text-center">
+                          <span
+                            className={`text-[10px] font-black uppercase px-3 py-1 rounded-full inline-flex items-center justify-center gap-1 ${
+                              isSettled
+                                ? isDark ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30" : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                : isSubmitted
+                                ? isDark ? "bg-blue-500/15 text-blue-400 border border-blue-500/30" : "bg-blue-50 text-blue-700 border border-blue-200"
+                                : isDark ? "bg-amber-500/15 text-amber-400 border border-amber-500/30" : "bg-amber-50 text-amber-700 border border-amber-200"
+                            }`}
+                          >
+                            {isSettled ? "SETTLED" : (p.settlementStatus || "PENDING").toUpperCase()}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-3 text-right">
+                          <Link
+                            href={`/partner/purchases/${p.id}`}
+                            className={`text-xs font-bold hover:underline ${isDark ? "text-cyan-400" : "text-blue-600"}`}
+                          >
+                            Details
+                          </Link>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
