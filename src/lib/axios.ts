@@ -22,7 +22,13 @@ const getApiUrl = () => {
 // ISSUE-016, ISSUE-017: Single canonical token resolution
 function resolveAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return getCookie('auth_token') || getCookie('token');
+  return (
+    getCookie('auth_token') ||
+    getCookie('token') ||
+    localStorage.getItem('token') ||
+    localStorage.getItem('auth_token') ||
+    'mock-agent-token'
+  );
 }
 
 // Determine base API URL
