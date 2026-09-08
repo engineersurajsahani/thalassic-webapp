@@ -127,6 +127,7 @@ export default function SettlementsHistoryPage() {
           >
             <option value="all">All Statuses</option>
             <option value="submitted">Submitted</option>
+            <option value="partial">Partial Payment</option>
             <option value="under verification">Under Verification</option>
             <option value="completed">Completed / Paid</option>
             <option value="rejected">Rejected</option>
@@ -152,48 +153,70 @@ export default function SettlementsHistoryPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className={isDark ? "bg-white/[0.03] text-slate-400 border-b border-white/5" : "bg-slate-50 text-slate-500 border-b border-slate-200"}>
+              <thead className={isDark ? "bg-white/[0.03] text-slate-400 border-b border-white/5" : "bg-slate-50 text-slate-700 border-b border-slate-200 font-bold"}>
                 <tr>
                   <th className="py-3.5 px-4 font-semibold">Settlement Number</th>
                   <th className="py-3.5 px-4 font-semibold">Bank UTR / Reference</th>
                   <th className="py-3.5 px-4 font-semibold">Payment Method</th>
-                  <th className="py-3.5 px-4 font-semibold text-right">Settled Amount</th>
+                  <th className="py-3.5 px-4 font-semibold text-right">Settlement Amount</th>
                   <th className="py-3.5 px-4 font-semibold">Submission Date</th>
                   <th className="py-3.5 px-4 font-semibold text-center">Status</th>
                   <th className="py-3.5 px-4 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-200"}>
                 {filtered.map((s) => {
                   const sNumber = s.settlement_number || s.settlementNumber || s.id;
                   const isPaid = s.status === "Paid" || s.status === "Completed";
+                  const isPartial = s.status === "Partial" || s.payment_mode === "partial" || s.paymentMode === "partial";
                   const isRejected = s.status === "Rejected";
 
+                  const totalAmt = Number(s.total_amount || s.totalAmount || s.amount || 0);
+                  const paidAmt = Number(s.paid_amount || s.paidAmount || s.netAmount || totalAmt);
+                  const remAmt = Number(s.remaining_amount || s.remainingAmount || 0);
+
                   return (
-                    <tr key={s.id} className="hover:bg-white/[0.02]">
-                      <td className="py-3.5 px-4 font-mono font-bold text-cyan-400">
+                    <tr key={s.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}>
+                      <td className={`py-3.5 px-4 font-mono font-bold ${isDark ? "text-cyan-400" : "text-blue-700"}`}>
                         {sNumber}
                       </td>
-                      <td className="py-3.5 px-4 font-mono text-slate-300">
+                      <td className={`py-3.5 px-4 font-mono ${isDark ? "text-slate-300" : "text-slate-800 font-semibold"}`}>
                         {s.reference_number || s.referenceNumber || "N/A"}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-300">
+                      <td className={`py-3.5 px-4 ${isDark ? "text-slate-300" : "text-slate-800 font-semibold"}`}>
                         {s.payment_method || s.paymentMethod || "Bank Transfer"}
                       </td>
-                      <td className="py-3.5 px-4 font-extrabold text-right text-white">
-                        ₹{Number(s.total_amount || s.amount || 0).toLocaleString("en-IN")}
+                      <td className="py-3.5 px-4 text-right">
+                        <span className={`font-extrabold block ${isDark ? "text-white" : "text-slate-900"}`}>
+                          ₹{paidAmt.toLocaleString("en-IN")}
+                        </span>
+                        {isPartial && remAmt > 0 && (
+                          <span className="text-[10px] font-semibold text-amber-400 block">
+                            (₹{remAmt.toLocaleString("en-IN")} Pending)
+                          </span>
+                        )}
                       </td>
-                      <td className="py-3.5 px-4 text-slate-400">
+                      <td className={`py-3.5 px-4 ${isDark ? "text-slate-400" : "text-slate-700 font-medium"}`}>
                         {new Date(s.created_at || s.submissionDate).toLocaleDateString("en-IN")}
                       </td>
                       <td className="py-3.5 px-4 text-center">
                         <span
-                          className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${
+                          className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
                             isPaid
-                              ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                              ? isDark
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                                : "bg-emerald-100 text-emerald-900 border-emerald-300"
+                              : isPartial
+                              ? isDark
+                                ? "bg-amber-500/15 text-amber-300 border-amber-500/30"
+                                : "bg-amber-100 text-amber-900 border-amber-300"
                               : isRejected
-                              ? "bg-rose-500/10 text-rose-400 border border-rose-500/20"
-                              : "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                              ? isDark
+                                ? "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                                : "bg-rose-100 text-rose-900 border-rose-300"
+                              : isDark
+                              ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                              : "bg-blue-100 text-blue-900 border-blue-300"
                           }`}
                         >
                           {s.status}
@@ -202,7 +225,11 @@ export default function SettlementsHistoryPage() {
                       <td className="py-3.5 px-4 text-right">
                         <Link
                           href={`/partner/settlements/${s.id || sNumber}`}
-                          className="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-xs font-semibold text-cyan-400"
+                          className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                            isDark
+                              ? "border-white/10 hover:bg-white/5 text-cyan-400"
+                              : "border-slate-300 hover:bg-slate-100 text-blue-700 bg-white"
+                          }`}
                         >
                           Details
                         </Link>

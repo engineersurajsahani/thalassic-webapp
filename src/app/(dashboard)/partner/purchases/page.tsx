@@ -155,7 +155,7 @@ export default function PurchasesPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className={isDark ? "bg-white/[0.03] text-slate-400 border-b border-white/5" : "bg-slate-50 text-slate-500 border-b border-slate-200"}>
+              <thead className={isDark ? "bg-white/[0.03] text-slate-400 border-b border-white/5" : "bg-slate-50 text-slate-700 border-b border-slate-200 font-bold"}>
                 <tr>
                   <th className="py-3.5 px-4 font-semibold">Purchase ID</th>
                   <th className="py-3.5 px-4 font-semibold">Seafarer Master</th>
@@ -166,40 +166,48 @@ export default function PurchasesPage() {
                   <th className="py-3.5 px-4 font-semibold text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-200"}>
                 {filtered.map((p) => (
-                  <tr key={p.id} className="hover:bg-white/[0.02]">
-                    <td className="py-3.5 px-4 font-mono font-bold text-cyan-400">
+                  <tr key={p.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}>
+                    <td className={`py-3.5 px-4 font-mono font-bold ${isDark ? "text-cyan-400" : "text-blue-700"}`}>
                       {p.id}
                     </td>
                     <td className="py-3.5 px-4">
                       <div>
-                        <p className="font-bold text-white leading-tight">{p.seafarerName}</p>
-                        <p className="text-[10px] text-slate-400 font-mono mt-0.5">
+                        <p className={`font-bold leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>{p.seafarerName}</p>
+                        <p className={`text-[10px] font-mono mt-0.5 ${isDark ? "text-slate-400" : "text-slate-500 font-semibold"}`}>
                           INDoS: {p.indosNumber || "N/A"}
                         </p>
                       </div>
                     </td>
                     <td className="py-3.5 px-4">
-                      <p className="font-semibold text-slate-200">{p.courseName}</p>
-                      <p className="text-[10px] text-slate-400">Physical Training</p>
+                      <p className={`font-semibold ${isDark ? "text-slate-200" : "text-slate-800 font-bold"}`}>{p.courseName}</p>
+                      <p className={`text-[10px] ${isDark ? "text-slate-400" : "text-slate-500 font-medium"}`}>Physical Training</p>
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-right text-cyan-300">
+                    <td className={`py-3.5 px-4 font-extrabold text-right ${isDark ? "text-cyan-300" : "text-blue-700"}`}>
                       ₹{Number(p.payableAmount).toLocaleString("en-IN")}
                     </td>
-                    <td className="py-3.5 px-4 text-slate-400">
+                    <td className={`py-3.5 px-4 font-medium ${isDark ? "text-slate-400" : "text-slate-700"}`}>
                       {new Date(p.purchaseDate).toLocaleDateString("en-IN")}
                     </td>
                     <td className="py-3.5 px-4 text-center">
                       <span
-                        className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full ${
+                        className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
                           p.settlementStatus === "Completed"
-                            ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                            ? isDark
+                              ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                              : "bg-emerald-100 text-emerald-900 border-emerald-300"
                             : p.settlementStatus === "Submitted"
-                            ? "bg-blue-500/10 text-blue-400 border border-blue-500/20"
+                            ? isDark
+                              ? "bg-blue-500/10 text-blue-400 border-blue-500/20"
+                              : "bg-blue-100 text-blue-900 border-blue-300"
                             : p.settlementStatus === "Under Verification"
-                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                            : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                            ? isDark
+                              ? "bg-purple-500/10 text-purple-400 border-purple-500/20"
+                              : "bg-purple-100 text-purple-900 border-purple-300"
+                            : isDark
+                            ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                            : "bg-amber-100 text-amber-900 border-amber-300"
                         }`}
                       >
                         {p.settlementStatus}
@@ -208,7 +216,11 @@ export default function PurchasesPage() {
                     <td className="py-3.5 px-4 text-right">
                       <Link
                         href={`/partner/purchases/${p.id}`}
-                        className="px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-xs font-semibold text-cyan-400"
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                          isDark
+                            ? "border-white/10 hover:bg-white/5 text-cyan-400"
+                            : "border-slate-300 hover:bg-slate-100 text-blue-700 bg-white"
+                        }`}
                       >
                         Details
                       </Link>

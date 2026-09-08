@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -157,7 +158,7 @@ function InvoicesContent() {
       a.click();
       URL.revokeObjectURL(url);
     } catch {
-      alert("Could not generate invoice PDF.");
+      toast.error("Could not generate invoice PDF.");
     }
   };
 
@@ -333,8 +334,8 @@ function InvoicesContent() {
                 ))}
                 {selected.agent_name && (
                   <div>
-                    <p className={`text-[10px] ${subtext}`}>Referring Agent</p>
-                    <p className={`text-xs font-medium mt-0.5 ${text}`}>{selected.agent_name} {selected.agent_referral_code ? `(${selected.agent_referral_code})` : ""}</p>
+                    <p className={`text-[10px] ${subtext}`}>Agent Name</p>
+                    <p className={`text-xs font-medium mt-0.5 ${text}`}>{selected.agent_name}</p>
                   </div>
                 )}
               </div>

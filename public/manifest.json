@@ -1,0 +1,16 @@
+{
+  "name": "Hari Om Thalassic",
+  "short_name": "Thalassic",
+  "description": "Maritime Training, Course Booking & Partner Portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0F19",
+  "theme_color": "#0284c7",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

@@ -135,7 +135,7 @@ export default function SeafarersDirectoryPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className={isDark ? "bg-white/[0.03] text-slate-400 border-b border-white/5" : "bg-slate-50 text-slate-500 border-b border-slate-200"}>
+              <thead className={isDark ? "bg-white/[0.03] text-slate-400 border-b border-white/5" : "bg-slate-50 text-slate-700 border-b border-slate-200 font-bold"}>
                 <tr>
                   <th className="py-3.5 px-4 font-semibold">Seafarer Name</th>
                   <th className="py-3.5 px-4 font-semibold">INDoS No</th>
@@ -145,34 +145,36 @@ export default function SeafarersDirectoryPage() {
                   <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-200"}>
                 {filtered.map((s) => (
-                  <tr key={s.id} className="hover:bg-white/[0.02]">
+                  <tr key={s.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}>
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2.5">
                         <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-bold text-[10px] uppercase shrink-0">
                           {s.name ? s.name[0] : "S"}
                         </div>
                         <div>
-                          <p className="font-bold text-white leading-tight">{s.name}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">ID: {s.id.substring(0, 8)}...</p>
+                          <p className={`font-bold leading-tight ${isDark ? "text-white" : "text-slate-900"}`}>{s.name}</p>
+                          <p className={`text-[10px] font-mono ${isDark ? "text-slate-400" : "text-slate-500 font-semibold"}`}>ID: {s.id.substring(0, 8)}...</p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-cyan-400">
+                    <td className={`py-3.5 px-4 font-mono font-bold ${isDark ? "text-cyan-400" : "text-blue-700"}`}>
                       {s.indosNum || "N/A"}
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-300">
+                    <td className={`py-3.5 px-4 font-mono ${isDark ? "text-slate-300" : "text-slate-800 font-semibold"}`}>
                       {s.passportNum || "N/A"}
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="space-y-0.5 text-[11px] text-slate-300">
+                      <div className={`space-y-0.5 text-[11px] ${isDark ? "text-slate-300" : "text-slate-800 font-semibold"}`}>
                         <p>{s.email}</p>
-                        <p className="text-slate-400 text-[10px]">{s.phone}</p>
+                        <p className={isDark ? "text-slate-400 text-[10px]" : "text-slate-500 text-[10px] font-medium"}>{s.phone}</p>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-slate-200 border border-white/10">
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold border ${
+                        isDark ? "bg-white/5 text-slate-200 border-white/10" : "bg-blue-50 text-blue-900 border-blue-200"
+                      }`}>
                         {s.purchasesCount || 0} Courses
                       </span>
                     </td>
@@ -180,13 +182,17 @@ export default function SeafarersDirectoryPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/partner/seafarers/${s.id}`}
-                          className="px-2.5 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-xs font-semibold text-slate-300"
+                          className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all ${
+                            isDark
+                              ? "border-white/10 hover:bg-white/5 text-slate-300"
+                              : "border-slate-300 hover:bg-slate-100 text-slate-800 bg-white"
+                          }`}
                         >
                           Profile
                         </Link>
                         <Link
                           href={`/partner/purchases/create?seafarerId=${s.id}`}
-                          className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1 shadow-sm"
+                          className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-xs flex items-center gap-1 shadow-sm"
                         >
                           <ShoppingCart className="w-3.5 h-3.5" />
                           Purchase

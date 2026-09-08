@@ -1,14 +1,15 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
-  LayoutDashboard, Users, UserPlus, FileCheck,
+  LayoutDashboard, Users, UserPlus, FileCheck, BookOpen,
   CreditCard, FileText, BarChart3, Settings,
-  LogOut, Anchor, ChevronRight, X
+  LogOut, ChevronRight, X, Building, DollarSign
 } from "lucide-react";
 
 interface SidebarProps {
@@ -18,9 +19,11 @@ interface SidebarProps {
 
 const menuItems = [
   { label: "Dashboard",            href: "/company-admin/dashboard",    icon: LayoutDashboard },
-  { label: "Seafarers",            href: "/company-admin/seafearers",   icon: Users },
+  { label: "Seafarers",            href: "/company-admin/seafarers",    icon: Users },
+  { label: "Course Management",    href: "/company-admin/courses",      icon: BookOpen },
   { label: "Walk-in Registration", href: "/company-admin/registration", icon: UserPlus },
   { label: "Documents",            href: "/company-admin/documents",    icon: FileCheck },
+  { label: "Finance",              href: "/company-admin/finance",      icon: DollarSign },
   { label: "Reports",              href: "/company-admin/reports",      icon: BarChart3 },
   { label: "Profile",              href: "/company-admin/profile",      icon: Settings },
 ];
@@ -31,32 +34,45 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
   const isDark = theme === "dark";
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  const isActive = (href: string) => {
+    if (href === "/company-admin/seafarers") {
+      return pathname.startsWith("/company-admin/seafarers") || pathname.startsWith("/company-admin/seafarers");
+    }
+    if (href === "/company-admin/finance") {
+      return pathname.startsWith("/company-admin/finance") || pathname.startsWith("/company-admin/payments");
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   // ── theme tokens (Matching Master Portal) ──────────────────────────────
-  const sidebarBg   = isDark ? "bg-[#0c1a2e] border-r border-white/5"        : "bg-white border-r border-slate-200";
-  const brandBorder = isDark ? "border-white/8"                               : "border-slate-100";
-  const logoText    = isDark ? "text-white"                                   : "text-slate-800";
-  const logoSub     = isDark ? "text-sky-400"                                 : "text-sky-500";
-  const navLabel    = isDark ? "text-white/25"                                : "text-slate-400";
-  const activeLink  = isDark ? "bg-sky-500/15 text-sky-400"                  : "bg-sky-50 text-sky-600";
-  const activeIcon  = isDark ? "text-sky-400"                                 : "text-sky-600";
-  const activeChev  = isDark ? "text-sky-400/60"                              : "text-sky-400";
-  const inactiveLink= isDark ? "text-white/50 hover:bg-white/5 hover:text-white/80" : "text-slate-500 hover:bg-slate-50 hover:text-slate-700";
-  const inactiveIcon= isDark ? "text-white/40 group-hover:text-white/60"     : "text-slate-400 group-hover:text-slate-600";
-  const footBorder  = isDark ? "border-white/8"                              : "border-slate-100";
-  const userName    = isDark ? "text-white/80"                               : "text-slate-700";
-  const userEmail   = isDark ? "text-white/30"                               : "text-slate-400";
-  const signOutBtn  = isDark ? "text-white/40 hover:bg-red-500/10 hover:text-red-400" : "text-slate-400 hover:bg-red-50 hover:text-red-500";
+  const sidebarBg   = isDark ? "bg-[#0B0F19] border-r border-[#1F2937]" : "bg-[#FFFFFF] border-r border-[#E5E7EB]";
+  const brandBorder = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const logoText    = isDark ? "text-white" : "text-[#111827]";
+  const logoSub     = isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]";
+  const navLabel    = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const activeLink  = isDark ? "bg-[#3D5EF6] text-white" : "bg-[#3D5EF6] text-white";
+  const activeIcon  = "text-white";
+  const activeChev  = "text-white/80";
+  const inactiveLink= isDark ? "text-gray-300 hover:bg-[#1F2937] hover:text-white transition-colors duration-200" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-[#3D5EF6] transition-colors duration-200";
+  const inactiveIcon= isDark ? "text-gray-400 group-hover:text-white" : "text-[#6B7280] group-hover:text-[#3D5EF6]";
+  const footBorder  = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const userName    = isDark ? "text-white" : "text-[#111827]";
+  const userEmail   = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const signOutBtn  = isDark ? "text-gray-400 hover:bg-[#DC2626]/10 hover:text-[#DC2626] transition-colors duration-200" : "text-[#6B7280] hover:bg-red-50 hover:text-[#DC2626] transition-colors duration-200";
 
   const renderContent = () => (
     <div className="flex flex-col h-full">
       {/* Brand Header */}
       <div className={`px-5 py-5 flex items-center justify-between border-b ${brandBorder}`}>
         <Link href="/company-admin/dashboard" className="flex items-center gap-3 group/logo">
-          <div className="w-8 h-8 rounded-md bg-sky-500 flex items-center justify-center shrink-0">
-            <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
+          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+            <Image
+              src="/logo/hariom_logo.png"
+              alt="Hari Om logo"
+              width={32}
+              height={32}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div className="leading-tight">
             <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>

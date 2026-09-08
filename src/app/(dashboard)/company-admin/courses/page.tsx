@@ -3,530 +3,673 @@
 import React, { useState, useMemo } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import {
-  mockSeafarers,
-  mockCoursesCatalog,
-} from "@/components/company-admin/mockData";
-import StatsCard from "@/components/company-admin/StatsCard";
-import StatusBadge from "@/components/company-admin/StatusBadge";
-import { Skeleton } from "@/components/company-admin/Skeleton";
+  INITIAL_COURSES,
+  MOCK_INSTITUTES,
+  COURSE_INSTITUTES_MAP,
+  COURSE_INSTITUTE_PRICING,
+  Course,
+} from "@/constants/masterCourses";
 import {
   BookOpen,
-  Award,
-  AlertTriangle,
-  Search,
   Plus,
   X,
+  Building2,
+  Clock,
+  MapPin,
+  Star,
   CheckCircle,
-  HelpCircle,
-  FileCheck,
   Calendar,
-  Hourglass,
-  SlidersHorizontal,
+  Layers,
+  ChevronRight,
+  Edit3,
+  Save,
+  Users as UsersIcon,
 } from "lucide-react";
 
-interface FlattenedCourse {
-  seafarerId: string;
-  seafarerName: string;
-  seafarerRank: string;
-  courseId: string;
-  code: string;
-  name: string;
-  progress: number;
-  status: "Completed" | "In Progress" | "Not Started" | "Expired";
-  assignedDate: string;
-  expiryDate?: string;
+/* ── helper: parse "5 days" → number ──────────────────────────────────────── */
+function parseDurationDays(dur: string): number {
+  const m = dur.match(/(\d+)/);
+  return m ? parseInt(m[1], 10) : 0;
+}
+
+/* ── helper: add days to a Date ───────────────────────────────────────────── */
+function addDays(date: Date, n: number): Date {
+  const d = new Date(date);
+  d.setDate(d.getDate() + n);
+  return d;
+}
+
+/* ── helper: DD/MM/YYYY ───────────────────────────────────────────────────── */
+function fmtDate(d: Date): string {
+  const dd = String(d.getDate()).padStart(2, "0");
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const yyyy = d.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
 }
 
 export default function CourseManagementPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
 
-  // Flat course enrollments list
-  const [enrollments, setEnrollments] = useState<FlattenedCourse[]>(() => {
-    const list: FlattenedCourse[] = [];
-    mockSeafarers.forEach((sf) => {
-      sf.courses.forEach((c) => {
-        list.push({
-          seafarerId: sf.id,
-          seafarerName: sf.name,
-          seafarerRank: sf.rank,
-          courseId: c.id,
-          code: c.code,
-          name: c.name,
-          progress: c.progress,
-          status: c.status,
-          assignedDate: c.assignedDate,
-          expiryDate: c.expiryDate,
-        });
-      });
-    });
-    return list;
-  });
+  // Local editable course list (in-memory)
+  const [coursesList, setCoursesList] = useState<Course[]>(INITIAL_COURSES);
 
-  // Assign course state
+  // Category filter only (search bar removed per Req #1)
+  const [selectedCategory, setSelectedCategory] = useState("All");
+
+  // Selected Course for Details Modal
+  const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
+
+  // Edit mode state inside details modal
+  const [isEditing, setIsEditing] = useState(false);
+  const [editForm, setEditForm] = useState<{ title: string; description: string; duration: string; price: string }>({ title: "", description: "", duration: "", price: "" });
+
+  // Assign Course Modal State (Select Seafarer removed per Req #4)
   const [showAssignModal, setShowAssignModal] = useState(false);
-  const [targetSeafarerId, setTargetSeafarerId] = useState("");
-  const [targetCourseCatalogId, setTargetCourseCatalogId] = useState("");
+  const [targetCourseTitle, setTargetCourseTitle] = useState("");
+  const [targetInstituteId, setTargetInstituteId] = useState("");
   const [assignedDate, setAssignedDate] = useState(() => new Date().toISOString().split("T")[0]);
+  const [assignSuccessMessage, setAssignSuccessMessage] = useState("");
 
-  // Filters state
-  const [searchQuery, setSearchQuery] = useState("");
-  const [selectedStatus, setSelectedStatus] = useState("All");
+  // Category List for filter chips
+  const categories = useMemo(() => {
+    return ["All", ...Array.from(new Set(coursesList.map((c) => c.category)))];
+  }, [coursesList]);
 
-  // Calculate compliance statistics
-  const metrics = useMemo(() => {
-    const total = enrollments.length;
-    const completed = enrollments.filter((e) => e.status === "Completed").length;
-    const inProgress = enrollments.filter((e) => e.status === "In Progress").length;
-    const expired = enrollments.filter((e) => e.status === "Expired").length;
-    const complianceRate = total > 0 ? Math.round((completed / total) * 100) : 0;
-
-    return { total, completed, inProgress, expired, complianceRate };
-  }, [enrollments]);
-
-  // Dynamic Upcoming Expiries List for courses
-  const upcomingCourseExpiries = useMemo(() => {
-    return enrollments
-      .filter((e) => e.status === "Completed" && e.expiryDate)
-      .map((e) => {
-        const today = new Date();
-        const exp = new Date(e.expiryDate!);
-        const diff = exp.getTime() - today.getTime();
-        const days = Math.ceil(diff / (1000 * 60 * 60 * 24));
-        return { ...e, daysLeft: days };
-      })
-      .filter((e) => e.daysLeft < 365) // expiring within 1 year
-      .sort((a, b) => a.daysLeft - b.daysLeft)
-      .slice(0, 3);
-  }, [enrollments]);
-
-  // Filtering enrollments
-  const filteredEnrollments = useMemo(() => {
-    return enrollments.filter((e) => {
-      const matchesSearch =
-        e.seafarerName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.code.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus = selectedStatus === "All" || e.status === selectedStatus;
-      return matchesSearch && matchesStatus;
+  // Filtered Course Catalog (no search, only category filter)
+  const filteredCourses = useMemo(() => {
+    return coursesList.filter((course) => {
+      return selectedCategory === "All" || course.category === selectedCategory;
     });
-  }, [enrollments, searchQuery, selectedStatus]);
+  }, [coursesList, selectedCategory]);
 
-  // Assign course handler
+  // Helper to retrieve institutes offering a course
+  const getCourseInstitutes = (courseTitle: string) => {
+    const instIds = COURSE_INSTITUTES_MAP[courseTitle] || ["inst_1"];
+    const pricingMap = COURSE_INSTITUTE_PRICING[courseTitle] || {};
+
+    return instIds.map((id) => {
+      const institute = MOCK_INSTITUTES.find((i) => i.id === id) || {
+        id,
+        name: "Maritime Training Institute",
+        location: "Mumbai, India",
+        rating: 4.8,
+      };
+      const pricing = pricingMap[id] || { price: "₹5,000", seats: 20, nextBatch: "Upcoming" };
+
+      return {
+        ...institute,
+        price: pricing.price,
+        seats: pricing.seats,
+        nextBatch: pricing.nextBatch,
+      };
+    });
+  };
+
+  // Handle Assign Course Submission (no seafarer required)
   const handleAssignCourse = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!targetSeafarerId || !targetCourseCatalogId) {
-      alert("Please select both a seafarer and a course.");
-      return;
-    }
+    if (!targetCourseTitle) return;
 
-    const selectedSf = mockSeafarers.find((s) => s.id === targetSeafarerId);
-    const selectedCourse = mockCoursesCatalog.find((c) => c.id === targetCourseCatalogId);
-
-    if (!selectedSf || !selectedCourse) return;
-
-    // Check if course is already assigned
-    const alreadyAssigned = enrollments.some(
-      (e) => e.seafarerId === targetSeafarerId && e.code === selectedCourse.code
+    setAssignSuccessMessage(
+      `Course "${targetCourseTitle}" assignment submitted successfully.`
     );
 
-    if (alreadyAssigned) {
-      alert(`${selectedSf.name} is already enrolled/assigned to ${selectedCourse.name}.`);
-      return;
-    }
+    setTimeout(() => {
+      setShowAssignModal(false);
+      setTargetCourseTitle("");
+      setTargetInstituteId("");
+      setAssignSuccessMessage("");
+    }, 1500);
+  };
 
-    const newEnrollment: FlattenedCourse = {
-      seafarerId: selectedSf.id,
-      seafarerName: selectedSf.name,
-      seafarerRank: selectedSf.rank,
-      courseId: `cp-${Date.now()}`,
-      code: selectedCourse.code,
-      name: selectedCourse.name,
-      progress: 0,
-      status: "Not Started",
-      assignedDate: assignedDate,
+  // Open Assign Modal with preselected course
+  const handleQuickAssign = (course: Course, instId?: string) => {
+    setTargetCourseTitle(course.title);
+    if (instId) setTargetInstituteId(instId);
+    setSelectedCourse(null);
+    setIsEditing(false);
+    setShowAssignModal(true);
+  };
+
+  // Start editing
+  const startEditing = () => {
+    if (!selectedCourse) return;
+    setEditForm({
+      title: selectedCourse.title,
+      description: selectedCourse.description || "",
+      duration: selectedCourse.duration,
+      price: selectedCourse.price,
+    });
+    setIsEditing(true);
+  };
+
+  // Save edit
+  const saveEdit = () => {
+    if (!selectedCourse) return;
+    const updated: Course = {
+      ...selectedCourse,
+      title: editForm.title,
+      description: editForm.description,
+      duration: editForm.duration,
+      price: editForm.price,
     };
-
-    setEnrollments((prev) => [newEnrollment, ...prev]);
-    setShowAssignModal(false);
-    // Reset state
-    setTargetSeafarerId("");
-    setTargetCourseCatalogId("");
+    setCoursesList((prev) => prev.map((c) => (c.id === updated.id ? updated : c)));
+    setSelectedCourse(updated);
+    setIsEditing(false);
   };
 
   return (
-    <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div className="space-y-6 animate-fadeIn pb-12">
+      {/* Top Header & Actions */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}>
-            Course Management
-          </h1>
-          <p className={`text-[11px] mt-0.5 ${isDark ? "text-white/40" : "text-slate-500"}`}>
-            Track training compliance and assign maritime certifications to seafarers.
+          <h1 className="text-2xl font-bold tracking-tight">Course Management</h1>
+          <p className="text-xs opacity-60 mt-1">
+            Browse available DG Shipping accredited courses, per-institute pricing, and assign training to crew.
           </p>
         </div>
-        <button
-          onClick={() => setShowAssignModal(true)}
-          className={`flex items-center gap-2 px-3.5 py-2 text-xs font-bold rounded-lg tracking-wider uppercase transition-all duration-300 border cursor-pointer ${
-            isDark
-              ? "bg-white text-black border-transparent hover:bg-gray-200"
-              : "bg-black text-white border-transparent hover:bg-gray-800"
-          }`}
-        >
-          <Plus className="w-4 h-4" />
-          Assign Course
-        </button>
-      </div>
 
-      {/* Compliance Metrics Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          title="Overall Compliance"
-          value={`${metrics.complianceRate}%`}
-          icon={Award}
-          changeType="neutral"
-          description="total completed/assigned"
-        />
-        <StatsCard
-          title="Total Assigned Courses"
-          value={metrics.total}
-          icon={BookOpen}
-          changeType="neutral"
-          description="enrolled certificates"
-        />
-        <StatsCard
-          title="Courses in Progress"
-          value={metrics.inProgress}
-          icon={HelpCircle}
-          changeType="neutral"
-          description="currently studying"
-        />
-        <StatsCard
-          title="Expired Credentials"
-          value={metrics.expired}
-          icon={AlertTriangle}
-          change={metrics.expired > 0 ? "Renewal Needed" : "All Compliant"}
-          changeType={metrics.expired > 0 ? "negative" : "positive"}
-          description="expired credentials"
-        />
-      </div>
-
-      {/* Dynamic Expiries Panel & Compliance Rate Gauge */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {/* Compliance rate gauge */}
-        <div
-          className={`p-5 rounded-xl border transition-all duration-200 hover:shadow-sm lg:col-span-2 ${
-            isDark ? "bg-[#0c1a2e] border-white/5 text-white" : "bg-white border-slate-200 text-slate-850"
-          }`}
-        >
-          <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-4">Course Compliance Gauge</h3>
-          <div className="flex flex-col sm:flex-row items-center gap-6">
-            <div className="relative w-28 h-28 flex items-center justify-center shrink-0">
-              <svg className="w-full h-full transform -rotate-90">
-                <circle
-                  cx="56"
-                  cy="56"
-                  r="45"
-                  className="stroke-slate-100 dark:stroke-white/5 fill-transparent"
-                  strokeWidth="8"
-                />
-                <circle
-                  cx="56"
-                  cy="56"
-                  r="45"
-                  className="stroke-sky-500 fill-transparent transition-all duration-500"
-                  strokeWidth="8"
-                  strokeDasharray={282}
-                  strokeDashoffset={282 - (282 * metrics.complianceRate) / 100}
-                />
-              </svg>
-              <div className="absolute flex flex-col items-center">
-                <span className="text-xl font-bold tracking-tight">{metrics.complianceRate}%</span>
-                <span className="text-[8px] uppercase tracking-wider opacity-55">Compliant</span>
-              </div>
-            </div>
-            <div className="space-y-2 text-xs leading-normal">
-              <p className="font-semibold text-slate-800 dark:text-slate-150">Fleet Safety Standards</p>
-              <p className="text-slate-500 dark:text-slate-400">
-                A minimum of <strong>85% fleet compliance</strong> is required to clear harbor authority audits. Currently, you are at <strong className="text-sky-500">{metrics.complianceRate}%</strong> compliance. Enroll seafarers in refresher training to meet compliance benchmarks.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Course Expiries Panel */}
-        <div
-          className={`p-5 rounded-xl border transition-all duration-200 hover:shadow-sm ${
-            isDark ? "bg-[#0c1a2e] border-white/5 text-white" : "bg-white border-slate-200 text-slate-850"
-          }`}
-        >
-          <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-3">Expiring Certification Warnings</h3>
-          <div className="space-y-3">
-            {upcomingCourseExpiries.length === 0 ? (
-              <div className="text-center py-6 text-[10px] text-slate-400">
-                All certificates compliant and valid
-              </div>
-            ) : (
-              upcomingCourseExpiries.map((exp, idx) => (
-                <div
-                  key={idx}
-                  className="p-2.5 rounded-lg border border-slate-100 dark:border-white/3 flex items-start gap-2.5 text-[11px]"
-                >
-                  <Hourglass className="w-3.5 h-3.5 mt-0.5 text-amber-500 shrink-0" />
-                  <div className="min-w-0 flex-1 leading-normal">
-                    <p className="font-bold truncate">{exp.seafarerName}</p>
-                    <p className="opacity-60 truncate mt-0.5">{exp.name}</p>
-                    <span className="text-[9px] font-bold text-rose-500 block mt-1">Expiring in {exp.daysLeft} days</span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowAssignModal(true)}
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl font-medium text-xs bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/20 transition-all hover:scale-[1.02] cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Assign Course</span>
+          </button>
         </div>
       </div>
 
-      {/* Enrollments Data Panel */}
+      {/* Category Filter Toolbar (search bar removed) */}
       <div
-        className={`border rounded-xl overflow-hidden shadow-sm ${
-          isDark ? "bg-[#0c1a2e] border-white/5" : "bg-white border-slate-200"
+        className={`p-4 rounded-2xl border flex items-center gap-4 ${
+          isDark ? "bg-[#0B1528]/80 border-white/5" : "bg-white border-slate-200 shadow-sm"
         }`}
       >
-        <div className="p-4 border-b border-solid border-slate-100 dark:border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-50/50 dark:bg-white/2">
-          <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60">
-              Crew Enrollment Status
-            </h3>
-          </div>
-          {/* Filters toolbar */}
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            {/* Status tab */}
-            <div className="flex items-center gap-1.5 border border-solid border-slate-200 dark:border-white/10 rounded-lg p-1 bg-white dark:bg-[#0c1a2e]">
-              {["All", "Completed", "In Progress", "Expired"].map((st) => (
-                <button
-                  key={st}
-                  onClick={() => setSelectedStatus(st)}
-                  className={`px-2.5 py-1 rounded-md text-[10px] font-bold cursor-pointer transition-colors ${
-                    selectedStatus === st
-                      ? isDark
-                        ? "bg-white text-black"
-                        : "bg-black text-white"
-                      : "text-slate-500 dark:text-slate-400 hover:text-sky-400"
-                  }`}
-                >
-                  {st}
-                </button>
-              ))}
-            </div>
-
-            {/* Search bar */}
-            <div className="relative max-w-xs w-full">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none opacity-40">
-                <Search className="w-3.5 h-3.5" />
-              </span>
-              <input
-                type="text"
-                placeholder="Search course or crew..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={`pl-9 pr-3 py-1.5 w-full rounded-lg border text-xs outline-none transition-all focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500 ${
-                  isDark
-                    ? "bg-white/5 border-white/10 text-white"
-                    : "bg-white border-slate-200 text-slate-800"
-                }`}
-              />
-            </div>
-          </div>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr
-                className={`border-b text-[10px] font-bold tracking-wider uppercase ${
-                  isDark ? "bg-white/3 border-white/5 text-white/50" : "bg-slate-50 border-slate-100 text-slate-400"
-                }`}
-              >
-                <th className="py-3 px-4">Seafarer</th>
-                <th className="py-3 px-4">Course Name</th>
-                <th className="py-3 px-4">Progress</th>
-                <th className="py-3 px-4">Status</th>
-                <th className="py-3 px-4">Dates</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-solid divide-slate-100 dark:divide-white/5">
-              {filteredEnrollments.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="py-12 text-center text-xs text-gray-500">
-                    No course assignments found.
-                  </td>
-                </tr>
-              ) : (
-                filteredEnrollments.map((enrollment) => (
-                  <tr
-                    key={`${enrollment.seafarerId}-${enrollment.courseId}`}
-                    className="text-xs hover:bg-slate-50/50 dark:hover:bg-white/3 transition-colors"
-                  >
-                    <td className="py-3.5 px-4">
-                      <div className="font-bold text-slate-800 dark:text-slate-200">{enrollment.seafarerName}</div>
-                      <span className="text-[10px] opacity-55">{enrollment.seafarerRank}</span>
-                    </td>
-                    <td className="py-3.5 px-4 font-semibold">
-                      <div>{enrollment.name}</div>
-                      <span className="text-[10px] opacity-40 font-mono">{enrollment.code}</span>
-                    </td>
-                    <td className="py-3.5 px-4 w-44">
-                      <div className="space-y-1">
-                        <div className="flex items-center justify-between text-[10px] opacity-60">
-                          <span>{enrollment.progress}%</span>
-                        </div>
-                        <div className={`h-1.5 w-full rounded-full overflow-hidden ${isDark ? "bg-white/5" : "bg-slate-100"}`}>
-                          <div
-                            className="h-full bg-sky-500 rounded-full transition-all duration-300"
-                            style={{ width: `${enrollment.progress}%` }}
-                          />
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-3.5 px-4">
-                      <StatusBadge status={enrollment.status} />
-                    </td>
-                    <td className="py-3.5 px-4 text-[10px] opacity-65 leading-relaxed">
-                      <div>Assigned: {enrollment.assignedDate}</div>
-                      {enrollment.expiryDate && <div>Expires: {enrollment.expiryDate}</div>}
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
+        {/* Category Filter Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
+                selectedCategory === cat
+                  ? "bg-sky-500 text-white shadow-sm shadow-sky-500/30"
+                  : isDark
+                  ? "bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5"
+                  : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+              }`}
+            >
+              {cat}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* ── ASSIGN COURSE DIALOG MODAL ────────────────────────────────────────── */}
-      {showAssignModal && (
-        <>
-          {/* Backdrop */}
+      {/* Courses Count Summary */}
+      <div className="flex items-center justify-between px-1">
+        <span className="text-xs font-medium opacity-60">
+          Showing {filteredCourses.length} {filteredCourses.length === 1 ? "course" : "courses"} in Course Catalog
+        </span>
+      </div>
+
+      {/* Course Catalog Grid (Cards) */}
+      {filteredCourses.length === 0 ? (
+        <div
+          className={`p-12 text-center rounded-2xl border ${
+            isDark ? "bg-[#0B1528]/40 border-white/5" : "bg-slate-50 border-slate-200"
+          }`}
+        >
+          <BookOpen className="w-12 h-12 mx-auto opacity-20 mb-3" />
+          <p className="text-sm font-semibold">No courses match your criteria</p>
+          <p className="text-xs opacity-50 mt-1">Try adjusting your selected category filter.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {filteredCourses.map((course) => {
+            const institutes = getCourseInstitutes(course.title);
+            const prices = institutes.map((i) => parseInt(i.price.replace(/[^\d]/g, "")) || 0).filter((p) => p > 0);
+            const minPrice = prices.length > 0 ? Math.min(...prices) : 0;
+            const maxPrice = prices.length > 0 ? Math.max(...prices) : 0;
+            const priceDisplay =
+              prices.length > 1 && minPrice !== maxPrice
+                ? `₹${minPrice.toLocaleString("en-IN")} – ₹${maxPrice.toLocaleString("en-IN")}`
+                : course.price;
+
+            return (
+              <div
+                key={course.id}
+                onClick={() => { setSelectedCourse(course); setIsEditing(false); }}
+                className={`group relative rounded-2xl border p-5 transition-all duration-200 hover:-translate-y-1 hover:shadow-xl cursor-pointer flex flex-col justify-between ${
+                  isDark
+                    ? "bg-[#0B1528] border-white/5 hover:border-sky-500/40 hover:shadow-sky-500/5"
+                    : "bg-white border-slate-200 hover:border-sky-300 hover:shadow-slate-200"
+                }`}
+              >
+                <div>
+                  {/* Category & Status Header */}
+                  <div className="flex items-center justify-between gap-2 mb-3">
+                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-semibold tracking-wide uppercase bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                      <Layers className="w-3 h-3" />
+                      {course.category}
+                    </span>
+                    {course.code && (
+                      <span className={`text-[11px] font-mono font-medium px-2 py-0.5 rounded ${
+                        isDark ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-600"
+                      }`}>
+                        {course.code}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Course Title */}
+                  <h3 className="text-base font-bold leading-snug group-hover:text-sky-400 transition-colors">
+                    {course.title}
+                  </h3>
+
+                  {/* Short Description */}
+                  <p className="text-xs opacity-60 mt-2 line-clamp-2 leading-relaxed">
+                    {course.description || "Comprehensive DG Shipping approved marine training module."}
+                  </p>
+
+                  {/* Key Metadata Badges — instructor removed per Req #3 */}
+                  <div className="grid grid-cols-2 gap-2 mt-4 pt-3 border-t border-white/5 text-xs">
+                    <div className="flex items-center gap-1.5 opacity-75">
+                      <Clock className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                      <span>{course.duration}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 opacity-75">
+                      <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
+                      <span>{course.rating} Rating</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 opacity-75">
+                      <Building2 className="w-3.5 h-3.5 text-purple-400 shrink-0" />
+                      <span>{institutes.length} Institutes</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 opacity-75">
+                      <UsersIcon className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                      <span>{course.enrolled} Enrolled</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Card Footer with Pricing & View Button */}
+                <div className="mt-5 pt-3 border-t border-white/5 flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] uppercase font-semibold opacity-40 block">Course Fee</span>
+                    <span className="text-sm font-bold text-emerald-500">{priceDisplay}</span>
+                  </div>
+
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedCourse(course);
+                      setIsEditing(false);
+                    }}
+                    className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                      isDark
+                        ? "bg-white/5 group-hover:bg-sky-500 group-hover:text-white text-slate-300"
+                        : "bg-slate-100 group-hover:bg-sky-500 group-hover:text-white text-slate-700"
+                    }`}
+                  >
+                    <span>View Details</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* COURSE DETAILS MODAL (WITH EDIT, BATCH DETAILS)                            */}
+      {/* ========================================================================= */}
+      {selectedCourse && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
-            onClick={() => setShowAssignModal(false)}
-          />
-          {/* Dialog Container */}
-          <div
-            className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md shadow-2xl z-50 rounded-xl overflow-hidden border ${
-              isDark ? "bg-[#0b1625] border-white/5 text-white" : "bg-white border-slate-200 text-slate-800"
+            className={`w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border shadow-2xl flex flex-col ${
+              isDark ? "bg-[#0B1528] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"
             }`}
           >
-            {/* Header */}
-            <div
-              className={`p-4 border-b flex items-center justify-between gap-4 ${
-                isDark ? "border-white/5 bg-[#09111e]" : "border-slate-100 bg-slate-50"
-              }`}
-            >
+            {/* Modal Header */}
+            <div className="p-6 border-b border-white/5 flex items-start justify-between gap-4">
+              <div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                    {selectedCourse.category}
+                  </span>
+                  {selectedCourse.code && (
+                    <span className={`text-[11px] font-mono px-2 py-0.5 rounded ${
+                      isDark ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-600"
+                    }`}>
+                      {selectedCourse.code}
+                    </span>
+                  )}
+                </div>
+                {isEditing ? (
+                  <input
+                    value={editForm.title}
+                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    className={`text-xl font-bold w-full bg-transparent border-b outline-none pb-1 ${isDark ? "border-white/20 focus:border-sky-400" : "border-slate-300 focus:border-sky-500"}`}
+                  />
+                ) : (
+                  <h2 className="text-xl font-bold">{selectedCourse.title}</h2>
+                )}
+                <p className="text-xs opacity-60 mt-1">Duration: {isEditing ? editForm.duration : selectedCourse.duration}</p>
+              </div>
+
               <div className="flex items-center gap-2">
-                <FileCheck className="w-4 h-4 text-sky-400" />
-                <h3 className="text-sm font-bold">Assign New STCW Course</h3>
+                {!isEditing && (
+                  <button
+                    onClick={startEditing}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    Edit
+                  </button>
+                )}
+                <button
+                  onClick={() => { setSelectedCourse(null); setIsEditing(false); }}
+                  className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                    isDark ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-200 hover:bg-slate-100"
+                  }`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Body */}
+            <div className="p-6 space-y-6">
+              {/* Description */}
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wider opacity-60 mb-2">Course Overview</h4>
+                {isEditing ? (
+                  <textarea
+                    value={editForm.description}
+                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    rows={3}
+                    className={`w-full text-xs leading-relaxed p-2.5 rounded-xl border outline-none resize-none ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"}`}
+                  />
+                ) : (
+                  <p className="text-xs leading-relaxed opacity-80">
+                    {selectedCourse.description ||
+                      "This certified training course prepares maritime crew for STCW compliance, emergency response, and operational excellence as required by DG Shipping regulations."}
+                  </p>
+                )}
+              </div>
+
+              {/* Edit: Duration & Price */}
+              {isEditing && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-[10px] font-bold uppercase opacity-60 block mb-1.5">Duration</label>
+                    <input
+                      value={editForm.duration}
+                      onChange={(e) => setEditForm({ ...editForm, duration: e.target.value })}
+                      className={`w-full p-2.5 rounded-xl border outline-none text-xs ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"}`}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold uppercase opacity-60 block mb-1.5">Price</label>
+                    <input
+                      value={editForm.price}
+                      onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                      className={`w-full p-2.5 rounded-xl border outline-none text-xs ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"}`}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Batch Details per Institute — Req #5 */}
+              {!isEditing && (
+                <div>
+                  <h4 className="text-xs font-semibold uppercase tracking-wider opacity-60 mb-3 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-sky-400" />
+                    Batch Details
+                  </h4>
+                  <div className="space-y-2">
+                    {getCourseInstitutes(selectedCourse.title).map((inst) => {
+                      const durationDays = parseDurationDays(selectedCourse.duration);
+                      const startDate = new Date(inst.nextBatch);
+                      const validStart = !isNaN(startDate.getTime());
+                      const endDate = validStart ? addDays(startDate, durationDays) : null;
+
+                      return (
+                        <div
+                          key={inst.id}
+                          className={`p-3 rounded-xl border grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs ${
+                            isDark ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"
+                          }`}
+                        >
+                          <div>
+                            <span className="text-[10px] uppercase font-semibold opacity-40 block">Start Date</span>
+                            <span className="font-bold">{validStart ? fmtDate(startDate) : inst.nextBatch}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-semibold opacity-40 block">End Date</span>
+                            <span className="font-bold">{endDate ? fmtDate(endDate) : "—"}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-semibold opacity-40 block">Duration</span>
+                            <span className="font-bold">{selectedCourse.duration}</span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] uppercase font-semibold opacity-40 block">Batch Capacity</span>
+                            <span className="font-bold">{inst.seats} seats</span>
+                          </div>
+                          <div className="col-span-2 sm:col-span-4">
+                            <span className={`text-[10px] opacity-50`}>{inst.name}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Institutes & Per-Institute Pricing Section */}
+              {!isEditing && (
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-xs font-semibold uppercase tracking-wider opacity-60 flex items-center gap-1.5">
+                      <Building2 className="w-3.5 h-3.5 text-purple-400" />
+                      Available Institutes & Pricing ({getCourseInstitutes(selectedCourse.title).length})
+                    </h4>
+                    <span className="text-[11px] text-sky-400 font-medium">Prices vary by institute</span>
+                  </div>
+
+                  <div className="space-y-3">
+                    {getCourseInstitutes(selectedCourse.title).map((inst) => (
+                      <div
+                        key={inst.id}
+                        className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                          isDark ? "bg-white/[0.02] border-white/5 hover:border-white/10" : "bg-slate-50 border-slate-200"
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs font-bold">{inst.name}</span>
+                            {inst.rating && (
+                              <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-400">
+                                <Star className="w-2.5 h-2.5 fill-amber-400" />
+                                {inst.rating}
+                              </span>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-3 text-[11px] opacity-60">
+                            <span className="flex items-center gap-1">
+                              <MapPin className="w-3 h-3 text-rose-400" />
+                              {inst.location}
+                            </span>
+                            <span>•</span>
+                            <span>Next Batch: {inst.nextBatch}</span>
+                            <span>•</span>
+                            <span>{inst.seats} seats left</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                          <div className="text-right">
+                            <span className="text-[10px] uppercase font-semibold opacity-40 block">Price</span>
+                            <span className="text-sm font-bold text-emerald-400">{inst.price}</span>
+                          </div>
+
+                          <button
+                            onClick={() => handleQuickAssign(selectedCourse, inst.id)}
+                            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-600 text-white shadow-sm shadow-sky-500/20 transition-all cursor-pointer"
+                          >
+                            Assign Crew
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className={`p-4 px-6 border-t flex items-center justify-between ${
+              isDark ? "border-white/5 bg-white/[0.01]" : "border-slate-100 bg-slate-50"
+            }`}>
+              <span className="text-xs opacity-50">STCW 2010 Manila Amendments Accredited</span>
+              <div className="flex items-center gap-2">
+                {isEditing && (
+                  <button
+                    onClick={saveEdit}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white shadow-md cursor-pointer"
+                  >
+                    <Save className="w-3.5 h-3.5" />
+                    Save Changes
+                  </button>
+                )}
+                <button
+                  onClick={() => { setSelectedCourse(null); setIsEditing(false); }}
+                  className={`px-4 py-2 rounded-xl text-xs font-medium border transition-colors cursor-pointer ${
+                    isDark ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-200 hover:bg-slate-100"
+                  }`}
+                >
+                  {isEditing ? "Cancel" : "Close"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* ASSIGN COURSE MODAL (Select Seafarer removed per Req #4)                   */}
+      {/* ========================================================================= */}
+      {showAssignModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div
+            className={`w-full max-w-lg rounded-2xl border shadow-2xl p-6 ${
+              isDark ? "bg-[#0B1528] border-white/10 text-white" : "bg-white border-slate-200 text-slate-900"
+            }`}
+          >
+            <div className="flex items-center justify-between pb-4 border-b border-white/5">
+              <div className="flex items-center gap-2">
+                <BookOpen className="w-5 h-5 text-sky-400" />
+                <h3 className="text-base font-bold">Assign Course</h3>
               </div>
               <button
                 onClick={() => setShowAssignModal(false)}
-                className={`p-1.5 rounded transition-colors cursor-pointer ${
-                  isDark ? "hover:bg-white/5" : "hover:bg-slate-100"
+                className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
+                  isDark ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-200 hover:bg-slate-100"
                 }`}
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Form */}
-            <form onSubmit={handleAssignCourse} className="p-5 space-y-4">
-              {/* Select Seafarer */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase opacity-60">Select Seafarer</label>
-                <select
-                  value={targetSeafarerId}
-                  onChange={(e) => setTargetSeafarerId(e.target.value)}
-                  className={`w-full py-2 px-3 rounded-lg border text-xs outline-none ${
-                    isDark
-                      ? "bg-[#0c1a2e] border-white/10 text-white focus:border-sky-500"
-                      : "bg-white border-slate-200 text-slate-800 focus:border-sky-500"
-                  }`}
-                  required
-                >
-                  <option value="">Choose Seafarer...</option>
-                  {mockSeafarers.map((sf) => (
-                    <option key={sf.id} value={sf.id}>
-                      {sf.name} ({sf.rank})
+            {assignSuccessMessage ? (
+              <div className="py-8 text-center space-y-2">
+                <CheckCircle className="w-12 h-12 text-emerald-400 mx-auto animate-bounce" />
+                <p className="text-sm font-bold text-emerald-400">{assignSuccessMessage}</p>
+              </div>
+            ) : (
+              <form onSubmit={handleAssignCourse} className="space-y-4 pt-4 text-xs">
+                {/* Select Course */}
+                <div>
+                  <label className="font-semibold block mb-1.5 opacity-80">Select Course *</label>
+                  <select
+                    required
+                    value={targetCourseTitle}
+                    onChange={(e) => setTargetCourseTitle(e.target.value)}
+                    className={`w-full p-2.5 rounded-xl border outline-none ${
+                      isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+                    }`}
+                  >
+                    <option value="" disabled className={isDark ? "bg-[#0B1528]" : "bg-white"}>
+                      Choose a Course...
                     </option>
-                  ))}
-                </select>
-              </div>
+                    {coursesList.map((c) => (
+                      <option key={c.id} value={c.title} className={isDark ? "bg-[#0B1528]" : "bg-white"}>
+                        {c.title} ({c.duration})
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Select Course */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase opacity-60">Select Certification Course</label>
-                <select
-                  value={targetCourseCatalogId}
-                  onChange={(e) => setTargetCourseCatalogId(e.target.value)}
-                  className={`w-full py-2 px-3 rounded-lg border text-xs outline-none ${
-                    isDark
-                      ? "bg-[#0c1a2e] border-white/10 text-white focus:border-sky-500"
-                      : "bg-white border-slate-200 text-slate-800 focus:border-sky-500"
-                  }`}
-                  required
-                >
-                  <option value="">Choose Course...</option>
-                  {mockCoursesCatalog.map((course) => (
-                    <option key={course.id} value={course.id}>
-                      [{course.code}] {course.name} ({course.duration})
+                {/* Select Institute */}
+                <div>
+                  <label className="font-semibold block mb-1.5 opacity-80">Preferred Training Institute</label>
+                  <select
+                    value={targetInstituteId}
+                    onChange={(e) => setTargetInstituteId(e.target.value)}
+                    className={`w-full p-2.5 rounded-xl border outline-none ${
+                      isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+                    }`}
+                  >
+                    <option value="" className={isDark ? "bg-[#0B1528]" : "bg-white"}>
+                      Any Accredited Institute (Best Availability)
                     </option>
-                  ))}
-                </select>
-              </div>
+                    {MOCK_INSTITUTES.map((inst) => (
+                      <option key={inst.id} value={inst.id} className={isDark ? "bg-[#0B1528]" : "bg-white"}>
+                        {inst.name} ({inst.location})
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-              {/* Assignment Date */}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-bold uppercase opacity-60">Assignment Date</label>
-                <input
-                  type="date"
-                  value={assignedDate}
-                  onChange={(e) => setAssignedDate(e.target.value)}
-                  className={`w-full py-2 px-3 rounded-lg border text-xs outline-none ${
-                    isDark
-                      ? "bg-[#0c1a2e] border-white/10 text-white focus:border-sky-500"
-                      : "bg-white border-slate-200 text-slate-800 focus:border-sky-500"
-                  }`}
-                  required
-                />
-              </div>
+                {/* Assignment Date */}
+                <div>
+                  <label className="font-semibold block mb-1.5 opacity-80">Target Start Date</label>
+                  <input
+                    type="date"
+                    value={assignedDate}
+                    onChange={(e) => setAssignedDate(e.target.value)}
+                    className={`w-full p-2.5 rounded-xl border outline-none ${
+                      isDark ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+                    }`}
+                  />
+                </div>
 
-              {/* Buttons */}
-              <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/5">
-                <button
-                  type="button"
-                  onClick={() => setShowAssignModal(false)}
-                  className={`px-4 py-2 rounded-lg text-xs font-semibold border cursor-pointer transition-colors ${
-                    isDark
-                      ? "border-white/10 hover:bg-white/5 text-white"
-                      : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                  }`}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className={`px-4 py-2 rounded-lg text-xs font-bold border cursor-pointer transition-colors ${
-                    isDark
-                      ? "bg-white text-black border-transparent hover:bg-gray-200"
-                      : "bg-black text-white border-transparent hover:bg-gray-800"
-                  }`}
-                >
-                  Assign Course
-                </button>
-              </div>
-            </form>
+                {/* Actions */}
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/5">
+                  <button
+                    type="button"
+                    onClick={() => setShowAssignModal(false)}
+                    className={`px-4 py-2 rounded-xl border font-medium cursor-pointer ${
+                      isDark ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-200 hover:bg-slate-100"
+                    }`}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="px-4 py-2 rounded-xl font-medium bg-sky-500 hover:bg-sky-600 text-white shadow-md shadow-sky-500/20 cursor-pointer"
+                  >
+                    Confirm Assignment
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
-        </>
+        </div>
       )}
     </div>
   );

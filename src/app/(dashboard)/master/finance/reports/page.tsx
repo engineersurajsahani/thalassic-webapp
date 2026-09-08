@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useState, useEffect, useCallback } from "react";
 import { useTheme } from "@/providers/theme-provider";
@@ -51,7 +52,7 @@ export default function ReportsPage() {
     // Calling export endpoint (stub)
     const url = `/master/finance/reports/export?format=${format}&type=${activeTab}`;
     console.log("Exporting to", url);
-    alert(`Exporting ${activeTab} report as ${format.toUpperCase()}...`);
+    toast(`Exporting ${activeTab} report as ${format.toUpperCase()}...`);
   };
 
   const tabs = [

@@ -1,4 +1,5 @@
 "use client";
+import toast from 'react-hot-toast';
 
 import React, { useEffect, useState } from "react";
 import { agentService } from "@/services/agent.service";
@@ -76,7 +77,7 @@ export default function AgentSupportPage() {
       setSelectedTicket(fullTicket);
       setShowDetailsModal(true);
     } catch (err: any) {
-      alert(err.response?.data?.message || "Failed to load ticket details.");
+      toast.error(err.response?.data?.message || "Failed to load ticket details.");
     }
   };
 

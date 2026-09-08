@@ -1,0 +1,264 @@
+"use client";
+
+import React, { useEffect, useState, useRef } from "react";
+import { usePathname } from "next/navigation";
+import { useTheme } from "@/providers/theme-provider";
+import { useAuth } from "@/providers/auth-provider";
+import { notificationService } from "@/services/notification.service";
+import { Bell, Sun, Moon, Check, MessageSquare, BookOpen, AlertCircle, ChevronDown } from "lucide-react";
+import Link from "next/link";
+
+const pageNames: { [key: string]: string } = {
+  "/seafarer/dashboard": "Dashboard",
+  "/seafarer/my-courses": "My Enrolled Courses",
+  "/seafarer/browse-courses": "Browse DGS Courses",
+  "/seafarer/documents": "Document Repository",
+  "/seafarer/profile": "Seafarer Profile Settings",
+  "/seafarer/purchase-history": "Purchase History",
+  "/seafarer/referral-dashboard": "Referral Dashboard",
+  "/seafarer/support": "Support Center",
+};
+
+export default function SeafarerTopbar() {
+  const { theme, toggleTheme } = useTheme();
+  const { user } = useAuth();
+  const isDark = theme === "dark";
+  const pathname = usePathname();
+
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const notificationListRef = useRef<HTMLDivElement>(null);
+
+  const checkScroll = () => {
+    if (notificationListRef.current) {
+      const { scrollTop, scrollHeight, clientHeight } = notificationListRef.current;
+      setCanScrollDown(scrollHeight - scrollTop - clientHeight > 10);
+    }
+  };
+
+  const handleScrollDown = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (notificationListRef.current) {
+      notificationListRef.current.scrollBy({ top: 120, behavior: "smooth" });
+    }
+  };
+
+  useEffect(() => {
+    if (showNotifications) {
+      const timer = setTimeout(checkScroll, 80);
+      return () => clearTimeout(timer);
+    }
+  }, [showNotifications, notifications]);
+
+  const currentPageName = pageNames[pathname] || "Dashboard";
+
+  const fetchNotifications = async () => {
+    try {
+      const list = await notificationService.getNotifications();
+      setNotifications(list);
+    } catch (err) {
+      console.error("Failed to load notifications: ", err);
+    }
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+    // Poll notifications every 30 seconds
+    const interval = setInterval(fetchNotifications, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await notificationService.markAsRead(id);
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+      );
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await notificationService.markAllAsRead();
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+    } catch (err) {
+      console.error("Failed to mark all read:", err);
+    }
+  };
+
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
+
+  return (
+    <header
+      className={`h-20 border-b flex items-center justify-between px-6 z-20 transition-colors duration-300 relative ${
+        isDark
+          ? "bg-[#0A1929] border-gray-800"
+          : "bg-white border-slate-200"
+      }`}
+    >
+      {/* Left side: Breadcrumb & Title */}
+      <div>
+        <div className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+          <span>Seafarer</span>
+          <span className="mx-2">/</span>
+          <span className={isDark ? "text-white" : "text-slate-900"}>{currentPageName}</span>
+        </div>
+        <h2 className={`text-xl font-bold mt-0.5 ${isDark ? "text-white" : "text-slate-900"}`}>
+          {currentPageName}
+        </h2>
+      </div>
+
+      {/* Right side: Operations panel */}
+      <div className="flex items-center gap-4">
+        {/* Notification Bell Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className={`relative p-2 rounded-lg transition-all cursor-pointer ${
+              isDark ? "hover:bg-gray-800" : "hover:bg-slate-100"
+            }`}
+            aria-label="Notifications"
+          >
+            <Bell className={`w-5 h-5 ${isDark ? "text-gray-300" : "text-slate-600"}`} />
+            {unreadCount > 0 && (
+              <span className="absolute top-1 right-1 w-2.5 h-2.5 bg-red-500 rounded-full animate-bounce flex items-center justify-center text-[7px] text-white font-bold">
+                {unreadCount}
+              </span>
+            )}
+          </button>
+
+          {showNotifications && (
+            <>
+              <div
+                className="fixed inset-0 z-20"
+                onClick={() => setShowNotifications(false)}
+              />
+              <div
+                className={`absolute right-0 mt-2 w-80 border rounded-xl shadow-xl z-30 p-2 overflow-hidden animate-fadeIn ${
+                  isDark ? "bg-[#0A2540] border-gray-800 text-white" : "bg-white border-slate-200 text-slate-900"
+                }`}
+              >
+                <div className="flex items-center justify-between border-b border-gray-800/40 pb-2 mb-2 px-2">
+                  <h4 className="font-bold text-sm">Notifications</h4>
+                  {unreadCount > 0 && (
+                    <button
+                      onClick={handleMarkAllRead}
+                      className="text-[10px] font-semibold text-cyan-400 hover:underline cursor-pointer"
+                    >
+                      Mark all read
+                    </button>
+                  )}
+                </div>
+
+                <div className="relative">
+                  <div
+                    ref={notificationListRef}
+                    onScroll={checkScroll}
+                    className="max-h-64 overflow-y-auto space-y-1.5 pr-1 scroll-smooth"
+                  >
+                    {notifications.length === 0 ? (
+                      <div className="text-center py-6 text-xs text-gray-500">
+                        No notifications yet
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          className={`p-2 rounded-lg text-xs leading-normal flex items-start gap-2.5 relative border ${
+                            n.isRead
+                              ? isDark
+                                ? "bg-transparent border-transparent text-gray-400"
+                                : "bg-transparent border-transparent text-slate-500"
+                              : isDark
+                              ? "bg-blue-950/20 border-blue-900/30 text-white"
+                              : "bg-blue-50/50 border-blue-100 text-slate-800"
+                          }`}
+                        >
+                          <div className="mt-0.5 flex-shrink-0">
+                            {n.title.toLowerCase().includes("course") ? (
+                              <BookOpen className="w-3.5 h-3.5 text-cyan-400" />
+                            ) : n.title.toLowerCase().includes("document") ? (
+                              <AlertCircle className="w-3.5 h-3.5 text-amber-400" />
+                            ) : (
+                              <MessageSquare className="w-3.5 h-3.5 text-blue-400" />
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-bold truncate">{n.title}</div>
+                            <p className="mt-0.5 text-[10px] leading-relaxed text-gray-400">
+                              {n.message}
+                            </p>
+                          </div>
+                          {!n.isRead && (
+                            <button
+                              onClick={(e) => handleMarkAsRead(n.id, e)}
+                              className="p-1 rounded hover:bg-gray-800/40 text-cyan-400 self-center cursor-pointer"
+                              title="Mark as read"
+                            >
+                              <Check className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
+                      ))
+                    )}
+                  </div>
+
+                  {/* Downward Scroll Arrow Button */}
+                  {canScrollDown && (
+                    <button
+                      type="button"
+                      onClick={handleScrollDown}
+                      className={`absolute bottom-2 right-2 w-6 h-6 rounded-full flex items-center justify-center shadow-md transition-all duration-200 cursor-pointer z-10 hover:scale-110 active:scale-95 ${
+                        isDark
+                          ? "bg-[#0A2540]/95 hover:bg-cyan-500 hover:text-slate-950 border border-cyan-500/40 text-cyan-400"
+                          : "bg-white/95 hover:bg-[#3b71cb] hover:text-white border border-slate-200 text-[#3b71cb]"
+                      }`}
+                      aria-label="Scroll down notifications"
+                      title="Scroll down"
+                    >
+                      <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Theme Switcher Toggle */}
+        <button
+          onClick={toggleTheme}
+          className={`p-2 rounded-lg transition-all cursor-pointer ${
+            isDark ? "hover:bg-gray-800 text-yellow-300" : "hover:bg-slate-100 text-slate-600"
+          }`}
+          aria-label="Toggle theme"
+        >
+          {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+        </button>
+
+        {/* Vertical Separator */}
+        <div className={`w-px h-5 ${isDark ? "bg-gray-800" : "bg-slate-200"}`} />
+
+        {/* Profile Avatar Triggering Profile Page */}
+        <Link
+          href="/seafarer/profile"
+          className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-md transition-colors duration-200 overflow-hidden bg-[#3D5EF6] hover:bg-[#2E4FE0]"
+        >
+          {(user?.profile?.profilePicture || user?.profilePicture) ? (
+            <img
+              src={user?.profile?.profilePicture || user?.profilePicture}
+              alt="Profile"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            user?.name?.charAt(0) || "S"
+          )}
+        </Link>
+      </div>
+    </header>
+  );
+}
