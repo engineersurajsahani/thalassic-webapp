@@ -23,13 +23,14 @@ export default function Reports() {
 
   const handleExport = (format: string) => {
     if (format === "Excel") {
-      const headers = ["Agent Name", "Referral Leads", "Converted", "Conversion Rate", "Attributed Sales", "Agent Earnings"];
+      const headers = ["Agent Name", "Total Seafarers", "Courses Booked", "Total Revenue", "Settled Amount", "Pending Balance", "Commission Earned"];
       const rows = performance.map((p: any) => [
         `"${p.agentName || ""}"`,
-        p.leads ?? 0,
-        p.conversions ?? 0,
-        `"${p.conversionRate || "0%"}"`,
+        p.seafarers ?? p.leads ?? 0,
+        p.courses ?? p.conversions ?? 0,
         `"${p.totalSales || "₹0"}"`,
+        `"${p.settledAmount || "₹0"}"`,
+        `"${p.pendingBalance || "₹0"}"`,
         `"${p.earnings || "₹0"}"`
       ]);
 
@@ -98,11 +99,11 @@ export default function Reports() {
   }
 
   const defaultPerformance = [
-    { agentName: "Apex Maritime Solutions", leads: 42, conversions: 32, conversionRate: "76.2%", totalSales: "₹10,50,000", earnings: "₹1,26,000" },
-    { agentName: "Blue Ocean Crewing Ltd", leads: 35, conversions: 25, conversionRate: "71.4%", totalSales: "₹8,75,000", earnings: "₹1,05,000" },
-    { agentName: "Nautical Placement Services", leads: 28, conversions: 20, conversionRate: "71.4%", totalSales: "₹7,00,000", earnings: "₹84,000" },
-    { agentName: "SeaFarer Operations India", leads: 22, conversions: 14, conversionRate: "63.6%", totalSales: "₹5,50,000", earnings: "₹66,000" },
-    { agentName: "Pacific Marine Manning", leads: 15, conversions: 7, conversionRate: "46.7%", totalSales: "₹3,75,000", earnings: "₹45,000" }
+    { agentName: "Apex Maritime Solutions", seafarers: 42, courses: 38, totalSales: "₹10,50,000", settledAmount: "₹8,40,000", pendingBalance: "₹2,10,000", earnings: "₹1,26,000" },
+    { agentName: "Blue Ocean Crewing Ltd", seafarers: 35, courses: 30, totalSales: "₹8,75,000", settledAmount: "₹7,00,000", pendingBalance: "₹1,75,000", earnings: "₹1,05,000" },
+    { agentName: "Nautical Placement Services", seafarers: 28, courses: 24, totalSales: "₹7,00,000", settledAmount: "₹5,60,000", pendingBalance: "₹1,40,000", earnings: "₹84,000" },
+    { agentName: "SeaFarer Operations India", seafarers: 22, courses: 18, totalSales: "₹5,50,000", settledAmount: "₹4,40,000", pendingBalance: "₹1,10,000", earnings: "₹66,000" },
+    { agentName: "Pacific Marine Manning", seafarers: 15, courses: 10, totalSales: "₹3,75,000", settledAmount: "₹3,00,000", pendingBalance: "₹75,000", earnings: "₹45,000" }
   ];
 
   const defaultConversion = {
@@ -392,10 +393,11 @@ export default function Reports() {
               <thead>
                 <tr className={`border-b pb-3 ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}>
                   <th className="py-3.5 px-2">Agent Name</th>
-                  <th className="py-3.5 px-2 text-center">Referral Leads</th>
-                  <th className="py-3.5 px-2 text-center">Converted</th>
-                  <th className="py-3.5 px-2 text-center">Conversion Rate</th>
+                  <th className="py-3.5 px-2 text-center">Total Seafarers</th>
+                  <th className="py-3.5 px-2 text-center">Courses Booked</th>
                   <th className="py-3.5 px-2 text-right">Attributed Sales</th>
+                  <th className="py-3.5 px-2 text-right">Settled Amount</th>
+                  <th className="py-3.5 px-2 text-right">Pending Balance</th>
                   <th className="py-3.5 px-2 text-right">Agent Earnings</th>
                 </tr>
               </thead>
@@ -408,28 +410,33 @@ export default function Reports() {
                       {p.agentName}
                     </td>
 
-                    {/* Leads */}
-                    <td className="py-4 px-2 text-center font-semibold">
-                      {p.leads}
-                    </td>
-
-                    {/* Converted */}
-                    <td className="py-4 px-2 text-center font-bold text-emerald-500">
-                      {p.conversions}
-                    </td>
-
-                    {/* Rate */}
+                    {/* Total Seafarers */}
                     <td className="py-4 px-2 text-center font-bold text-[#3D5EF6]">
-                      {p.conversionRate}
+                      {p.seafarers ?? p.leads ?? 0}
                     </td>
 
-                    {/* Sales */}
+                    {/* Courses Booked */}
+                    <td className="py-4 px-2 text-center font-bold text-teal-500">
+                      {p.courses ?? p.conversions ?? 0}
+                    </td>
+
+                    {/* Attributed Sales */}
                     <td className="py-4 px-2 text-right font-bold">
                       {p.totalSales}
                     </td>
 
-                    {/* Earnings */}
+                    {/* Settled Amount */}
                     <td className="py-4 px-2 text-right font-bold text-emerald-500">
+                      {p.settledAmount || "₹0"}
+                    </td>
+
+                    {/* Pending Balance */}
+                    <td className="py-4 px-2 text-right font-bold text-amber-500">
+                      {p.pendingBalance || "₹0"}
+                    </td>
+
+                    {/* Earnings */}
+                    <td className="py-4 px-2 text-right font-bold text-emerald-600 dark:text-emerald-400">
                       {p.earnings}
                     </td>
                   </tr>
