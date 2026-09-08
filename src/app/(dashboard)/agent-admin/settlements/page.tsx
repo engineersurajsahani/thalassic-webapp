@@ -88,9 +88,25 @@ export default function PartnerSettlementsPage() {
     // Save previous state for rollback in case of server validation error
     const prevSettlements = settlements;
 
-    // Optimistic update: change UI immediately so the dropdown responds instantly
+    // Optimistic update: change UI immediately so the dropdown & amounts respond instantly
     setSettlements((prev) =>
-      prev.map((s) => (s.id === settlementId ? { ...s, status: newStatus } : s))
+      prev.map((s) => {
+        if (s.id !== settlementId) return s;
+        const isDone = newStatus === 'Completed' || newStatus === 'Paid';
+        const total = Number(s.amount_payable ?? s.amountPayable ?? s.total_amount ?? s.totalAmount ?? 0);
+        return {
+          ...s,
+          status: newStatus,
+          amount_settled: isDone ? total : 0,
+          amountSettled: isDone ? total : 0,
+          paid_amount: isDone ? total : 0,
+          paidAmount: isDone ? total : 0,
+          pending_amount: isDone ? 0 : total,
+          pendingAmount: isDone ? 0 : total,
+          remaining_amount: isDone ? 0 : total,
+          remainingAmount: isDone ? 0 : total,
+        };
+      })
     );
     setUpdatingId(settlementId);
 
