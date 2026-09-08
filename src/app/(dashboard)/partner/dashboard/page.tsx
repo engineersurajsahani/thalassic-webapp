@@ -131,16 +131,7 @@ export default function PartnerDashboard() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div className="flex flex-wrap items-center gap-2">
-            <span
-              className={`text-[11px] font-bold uppercase tracking-widest px-3.5 py-1 rounded-full ${
-                isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-blue-600 border border-blue-200"
-              }`}
-            >
-              ⚓ Authorized Partner Portal
-            </span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-2.5">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             Partner Operations Dashboard
           </h1>
           <p className={`text-xs md:text-sm mt-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>

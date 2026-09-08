@@ -81,11 +81,6 @@ export default function AgentDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full ${
-              isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"
-            }`}>
-              ⚓ Partner Workspace
-            </span>
             <button
               onClick={handleCopyCode}
               title="Click to copy Referral Code"

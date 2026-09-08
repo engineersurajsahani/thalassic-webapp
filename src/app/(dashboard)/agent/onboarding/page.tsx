@@ -144,12 +144,7 @@ export default function OnboardingPage() {
           <Anchor className="w-6 h-6 text-white animate-pulse" strokeWidth={2.5} />
         </div>
         <div>
-          <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full ${
-            isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-cyan-50 text-cyan-600"
-          }`}>
-            ⚓ Partner Onboarding Wizard
-          </span>
-          <h1 className="text-3xl font-extrabold tracking-tight mt-3">
+          <h1 className="text-3xl font-extrabold tracking-tight">
             Setup Your Thalassic Agency
           </h1>
           <p className={`text-xs mt-1.5 max-w-md ${isDark ? "text-slate-400" : "text-slate-500"}`}>

@@ -84,15 +84,6 @@ export default function PurchaseDetailsPage() {
           >
             <ArrowLeft className="w-3.5 h-3.5" /> Back to Purchase Ledger
           </Link>
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-[10px] font-bold uppercase tracking-widest px-3 py-0.5 rounded-full ${
-                isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-blue-600 border border-blue-200"
-              }`}
-            >
-              Partner Purchase Record
-            </span>
-          </div>
           <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-1.5 font-mono">
             {purchase.id}
           </h1>

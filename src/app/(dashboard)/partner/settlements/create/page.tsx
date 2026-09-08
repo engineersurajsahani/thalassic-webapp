@@ -303,15 +303,6 @@ export default function SubmitSettlementPage() {
           >
             <ArrowLeft className="w-4 h-4" /> Back to Settlement History
           </Link>
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full ${
-                isDark ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30" : "bg-blue-100 text-blue-900 border border-blue-300"
-              }`}
-            >
-              Partner Financial Settlement Portal
-            </span>
-          </div>
           <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight mt-1.5 ${headingText}`}>
             Submit Remittance Batch
           </h1>

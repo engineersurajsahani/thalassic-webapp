@@ -240,12 +240,7 @@ export default function ReferralsTrackerPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex flex-col gap-1">
-          <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full w-fit ${
-            isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
-          }`}>
-            👥 Referrals Tracker
-          </span>
-          <h1 className="text-3xl font-extrabold tracking-tight mt-1.5">
+          <h1 className="text-3xl font-extrabold tracking-tight">
             Referrals Directory
           </h1>
           <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>

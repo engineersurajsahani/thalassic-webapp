@@ -108,16 +108,7 @@ export default function PartnerProfilePage() {
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn pb-12">
       <div>
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-[10px] font-bold uppercase tracking-widest px-3 py-0.5 rounded-full ${
-              isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-blue-600 border border-blue-200"
-            }`}
-          >
-            Partner Credentials
-          </span>
-        </div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-1.5">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
           Account & Agency Settings
         </h1>
         <p className={`text-xs md:text-sm mt-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>

@@ -63,16 +63,7 @@ export default function PurchasesPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-[10px] font-bold uppercase tracking-widest px-3 py-0.5 rounded-full ${
-                isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-blue-600 border border-blue-200"
-              }`}
-            >
-              Course Purchase Ledger
-            </span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-1.5">
+          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight">
             Partner Course Purchases
           </h1>
           <p className={`text-xs md:text-sm mt-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
