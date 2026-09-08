@@ -82,6 +82,9 @@ export function deleteCookie(name: string) {
 // ISSUE-016: Uses shared resolveAuthToken() function instead of duplicating route logic
 api.interceptors.request.use(
   (config) => {
+    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+      config.baseURL = 'http://localhost:4000/api/v1';
+    }
     const token = resolveAuthToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
