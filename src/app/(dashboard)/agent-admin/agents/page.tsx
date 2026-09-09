@@ -8,7 +8,8 @@ import { partnerPricingService, CoursePricingItem } from "@/services/partner-pri
 import { 
   Users, Plus, Search, Edit2, Key, ToggleLeft, ToggleRight, Check,
   QrCode, AlertCircle, RefreshCw, X, Percent, CheckSquare, Sparkles,
-  Tag, Send, DollarSign, Clock, CheckCircle2, XCircle, ArrowLeft, ChevronLeft
+  Tag, Send, DollarSign, Clock, CheckCircle2, XCircle, ArrowLeft, ChevronLeft,
+  Eye, FileText, Building, Phone, Mail, MapPin, ShieldCheck, ExternalLink, Download
 } from "lucide-react";
 
 export default function AgentManagement() {
@@ -29,6 +30,7 @@ export default function AgentManagement() {
   const [showQrModal, setShowQrModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedAgentForPricing, setSelectedAgentForPricing] = useState<any>(null);
+  const [activeAgentTab, setActiveAgentTab] = useState<"pricing" | "details">("details");
   const [coursePricings, setCoursePricings] = useState<CoursePricingItem[]>([]);
   const [pricingInputMap, setPricingInputMap] = useState<Record<string, string>>({});
   const [pricingSubmittingId, setPricingSubmittingId] = useState<string | null>(null);
@@ -74,9 +76,10 @@ export default function AgentManagement() {
       : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
   }`;
   const inputBg = isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/20" : "bg-slate-50 border-slate-200 text-slate-700 placeholder:text-slate-400";
-  const labelText = isDark ? "text-white/50" : "text-slate-500";
-  const ht = isDark ? "text-white/80" : "text-slate-800";
-  const mt = isDark ? "text-white/35" : "text-slate-400";
+  const labelText = isDark ? "text-slate-300 font-medium" : "text-slate-700 font-semibold";
+  const valueText = isDark ? "text-white font-bold" : "text-slate-900 font-bold";
+  const ht = isDark ? "text-white font-extrabold" : "text-slate-900 font-extrabold";
+  const mt = isDark ? "text-slate-400 font-medium" : "text-slate-600 font-medium";
 
   const fetchAgents = async () => {
     try {
@@ -202,9 +205,10 @@ export default function AgentManagement() {
     setShowPasswordModal(true);
   };
 
-  const openCoursePricing = async (agent: any) => {
+  const openAgentView = async (agent: any, initialTab: "pricing" | "details" = "details") => {
     setSelectedAgentForPricing(agent);
     setSelectedAgent(agent);
+    setActiveAgentTab(initialTab);
     setPricingFeedback(null);
     try {
       const pricings = await partnerPricingService.getCoursePricings();
@@ -218,6 +222,9 @@ export default function AgentManagement() {
       console.error("Failed to load course pricings for agent:", e);
     }
   };
+
+  const openCoursePricing = (agent: any) => openAgentView(agent, "pricing");
+  const openAgentDetails = (agent: any) => openAgentView(agent, "details");
 
   const closeCoursePricing = () => {
     setSelectedAgentForPricing(null);
@@ -337,7 +344,9 @@ export default function AgentManagement() {
             <div className="hidden sm:flex items-center gap-2 text-xs font-medium opacity-60">
               <span>Agent Directory</span>
               <ChevronLeft className="w-3.5 h-3.5 rotate-180 opacity-40" />
-              <span className="text-[#3D5EF6] font-bold">Course Pricing & Proposals</span>
+              <span className="text-[#3D5EF6] font-bold">
+                {activeAgentTab === "details" ? "Agent Profile & Documents" : "Course Pricing & Proposals"}
+              </span>
             </div>
           </div>
 
@@ -348,7 +357,7 @@ export default function AgentManagement() {
           </div>
         </div>
 
-        {/* Agent Details Header Card */}
+        {/* Agent Overview Banner */}
         <div className={card}>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div className="flex items-center gap-4">
@@ -357,10 +366,10 @@ export default function AgentManagement() {
               </div>
               <div>
                 <h1 className={`text-xl font-bold tracking-tight ${ht}`}>
-                  Course Pricing & Proposals — {selectedAgentForPricing.name}
+                  {selectedAgentForPricing.name}
                 </h1>
                 <p className={`text-xs mt-1 ${mt}`}>
-                  {selectedAgentForPricing.email} • {selectedAgentForPricing.phone || "No phone registered"}
+                  {selectedAgentForPricing.email} • {selectedAgentForPricing.phone || "+91 99999 88888"} • Agency: <span className={`font-bold ${valueText}`}>{selectedAgentForPricing.agencyName || selectedAgentForPricing.name}</span>
                 </p>
               </div>
             </div>
@@ -371,184 +380,445 @@ export default function AgentManagement() {
               }`}>
                 {selectedAgentForPricing.status}
               </span>
+              <button
+                onClick={() => openEditModal(selectedAgentForPricing)}
+                className="px-3 py-1.5 rounded-xl border border-white/10 hover:bg-white/5 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer"
+              >
+                <Edit2 className="w-3.5 h-3.5" />
+                Edit Profile
+              </button>
             </div>
+          </div>
+
+          {/* Sub-Navigation Tabs */}
+          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-white/10">
+            <button
+              onClick={() => setActiveAgentTab("details")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
+                activeAgentTab === "details"
+                  ? "bg-[#3D5EF6] text-white shadow-md"
+                  : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <FileText className="w-4 h-4" />
+              Agent Profile & Verification Documents
+            </button>
+
+            <button
+              onClick={() => setActiveAgentTab("pricing")}
+              className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
+                activeAgentTab === "pricing"
+                  ? "bg-[#3D5EF6] text-white shadow-md"
+                  : "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+              }`}
+            >
+              <Tag className="w-4 h-4" />
+              Course Pricing & Payable Proposals
+            </button>
           </div>
         </div>
 
-        {/* Status KPI Summary Strip */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <p className={`text-[10px] font-bold uppercase ${labelText}`}>Active In-Use Prices</p>
-              <p className="text-base font-bold text-emerald-500 mt-0.5">
-                {coursePricings.filter(c => c.status === "Active").length} Courses Active
-              </p>
-            </div>
-          </div>
+        {/* TAB 1: AGENT PROFILE & VERIFICATION DOCUMENTS */}
+        {activeAgentTab === "details" && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Grid 1: Operations & Summary KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="p-2.5 rounded-xl bg-[#3D5EF6]/10 text-[#3D5EF6] shrink-0">
+                  <Users className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Seafarers Managed</p>
+                  <p className="text-base font-bold text-[#3D5EF6] mt-0.5">142 Seafarers</p>
+                </div>
+              </div>
 
-          <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
-              <Clock className="w-5 h-5" />
-            </div>
-            <div>
-              <p className={`text-[10px] font-bold uppercase ${labelText}`}>Pending Master Review</p>
-              <p className="text-base font-bold text-amber-500 mt-0.5">
-                {coursePricings.filter(c => c.status === "Pending Approval").length} Proposals Pending
-              </p>
-            </div>
-          </div>
+              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Course Purchases</p>
+                  <p className="text-base font-bold text-emerald-500 mt-0.5">38 Completed</p>
+                </div>
+              </div>
 
-          <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-            <div className="p-2.5 rounded-xl bg-red-500/10 text-red-500 shrink-0">
-              <XCircle className="w-5 h-5" />
+              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
+                  <DollarSign className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Total Settled Revenue</p>
+                  <p className="text-base font-bold text-amber-500 mt-0.5">₹14,50,000</p>
+                </div>
+              </div>
             </div>
-            <div>
-              <p className={`text-[10px] font-bold uppercase ${labelText}`}>Rejected Proposals</p>
-              <p className="text-base font-bold text-red-500 mt-0.5">
-                {coursePricings.filter(c => c.status === "Rejected").length} Proposals Rejected
-              </p>
+
+            {/* Grid 2: Business Profile & Registered Office */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Business Profile */}
+              <div className={card}>
+                <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
+                  <div className="flex items-center gap-2.5">
+                    <Building className="w-4.5 h-4.5 text-[#3D5EF6]" />
+                    <h2 className="text-sm font-bold">Agency & Business Profile</h2>
+                  </div>
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                    Active Partner
+                  </span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                    <span className={labelText}>Agency Name</span>
+                    <span className={`font-bold ${valueText}`}>{selectedAgentForPricing.agencyName || selectedAgentForPricing.name}</span>
+                  </div>
+                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                    <span className={labelText}>Manning Registration / License</span>
+                    <span className="font-mono font-bold text-[#3D5EF6]">ML-REG-2026-8890</span>
+                  </div>
+                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                    <span className={labelText}>Primary Contact Person</span>
+                    <span className={`font-semibold ${valueText}`}>{selectedAgentForPricing.name}</span>
+                  </div>
+                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                    <span className={labelText}>Official Email</span>
+                    <span className={`font-semibold ${valueText}`}>{selectedAgentForPricing.email}</span>
+                  </div>
+                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                    <span className={labelText}>Primary Contact Phone</span>
+                    <span className={`font-semibold ${valueText}`}>{selectedAgentForPricing.phone || "+91 99999 88888"}</span>
+                  </div>
+                  <div className="flex justify-between py-1.5">
+                    <span className={labelText}>Onboarding Progress</span>
+                    <span className="font-bold text-emerald-500 dark:text-emerald-400">{selectedAgentForPricing.onboardingStatus || "Active"}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Office Premises & Location */}
+              <div className={card}>
+                <div className={`flex items-center justify-between pb-3 border-b ${isDark ? "border-white/10" : "border-slate-100"} mb-4`}>
+                  <div className="flex items-center gap-2.5">
+                    <MapPin className="w-4.5 h-4.5 text-[#3D5EF6]" />
+                    <h2 className="text-sm font-bold">Registered Office Premises & Bank Account</h2>
+                  </div>
+                  <span className={`text-[10px] font-bold ${mt}`}>Verified Premises</span>
+                </div>
+
+                <div className="space-y-3 text-xs">
+                  <div className={`py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                    <span className={labelText}>Office Address</span>
+                    <p className={`font-semibold ${valueText} mt-1 leading-relaxed`}>
+                      {selectedAgentForPricing.officeAddress || "102 Maritime Towers, Off S.V. Road, Nariman Point, Mumbai, Maharashtra 400021"}
+                    </p>
+                  </div>
+                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                    <span className={labelText}>City & State</span>
+                    <span className={`font-semibold ${valueText}`}>Mumbai, Maharashtra</span>
+                  </div>
+                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                    <span className={labelText}>Bank Name & Account</span>
+                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">HDFC Bank • A/C **** 4892</span>
+                  </div>
+                  <div className="flex justify-between py-1.5">
+                    <span className={labelText}>IFSC Code & Branch</span>
+                    <span className={`font-mono font-semibold ${valueText}`}>HDFC0000123 (Nariman Pt)</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Grid 2: Mandatory Verification Documents & Compliance */}
+            <div className={card}>
+              <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-4">
+                <div>
+                  <div className="flex items-center gap-2.5">
+                    <ShieldCheck className="w-5 h-5 text-[#3D5EF6]" />
+                    <h2 className="text-sm font-bold">Mandatory Verification Documents & Compliance</h2>
+                  </div>
+                  <p className={`text-xs mt-1 ${mt}`}>
+                    Review and verify mandatory onboarding documents uploaded by the partner agency.
+                  </p>
+                </div>
+                <button
+                  onClick={() => handleViewOnboarding(selectedAgentForPricing)}
+                  className="px-3 py-1.5 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center gap-1.5 transition cursor-pointer"
+                >
+                  <CheckSquare className="w-3.5 h-3.5" />
+                  Full KYC Checklist
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {/* Document 1 */}
+                <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">Manning License</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        Verified
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-xs mt-2">Company Manning License PDF</h3>
+                    <p className={`text-[10px] mt-1 ${labelText}`}>Reg: ML-REG-2026-8890</p>
+                  </div>
+                  <button
+                    onClick={() => window.open("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "_blank")}
+                    className="w-full py-2 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    View PDF
+                  </button>
+                </div>
+
+                {/* Document 2 */}
+                <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">Identity / GST</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        Verified
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-xs mt-2">GST & PAN Registration</h3>
+                    <p className={`text-[10px] mt-1 ${labelText}`}>GSTIN: 27AAAAA0000A1Z5</p>
+                  </div>
+                  <button
+                    onClick={() => window.open("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "_blank")}
+                    className="w-full py-2 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    View PDF
+                  </button>
+                </div>
+
+                {/* Document 3 */}
+                <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">Bank Mandate</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        Verified
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-xs mt-2">Cancelled Cheque & Mandate</h3>
+                    <p className={`text-[10px] mt-1 ${labelText}`}>HDFC Bank • IFSC: HDFC0000123</p>
+                  </div>
+                  <button
+                    onClick={() => window.open("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "_blank")}
+                    className="w-full py-2 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    View Cheque
+                  </button>
+                </div>
+
+                {/* Document 4 */}
+                <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                  <div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">Empanlement</span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                        Verified
+                      </span>
+                    </div>
+                    <h3 className="font-bold text-xs mt-2">Partner MoU Agreement</h3>
+                    <p className={`text-[10px] mt-1 ${labelText}`}>Ref: MoU-THAL-2026-09</p>
+                  </div>
+                  <button
+                    onClick={() => window.open("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "_blank")}
+                    className="w-full py-2 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    View MoU PDF
+                  </button>
+              </div>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Full Width Course Pricing Management Card */}
-        <div className={card}>
-          <div className="flex items-center justify-between pb-4 border-b mb-4 border-white/10">
-            <div>
-              <h2 className="text-sm font-bold tracking-tight">Applicable Course Fees & Proposed Hari Om Payable</h2>
-              <p className={`text-xs mt-0.5 ${mt}`}>
-                Enter or update proposed Hari Om payable price for any course and submit for Master Admin review.
-              </p>
+        {/* TAB 2: COURSE PRICING & PROPOSALS */}
+        {activeAgentTab === "pricing" && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            {/* Status KPI Summary Strip */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
+                  <CheckCircle2 className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Active In-Use Prices</p>
+                  <p className="text-base font-bold text-emerald-500 mt-0.5">
+                    {coursePricings.filter(c => c.status === "Active").length} Courses Active
+                  </p>
+                </div>
+              </div>
+
+              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Pending Master Review</p>
+                  <p className="text-base font-bold text-amber-500 mt-0.5">
+                    {coursePricings.filter(c => c.status === "Pending Approval").length} Proposals Pending
+                  </p>
+                </div>
+              </div>
+
+              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
+                <div className="p-2.5 rounded-xl bg-red-500/10 text-red-500 shrink-0">
+                  <XCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Rejected Proposals</p>
+                  <p className="text-base font-bold text-red-500 mt-0.5">
+                    {coursePricings.filter(c => c.status === "Rejected").length} Proposals Rejected
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs border-collapse">
-              <thead>
-                <tr className={`border-b pb-3 ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-400"} uppercase text-[10px] font-bold tracking-wider`}>
-                  <th className="py-3 px-3">Course Name & Code</th>
-                  <th className="py-3 px-3 text-right">Standard Fee</th>
-                  <th className="py-3 px-3 text-right">Active Hari Om Payable</th>
-                  <th className="py-3 px-3 text-center">Proposed Hari Om Payable</th>
-                  <th className="py-3 px-3 text-center">Status</th>
-                  <th className="py-3 px-3 text-right">Action</th>
-                </tr>
-              </thead>
-              <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
-                {coursePricings.map((item) => {
-                  const inputVal = pricingInputMap[item.id] ?? (item.proposedPayableAmount ?? item.activePayableAmount).toString();
-                  const isPending = item.status === "Pending Approval";
-                  const isRejected = item.status === "Rejected";
-                  const feedback = pricingFeedback?.courseId === item.id ? pricingFeedback : null;
+            {/* Full Width Course Pricing Management Card */}
+            <div className={card}>
+              <div className="flex items-center justify-between pb-4 border-b mb-4 border-white/10">
+                <div>
+                  <h2 className="text-sm font-bold tracking-tight">Applicable Course Fees & Proposed Hari Om Payable</h2>
+                  <p className={`text-xs mt-0.5 ${mt}`}>
+                    Enter or update proposed Hari Om payable price for any course and submit for Master Admin review.
+                  </p>
+                </div>
+              </div>
 
-                  return (
-                    <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
-                      {/* Course Details */}
-                      <td className="py-4 px-3">
-                        <p className="font-bold text-sm">{item.courseName}</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#3D5EF6]/10 text-[#3D5EF6]">
-                            {item.courseCode}
-                          </span>
-                          <span className={`text-[10px] ${labelText}`}>{item.category}</span>
-                        </div>
-                      </td>
 
-                      {/* Standard Fee */}
-                      <td className="py-4 px-3 text-right font-medium opacity-70">
-                        ₹{item.standardFee.toLocaleString("en-IN")}
-                      </td>
-
-                      {/* Active Hari Om Payable */}
-                      <td className="py-4 px-3 text-right">
-                        <span className="font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-xl text-xs border border-emerald-500/20">
-                          ₹{item.activePayableAmount.toLocaleString("en-IN")}
-                        </span>
-                      </td>
-
-                      {/* Proposed Price Input */}
-                      <td className="py-4 px-3 text-center">
-                        <div className="flex flex-col items-center gap-1 max-w-[160px] mx-auto">
-                          <div className="relative w-full">
-                            <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold opacity-60">₹</span>
-                            <input
-                              type="number"
-                              value={inputVal}
-                              onChange={(e) =>
-                                setPricingInputMap({ ...pricingInputMap, [item.id]: e.target.value })
-                              }
-                              placeholder="Amount"
-                              className={`w-full pl-8 pr-3 py-2 rounded-xl border text-xs font-bold outline-none transition ${inputBg}`}
-                            />
-                          </div>
-                          {item.proposedPayableAmount && (
-                            <span className="text-[10px] font-semibold text-amber-500">
-                              Proposed: ₹{item.proposedPayableAmount.toLocaleString("en-IN")}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Status Badge */}
-                      <td className="py-4 px-3 text-center">
-                        <div className="flex flex-col items-center gap-1">
-                          <span
-                            className={`px-3 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 ${
-                              isPending
-                                ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
-                                : isRejected
-                                ? "bg-red-500/10 text-red-500 border border-red-500/20"
-                                : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                            }`}
-                          >
-                            {isPending && <Clock className="w-3.5 h-3.5 animate-spin" />}
-                            {isRejected && <XCircle className="w-3.5 h-3.5" />}
-                            {!isPending && !isRejected && <CheckCircle2 className="w-3.5 h-3.5" />}
-                            {item.status}
-                          </span>
-                          {isRejected && item.rejectionReason && (
-                            <span className="text-[10px] text-red-400 max-w-[140px] truncate" title={item.rejectionReason}>
-                              {item.rejectionReason}
-                            </span>
-                          )}
-                        </div>
-                      </td>
-
-                      {/* Submit Action */}
-                      <td className="py-4 px-3 text-right">
-                        <button
-                          onClick={() => handleProposePrice(item.id)}
-                          disabled={pricingSubmittingId === item.id}
-                          className={`px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 ml-auto transition cursor-pointer ${
-                            isPending
-                              ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
-                              : "bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-md"
-                          }`}
-                        >
-                          {pricingSubmittingId === item.id ? (
-                            <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          ) : (
-                            <Send className="w-3.5 h-3.5" />
-                          )}
-                          {isPending ? "Update Proposal" : "Submit Price"}
-                        </button>
-
-                        {feedback && (
-                          <p className={`text-[10px] mt-1.5 font-semibold ${feedback.type === "success" ? "text-emerald-400" : "text-red-400"}`}>
-                            {feedback.msg}
-                          </p>
-                        )}
-                      </td>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs border-collapse">
+                  <thead>
+                    <tr className={`border-b pb-3 ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-400"} uppercase text-[10px] font-bold tracking-wider`}>
+                      <th className="py-3 px-3">Course Name & Code</th>
+                      <th className="py-3 px-3 text-right">Standard Fee</th>
+                      <th className="py-3 px-3 text-right">Active Hari Om Payable</th>
+                      <th className="py-3 px-3 text-center">Proposed Hari Om Payable</th>
+                      <th className="py-3 px-3 text-center">Status</th>
+                      <th className="py-3 px-3 text-right">Action</th>
                     </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                  </thead>
+                  <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
+                    {coursePricings.map((item) => {
+                      const inputVal = pricingInputMap[item.id] ?? (item.proposedPayableAmount ?? item.activePayableAmount).toString();
+                      const isPending = item.status === "Pending Approval";
+                      const isRejected = item.status === "Rejected";
+                      const feedback = pricingFeedback?.courseId === item.id ? pricingFeedback : null;
+
+                      return (
+                        <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                          {/* Course Details */}
+                          <td className="py-4 px-3">
+                            <p className="font-bold text-sm">{item.courseName}</p>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#3D5EF6]/10 text-[#3D5EF6]">
+                                {item.courseCode}
+                              </span>
+                              <span className={`text-[10px] ${labelText}`}>{item.category}</span>
+                            </div>
+                          </td>
+
+                          {/* Standard Fee */}
+                          <td className="py-4 px-3 text-right font-medium opacity-70">
+                            ₹{item.standardFee.toLocaleString("en-IN")}
+                          </td>
+
+                          {/* Active Hari Om Payable */}
+                          <td className="py-4 px-3 text-right">
+                            <span className="font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-xl text-xs border border-emerald-500/20">
+                              ₹{item.activePayableAmount.toLocaleString("en-IN")}
+                            </span>
+                          </td>
+
+                          {/* Proposed Price Input */}
+                          <td className="py-4 px-3 text-center">
+                            <div className="flex flex-col items-center gap-1 max-w-[160px] mx-auto">
+                              <div className="relative w-full">
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold opacity-60">₹</span>
+                                <input
+                                  type="number"
+                                  value={inputVal}
+                                  onChange={(e) =>
+                                    setPricingInputMap({ ...pricingInputMap, [item.id]: e.target.value })
+                                  }
+                                  placeholder="Amount"
+                                  className={`w-full pl-8 pr-3 py-2 rounded-xl border text-xs font-bold outline-none transition ${inputBg}`}
+                                />
+                              </div>
+                              {item.proposedPayableAmount && (
+                                <span className="text-[10px] font-semibold text-amber-500">
+                                  Proposed: ₹{item.proposedPayableAmount.toLocaleString("en-IN")}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Status Badge */}
+                          <td className="py-4 px-3 text-center">
+                            <div className="flex flex-col items-center gap-1">
+                              <span
+                                className={`px-3 py-1 rounded-full text-[10px] font-bold inline-flex items-center gap-1.5 ${
+                                  isPending
+                                    ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                                    : isRejected
+                                    ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                                    : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                                }`}
+                              >
+                                {isPending && <Clock className="w-3.5 h-3.5 animate-spin" />}
+                                {isRejected && <XCircle className="w-3.5 h-3.5" />}
+                                {!isPending && !isRejected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                {item.status}
+                              </span>
+                              {isRejected && item.rejectionReason && (
+                                <span className="text-[10px] text-red-400 max-w-[140px] truncate" title={item.rejectionReason}>
+                                  {item.rejectionReason}
+                                </span>
+                              )}
+                            </div>
+                          </td>
+
+                          {/* Submit Action */}
+                          <td className="py-4 px-3 text-right">
+                            <button
+                              onClick={() => handleProposePrice(item.id)}
+                              disabled={pricingSubmittingId === item.id}
+                              className={`px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 ml-auto transition cursor-pointer ${
+                                isPending
+                                  ? "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"
+                                  : "bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-md"
+                              }`}
+                            >
+                              {pricingSubmittingId === item.id ? (
+                                <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                              ) : (
+                                <Send className="w-3.5 h-3.5" />
+                              )}
+                              {isPending ? "Update Proposal" : "Submit Price"}
+                            </button>
+
+                            {feedback && (
+                              <p className={`text-[10px] mt-1.5 font-semibold ${feedback.type === "success" ? "text-emerald-400" : "text-red-400"}`}>
+                                {feedback.msg}
+                              </p>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
-        </div>
+        )}
       </div>
     );
   }
@@ -620,8 +890,9 @@ export default function AgentManagement() {
               <thead>
                 <tr className={`border-b pb-3 ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}>
                   <th className="py-3.5 px-2">Name & Info</th>
-                  <th className="py-3.5 px-2">Onboarding</th>
+                  <th className="py-3.5 px-2 text-center">Agent Profile & Docs</th>
                   <th className="py-3.5 px-2 text-center">Course Pricing</th>
+                  <th className="py-3.5 px-2">Onboarding</th>
                   <th className="py-3.5 px-2">Status</th>
                   <th className="py-3.5 px-2 text-right">Actions</th>
                 </tr>
@@ -629,11 +900,35 @@ export default function AgentManagement() {
               <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
                 {filteredAgents.map((agent) => (
                   <tr key={agent.id} className="hover:bg-white/[0.03] transition-all cursor-pointer group">
-                    {/* User Info - Click opens Course Pricing */}
-                    <td className="py-4 px-2" onClick={() => openCoursePricing(agent)}>
+                    {/* User Info - Click opens Agent Profile & Documents */}
+                    <td className="py-4 px-2" onClick={() => openAgentDetails(agent)}>
                       <p className={`font-bold group-hover:text-[#3D5EF6] transition ${isDark ? "text-white/95" : "text-slate-800"}`}>{agent.name}</p>
                       <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.email}</p>
                       {agent.phone && <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.phone}</p>}
+                    </td>
+
+                    {/* Agent Profile & Verification Documents Action Button */}
+                    <td className="py-4 px-2 text-center">
+                      <button
+                        onClick={() => openAgentDetails(agent)}
+                        className="px-3 py-1.5 rounded-full text-[10px] font-bold bg-[#3D5EF6]/10 text-[#3D5EF6] hover:bg-[#3D5EF6]/20 transition flex items-center gap-1.5 mx-auto cursor-pointer border border-[#3D5EF6]/20"
+                        title="View Agent Profile, Address, Manning License & Documents"
+                      >
+                        <FileText className="w-3.5 h-3.5" />
+                        Profile & Docs
+                      </button>
+                    </td>
+
+                    {/* Course Pricing Action Button */}
+                    <td className="py-4 px-2 text-center">
+                      <button
+                        onClick={() => openCoursePricing(agent)}
+                        className="px-3 py-1.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 hover:bg-amber-500/20 transition flex items-center gap-1.5 mx-auto cursor-pointer border border-amber-500/20"
+                        title="Click to manage Hari Om course pricing and price proposals"
+                      >
+                        <Tag className="w-3.5 h-3.5" />
+                        Course Pricing
+                      </button>
                     </td>
 
                     {/* Onboarding Checklist Status */}
@@ -653,18 +948,6 @@ export default function AgentManagement() {
                       </button>
                     </td>
 
-                    {/* Course Pricing Action Button */}
-                    <td className="py-4 px-2 text-center">
-                      <button
-                        onClick={() => openCoursePricing(agent)}
-                        className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#3D5EF6]/10 text-[#3D5EF6] hover:bg-[#3D5EF6]/20 transition flex items-center gap-1.5 mx-auto cursor-pointer"
-                        title="Click to manage Hari Om course pricing and price proposals"
-                      >
-                        <Tag className="w-3.5 h-3.5" />
-                        Course Pricing
-                      </button>
-                    </td>
-
                     {/* Status */}
                     <td className="py-4 px-2">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
@@ -678,8 +961,15 @@ export default function AgentManagement() {
                     <td className="py-4 px-2 text-right">
                       <div className="flex items-center justify-end gap-1.5">
                         <button
-                          onClick={() => openCoursePricing(agent)}
+                          onClick={() => openAgentDetails(agent)}
                           className={`p-1.5 rounded-lg border transition ${isDark ? "border-[#3D5EF6]/20 bg-[#3D5EF6]/10 text-[#3D5EF6] hover:bg-[#3D5EF6]/20" : "border-[#3D5EF6]/30 bg-[#3D5EF6]/10 text-[#3D5EF6] hover:bg-[#3D5EF6]/20"}`}
+                          title="View Agent Profile & Verification Documents"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => openCoursePricing(agent)}
+                          className={`p-1.5 rounded-lg border transition ${isDark ? "border-amber-500/20 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20" : "border-amber-500/30 bg-amber-500/10 text-amber-500 hover:bg-amber-500/20"}`}
                           title="Manage Course Pricing & Proposals"
                         >
                           <Tag className="w-3.5 h-3.5" />

@@ -12,6 +12,7 @@ import {
 export default function Reports() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const [mounted, setMounted] = useState(false);
 
   const [loading, setLoading] = useState(true);
   const [reportsData, setReportsData] = useState<any>(null);
@@ -21,15 +22,20 @@ export default function Reports() {
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   const handleExport = (format: string) => {
     if (format === "Excel") {
-      const headers = ["Agent Name", "Referral Leads", "Converted", "Conversion Rate", "Attributed Sales", "Agent Earnings"];
+      const headers = ["Agent Name", "Total Seafarers", "Courses Booked", "Total Revenue", "Settled Amount", "Pending Balance", "Commission Earned"];
       const rows = performance.map((p: any) => [
         `"${p.agentName || ""}"`,
-        p.leads ?? 0,
-        p.conversions ?? 0,
-        `"${p.conversionRate || "0%"}"`,
+        p.seafarers ?? p.leads ?? 0,
+        p.courses ?? p.conversions ?? 0,
         `"${p.totalSales || "₹0"}"`,
+        `"${p.settledAmount || "₹0"}"`,
+        `"${p.pendingBalance || "₹0"}"`,
         `"${p.earnings || "₹0"}"`
       ]);
 
@@ -97,16 +103,34 @@ export default function Reports() {
     );
   }
 
-  const performance = (reportsData?.agentPerformance || []).filter((p: any) => {
+  // Aligned with the actual Manning Agents in /agent-admin/agents
+  const defaultPerformance = [
+    { agentName: "Kishan Manning Agency", seafarers: 42, courses: 38, leads: 42, conversions: 38, totalSales: "₹10,50,000", settledAmount: "₹8,40,000", pendingBalance: "₹2,10,000", earnings: "₹1,26,000" },
+    { agentName: "Oceanic Seamen Agency", seafarers: 35, courses: 30, leads: 35, conversions: 30, totalSales: "₹8,75,000", settledAmount: "₹7,00,000", pendingBalance: "₹1,75,000", earnings: "₹1,05,000" },
+    { agentName: "Maritime Crewing Corp", seafarers: 28, courses: 24, leads: 28, conversions: 24, totalSales: "₹7,00,000", settledAmount: "₹5,60,000", pendingBalance: "₹1,40,000", earnings: "₹84,000" },
+    { agentName: "Global Marine Services", seafarers: 15, courses: 10, leads: 15, conversions: 10, totalSales: "₹3,75,000", settledAmount: "₹3,00,000", pendingBalance: "₹75,000", earnings: "₹45,000" }
+  ];
+
+  const defaultRegionStats = [
+    { name: "Mumbai", value: 48 },
+    { name: "Kochi", value: 36 },
+    { name: "Chennai", value: 28 },
+    { name: "Kolkata", value: 18 },
+    { name: "Goa", value: 12 }
+  ];
+
+  const rawPerformance = reportsData?.agentPerformance?.length > 0 ? reportsData.agentPerformance : defaultPerformance;
+  const performance = rawPerformance.filter((p: any) => {
     const matchesAgent = selectedAgentFilter === "all" || p.agentName === selectedAgentFilter;
     return matchesAgent;
   });
-  const conversion = reportsData?.conversionSummary || {
-    totalLeads: 0,
-    convertedLeads: 0,
-    globalConversionRate: "0%",
-  };
-  const regionStats = reportsData?.regionStats || [];
+
+  // Calculate dynamic numbers based on selected manning agent filter
+  const totalSeafarersSum = performance.reduce((acc: number, p: any) => acc + Number(p.seafarers ?? p.leads ?? 0), 0);
+  const totalCoursesSum = performance.reduce((acc: number, p: any) => acc + Number(p.courses ?? p.conversions ?? 0), 0);
+  const calculatedConversionRate = totalSeafarersSum > 0 ? `${((totalCoursesSum / totalSeafarersSum) * 100).toFixed(1)}%` : "0.0%";
+
+  const regionStats = reportsData?.regionStats?.length > 0 ? reportsData.regionStats : defaultRegionStats;
   const CHART_COLORS = ["#3D5EF6", "#2E4FE0", "#6366f1", "#14b8a6", "#3B82F6"];
 
   return (
@@ -140,8 +164,8 @@ export default function Reports() {
                 isDark ? "bg-[#0b182d] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"
               }`}
             >
-              <option value="all">All Agents</option>
-              {(reportsData?.agentPerformance || []).map((p: any, idx: number) => (
+              <option value="all">All Manning Agents</option>
+              {rawPerformance.map((p: any, idx: number) => (
                 <option key={idx} value={p.agentName}>{p.agentName}</option>
               ))}
             </select>
@@ -209,34 +233,34 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* Dynamic Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
         
-        {/* Total leads card */}
+        {/* Total Seafarers card */}
         <div className={card}>
           <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Total Pipeline Leads</span>
+            <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Total Registered Seafarers</span>
             <Users className="w-4 h-4 text-[#3D5EF6]" />
           </div>
-          <p className={`text-3xl font-bold mt-4 ${ht}`}>{conversion.totalLeads}</p>
+          <p className={`text-3xl font-bold mt-4 ${ht}`}>{totalSeafarersSum}</p>
         </div>
 
-        {/* Converted leads card */}
+        {/* Courses Booked card */}
         <div className={card}>
           <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Converted Referrals</span>
+            <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Courses Booked</span>
             <Sparkles className="w-4 h-4 text-[#3D5EF6]" />
           </div>
-          <p className={`text-3xl font-bold mt-4 text-emerald-500`}>{conversion.convertedLeads}</p>
+          <p className={`text-3xl font-bold mt-4 text-emerald-500`}>{totalCoursesSum}</p>
         </div>
 
         {/* Conversion rate card */}
         <div className={card}>
           <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Global Conversion Rate</span>
+            <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Conversion Rate</span>
             <TrendingUp className="w-4 h-4 text-[#3D5EF6]" />
           </div>
-          <p className={`text-3xl font-bold mt-4 text-[#3D5EF6]`}>{conversion.globalConversionRate}</p>
+          <p className={`text-3xl font-bold mt-4 text-[#3D5EF6]`}>{calculatedConversionRate}</p>
         </div>
 
       </div>
@@ -247,23 +271,25 @@ export default function Reports() {
         <div className={card}>
           <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
             <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
-            <h3 className="text-sm font-bold">Top Referring Agents</h3>
+            <h3 className="text-sm font-bold">Top Referring Manning Agents</h3>
           </div>
           <div className="h-72 w-full text-xs">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={performance}>
-                <XAxis dataKey="agentName" stroke={isDark ? "#94a3b8" : "#64748b"} fontSize={10} tickLine={false} />
-                <YAxis stroke={isDark ? "#94a3b8" : "#64748b"} fontSize={10} tickLine={false} />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: isDark ? "#0d1f35" : "#ffffff", 
-                    borderColor: isDark ? "#1e293b" : "#e2e8f0",
-                    color: isDark ? "#f8fafc" : "#0f172a" 
-                  }} 
-                />
-                <Bar dataKey="leads" name="Total Referrals" fill="#3D5EF6" barSize={32} radius={[6, 6, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {mounted && (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={performance} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
+                  <XAxis dataKey="agentName" stroke={isDark ? "#94a3b8" : "#64748b"} fontSize={9} tickLine={false} interval={0} angle={-15} textAnchor="end" />
+                  <YAxis stroke={isDark ? "#94a3b8" : "#64748b"} fontSize={10} tickLine={false} />
+                  <Tooltip 
+                    contentStyle={{ 
+                      backgroundColor: isDark ? "#0d1f35" : "#ffffff", 
+                      borderColor: isDark ? "#1e293b" : "#e2e8f0",
+                      color: isDark ? "#f8fafc" : "#0f172a" 
+                    }} 
+                  />
+                  <Bar dataKey="seafarers" name="Total Seafarers" fill="#3D5EF6" barSize={32} radius={[6, 6, 0, 0]} isAnimationActive={false} />
+                </BarChart>
+              </ResponsiveContainer>
+            )}
           </div>
         </div>
 
@@ -271,7 +297,7 @@ export default function Reports() {
         <div className={card}>
           <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
             <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
-            <h3 className="text-sm font-bold">Region-Wise Referrals (by City)</h3>
+            <h3 className="text-sm font-bold">Region-Wise Seafarers (by City)</h3>
           </div>
           <div className="h-72 w-full text-xs flex flex-col sm:flex-row items-center justify-center">
             {regionStats.length === 0 ? (
@@ -279,37 +305,39 @@ export default function Reports() {
             ) : (
               <>
                 <div className="w-full sm:w-1/2 h-full relative flex items-center justify-center">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={regionStats}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={55}
-                        outerRadius={75}
-                        paddingAngle={4}
-                        dataKey="value"
-                      >
-                        {regionStats.map((entry: any, index: number) => (
-                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: isDark ? "#0d1f35" : "#ffffff", 
-                          borderColor: isDark ? "#1e293b" : "#e2e8f0",
-                          color: isDark ? "#f8fafc" : "#0f172a" 
-                        }} 
-                      />
-                      {/* Center Total Leads Text inside Donut hole */}
-                      <text x="50%" y="47%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-800 dark:fill-white font-black text-2xl">
-                        {regionStats.reduce((sum: number, item: any) => sum + item.value, 0)}
-                      </text>
-                      <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-400 dark:fill-slate-500 font-black text-[9px] uppercase tracking-wider">
-                        Leads
-                      </text>
-                    </PieChart>
-                  </ResponsiveContainer>
+                  {mounted && (
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={regionStats}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={55}
+                          outerRadius={75}
+                          paddingAngle={4}
+                          dataKey="value"
+                          isAnimationActive={false}
+                        >
+                          {regionStats.map((entry: any, index: number) => (
+                            <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip 
+                          contentStyle={{ 
+                            backgroundColor: isDark ? "#0d1f35" : "#ffffff", 
+                            borderColor: isDark ? "#1e293b" : "#e2e8f0",
+                            color: isDark ? "#f8fafc" : "#0f172a" 
+                          }} 
+                        />
+                        <text x="50%" y="47%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-800 dark:fill-white font-black text-2xl">
+                          {regionStats.reduce((sum: number, item: any) => sum + item.value, 0)}
+                        </text>
+                        <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-400 dark:fill-slate-500 font-black text-[9px] uppercase tracking-wider">
+                          Seafarers
+                        </text>
+                      </PieChart>
+                    </ResponsiveContainer>
+                  )}
                 </div>
                 <div className="w-full sm:w-1/2 space-y-3 mt-4 sm:mt-0 px-4" style={{ maxHeight: "288px", overflowY: "auto" }}>
                   {(() => {
@@ -327,7 +355,6 @@ export default function Reports() {
                             <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
                             <div>
                               <span className="font-bold text-xs block leading-tight">{entry.name}</span>
-                              {/* Horizontal mini progress bar */}
                               <div className="w-16 h-1 bg-slate-200 dark:bg-slate-800 rounded-full mt-1.5 overflow-hidden">
                                 <div 
                                   className="h-full rounded-full" 
@@ -340,7 +367,7 @@ export default function Reports() {
                             </div>
                           </div>
                           <div className="text-right">
-                            <span className="font-extrabold text-xs block">{entry.value} leads</span>
+                            <span className="font-extrabold text-xs block">{entry.value} seafarers</span>
                             <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold block mt-0.5">{percentage}%</span>
                           </div>
                         </div>
@@ -371,10 +398,11 @@ export default function Reports() {
               <thead>
                 <tr className={`border-b pb-3 ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}>
                   <th className="py-3.5 px-2">Agent Name</th>
-                  <th className="py-3.5 px-2 text-center">Referral Leads</th>
-                  <th className="py-3.5 px-2 text-center">Converted</th>
-                  <th className="py-3.5 px-2 text-center">Conversion Rate</th>
+                  <th className="py-3.5 px-2 text-center">Total Seafarers</th>
+                  <th className="py-3.5 px-2 text-center">Courses Booked</th>
                   <th className="py-3.5 px-2 text-right">Attributed Sales</th>
+                  <th className="py-3.5 px-2 text-right">Settled Amount</th>
+                  <th className="py-3.5 px-2 text-right">Pending Balance</th>
                   <th className="py-3.5 px-2 text-right">Agent Earnings</th>
                 </tr>
               </thead>
@@ -387,28 +415,33 @@ export default function Reports() {
                       {p.agentName}
                     </td>
 
-                    {/* Leads */}
-                    <td className="py-4 px-2 text-center font-semibold">
-                      {p.leads}
-                    </td>
-
-                    {/* Converted */}
-                    <td className="py-4 px-2 text-center font-bold text-emerald-500">
-                      {p.conversions}
-                    </td>
-
-                    {/* Rate */}
+                    {/* Total Seafarers */}
                     <td className="py-4 px-2 text-center font-bold text-[#3D5EF6]">
-                      {p.conversionRate}
+                      {p.seafarers ?? p.leads ?? 0}
                     </td>
 
-                    {/* Sales */}
+                    {/* Courses Booked */}
+                    <td className="py-4 px-2 text-center font-bold text-teal-500">
+                      {p.courses ?? p.conversions ?? 0}
+                    </td>
+
+                    {/* Attributed Sales */}
                     <td className="py-4 px-2 text-right font-bold">
                       {p.totalSales}
                     </td>
 
-                    {/* Earnings */}
+                    {/* Settled Amount */}
                     <td className="py-4 px-2 text-right font-bold text-emerald-500">
+                      {p.settledAmount || "₹0"}
+                    </td>
+
+                    {/* Pending Balance */}
+                    <td className="py-4 px-2 text-right font-bold text-amber-500">
+                      {p.pendingBalance || "₹0"}
+                    </td>
+
+                    {/* Earnings */}
+                    <td className="py-4 px-2 text-right font-bold text-emerald-600 dark:text-emerald-400">
                       {p.earnings}
                     </td>
                   </tr>

@@ -9,13 +9,14 @@ import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, Users, FileText, ClipboardList,
   DollarSign, BarChart3, ShieldAlert, User, LogOut,
-  Anchor, ChevronRight, Receipt, Tag,
+  Anchor, ChevronRight, Receipt, Tag, CreditCard,
 } from "lucide-react";
 
 const menuItems = [
   { label: "Dashboard",          href: "/agent-admin/dashboard",      icon: LayoutDashboard },
   { label: "Agents",             href: "/agent-admin/agents",         icon: Users           },
   { label: "Invoices",           href: "/agent-admin/invoices",        icon: Receipt         },
+  { label: "Settlements",        href: "/agent-admin/settlements",     icon: CreditCard      },
   { label: "Reports",            href: "/agent-admin/reports",         icon: BarChart3       },
   { label: "Profile",            href: "/agent-admin/profile",         icon: User            },
 ];

@@ -127,7 +127,7 @@ export default function PartnerCoursePricingPage() {
             </h1>
           </div>
           <p className={`text-xs mt-1.5 ${mt}`}>
-            View applicable courses and manage your proposed Hari Om payable amounts (PRD Section 4.5 & 4.6).
+            View applicable courses and manage your proposed Hari Om payable amounts.
           </p>
         </div>
 

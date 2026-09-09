@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
@@ -54,8 +55,14 @@ export default function MasterSidebar() {
 
       {/* Brand */}
       <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
-        <div className="w-8 h-8 rounded-md bg-[#3D5EF6] flex items-center justify-center shrink-0">
-          <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
+        <div className="relative w-8 h-8 rounded-full overflow-hidden border border-[#3D5EF6]/30 shrink-0 shadow-sm">
+          <Image
+            src="/logo.jpeg"
+            alt="Hari Om Maritime Logo"
+            width={32}
+            height={32}
+            className="object-cover w-full h-full"
+          />
         </div>
         <div className="leading-tight">
           <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>

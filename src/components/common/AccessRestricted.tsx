@@ -1,0 +1,97 @@
+"use client";
+
+import React from "react";
+import Link from "next/link";
+import { ShieldAlert, ArrowLeft, Lock, CheckCircle2, XCircle } from "lucide-react";
+import { useTheme } from "@/providers/theme-provider";
+
+interface AccessRestrictedProps {
+  featureName?: string;
+  restrictedItems?: string[];
+}
+
+export default function AccessRestricted({
+  featureName = "Restricted Function",
+  restrictedItems = [
+    "Master Portal functions",
+    "Company Admin functions",
+    "Master-level reports",
+    "Other Partners' information & Seafarers",
+    "Other Partners' invoices & settlements",
+    "Audit Logs",
+    "Referral Tracker",
+    "Commission information",
+  ],
+}: AccessRestrictedProps) {
+  const { theme } = useTheme();
+  const isDark = theme === "dark";
+
+  return (
+    <div className="min-h-[70vh] flex items-center justify-center p-4">
+      <div
+        className={`max-w-2xl w-full rounded-[24px] p-8 border transition-all duration-300 ${
+          isDark
+            ? "bg-[#0c1629]/90 border-red-500/20 shadow-[0_8px_32px_rgba(220,38,38,0.15)] text-white"
+            : "bg-white border-red-200 shadow-[0_10px_30px_rgba(220,38,38,0.08)] text-slate-900"
+        }`}
+      >
+        {/* Header Badge */}
+        <div className="flex items-center gap-3 border-b pb-5 mb-6 border-red-500/10">
+          <div className="w-12 h-12 rounded-2xl bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-500 shrink-0">
+            <ShieldAlert className="w-6 h-6 animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-red-500/10 text-red-500 border border-red-500/20">
+                PRD 4.13 COMPLIANT
+              </span>
+              <span className="text-xs font-bold text-slate-400">HTTP 403 Forbidden</span>
+            </div>
+            <h1 className="text-xl font-bold mt-1">Access Restricted: {featureName}</h1>
+          </div>
+        </div>
+
+        {/* Notice Description */}
+        <p className={`text-xs leading-relaxed mb-6 ${isDark ? "text-white/70" : "text-slate-600"}`}>
+          In accordance with <strong>PRD Section 4.13 (Partner Access Restrictions)</strong>, Partner Admin users are restricted from accessing system-level administrative features, master reports, audit trails, commission calculations, or information belonging to other Partner organizations.
+        </p>
+
+        {/* Restricted List Box */}
+        <div className={`p-4 rounded-xl mb-6 border ${isDark ? "bg-red-950/20 border-red-500/20" : "bg-red-50/50 border-red-100"}`}>
+          <h3 className="text-xs font-bold text-red-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+            <Lock className="w-3.5 h-3.5" /> Restricted Partner Admin Scope
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+            {restrictedItems.map((item, idx) => (
+              <div key={idx} className="flex items-center gap-2">
+                <XCircle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                <span className={isDark ? "text-white/80" : "text-slate-700"}>{item}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Permitted Scope */}
+        <div className={`p-4 rounded-xl mb-6 border ${isDark ? "bg-blue-950/20 border-blue-500/20" : "bg-blue-50/50 border-blue-100"}`}>
+          <h3 className="text-xs font-bold text-blue-500 uppercase tracking-wider mb-2 flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5" /> Permitted Role Access
+          </h3>
+          <p className={`text-xs ${isDark ? "text-white/70" : "text-slate-600"}`}>
+            Partner Admin users shall only access information belonging to their own Partner organization: <strong>Dashboard, Agents, Invoices, Settlements, Reports, and Profile</strong>.
+          </p>
+        </div>
+
+        {/* Return Button */}
+        <div className="flex justify-end pt-2">
+          <Link
+            href="/agent-admin/dashboard"
+            className="px-5 py-2.5 rounded-xl bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white text-xs font-bold transition-all flex items-center gap-2 shadow-md shadow-[#3D5EF6]/20 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Return to Partner Dashboard
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
+}

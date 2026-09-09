@@ -21,6 +21,8 @@ import {
   Settings,
 } from "lucide-react";
 
+import Image from "next/image";
+
 const menuItems = [
   { label: "Dashboard", href: "/partner/dashboard", icon: LayoutDashboard },
   { label: "Search Seafarer", href: "/partner/seafarers/search", icon: Search },
@@ -82,8 +84,14 @@ export default function AgentSidebar() {
     <aside className={`w-64 h-screen flex flex-col shrink-0 ${sidebarBg}`}>
       {/* Brand */}
       <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
-        <div className="w-9 h-9 rounded-xl bg-[#3D5EF6] flex items-center justify-center shrink-0">
-          <Anchor className="w-5 h-5 text-white" strokeWidth={2.5} />
+        <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#3D5EF6]/30 shrink-0 shadow-sm">
+          <Image
+            src="/logo.jpeg"
+            alt="Hari Om Maritime Logo"
+            width={36}
+            height={36}
+            className="object-cover w-full h-full"
+          />
         </div>
         <div className="leading-tight">
           <p className={`text-sm font-bold tracking-wide ${logoText}`}>Hari Om</p>

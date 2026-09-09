@@ -21,10 +21,9 @@ export default function ReferralCenter() {
     async function loadData() {
       try {
         const meta = await agentService.getMetadata();
-        const dash = await agentService.getDashboard();
+        const dash: any = await agentService.getDashboard();
         setMetadata(meta);
-        // @ts-expect-error - backend API returns AgentDashboard shape; fix when BE contract is aligned
-        setStats(dash.stats);
+        setStats(dash?.stats || dash || {});
       } catch (err) {
         console.error("Failed to load referral details:", err);
       } finally {

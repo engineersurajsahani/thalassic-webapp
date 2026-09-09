@@ -37,10 +37,10 @@ export default function AgentDashboard() {
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await agentService.getDashboard();
-        setStats((data as any).stats);
-        setActivities((data as any).recentActivities);
-        setReferralCode((data as any).referralCode || "PENDING");
+        const data: any = await agentService.getDashboard();
+        setStats(data?.stats || data || {});
+        setActivities(Array.isArray(data?.recentActivities) ? data.recentActivities : Array.isArray(data?.activities) ? data.activities : []);
+        setReferralCode(data?.referralCode || "PENDING");
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {
@@ -74,6 +74,8 @@ export default function AgentDashboard() {
     { label: "Pending Payout", value: `₹${stats?.pendingCommission?.toLocaleString() || 0}`, icon: Clock, desc: "Awaiting admin clearance", gradient: "from-rose-500/10 to-red-500/10", iconBg: "bg-rose-500/10", iconText: "text-rose-500" },
   ];
 
+  const safeActivities = Array.isArray(activities) ? activities : [];
+
   return (
     <div className="space-y-8 animate-fadeIn pb-10">
       
@@ -81,6 +83,7 @@ export default function AgentDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
+
             <button
               onClick={handleCopyCode}
               title="Click to copy Referral Code"
@@ -153,14 +156,14 @@ export default function AgentDashboard() {
               </div>
             </div>
 
-            {activities.length === 0 ? (
+            {safeActivities.length === 0 ? (
               <div className="text-center py-16 text-[#6B7280]">
                 <p className="text-sm font-bold">No recent activities</p>
                 <p className="text-xs mt-1">Activities will log here once leads register or buy courses.</p>
               </div>
             ) : (
               <div className="space-y-5">
-                {activities.map((act) => (
+                {safeActivities.map((act) => (
                   <div key={act.id} className={`flex gap-4 border-b pb-4 last:border-0 last:pb-0 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-black ${
                       act.type === "lead"

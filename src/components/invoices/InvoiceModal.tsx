@@ -142,9 +142,10 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
 
               {/* Course Details */}
               <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Course Details</div>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Course & Institute Details</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                   <div><span style={{ color: "#64748b", fontSize: "11px" }}>Course:</span> <strong style={{ fontSize: "12px" }}>{invoice.course_name}</strong></div>
+                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Institute (PRD 6.11):</span> <strong style={{ fontSize: "12px", color: "#1e40af" }}>{invoice.institute_name || "Hari Om Maritime Institute, Mumbai"}</strong></div>
                   <div><span style={{ color: "#64748b", fontSize: "11px" }}>Course Fee:</span> <span style={{ fontSize: "12px" }}>{fmt(invoice.course_fee)}</span></div>
                   {Number(invoice.discount) > 0 && (
                     <div><span style={{ color: "#64748b", fontSize: "11px" }}>Discount:</span> <span style={{ fontSize: "12px", color: "#16a34a" }}>-{fmt(invoice.discount)}</span></div>
@@ -155,13 +156,13 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
 
             {/* Payment Details */}
             <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px", marginBottom: "20px" }}>
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Payment Details</div>
+              <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Payment & Settlement Details</div>
               <div style={{ display: "grid", gridTemplateColumns: invoice.agent_name ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr", gap: "12px" }}>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Gateway:</span><br/><strong>{invoice.payment_gateway}</strong></div>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Method:</span><br/><strong>{invoice.payment_method}</strong></div>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Transaction ID:</span><br/><strong style={{ wordBreak: "break-all" }}>{invoice.transaction_id}</strong></div>
                 {invoice.agent_name && (
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Agent Name:</span><br/><strong>{invoice.agent_name}</strong></div>
+                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Partner / Agent:</span><br/><strong>{invoice.agent_name}</strong></div>
                 )}
               </div>
             </div>
@@ -169,7 +170,7 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
             {/* Amount Summary */}
             <div style={{ marginBottom: "20px" }}>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <div style={{ width: "260px" }}>
+                <div style={{ width: "320px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e2e8f0", fontSize: "12px" }}>
                     <span style={{ color: "#64748b" }}>Course Fee</span>
                     <span>{fmt(invoice.course_fee)}</span>
@@ -180,10 +181,21 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
                       <span style={{ color: "#16a34a" }}>- {fmt(invoice.discount)}</span>
                     </div>
                   )}
+                  {isHac && (
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e2e8f0", fontSize: "12px" }}>
+                      <span style={{ color: "#2563eb", fontWeight: "600" }}>Hari Om Payable Amount (PRD 6.6)</span>
+                      <strong style={{ color: "#2563eb" }}>{fmt(invoice.hariom_payable_amount || invoice.final_amount)}</strong>
+                    </div>
+                  )}
                   <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderTop: "2px solid #1e40af", fontSize: "14px", fontWeight: "700", color: "#1e40af", marginTop: "4px" }}>
-                    <span>Total Amount</span>
-                    <span>{fmt(invoice.final_amount)}</span>
+                    <span>Recorded Hari Om Revenue</span>
+                    <span>{fmt(invoice.hariom_payable_amount || invoice.final_amount)}</span>
                   </div>
+                  {isHac && (
+                    <div style={{ fontSize: "10px", color: "#64748b", fontStyle: "italic", marginTop: "4px", textAlign: "right" }}>
+                      * Partner selling price is independent & excluded from Hari Om revenue calculation (PRD 6.6 & 6.8).
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -200,7 +212,7 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
 
             {/* Footer */}
             <div style={{ textAlign: "center", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e2e8f0", fontSize: "11px", color: "#94a3b8" }}>
-              This is a computer-generated tax invoice and requires no physical signature.
+              This is an immutable computer-generated tax invoice (PRD Section 6.5) and requires no physical signature.
             </div>
           </div>
         </div>

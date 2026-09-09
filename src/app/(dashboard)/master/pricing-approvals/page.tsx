@@ -155,7 +155,7 @@ export default function MasterPricingApprovalsPage() {
             )}
           </div>
           <p className={`text-xs mt-1.5 ${mt}`}>
-            Review, approve, or reject proposed Hari Om payable price changes from Partner Admins (PRD Section 4.6).
+            Review, approve, or reject proposed Hari Om payable price changes from Partner Admins.
           </p>
         </div>
 

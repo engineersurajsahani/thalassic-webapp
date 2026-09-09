@@ -113,7 +113,7 @@ export default function InvoicesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>Invoice Management</h1>
-          <p className={`text-xs mt-1.5 ${mt}`}>View and manage all HOC & HAC invoices (PRD Chapter 10). Read-only access.</p>
+          <p className={`text-xs mt-1.5 ${mt}`}>View and manage all HOC & HAC invoices. Read-only access.</p>
         </div>
         <div className="flex gap-2">
           <button onClick={exportCSV} className={`flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-xl transition-colors ${isDark ? "bg-white/8 hover:bg-white/12 text-white/70" : "bg-slate-100 hover:bg-slate-200 text-slate-700"}`}>
@@ -177,7 +177,17 @@ export default function InvoicesPage() {
           <table className="w-full text-xs">
             <thead>
               <tr className={`border-b text-[11px] ${isDark ? "border-white/10 bg-white/[0.02]" : "border-slate-100 bg-slate-50"}`}>
-                {["Invoice #", "Status", "Payment Date", "Seafarer", "Course", "Agent", "Txn ID", "Amount", "Actions"].map((h, i) => (
+                {[
+                  "Invoice Number",
+                  "Invoice Date",
+                  "Seafarer",
+                  "Course",
+                  "Institute",
+                  "Hari Om Payable",
+                  "Payment Status",
+                  "Invoice Status",
+                  "Actions",
+                ].map((h, i) => (
                   <th
                     key={h}
                     className={`py-3 font-semibold ${mt} whitespace-nowrap ${
@@ -204,39 +214,77 @@ export default function InvoicesPage() {
                 <tr>
                   <td colSpan={9} className="px-5 py-12 text-center">
                     <AlertCircle className={`w-8 h-8 mx-auto mb-2 ${mt}`} />
-                    <div className={`text-sm font-semibold ${mt}`}>No invoices found</div>
-                    <div className={`text-xs mt-1 ${mt}`}>Invoices are generated automatically after successful course purchases.</div>
+                    <div className={`text-sm font-semibold ${mt}`}>No partner invoices found</div>
+                    <div className={`text-xs mt-1 ${mt}`}>Invoices associated with Seafarers handled through this Partner will appear here.</div>
                   </td>
                 </tr>
               ) : invoices.map((inv: any) => (
                 <tr key={inv.id} className={`border-b ${isDark ? "border-white/5 hover:bg-white/[0.025]" : "border-slate-50 hover:bg-slate-50/60"} transition-colors`}>
-                  <td className="pl-5 pr-2.5 py-3 font-mono font-bold text-blue-500 text-xs whitespace-nowrap">{inv.invoice_number}</td>
-                  <td className="px-2.5 py-3 whitespace-nowrap">
-                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${inv.status === "Paid" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400" : "bg-slate-100 text-slate-700 dark:bg-white/5 dark:text-slate-400 border border-slate-200 dark:border-white/10"}`}>{inv.status}</span>
+                  {/* Invoice Number */}
+                  <td className="pl-5 pr-2.5 py-3.5 font-mono font-bold text-blue-500 text-xs whitespace-nowrap">
+                    {inv.invoice_number}
                   </td>
-                  <td className="px-2.5 py-3 whitespace-nowrap text-[11px]">{inv.payment_date ? new Date(inv.payment_date).toLocaleDateString("en-IN") : "—"}</td>
-                  <td className="px-2.5 py-3 max-w-[130px]">
-                    <div className={`font-semibold text-xs truncate ${ht}`}>{inv.customer_name}</div>
+
+                  {/* Invoice Date */}
+                  <td className="px-2.5 py-3.5 whitespace-nowrap text-[11px] font-medium">
+                    {inv.payment_date ? new Date(inv.payment_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—"}
+                  </td>
+
+                  {/* Seafarer */}
+                  <td className="px-2.5 py-3.5 max-w-[150px]">
+                    <div className={`font-bold text-xs truncate ${ht}`}>{inv.customer_name}</div>
                     <div className={`text-[10px] truncate ${mt}`}>{inv.customer_email}</div>
                   </td>
-                  <td className="px-2.5 py-3 max-w-[130px]">
-                    <div className={`truncate text-xs ${isDark ? "text-white/70" : "text-slate-600"}`}>{inv.course_name}</div>
-                  </td>
-                  <td className="px-2.5 py-3 max-w-[110px]">
-                    <div className={`text-xs font-semibold truncate ${inv.agent_name ? ht : mt}`}>
-                      {inv.agent_name || "Direct"}
+
+                  {/* Course */}
+                  <td className="px-2.5 py-3.5 max-w-[160px]">
+                    <div className={`truncate font-semibold text-xs ${isDark ? "text-white/80" : "text-slate-700"}`} title={inv.course_name}>
+                      {inv.course_name}
                     </div>
                   </td>
-                  <td className="px-2.5 py-3 font-mono text-[11px] text-slate-500 whitespace-nowrap max-w-[95px] truncate">{inv.transaction_id}</td>
-                  <td className="px-2.5 py-3 font-bold text-xs text-emerald-600 dark:text-emerald-400 whitespace-nowrap">
-                    ₹{parseFloat(inv.final_amount || 0).toLocaleString("en-IN")}
+
+                  {/* Institute */}
+                  <td className="px-2.5 py-3.5 max-w-[150px]">
+                    <div className={`truncate text-xs ${mt}`} title={inv.institute_name || "Hari Om Maritime Institute, Mumbai"}>
+                      {inv.institute_name || "Hari Om Maritime Institute"}
+                    </div>
                   </td>
-                  <td className="pl-2.5 pr-5 py-3 text-right whitespace-nowrap">
+
+                  {/* Amount Applicable to Hari Om */}
+                  <td className="px-2.5 py-3.5 font-mono font-bold text-xs text-emerald-500 whitespace-nowrap">
+                    ₹{(inv.hariom_payable_amount ?? inv.final_amount ?? 0).toLocaleString("en-IN")}
+                  </td>
+
+                  {/* Payment Status */}
+                  <td className="px-2.5 py-3.5 whitespace-nowrap">
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                      (inv.payment_status || inv.status) === "Paid"
+                        ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                        : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                    }`}>
+                      {inv.payment_status || inv.status || "Paid"}
+                    </span>
+                  </td>
+
+                  {/* Invoice Status */}
+                  <td className="px-2.5 py-3.5 whitespace-nowrap">
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
+                      (inv.invoice_status || "Issued") === "Issued"
+                        ? "bg-blue-500/10 text-blue-500 border border-blue-500/20"
+                        : "bg-slate-500/10 text-slate-400 border border-slate-500/20"
+                    }`}>
+                      {inv.invoice_status || "Issued"}
+                    </span>
+                  </td>
+
+                  {/* Actions */}
+                  <td className="pl-2.5 pr-5 py-3.5 text-right whitespace-nowrap">
                     <button
                       onClick={() => openPdf(inv)}
-                      className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors cursor-pointer"
+                      className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors cursor-pointer flex items-center gap-1.5 ml-auto shadow-sm"
                     >
-                      View
+                      <FileText className="w-3.5 h-3.5" />
+                      View Invoice
                     </button>
                   </td>
                 </tr>
