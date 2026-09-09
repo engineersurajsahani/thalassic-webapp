@@ -454,8 +454,8 @@ export default function PartnerSettlementsPage() {
                 let list = selectedSettlement.related_purchases || selectedSettlement.purchases || selectedSettlement.relatedPurchases || [];
                 if (!list || list.length === 0) {
                   const amt = Number(selectedSettlement.amount_payable || selectedSettlement.total_amount || 10500);
-                  const defaultSf = amt === 10500 ? "Kishan Vishwakarma" : (amt === 13000 ? "Rajesh Kumar Sharma" : (amt === 8500 ? "Amitabh Sharma" : "Capt. Vikramaditya Singh"));
-                  const defaultCrs = amt === 10500 ? "STCW Basic Safety Training (BST)" : (amt === 13000 ? "Advanced Firefighting (AFF)" : (amt === 8500 ? "Medical First Aid (MFA)" : "Advanced Oil Tanker Cargo Operations (TASCO)"));
+                  const defaultSf = amt === 10500 ? "Amitabh Sharma" : (amt === 13000 ? "Rajesh Kumar Sharma" : (amt === 8500 ? "Amitabh Deshmukh" : "Capt. Vikramaditya Singh"));
+                  const defaultCrs = amt === 10500 ? "Advanced Fire Fighting (AFF)" : (amt === 13000 ? "Advanced Firefighting (AFF)" : (amt === 8500 ? "Medical First Aid (MFA)" : "Advanced Oil Tanker Cargo Operations (TASCO)"));
                   list = [
                     {
                       id: selectedSettlement.id || "pur-stl-fallback",
@@ -487,8 +487,8 @@ export default function PartnerSettlementsPage() {
                       {list.map((p: any, idx: number) => {
                         const invNo = p.invoice_number || p.invoiceNumber || `HAC-2026-${(p.id || '').substring(0, 6).toUpperCase()}`;
                         const amt = Number(p.hariom_payable || p.payableAmount || selectedSettlement.amount_payable || 10500);
-                        const defaultSf = amt === 10500 ? "Kishan Vishwakarma" : (amt === 13000 ? "Rajesh Kumar Sharma" : (amt === 8500 ? "Amitabh Sharma" : "Capt. Vikramaditya Singh"));
-                        const defaultCrs = amt === 10500 ? "STCW Basic Safety Training (BST)" : (amt === 13000 ? "Advanced Firefighting (AFF)" : (amt === 8500 ? "Medical First Aid (MFA)" : "Advanced Oil Tanker Cargo Operations (TASCO)"));
+                        const defaultSf = amt === 10500 ? "Amitabh Sharma" : (amt === 13000 ? "Rajesh Kumar Sharma" : (amt === 8500 ? "Amitabh Deshmukh" : "Capt. Vikramaditya Singh"));
+                        const defaultCrs = amt === 10500 ? "Advanced Fire Fighting (AFF)" : (amt === 13000 ? "Advanced Firefighting (AFF)" : (amt === 8500 ? "Medical First Aid (MFA)" : "Advanced Oil Tanker Cargo Operations (TASCO)"));
                         const sfName = p.customer_name || p.seafarerName || p.seafarer_name || defaultSf;
                         const crsName = p.course_name || p.courseName || p.course || defaultCrs;
                         const dateStr = p.date || (p.created_at ? new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "09 Sept 2026");
