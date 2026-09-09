@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
@@ -16,17 +17,14 @@ import {
   Files,
   LifeBuoy,
   LogOut,
-  Anchor,
   ChevronRight,
   Settings,
 } from "lucide-react";
 
-import Image from "next/image";
-
 const menuItems = [
   { label: "Dashboard", href: "/partner/dashboard", icon: LayoutDashboard },
   { label: "Search Seafarer", href: "/partner/seafarers/search", icon: Search },
-  { label: "Seafarer Master", href: "/partner/seafarers", icon: Users },
+  { label: "Seafarer Management", href: "/partner/seafarers", icon: Users },
   { label: "New Purchase", href: "/partner/purchases/create", icon: ShoppingCart },
   { label: "Purchase History", href: "/partner/purchases", icon: Receipt },
   { label: "Submit Settlement", href: "/partner/settlements/create", icon: CreditCard },
@@ -83,20 +81,22 @@ export default function AgentSidebar() {
   return (
     <aside className={`w-64 h-screen flex flex-col shrink-0 ${sidebarBg}`}>
       {/* Brand */}
-      <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
-        <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#3D5EF6]/30 shrink-0 shadow-sm">
-          <Image
-            src="/logo.jpeg"
-            alt="Hari Om Maritime Logo"
-            width={36}
-            height={36}
-            className="object-cover w-full h-full"
-          />
-        </div>
-        <div className="leading-tight">
-          <p className={`text-sm font-bold tracking-wide ${logoText}`}>Hari Om</p>
-          <p className={`text-[11px] font-semibold tracking-wider uppercase ${logoSub}`}>Partner Portal</p>
-        </div>
+      <div className={`px-5 py-5 border-b ${brandBorder}`}>
+        <Link href="/partner/dashboard" className="flex items-center gap-3 group">
+          <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#3D5EF6]/30 shrink-0 shadow-sm">
+            <Image
+              src="/logo.jpeg"
+              alt="Hari Om Thalassic"
+              width={36}
+              height={36}
+              className="object-cover w-full h-full"
+            />
+          </div>
+          <div className="leading-tight">
+            <p className={`text-sm font-bold tracking-wide ${logoText}`}>Hari Om</p>
+            <p className={`text-[11px] font-semibold tracking-wider uppercase ${logoSub}`}>Partner Portal</p>
+          </div>
+        </Link>
       </div>
 
       {/* Nav label */}

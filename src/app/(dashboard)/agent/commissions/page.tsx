@@ -40,25 +40,25 @@ export default function CommissionsPage() {
     switch (status) {
       case "Paid":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-emerald-400 bg-emerald-400/10 border border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border border-emerald-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A]">
             <CheckCircle2 className="w-3 h-3" /> Paid
           </span>
         );
       case "Approved":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-cyan-400 bg-cyan-400/10 border border-cyan-500/20" : "text-blue-700 bg-blue-50 border border-blue-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#EEF1FE] text-[#3D5EF6]">
             <CheckCircle2 className="w-3 h-3" /> Approved
           </span>
         );
       case "Cancelled":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-red-400 bg-red-400/10 border border-red-500/20" : "text-red-700 bg-red-50 border border-red-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FEE2E2] text-[#DC2626]">
             <XCircle className="w-3 h-3" /> Cancelled
           </span>
         );
       default:
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full animate-pulse ${isDark ? "text-amber-400 bg-amber-400/10 border border-amber-500/20" : "text-amber-700 bg-amber-50 border border-amber-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309]">
             <Clock className="w-3 h-3" /> Pending
           </span>
         );
@@ -82,10 +82,10 @@ export default function CommissionsPage() {
       <div className="space-y-8 animate-pulse">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {[...Array(3)].map((_, i) => (
-            <div key={i} className={`h-24 rounded-2xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
+            <div key={i} className={`h-24 rounded-[16px] ${isDark ? "bg-[#0B0F19]" : "bg-slate-100"}`} />
           ))}
         </div>
-        <div className={`h-96 rounded-3xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
+        <div className={`h-96 rounded-[16px] ${isDark ? "bg-[#0B0F19]" : "bg-slate-100"}`} />
       </div>
     );
   }
@@ -98,7 +98,7 @@ export default function CommissionsPage() {
         <h1 className="text-3xl font-extrabold tracking-tight">
           Commissions Ledger
         </h1>
-        <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+        <p className={`text-xs ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
           Review and audit calculated commission receipts. Approved commissions are settled into your bank account monthly.
         </p>
       </div>
@@ -106,28 +106,28 @@ export default function CommissionsPage() {
       {/* Metrics Summary cards */}
       <section className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {[
-          { label: "Total Commissions Earned", value: `₹${stats?.totalEarned?.toLocaleString() || 0}`, icon: DollarSign, iconBg: "bg-cyan-500/10", iconText: "text-cyan-500" },
-          { label: "Pending Clearance", value: `₹${stats?.pendingCommission?.toLocaleString() || 0}`, icon: Clock, iconBg: "bg-amber-500/10", iconText: "text-amber-500" },
-          { label: "Settled / Paid Earnings", value: `₹${stats?.paidCommission?.toLocaleString() || 0}`, icon: CheckCircle2, iconBg: "bg-emerald-500/10", iconText: "text-emerald-500" },
+          { label: "Total Commissions Earned", value: `₹${stats?.totalEarned?.toLocaleString() || 0}`, icon: DollarSign },
+          { label: "Pending Clearance", value: `₹${stats?.pendingCommission?.toLocaleString() || 0}`, icon: Clock },
+          { label: "Settled / Paid Earnings", value: `₹${stats?.paidCommission?.toLocaleString() || 0}`, icon: CheckCircle2 },
         ].map((met, idx) => {
           const Icon = met.icon;
           return (
             <div
               key={idx}
-              className={`rounded-2xl p-5 border flex flex-col justify-between transition-all duration-300 backdrop-blur-xl ${
+              className={`rounded-[16px] border-0 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] flex flex-col justify-between transition-colors duration-200 ${
                 isDark 
-                  ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white" 
-                  : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900"
+                  ? "bg-[#0B0F19] text-white" 
+                  : "bg-white text-[#111827]"
               }`}
             >
               <div className="flex justify-between items-start">
                 <div className="space-y-1">
-                  <span className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  <span className={`text-[10px] font-black tracking-widest uppercase ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                     {met.label}
                   </span>
                   <p className="text-xl font-black tracking-tight">{met.value}</p>
                 </div>
-                <div className={`p-2 rounded-2xl ${met.iconBg} ${met.iconText}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
@@ -137,21 +137,21 @@ export default function CommissionsPage() {
       </section>
 
       {/* Ledger Table Section */}
-      <section className={`rounded-3xl border p-6 md:p-8 shadow-xl relative overflow-hidden ${
-        isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
+      <section className={`rounded-[16px] border-0 p-6 md:p-8 relative overflow-hidden shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] ${
+        isDark ? "bg-[#0B0F19] text-white" : "bg-white text-[#111827]"
       }`}>
         
         {/* Search & Filters */}
-        <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
+        <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
           <div className="flex-1 w-full max-w-sm">
-            <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${isDark ? "bg-[#0b182d] border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-800"}`}>
+            <label className={`flex items-center gap-2 px-4 py-2.5 rounded-full border text-sm ${isDark ? "bg-[#111827] border-[#1F2937] text-white" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827]"}`}>
               <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
               <input
                 type="text"
                 placeholder="Search by seafarer name or course..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="bg-transparent outline-none w-full text-[13px]"
+                className={`bg-transparent outline-none w-full text-[13px] ${isDark ? "placeholder:text-gray-500" : "placeholder:text-[#9CA3AF]"}`}
               />
             </label>
           </div>
@@ -161,8 +161,8 @@ export default function CommissionsPage() {
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className={`p-2.5 text-xs rounded-lg border outline-none cursor-pointer ${
-                isDark ? "bg-[#0b182d] border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-800"
+              className={`px-4 py-2.5 text-xs rounded-full border outline-none cursor-pointer ${
+                isDark ? "bg-[#111827] border-[#1F2937] text-white" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827]"
               }`}
             >
               <option value="all">All Statuses</option>
@@ -176,7 +176,7 @@ export default function CommissionsPage() {
 
         {/* Ledger Table */}
         {filteredCommissions.length === 0 ? (
-          <div className="text-center py-16 text-slate-500">
+          <div className="text-center py-16 text-[#6B7280]">
             <DollarSign className="w-10 h-10 mx-auto opacity-30 mb-3" />
             <h4 className="text-sm font-bold">No commission entries found</h4>
             <p className="text-xs mt-1">Earnings will generate here upon booking completion.</p>
@@ -185,8 +185,8 @@ export default function CommissionsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs leading-normal">
               <thead>
-                <tr className={`font-black border-b uppercase tracking-widest text-[9px] ${
-                  isDark ? "text-slate-500 border-slate-800" : "text-slate-400 border-slate-100"
+                <tr className={`font-semibold border-b uppercase tracking-wider text-[10px] ${
+                  isDark ? "text-gray-400 border-[#1F2937]" : "text-[#6B7280] border-[#E5E7EB]"
                 }`}>
                   <th className="pb-3 pr-4">Invoice Ref</th>
                   <th className="pb-3 pr-4">Referred Seafarer</th>
@@ -198,12 +198,12 @@ export default function CommissionsPage() {
                   <th className="pb-3 text-right">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/10">
+              <tbody className={isDark ? "divide-y divide-[#1F2937]" : "divide-y divide-[#E5E7EB]"}>
                 {filteredCommissions.map((comm) => (
-                  <tr key={comm.id} className={`hover:bg-slate-500/5 transition-colors ${
-                    isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
+                  <tr key={comm.id} className={`transition-colors duration-200 ${
+                    isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50/70"
                   }`}>
-                    <td className={`py-4 pr-4 font-black tracking-wider text-[10px] ${isDark ? "text-cyan-400" : "text-blue-700"}`}>
+                    <td className="py-4 pr-4 font-mono font-bold tracking-wider text-[10px] text-[#3D5EF6]">
                       INV-{comm.purchase_id?.substring(0, 8).toUpperCase() || comm.id.substring(0, 8).toUpperCase()}
                     </td>
                     <td className="py-4 pr-4 font-extrabold">
@@ -212,16 +212,16 @@ export default function CommissionsPage() {
                     <td className="py-4 pr-4 font-semibold max-w-[150px] truncate">
                       {comm.course_name}
                     </td>
-                    <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    <td className={`py-4 pr-4 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       ₹{comm.course_fee?.toLocaleString()}
                     </td>
                     <td className="py-4 pr-4 font-bold">
                       {comm.commission_rate}%
                     </td>
-                    <td className={`py-4 pr-4 font-black ${isDark ? "text-cyan-400" : "text-blue-700"}`}>
+                    <td className="py-4 pr-4 font-bold text-[#111827] dark:text-white">
                       ₹{comm.commission_amount?.toLocaleString()}
                     </td>
-                    <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    <td className={`py-4 pr-4 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       {new Date(comm.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 text-right">

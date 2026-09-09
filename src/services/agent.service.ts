@@ -262,7 +262,7 @@ export const agentService = {
     return response.data;
   },
 
-  // --- Purchases & Physical Course Enrollment ---
+  // --- Purchases & Course Enrollment ---
   async createPurchase(purchaseData: {
     seafarerId: string;
     courseId: string;
@@ -333,7 +333,7 @@ export const agentService = {
   },
 
   async uploadDocument(
-    type: string,
+    typeOrFormData: string | FormData,
     file?: File,
     metadata?: {
       expiryDate?: string;
@@ -342,25 +342,37 @@ export const agentService = {
       dateOfIssue?: string;
     },
   ): Promise<{ id: string; type: string; status: string }> {
-    const formData = new FormData();
-    if (file) {
-      formData.append("file", file);
-    }
-    formData.append("type", type);
-    if (metadata) {
-      if (metadata.expiryDate)
-        formData.append("expiryDate", metadata.expiryDate);
-      if (metadata.documentNumber)
-        formData.append("documentNumber", metadata.documentNumber);
-      if (metadata.placeOfIssue)
-        formData.append("placeOfIssue", metadata.placeOfIssue);
-      if (metadata.dateOfIssue)
-        formData.append("dateOfIssue", metadata.dateOfIssue);
+    let formData: FormData;
+    if (typeOrFormData instanceof FormData) {
+      formData = typeOrFormData;
+    } else {
+      formData = new FormData();
+      if (file) {
+        formData.append("file", file);
+      }
+      formData.append("type", typeOrFormData);
+      if (metadata) {
+        if (metadata.expiryDate)
+          formData.append("expiryDate", metadata.expiryDate);
+        if (metadata.documentNumber)
+          formData.append("documentNumber", metadata.documentNumber);
+        if (metadata.placeOfIssue)
+          formData.append("placeOfIssue", metadata.placeOfIssue);
+        if (metadata.dateOfIssue)
+          formData.append("dateOfIssue", metadata.dateOfIssue);
+      }
     }
 
-    const response = await api.post("/documents/upload", formData, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
+    let response;
+    try {
+      response = await api.post("/agent/documents", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    } catch {
+      response = await api.post("/documents/upload", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+    }
     return response.data;
   },
 

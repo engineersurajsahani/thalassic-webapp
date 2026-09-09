@@ -55,16 +55,16 @@ interface UploadFormState {
 }
 
 const DOCUMENT_CATEGORIES = [
-  { type: "passport", label: "Passport", desc: "Identity & validity pages", hasExpiry: true, hasMetadata: true, color: "from-blue-500/5 to-indigo-500/5" },
-  { type: "cdc", label: "CDC (Continuous Discharge Certificate)", desc: "CDC booklet pages", hasExpiry: true, hasMetadata: true, color: "from-indigo-500/5 to-purple-500/5" },
-  { type: "sid", label: "SID (Seafarer Identity Document)", desc: "Seafarer identity document", hasExpiry: true, hasMetadata: false, color: "from-purple-500/5 to-pink-500/5" },
-  { type: "aadhaar", label: "Aadhaar Card", desc: "National identity card", hasExpiry: false, hasMetadata: true, color: "from-pink-500/5 to-rose-500/5" },
-  { type: "pan", label: "PAN Card", desc: "Permanent Account Number card", hasExpiry: false, hasMetadata: true, color: "from-rose-500/5 to-orange-500/5" },
-  { type: "cancelledCheque", label: "Cancelled Cheque", desc: "Bank account proof", hasExpiry: false, hasMetadata: false, color: "from-orange-500/5 to-amber-500/5" },
-  { type: "ownerPhoto", label: "Agency Owner Photograph", desc: "Agency owner photograph", hasExpiry: false, hasMetadata: false, color: "from-amber-500/5 to-yellow-500/5" },
-  { type: "officePhotos", label: "Office Premises Photograph", desc: "Photographs of office premises", hasExpiry: false, hasMetadata: false, color: "from-yellow-500/5 to-lime-500/5" },
-  { type: "officeAddressProof", label: "Office Address Proof", desc: "Proof of office address", hasExpiry: false, hasMetadata: false, color: "from-lime-500/5 to-green-500/5" },
-  { type: "residentialAddressProof", label: "Residency Address Proof", desc: "Proof of residential address", hasExpiry: false, hasMetadata: false, color: "from-green-500/5 to-emerald-500/5" }
+  { type: "passport", label: "Passport", desc: "Identity & validity pages", hasExpiry: true, hasMetadata: true, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "cdc", label: "CDC (Continuous Discharge Certificate)", desc: "CDC booklet pages", hasExpiry: true, hasMetadata: true, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "sid", label: "SID (Seafarer Identity Document)", desc: "Seafarer identity document", hasExpiry: true, hasMetadata: false, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "aadhaar", label: "Aadhaar Card", desc: "National identity card", hasExpiry: false, hasMetadata: true, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "pan", label: "PAN Card", desc: "Permanent Account Number card", hasExpiry: false, hasMetadata: true, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "cancelledCheque", label: "Cancelled Cheque", desc: "Bank account proof", hasExpiry: false, hasMetadata: false, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "ownerPhoto", label: "Agency Owner Photograph", desc: "Agency owner photograph", hasExpiry: false, hasMetadata: false, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "officePhotos", label: "Office Premises Photograph", desc: "Photographs of office premises", hasExpiry: false, hasMetadata: false, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "officeAddressProof", label: "Office Address Proof", desc: "Proof of office address", hasExpiry: false, hasMetadata: false, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" },
+  { type: "residentialAddressProof", label: "Residency Address Proof", desc: "Proof of residential address", hasExpiry: false, hasMetadata: false, color: "from-[#3D5EF6]/5 to-[#3D5EF6]/5" }
 ];
 
 export default function AgentDocumentsPage() {
@@ -150,6 +150,13 @@ export default function AgentDocumentsPage() {
     setUploads(initUploadState());
   }, [initUploadState]);
 
+  const handleFileSelect = (type: string, file: File) => {
+    setUploads((prev) => ({
+      ...prev,
+      [type]: { ...prev[type], file, error: "", success: "" },
+    }));
+  };
+
   const handleInstantUpload = async (type: string, file: File) => {
     if (file.size > 10 * 1024 * 1024) {
       toast.error("File size exceeds 10MB limit.");
@@ -160,7 +167,10 @@ export default function AgentDocumentsPage() {
       [type]: { ...prev[type], loading: true, error: "", success: "" },
     }));
     try {
-      await agentService.uploadDocument(type, file, { documentNumber: file.name });
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("type", type);
+      await agentService.uploadDocument(formData);
       setUploads((prev) => ({
         ...prev,
         [type]: {
@@ -184,33 +194,7 @@ export default function AgentDocumentsPage() {
 
   const handleUpload = async (type: string) => {
     const uploadState = uploads[type];
-    const file = uploadState?.file;
-    if (!file) return;
-
-    // Validate required fields based on PRD requirements
-    if (type === "passport") {
-      if (!docNumbers[type] || !issueDates[type] || !expiryDates[type] || !issuePlaces[type]) {
-        toast.error("Please fill all Passport details (Number, Issue Date, Expiry Date, Place) before uploading.");
-        return;
-      }
-    } else if (type === "cdc") {
-      if (!docNumbers[type] || !issueDates[type] || !expiryDates[type] || !issuePlaces[type]) {
-        toast.error("Please fill all CDC Booklet details (Number, Issue Date, Expiry Date, Place) before uploading.");
-        return;
-      }
-    } else if (type === "aadhaar") {
-      if (!docNumbers[type]) {
-        toast.error("Please enter Aadhaar Number before uploading.");
-        return;
-      }
-    } else if (type === "pan") {
-      if (!docNumbers[type]) {
-        toast.error("Please enter PAN Card Number before uploading.");
-        return;
-      }
-    }
-
-    const expiryDate = expiryDates[type] || uploadState.expiryDate || "";
+    if (!uploadState?.file) return;
 
     setUploads((prev) => ({
       ...prev,
@@ -218,43 +202,52 @@ export default function AgentDocumentsPage() {
     }));
 
     try {
-      const meta = {
-        number: docNumbers[type] || "",
-        issueDate: issueDates[type] || "",
-        issuePlace: issuePlaces[type] || "",
-      };
-      const serializedName = `${file.name}|||${JSON.stringify(meta)}`;
-      await agentService.uploadDocument(type, file, { documentNumber: serializedName, expiryDate });
+      const formData = new FormData();
+      formData.append("file", uploadState.file);
+      formData.append("type", type);
+
+      const category = DOCUMENT_CATEGORIES.find((c) => c.type === type);
+      if (category?.hasExpiry && expiryDates[type]) {
+        formData.append("expiryDate", expiryDates[type]);
+      }
+
+      if (category?.hasMetadata) {
+        const metadata: any = {};
+        if (docNumbers[type]) metadata.number = docNumbers[type];
+        if (issuePlaces[type]) metadata.issuePlace = issuePlaces[type];
+        if (issueDates[type]) metadata.issueDate = issueDates[type];
+        if (Object.keys(metadata).length > 0) {
+          formData.append("metadata", JSON.stringify(metadata));
+        }
+      }
+
+      await agentService.uploadDocument(formData);
+      toast.success(`${category?.label || type} uploaded successfully!`);
+
       setUploads((prev) => ({
         ...prev,
         [type]: {
           ...prev[type],
           loading: false,
           file: null,
-          success: "Document uploaded successfully!",
-          error: "",
+          success: "Uploaded successfully!",
         },
       }));
+
       await loadDocuments();
     } catch (err: any) {
-      const errMsg = err?.response?.data?.message || err.message || "Upload failed.";
-      toast.error(errMsg);
+      const msg = err?.response?.data?.message || "Upload failed. Please try again.";
+      toast.error(msg);
       setUploads((prev) => ({
         ...prev,
-        [type]: {
-          ...prev[type],
-          loading: false,
-          error: errMsg,
-          success: "",
-        },
+        [type]: { ...prev[type], loading: false, error: msg },
       }));
-      toast.error(err?.response?.data?.message || err.message || "Upload failed.");
     }
   };
 
-  const handleDownload = async (docId: string) => {
-    setDownloadingId(docId);
+  const handleDownload = async (docId: string, label: string) => {
     try {
+      setDownloadingId(docId);
       const result = await agentService.downloadDocument(docId);
       if (result?.url) {
         const link = document.createElement("a");
@@ -277,19 +270,19 @@ export default function AgentDocumentsPage() {
     switch (statusLower) {
       case "verified":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${isDark ? "text-emerald-400 bg-emerald-400/10 border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border-emerald-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A]">
             <CheckCircle2 className="w-3 h-3" /> Verified
           </span>
         );
       case "rejected":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${isDark ? "text-red-400 bg-red-400/10 border-red-500/20" : "text-red-700 bg-red-50 border-red-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FEE2E2] text-[#DC2626]">
             <ShieldAlert className="w-3 h-3" /> Rejected
           </span>
         );
       default:
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border animate-pulse ${isDark ? "text-amber-400 bg-amber-400/10 border-amber-500/20" : "text-amber-700 bg-amber-50 border-amber-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309]">
             <Clock className="w-3 h-3" /> Pending
           </span>
         );
@@ -297,19 +290,19 @@ export default function AgentDocumentsPage() {
   };
 
   const getDocForType = (type: string) => documents.find((d) => d.type === type);
-  const inputClasses = `w-full p-2 text-xs rounded-lg border outline-none transition-colors ${
+  const inputClasses = `w-full p-2 text-xs rounded-xl border outline-none transition-colors duration-200 ${
     isDark
-      ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500 placeholder:text-slate-600"
-      : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb] placeholder:text-slate-400"
+      ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6] placeholder:text-gray-500"
+      : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6] placeholder:text-[#9CA3AF]"
   }`;
-  const labelClasses = `text-[9px] uppercase font-black tracking-wider ${isDark ? "text-slate-500" : "text-slate-500"}`;
+  const labelClasses = `text-[9px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`;
 
   if (loading) {
     return (
       <div className="space-y-8 animate-pulse">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, i) => (
-            <div key={i} className={`h-48 rounded-2xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
+            <div key={i} className={`h-48 rounded-[16px] ${isDark ? "bg-[#0B0F19] border border-[#1F2937]" : "bg-slate-100"}`} />
           ))}
         </div>
       </div>
@@ -323,7 +316,7 @@ export default function AgentDocumentsPage() {
         <h1 className="text-3xl font-extrabold tracking-tight">
           Document Manager
         </h1>
-        <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+        <p className={`text-xs ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
           Upload, replace, and download your verification documents. Documents are reviewed by the Partner Admin.
         </p>
       </div>
@@ -337,39 +330,37 @@ export default function AgentDocumentsPage() {
           return (
             <div
               key={cat.type}
-              className={`rounded-2xl border shadow-lg transition-all duration-300 overflow-hidden flex flex-col justify-between h-full relative ${
+              className={`rounded-[16px] border-0 transition-colors duration-200 overflow-hidden flex flex-col justify-between h-full relative ${
                 isDark
-                  ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white hover:border-cyan-500/20"
-                  : "bg-white border-slate-200 text-slate-900 hover:border-[#3b71cb]/20"
-              } ${existing ? (existing.status === "Verified" ? "border-l-2 border-l-emerald-500" : existing.status === "Rejected" ? "border-l-2 border-l-red-500" : "border-l-2 border-l-amber-500") : ""}`}
+                  ? "bg-[#0B0F19] shadow-[0_4px_20px_rgba(0,0,0,0.3)] text-white"
+                  : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] text-[#111827]"
+              }`}
             >
-              <div className={`absolute inset-0 bg-gradient-to-br ${cat.color} opacity-20 pointer-events-none`} />
-
               {/* Main card info container */}
               <div className="relative z-10">
                 {/* Top info and details */}
                 <div className="space-y-4 p-5">
                   <div className="flex items-center justify-between">
                     <h3 className="font-extrabold text-sm tracking-tight">{cat.label}</h3>
-                    <div className={`p-2 rounded-lg ${
-                      isDark ? "bg-slate-900/60 text-cyan-400" : "bg-slate-50 text-[#3b71cb]"
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                      isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"
                     }`}>
                       <Files className="w-4 h-4" />
                     </div>
                   </div>
-                  <p className={`text-[10px] leading-relaxed ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                  <p className={`text-[10px] leading-relaxed ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                     {cat.desc}
                   </p>
 
                   {["passport", "cdc", "aadhaar", "pan"].includes(cat.type) && (
                     <button
                       onClick={() => setActiveDetailsModal(cat.type)}
-                      className={`mt-2 py-1.5 px-3 rounded-xl border text-[11px] font-extrabold flex items-center gap-1.5 transition active:scale-95 cursor-pointer ${
+                      className={`mt-2 py-1.5 px-3 rounded-full border text-[11px] font-extrabold flex items-center gap-1.5 transition-colors duration-200 cursor-pointer ${
                         docNumbers[cat.type]
-                          ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20"
+                          ? "bg-[#DCFCE7] border-[#16A34A]/20 text-[#16A34A]"
                           : isDark
-                          ? "bg-white/5 border-white/10 text-cyan-400 hover:bg-white/10"
-                          : "bg-slate-50 border-slate-200 text-[#3b71cb] hover:bg-slate-100 shadow-sm"
+                          ? "bg-[#111827] border-[#1F2937] text-[#3D5EF6] hover:bg-white/10"
+                          : "bg-[#EEF1FE] border-[#3D5EF6]/20 text-[#3D5EF6] hover:bg-[#EEF1FE]/80"
                       }`}
                     >
                       {docNumbers[cat.type] ? "✓ Details Saved" : "✍️ Fill Details"}
@@ -385,7 +376,7 @@ export default function AgentDocumentsPage() {
                       Verification Status
                     </span>
                     {uploadState?.loading ? (
-                      <div className="flex items-center gap-1.5 text-[10px] font-black text-cyan-400 animate-pulse">
+                      <div className="flex items-center gap-1.5 text-[10px] font-black text-[#3D5EF6] animate-pulse">
                         <span>Syncing...</span>
                       </div>
                     ) : existing ? (
@@ -400,7 +391,7 @@ export default function AgentDocumentsPage() {
                   {/* Existing document info */}
                   {existing && (
                     <div className="px-5">
-                      <div className={`mt-3 p-3 rounded-xl text-xs space-y-1 ${isDark ? "bg-slate-900/40" : "bg-slate-50"}`}>
+                      <div className={`mt-3 p-3 rounded-[16px] text-xs space-y-1 ${isDark ? "bg-slate-900/40" : "bg-slate-50"}`}>
                         <div className="flex justify-between">
                            <span className={`font-semibold ${isDark ? "text-slate-400" : "text-slate-500"}`}>File</span>
                            <span className="truncate max-w-[160px] text-right font-bold" title={existing.label}>{existing.label}</span>
@@ -436,7 +427,7 @@ export default function AgentDocumentsPage() {
                           </div>
                         )}
                         {existing.status === "Rejected" && existing.remarks && (
-                          <div className={`mt-2 p-2 rounded-lg ${isDark ? "bg-red-500/10 border border-red-500/20" : "bg-red-50 border border-red-200"}`}>
+                          <div className={`mt-2 p-2 rounded-[16px] ${isDark ? "bg-red-500/10 border border-red-500/20" : "bg-red-50 border border-red-200"}`}>
                             <span className={`text-[10px] font-bold ${isDark ? "text-red-400" : "text-red-600"}`}>Rejection reason: {existing.remarks}</span>
                           </div>
                         )}
@@ -468,12 +459,12 @@ export default function AgentDocumentsPage() {
                 {existing ? (
                   <>
                     <button
-                      onClick={() => handleDownload(existing.id)}
+                      onClick={() => handleDownload(existing.id, existing.label)}
                       disabled={downloadingId === existing.id}
-                      className={`flex-1 py-1.5 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1 cursor-pointer transition-all ${
+                      className={`flex-1 py-1.5 rounded-full font-bold text-[10px] flex items-center justify-center gap-1 cursor-pointer transition-colors duration-200 ${
                         isDark
-                          ? "bg-slate-800 hover:bg-slate-700 text-white"
-                          : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                          ? "bg-[#111827] hover:bg-white/10 text-white/70 border border-[#1F2937]"
+                          : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280] border border-[#E5E7EB]"
                       } disabled:opacity-50`}
                     >
                       <Download className="w-3 h-3" />
@@ -482,10 +473,10 @@ export default function AgentDocumentsPage() {
                     <button
                       onClick={() => document.getElementById(`file-input-${cat.type}`)?.click()}
                       disabled={uploadState?.loading}
-                      className={`flex-1 py-1.5 rounded-lg font-bold text-[10px] flex items-center justify-center gap-1.5 cursor-pointer transition-all ${
+                      className={`flex-1 py-1.5 rounded-full font-bold text-[10px] flex items-center justify-center gap-1.5 cursor-pointer transition-colors duration-200 ${
                         isDark
-                          ? "bg-slate-800 hover:bg-slate-700 text-white"
-                          : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+                          ? "bg-[#111827] hover:bg-white/10 text-white/70 border border-[#1F2937]"
+                          : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280] border border-[#E5E7EB]"
                       }`}
                     >
                       {uploadState?.loading ? (
@@ -500,11 +491,7 @@ export default function AgentDocumentsPage() {
                   <button
                     onClick={() => document.getElementById(`file-input-${cat.type}`)?.click()}
                     disabled={uploadState?.loading}
-                    className={`w-full py-2 rounded-xl font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 cursor-pointer transition-all duration-300 hover:-translate-y-0.5 ${
-                      isDark
-                        ? "bg-gradient-to-r from-cyan-600 to-blue-600 hover:brightness-110 text-white"
-                        : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
-                    }`}
+                    className="w-full py-2 rounded-full font-bold text-xs shadow-sm flex items-center justify-center gap-1.5 cursor-pointer transition-colors duration-200 bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white"
                   >
                     {uploadState?.loading ? (
                       <span className="animate-spin w-3.5 h-3.5 border-2 border-white/30 border-t-white rounded-full" />
@@ -520,17 +507,16 @@ export default function AgentDocumentsPage() {
         })}
 
         {/* Card 11: Verification Progress Tracker */}
-        <div className={`rounded-2xl border shadow-lg p-5 flex flex-col justify-between h-full relative ${
+        <div className={`rounded-[16px] border-0 p-5 flex flex-col justify-between h-full relative ${
           isDark
-            ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white"
-            : "bg-white border-slate-200 text-slate-900"
+            ? "bg-[#0B0F19] shadow-[0_4px_20px_rgba(0,0,0,0.3)] text-white"
+            : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] text-[#111827]"
         }`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-blue-500/5 opacity-20 pointer-events-none" />
           <div className="relative z-10 space-y-4 flex-1">
             <div className="flex items-center justify-between">
               <h3 className="font-extrabold text-sm tracking-tight">Upload Progress</h3>
-              <div className={`p-2 rounded-lg ${
-                isDark ? "bg-slate-900/60 text-cyan-400" : "bg-slate-50 text-[#3b71cb]"
+              <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"
               }`}>
                 <Sparkles className="w-4 h-4" />
               </div>
@@ -552,30 +538,30 @@ export default function AgentDocumentsPage() {
                       <span>Overall Progress</span>
                       <span>{percent}%</span>
                     </div>
-                    <div className="w-full bg-slate-200 dark:bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div className="w-full bg-[#F3F4F6] dark:bg-[#111827] h-2 rounded-full overflow-hidden">
                       <div
-                        className="bg-gradient-to-r from-cyan-500 to-blue-500 h-full transition-all duration-500"
+                        className="bg-[#3D5EF6] h-full transition-all duration-500"
                         style={{ width: `${percent}%` }}
                       />
                     </div>
                   </div>
 
                   <div className="grid grid-cols-2 gap-2 pt-2">
-                    <div className={`p-2 rounded-xl text-center border ${isDark ? "bg-slate-900/40 border-slate-800/80" : "bg-slate-50 border-slate-100"}`}>
-                      <span className="block text-lg font-black text-emerald-500">{verified}</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Verified</span>
+                    <div className={`p-2 rounded-[16px] text-center border ${isDark ? "bg-[#111827] border-[#1F2937]" : "bg-[#FAFAFA] border-[#E5E7EB]"}`}>
+                      <span className="block text-lg font-black text-[#16A34A]">{verified}</span>
+                      <span className="text-[9px] font-bold text-[#6B7280] dark:text-gray-400 uppercase">Verified</span>
                     </div>
-                    <div className={`p-2 rounded-xl text-center border ${isDark ? "bg-slate-900/40 border-slate-800/80" : "bg-slate-50 border-slate-100"}`}>
-                      <span className="block text-lg font-black text-amber-500">{pending}</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Pending</span>
+                    <div className={`p-2 rounded-[16px] text-center border ${isDark ? "bg-[#111827] border-[#1F2937]" : "bg-[#FAFAFA] border-[#E5E7EB]"}`}>
+                      <span className="block text-lg font-black text-[#B45309]">{pending}</span>
+                      <span className="text-[9px] font-bold text-[#6B7280] dark:text-gray-400 uppercase">Pending</span>
                     </div>
-                    <div className={`p-2 rounded-xl text-center border ${isDark ? "bg-slate-900/40 border-slate-800/80" : "bg-slate-50 border-slate-100"}`}>
-                      <span className="block text-lg font-black text-red-500">{rejected}</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Rejected</span>
+                    <div className={`p-2 rounded-[16px] text-center border ${isDark ? "bg-[#111827] border-[#1F2937]" : "bg-[#FAFAFA] border-[#E5E7EB]"}`}>
+                      <span className="block text-lg font-black text-[#DC2626]">{rejected}</span>
+                      <span className="text-[9px] font-bold text-[#6B7280] dark:text-gray-400 uppercase">Rejected</span>
                     </div>
-                    <div className={`p-2 rounded-xl text-center border ${isDark ? "bg-slate-900/40 border-slate-800/80" : "bg-slate-50 border-slate-100"}`}>
-                      <span className="block text-lg font-black text-slate-400">{total - uploaded}</span>
-                      <span className="text-[9px] font-bold text-slate-400 uppercase">Missing</span>
+                    <div className={`p-2 rounded-[16px] text-center border ${isDark ? "bg-[#111827] border-[#1F2937]" : "bg-[#FAFAFA] border-[#E5E7EB]"}`}>
+                      <span className="block text-lg font-black text-[#6B7280] dark:text-gray-400">{total - uploaded}</span>
+                      <span className="text-[9px] font-bold text-[#6B7280] dark:text-gray-400 uppercase">Missing</span>
                     </div>
                   </div>
                 </div>
@@ -585,43 +571,42 @@ export default function AgentDocumentsPage() {
         </div>
 
         {/* Card 12: Upload Guidelines & Help */}
-        <div className={`rounded-2xl border shadow-lg p-5 flex flex-col justify-between h-full relative ${
+        <div className={`rounded-[16px] border-0 p-5 flex flex-col justify-between h-full relative ${
           isDark
-            ? "bg-gradient-to-b from-[#09162c] to-[#040c1a] border-slate-800/80 text-white"
-            : "bg-white border-slate-200 text-slate-900"
+            ? "bg-[#0B0F19] shadow-[0_4px_20px_rgba(0,0,0,0.3)] text-white"
+            : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] text-[#111827]"
         }`}>
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-purple-500/5 opacity-20 pointer-events-none" />
           <div className="relative z-10 space-y-4 flex-1 flex flex-col justify-between">
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="font-extrabold text-sm tracking-tight">Upload Guidelines</h3>
-                <div className={`p-2 rounded-lg ${
-                  isDark ? "bg-slate-900/60 text-cyan-400" : "bg-slate-50 text-[#3b71cb]"
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                  isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"
                 }`}>
                   <AlertCircle className="w-4 h-4" />
                 </div>
               </div>
 
-              <ul className="space-y-1.5 text-[10px] leading-relaxed text-slate-400 font-medium">
+              <ul className={`space-y-1.5 text-[10px] leading-relaxed font-medium ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                 <li className="flex items-start gap-1">
-                  <span className="text-cyan-400 mt-0.5">•</span>
+                  <span className="text-[#3D5EF6] mt-0.5">•</span>
                   <span>Max file size allowed is <strong>10MB</strong> per file.</span>
                 </li>
                 <li className="flex items-start gap-1">
-                  <span className="text-cyan-400 mt-0.5">•</span>
+                  <span className="text-[#3D5EF6] mt-0.5">•</span>
                   <span>Supported formats: <strong>PDF, JPG, JPEG, PNG</strong>.</span>
                 </li>
                 <li className="flex items-start gap-1">
-                  <span className="text-cyan-400 mt-0.5">•</span>
+                  <span className="text-[#3D5EF6] mt-0.5">•</span>
                   <span>Ensure all document edges are fully visible and readable.</span>
                 </li>
               </ul>
             </div>
 
-            <div className={`mt-auto p-2.5 rounded-xl border text-[10px] text-center font-bold ${
-              isDark ? "bg-slate-900/40 border-slate-800/80 text-slate-400" : "bg-slate-50 border-slate-100 text-slate-600"
+            <div className={`mt-auto p-2.5 rounded-[16px] border text-[10px] text-center font-bold ${
+              isDark ? "bg-[#111827] border-[#1F2937] text-gray-400" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#6B7280]"
             }`}>
-              💡 Need assistance? Contact admin at <a href="mailto:support@hariom.com" className="text-cyan-400 underline">support@hariom.com</a>
+              💡 Need assistance? Contact admin at <a href="mailto:support@hariom.com" className="text-[#3D5EF6] underline">support@hariom.com</a>
             </div>
           </div>
         </div>
@@ -629,17 +614,15 @@ export default function AgentDocumentsPage() {
 
       {/* Summary Table */}
       {documents.length > 0 && (
-        <section className={`rounded-3xl border p-6 md:p-8 shadow-xl relative overflow-hidden ${
-          isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
+        <section className={`rounded-[16px] border-0 p-6 md:p-8 relative overflow-hidden ${
+          isDark ? "bg-[#0B0F19] shadow-[0_4px_20px_rgba(0,0,0,0.3)] text-white" : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] text-[#111827]"
         }`}>
-          <div className={`flex items-center justify-between border-b pb-4 mb-5 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
+          <div className={`flex items-center justify-between border-b pb-4 mb-5 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <div className="flex items-center gap-2">
-              <Sparkles className={`w-4 h-4 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
+              <Sparkles className="w-4 h-4 text-[#3D5EF6]" />
               <h3 className="text-lg font-black tracking-tight">Uploaded Documents</h3>
             </div>
-            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${
-              isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
-            }`}>
+            <span className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider bg-[#EEF1FE] text-[#3D5EF6]">
               Total: {documents.length}
             </span>
           </div>
@@ -647,8 +630,8 @@ export default function AgentDocumentsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs leading-normal">
               <thead>
-                <tr className={`font-black border-b uppercase tracking-widest text-[9px] ${
-                  isDark ? "text-slate-500 border-slate-800" : "text-slate-400 border-slate-100"
+                <tr className={`font-semibold border-b uppercase tracking-wider text-[10px] ${
+                  isDark ? "text-gray-400 border-[#1F2937]" : "text-[#6B7280] border-[#E5E7EB]"
                 }`}>
                   <th className="pb-3 pr-4">Document</th>
                   <th className="pb-3 pr-4">File Name</th>
@@ -658,12 +641,12 @@ export default function AgentDocumentsPage() {
                   <th className="pb-3 pr-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/10">
+              <tbody className={isDark ? "divide-y divide-[#1F2937]" : "divide-y divide-[#E5E7EB]"}>
                 {documents.map((doc) => (
-                  <tr key={doc.id} className={`hover:bg-slate-500/5 transition-colors ${
-                    isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
+                  <tr key={doc.id} className={`transition-colors duration-200 ${
+                    isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50/70"
                   }`}>
-                    <td className="py-4 pr-4 font-black uppercase tracking-wider text-cyan-400 text-[10px]">
+                    <td className="py-4 pr-4 font-mono font-bold uppercase tracking-wider text-[#3D5EF6] text-[10px]">
                       {doc.type}
                     </td>
                     <td className="py-4 pr-4 max-w-[200px] truncate font-semibold" title={(doc.label || "").split("|||")[0]}>
@@ -674,17 +657,17 @@ export default function AgentDocumentsPage() {
                           try {
                             const meta = JSON.parse(parts[1]);
                             if (meta.number) {
-                              return <span className={`block text-[9px] font-mono mt-0.5 ${isDark ? "text-slate-500" : "text-slate-400"}`}>Num: {meta.number}</span>;
+                              return <span className={`block text-[9px] font-mono mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Num: {meta.number}</span>;
                             }
                           } catch {}
                         }
                         return null;
                       })()}
                     </td>
-                    <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                    <td className={`py-4 pr-4 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       {doc.uploadedAt ? new Date(doc.uploadedAt).toLocaleDateString() : "—"}
                     </td>
-                    <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-550"}`}>
+                    <td className={`py-4 pr-4 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       {doc.expiryDate ? new Date(doc.expiryDate).toLocaleDateString() : "--"}
                     </td>
                     <td className="py-4 pr-4">
@@ -696,10 +679,10 @@ export default function AgentDocumentsPage() {
                           href={doc.url?.startsWith("http") ? doc.url : `http://localhost:4000${doc.url}`}
                           target="_blank"
                           rel="noreferrer"
-                          className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-cyan-500/10 cursor-pointer ${
+                          className={`p-1.5 rounded-full border flex items-center justify-center transition-colors duration-200 cursor-pointer ${
                             isDark 
-                              ? "bg-white/[0.02] border-white/10 text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10 hover:border-cyan-500/30" 
-                              : "bg-slate-50 border-slate-200 text-cyan-600 hover:text-cyan-700 hover:bg-cyan-55 hover:border-cyan-200"
+                              ? "bg-[#111827] border-[#1F2937] text-white/70 hover:text-white hover:bg-white/10" 
+                              : "bg-[#F3F4F6] border-[#E5E7EB] text-[#6B7280] hover:text-[#111827] hover:bg-[#E5E7EB]"
                           }`}
                           title="Preview Document"
                         >
@@ -708,10 +691,10 @@ export default function AgentDocumentsPage() {
                         <a
                           href={doc.url?.startsWith("http") ? doc.url : `http://localhost:4000${doc.url}`}
                           download
-                          className={`p-1.5 rounded-xl border flex items-center justify-center transition-all duration-300 hover:scale-110 active:scale-95 shadow-sm hover:shadow-emerald-500/10 cursor-pointer ${
+                          className={`p-1.5 rounded-full border flex items-center justify-center transition-colors duration-200 cursor-pointer ${
                             isDark 
-                              ? "bg-white/[0.02] border-white/10 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 hover:border-emerald-500/30" 
-                              : "bg-slate-50 border-slate-200 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-55 hover:border-emerald-200"
+                              ? "bg-[#111827] border-[#1F2937] text-white/70 hover:text-white hover:bg-white/10" 
+                              : "bg-[#F3F4F6] border-[#E5E7EB] text-[#6B7280] hover:text-[#111827] hover:bg-[#E5E7EB]"
                           }`}
                           title="Download Document"
                         >
@@ -729,17 +712,17 @@ export default function AgentDocumentsPage() {
 
       {/* Details Entry Modal */}
       {activeDetailsModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className={`w-full max-w-md p-6 rounded-3xl relative animate-in zoom-in-95 duration-200 overflow-hidden ${
-            isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+          <div className={`w-full max-w-md p-6 rounded-[16px] relative animate-zoomIn overflow-hidden border-0 shadow-2xl ${
+            isDark ? "bg-[#0B0F19] text-white" : "bg-white text-[#111827]"
           }`}>
-            <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-cyan-400">
+            <div className={`flex items-center justify-between border-b pb-3 mb-4 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#3D5EF6]">
                 ✍️ Fill {activeDetailsModal.toUpperCase()} Details
               </h3>
               <button
                 onClick={() => setActiveDetailsModal(null)}
-                className={`p-1.5 rounded-full transition ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}
+                className={`p-1.5 rounded-full transition-colors duration-200 ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-[#6B7280] hover:text-[#111827]"}`}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -749,55 +732,55 @@ export default function AgentDocumentsPage() {
               {activeDetailsModal === "passport" && (
                 <div className="space-y-3">
                   <div className="space-y-1">
-                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       Passport Number *
                     </label>
                     <input
                       type="text"
                       value={docNumbers[activeDetailsModal] || ""}
                       onChange={(e) => setDocNumbers(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                        isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6] placeholder:text-gray-500" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6] placeholder:text-[#9CA3AF]"
                       }`}
                       placeholder="Enter Passport Number"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       Date of Issue *
                     </label>
                     <input
                       type="date"
                       value={issueDates[activeDetailsModal] || ""}
                       onChange={(e) => setIssueDates(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                        isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                       }`}
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       Date of Expiry *
                     </label>
                     <input
                       type="date"
                       value={expiryDates[activeDetailsModal] || ""}
                       onChange={(e) => setExpiryDates((prev) => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                        isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                       }`}
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       Place of Issue *
                     </label>
                     <input
                       type="text"
                       value={issuePlaces[activeDetailsModal] || ""}
                       onChange={(e) => setIssuePlaces(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                        isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6] placeholder:text-gray-500" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6] placeholder:text-[#9CA3AF]"
                       }`}
                       placeholder="Enter Place of Issue"
                     />
@@ -808,55 +791,55 @@ export default function AgentDocumentsPage() {
               {activeDetailsModal === "cdc" && (
                 <div className="space-y-3">
                   <div className="space-y-1">
-                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                    <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       CDC Number *
                     </label>
                     <input
                       type="text"
                       value={docNumbers[activeDetailsModal] || ""}
                       onChange={(e) => setDocNumbers(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                        isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6] placeholder:text-gray-500" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6] placeholder:text-[#9CA3AF]"
                       }`}
                       placeholder="Enter CDC Number"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                    <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       Date of Issue *
                     </label>
                     <input
                       type="date"
                       value={issueDates[activeDetailsModal] || ""}
                       onChange={(e) => setIssueDates(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                        isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                       }`}
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                    <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       Date of Expiry *
                     </label>
                     <input
                       type="date"
                       value={expiryDates[activeDetailsModal] || ""}
                       onChange={(e) => setExpiryDates((prev) => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                        isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                       }`}
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                    <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       Place of Issue *
                     </label>
                     <input
                       type="text"
                       value={issuePlaces[activeDetailsModal] || ""}
                       onChange={(e) => setIssuePlaces(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                      className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                        isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                      className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                        isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6] placeholder:text-gray-500" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6] placeholder:text-[#9CA3AF]"
                       }`}
                       placeholder="Enter Place of Issue"
                     />
@@ -866,15 +849,15 @@ export default function AgentDocumentsPage() {
 
               {activeDetailsModal === "aadhaar" && (
                 <div className="space-y-1.5">
-                  <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                  <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                     Aadhaar Number *
                   </label>
                   <input
                     type="text"
                     value={docNumbers[activeDetailsModal] || ""}
                     onChange={(e) => setDocNumbers(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                    className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                      isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6] placeholder:text-gray-500" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6] placeholder:text-[#9CA3AF]"
                     }`}
                     placeholder="Enter 12-digit Aadhaar"
                   />
@@ -883,15 +866,15 @@ export default function AgentDocumentsPage() {
 
               {activeDetailsModal === "pan" && (
                 <div className="space-y-1.5">
-                  <label className={`text-[10px] uppercase font-black tracking-wider ${isDark ? "text-slate-400" : "text-slate-505"}`}>
+                  <label className={`text-[10px] uppercase font-bold tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                     PAN Card Number *
                   </label>
                   <input
                     type="text"
                     value={docNumbers[activeDetailsModal] || ""}
                     onChange={(e) => setDocNumbers(prev => ({ ...prev, [activeDetailsModal]: e.target.value }))}
-                    className={`w-full p-2.5 text-xs rounded-lg border outline-none ${
-                      isDark ? "bg-[#0b182d] border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    className={`w-full p-2.5 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                      isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6] placeholder:text-gray-500" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6] placeholder:text-[#9CA3AF]"
                     }`}
                     placeholder="Enter 10-digit PAN"
                   />
@@ -901,7 +884,7 @@ export default function AgentDocumentsPage() {
 
             <button
               onClick={() => setActiveDetailsModal(null)}
-              className="mt-6 w-full py-2.5 bg-cyan-600 hover:bg-cyan-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-md active:scale-98 transition-all font-sans"
+              className="mt-6 w-full py-2.5 bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white font-bold rounded-full text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-sm transition-colors duration-200"
             >
               <CheckCircle2 className="w-4 h-4" /> Save Details
             </button>
