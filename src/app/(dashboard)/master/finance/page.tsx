@@ -35,7 +35,7 @@ const REVENUE_TREND = [
 const PAYMENT_STREAMS = [
   { name: "Direct Course Sales", value: 1075000, color: "#0ea5e9" },
   { name: "Partner Collections",  value: 1800000, color: "#8b5cf6" },
-  { name: "Corporate Billable",   value: 580000,  color: "#10b981" },
+  { name: "Institute Billable",   value: 580000,  color: "#10b981" },
 ];
 
 export default function FinanceOverviewPage() {
@@ -96,15 +96,16 @@ export default function FinanceOverviewPage() {
       {/* PRD 2.1 Secondary Navigation Tabs */}
       <FinanceTabs />
 
-      {/* Scope Disclaimer (PRD 2.16 Separation of Finance & Reports) */}
-      <div className={`p-3.5 rounded-xl border flex items-center justify-between text-xs ${
+      {/* Scope Disclaimer & Partner Settlement Mechanics */}
+      <div className={`p-4 rounded-xl border flex items-start justify-between text-xs ${
         dk ? "bg-sky-500/10 border-sky-500/20 text-sky-300" : "bg-sky-50 border-sky-200 text-sky-800"
       }`}>
-        <div className="flex items-center gap-2.5">
-          <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0" />
-          <span>
-            <strong>Finance Scope (PRD §2.16):</strong> This section handles monetary transactions, revenue tracking, partner settlements, and invoices. Operational seafarer & institute analytics are segregated under <strong>Reports</strong>.
-          </span>
+        <div className="flex items-start gap-2.5">
+          <ShieldCheck className="w-4 h-4 text-sky-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p><strong>Finance Scope & Stream Architecture:</strong> Monetary transactions and revenue tracking are separated into Direct, Partner Collections, and Institute Billable streams. Operational analytics are segregated under <strong>Reports</strong>.</p>
+            <p className="opacity-90"><strong>Partner Settlement Mechanics:</strong> Financial calculations use the amount payable to Hari Om configured for each partner and course. The partner&apos;s individual selling price is not required for platform settlement.</p>
+          </div>
         </div>
       </div>
 
@@ -248,6 +249,8 @@ export default function FinanceOverviewPage() {
                     <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                       t.purchaseType === "Partner"
                         ? "bg-violet-500/10 text-violet-400 border-violet-500/20"
+                        : t.purchaseType === "Institute Billable"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                         : "bg-sky-500/10 text-sky-400 border-sky-500/20"
                     }`}>
                       {t.purchaseType}

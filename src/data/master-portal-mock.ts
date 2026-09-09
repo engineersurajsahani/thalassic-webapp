@@ -66,7 +66,7 @@ export interface MockSeafarerPurchase {
   courseTitle: string;
   instituteId: string;
   instituteName: string;
-  purchaseType: "Direct" | "Partner";
+  purchaseType: "Direct" | "Partner" | "Institute Billable";
   partnerId?: string;
   partnerName?: string;
   amountPayableToHariom: number;
@@ -121,8 +121,8 @@ export interface MockPaymentRecord {
   indosNumber: string;
   courseId: string;
   courseTitle: string;
-  purchaseType: "Direct" | "Partner";
-  partnerName: string; // "—" if Direct
+  purchaseType: "Direct" | "Partner" | "Institute Billable";
+  partnerName: string; // "—" if Direct / Institute
   amountPayable: number;
   amountReceived: number;
   paymentStatus: "Received" | "Pending" | "Failed" | "Refunded";
@@ -839,6 +839,38 @@ export const MOCK_PAYMENTS: MockPaymentRecord[] = [
     paymentDate: "01 Sep 2026",
     invoiceNumber: "INV-2026-162",
     paymentMethod: "Pending Verification",
+  },
+  {
+    id: "PAY-2026-175",
+    seafarerId: "SF-1002",
+    seafarerName: "Vikram Malhotra",
+    indosNumber: "12EL4501",
+    courseId: "CRS-04",
+    courseTitle: "Maritime Law & Port State Control Compliance",
+    purchaseType: "Institute Billable",
+    partnerName: "Anglo-Eastern Maritime Academy",
+    amountPayable: 3200,
+    amountReceived: 3200,
+    paymentStatus: "Received",
+    paymentDate: "18 Jun 2026",
+    invoiceNumber: "INV-2026-175",
+    paymentMethod: "Institute Monthly Invoicing",
+  },
+  {
+    id: "PAY-2026-189",
+    seafarerId: "SF-1004",
+    seafarerName: "Ananya Sharma",
+    indosNumber: "15DL9021",
+    courseId: "CRS-07",
+    courseTitle: "GMDSS General Operator Certificate (GOC)",
+    purchaseType: "Institute Billable",
+    partnerName: "Hindustan Institute of Maritime Training",
+    amountPayable: 11500,
+    amountReceived: 11500,
+    paymentStatus: "Received",
+    paymentDate: "29 Jul 2026",
+    invoiceNumber: "INV-2026-189",
+    paymentMethod: "Direct Institute Settlement",
   },
 ];
 

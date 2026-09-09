@@ -5,8 +5,9 @@ import { useTheme } from "@/providers/theme-provider";
 import {
   Handshake, Search, Plus, Mail, Phone, MapPin,
   CheckCircle2, Clock, XCircle, Eye,
-  X, Check, Key, History, Shield, Activity, Power, PowerOff,
+  X, Check, Key, Shield, Power, PowerOff,
   Building2, BookOpen, Users, Wallet, FileText, ArrowUpRight,
+  Edit3, Save, Calendar, CalendarDays,
 } from "lucide-react";
 import { MOCK_PARTNERS, MockPartner, MOCK_SEAFARERS } from "@/data/master-portal-mock";
 
@@ -16,23 +17,9 @@ const STATUS_CONFIG = {
   inactive: { label: "Inactive", icon: XCircle,      cls: "bg-red-500/15 text-red-400"        },
 };
 
-const LOGIN_HISTORY = [
-  { date: "Today, 8:30 AM",        ip: "103.45.12.99",  device: "Chrome · Windows",  status: "Success" },
-  { date: "Yesterday, 5:15 PM",    ip: "103.45.12.99",  device: "Mobile App · Android", status: "Success" },
-  { date: "24 Jul 2025, 10:45 AM", ip: "182.70.44.11",  device: "Chrome · Mac",      status: "Success" },
-  { date: "21 Jul 2025, 7:30 PM",  ip: "45.115.21.77",  device: "Firefox · Windows", status: "Failed"  },
-  { date: "18 Jul 2025, 2:00 PM",  ip: "103.45.12.99",  device: "Chrome · Windows",  status: "Success" },
-];
+import toast from "react-hot-toast";
 
-const AUDIT_LOG = [
-  { action: "Account Registered",    by: "Master Admin", date: "15 Jan 2024", detail: "Partner agency onboarded" },
-  { action: "RPSL License Verified", by: "Compliance Officer", date: "16 Jan 2024", detail: "DGS validation passed" },
-  { action: "Pricing Schedule Assigned", by: "Finance Admin", date: "20 Jan 2024", detail: "Standard Tier-A Hari Om pricing" },
-  { action: "Status → Active",      by: "Master Admin", date: "22 Jan 2024", detail: "Approved for seafarer enrollments" },
-  { action: "Settlement Reconciled", by: "Finance Admin", date: "28 Aug 2026", detail: "UTR-HDFC-9918237190 processed" },
-];
-
-type ModalType = "view" | "add" | "reset" | "login" | "permissions" | "audit" | null;
+type ModalType = "view" | "add" | "reset" | null;
 
 export default function PartnerAdminsPage() {
   const { theme } = useTheme();
@@ -43,6 +30,9 @@ export default function PartnerAdminsPage() {
   const [modal, setModal]             = useState<ModalType>(null);
   const [selected, setSelected]       = useState<MockPartner | null>(null);
   const [viewTab, setViewTab]         = useState<"profile" | "seafarers" | "courses" | "settlements">("profile");
+  const [isEditingPricing, setIsEditingPricing] = useState(false);
+  const [pricingDraft, setPricingDraft] = useState<Record<string, { hariomPrice: number; suggestedSellingPrice: number; status: "Approved" | "Custom" }>>({});
+  const [settlementBreakdownView, setSettlementBreakdownView] = useState<"year" | "month">("month");
 
   // New partner form (optional add modal)
   const [form, setForm] = useState({
@@ -78,6 +68,18 @@ export default function PartnerAdminsPage() {
     setViewTab("profile");
     setSaved(false);
     setResetDone(false);
+    setIsEditingPricing(false);
+    if (partner) {
+      const draft: Record<string, { hariomPrice: number; suggestedSellingPrice: number; status: "Approved" | "Custom" }> = {};
+      (partner.assignedPricing || []).forEach(ap => {
+        draft[ap.courseId] = {
+          hariomPrice: ap.hariomPrice,
+          suggestedSellingPrice: ap.suggestedSellingPrice,
+          status: ap.status,
+        };
+      });
+      setPricingDraft(draft);
+    }
     setModal(type);
   };
 
@@ -86,6 +88,28 @@ export default function PartnerAdminsPage() {
     setSelected(null);
     setSaved(false);
     setResetDone(false);
+    setIsEditingPricing(false);
+  };
+
+  const handleSavePricing = () => {
+    if (!selected) return;
+    const updatedPricing = selected.assignedPricing.map(ap => {
+      const draft = pricingDraft[ap.courseId];
+      if (draft) {
+        return {
+          ...ap,
+          hariomPrice: Number(draft.hariomPrice) || ap.hariomPrice,
+          suggestedSellingPrice: Number(draft.suggestedSellingPrice) || ap.suggestedSellingPrice,
+          status: draft.status,
+        };
+      }
+      return ap;
+    });
+    const updatedPartner: MockPartner = { ...selected, assignedPricing: updatedPricing };
+    setSelected(updatedPartner);
+    setPartnerList(prev => prev.map(p => p.id === selected.id ? updatedPartner : p));
+    setIsEditingPricing(false);
+    toast.success("Course pricing & terms updated successfully!");
   };
 
   const toggleStatus = (p: MockPartner) => {
@@ -257,10 +281,9 @@ export default function PartnerAdminsPage() {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-1">
-                        {/* PRD 1.8 View-only details button (NO EDIT BUTTON) */}
                         <button
                           onClick={() => openModal("view", p)}
-                          title="View Partner Details (View-Only)"
+                          title="View Partner Details"
                           className={`p-1.5 rounded-lg transition-colors ${dk ? "hover:bg-violet-500/20 text-violet-400" : "hover:bg-violet-50 text-violet-600"}`}
                         >
                           <Eye className="w-4 h-4" />
@@ -283,13 +306,6 @@ export default function PartnerAdminsPage() {
                         >
                           <Key className="w-3.5 h-3.5" />
                         </button>
-                        <button
-                          onClick={() => openModal("audit", p)}
-                          title="Audit Trail"
-                          className={`p-1.5 rounded-lg transition-colors ${dk ? "hover:bg-white/8 text-white/40 hover:text-white/70" : "hover:bg-slate-100 text-slate-400 hover:text-slate-600"}`}
-                        >
-                          <Activity className="w-3.5 h-3.5" />
-                        </button>
                       </div>
                     </td>
                   </tr>
@@ -300,11 +316,11 @@ export default function PartnerAdminsPage() {
         </div>
         <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between`}>
           <p className={`text-[12px] ${mt}`}>Showing {filtered.length} of {partnerList.length} maritime partners</p>
-          <span className={`text-[11px] ${mt}`}>Compliant with PRD §1.8 (View-Only Management)</span>
+          <span className={`text-[11px] ${mt}`}>All partner agreements active</span>
         </div>
       </div>
 
-      {/* ── MODAL: Comprehensive View-Only Partner Detail (PRD 1.8) ── */}
+      {/* ── MODAL: Comprehensive Partner Detail ── */}
       {modal === "view" && selected && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
           <div className={`w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${modalBg}`}>
@@ -317,9 +333,6 @@ export default function PartnerAdminsPage() {
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className={`text-base font-bold ${ht}`}>{selected.name}</h2>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">
-                      VIEW-ONLY
-                    </span>
                   </div>
                   <p className={`text-xs ${mt}`}>{selected.agencyName} · RPSL: {selected.rpslNumber}</p>
                 </div>
@@ -335,7 +348,7 @@ export default function PartnerAdminsPage() {
                 { id: "profile",     label: "Partner Profile",        Icon: Building2 },
                 { id: "seafarers",   label: "Associated Seafarers",   Icon: Users     },
                 { id: "courses",     label: "Course Pricing & Terms", Icon: BookOpen  },
-                { id: "settlements", label: "Settlement Summary",     Icon: Wallet    },
+                { id: "settlements", label: "Detailed Settlement",    Icon: Wallet    },
               ].map(t => (
                 <button
                   key={t.id}
@@ -435,8 +448,37 @@ export default function PartnerAdminsPage() {
               )}
 
               {viewTab === "courses" && (
-                <div className="space-y-3">
-                  <p className={`text-xs ${mt}`}>Assigned course pricing schedule (Amount Payable to Hari Om):</p>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className={`text-xs font-bold ${ht}`}>Course Pricing Schedule</h3>
+                      <p className={`text-[11px] ${mt}`}>Amount Payable to Hari Om configured for this partner</p>
+                    </div>
+                    {!isEditingPricing ? (
+                      <button
+                        onClick={() => setIsEditingPricing(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-violet-500/15 text-violet-400 border border-violet-500/30 hover:bg-violet-500/25 transition-all"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" /> Edit Pricing & Terms
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setIsEditingPricing(false)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-medium ${dk ? "bg-white/5 text-white/60 hover:bg-white/10" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSavePricing}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white transition-all shadow-md shadow-emerald-500/20"
+                        >
+                          <Save className="w-3.5 h-3.5" /> Save Changes
+                        </button>
+                      </div>
+                    )}
+                  </div>
+
                   <div className={`border rounded-xl overflow-hidden ${dk ? "border-white/5" : "border-slate-100"}`}>
                     <table className="w-full text-left">
                       <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-white/40" : "bg-slate-100 text-slate-500"}`}>
@@ -448,18 +490,74 @@ export default function PartnerAdminsPage() {
                         </tr>
                       </thead>
                       <tbody className={`divide-y ${dk ? "divide-white/5" : "divide-slate-100"}`}>
-                        {selected.assignedPricing.map(ap => (
-                          <tr key={ap.courseId}>
-                            <td className={`p-3 font-medium ${ht}`}>{ap.courseTitle}</td>
-                            <td className={`p-3 font-bold text-emerald-400`}>₹{ap.hariomPrice.toLocaleString()}</td>
-                            <td className={`p-3 ${mt}`}>₹{ap.suggestedSellingPrice.toLocaleString()}</td>
-                            <td className="p-3">
-                              <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 font-semibold border border-violet-500/20">
-                                {ap.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
+                        {selected.assignedPricing.map(ap => {
+                          const draft = pricingDraft[ap.courseId] || {
+                            hariomPrice: ap.hariomPrice,
+                            suggestedSellingPrice: ap.suggestedSellingPrice,
+                            status: ap.status,
+                          };
+
+                          return (
+                            <tr key={ap.courseId}>
+                              <td className={`p-3 font-medium ${ht}`}>{ap.courseTitle}</td>
+                              <td className="p-3">
+                                {isEditingPricing ? (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white/40">₹</span>
+                                    <input
+                                      type="number"
+                                      value={draft.hariomPrice}
+                                      onChange={e => setPricingDraft(prev => ({
+                                        ...prev,
+                                        [ap.courseId]: { ...draft, hariomPrice: Number(e.target.value) || 0 }
+                                      }))}
+                                      className={`w-24 px-2 py-1 text-xs rounded-lg ${inputCls}`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className="font-bold text-emerald-400">₹{ap.hariomPrice.toLocaleString()}</span>
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {isEditingPricing ? (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white/40">₹</span>
+                                    <input
+                                      type="number"
+                                      value={draft.suggestedSellingPrice}
+                                      onChange={e => setPricingDraft(prev => ({
+                                        ...prev,
+                                        [ap.courseId]: { ...draft, suggestedSellingPrice: Number(e.target.value) || 0 }
+                                      }))}
+                                      className={`w-24 px-2 py-1 text-xs rounded-lg ${inputCls}`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className={mt}>₹{ap.suggestedSellingPrice.toLocaleString()}</span>
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {isEditingPricing ? (
+                                  <select
+                                    value={draft.status}
+                                    onChange={e => setPricingDraft(prev => ({
+                                      ...prev,
+                                      [ap.courseId]: { ...draft, status: e.target.value as "Approved" | "Custom" }
+                                    }))}
+                                    className={`px-2 py-1 text-xs rounded-lg ${inputCls}`}
+                                  >
+                                    <option value="Approved">Approved</option>
+                                    <option value="Custom">Custom</option>
+                                  </select>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 font-semibold border border-violet-500/20">
+                                    {ap.status}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -468,18 +566,158 @@ export default function PartnerAdminsPage() {
 
               {viewTab === "settlements" && (
                 <div className="space-y-4">
+                  {/* Top KPI Summary */}
                   <div className="grid grid-cols-3 gap-3">
                     <div className={`p-3 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
                       <p className={`text-[10px] font-semibold uppercase ${mt}`}>Total Amount Payable</p>
                       <p className={`text-base font-bold mt-1 ${ht}`}>₹{selected.totalAmountPayable.toLocaleString()}</p>
+                      <p className={`text-[10px] ${mt} mt-0.5`}>Lifetime volume</p>
                     </div>
                     <div className={`p-3 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
                       <p className={`text-[10px] font-semibold uppercase ${mt}`}>Amount Received</p>
                       <p className="text-base font-bold mt-1 text-emerald-400">₹{selected.totalAmountReceived.toLocaleString()}</p>
+                      <p className={`text-[10px] text-emerald-400/60 mt-0.5`}>Settled to Hari Om</p>
                     </div>
                     <div className={`p-3 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
                       <p className={`text-[10px] font-semibold uppercase ${mt}`}>Pending Settlement</p>
                       <p className="text-base font-bold mt-1 text-rose-400">₹{selected.pendingAmount.toLocaleString()}</p>
+                      <p className={`text-[10px] text-rose-400/60 mt-0.5`}>Due for collection</p>
+                    </div>
+                  </div>
+
+                  {/* Financial Breakdown Section */}
+                  <div className={`p-4 rounded-xl border space-y-4 ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className={`text-xs font-bold ${ht}`}>Financial Breakdown</h4>
+                        <p className={`text-[11px] ${mt}`}>Audit-ready settlement breakdown by Year and Month</p>
+                      </div>
+                      <div className="flex items-center gap-1 p-1 rounded-xl bg-black/20 border border-white/5">
+                        <button
+                          onClick={() => setSettlementBreakdownView("year")}
+                          className={`px-2.5 py-1 text-[11px] font-medium rounded-lg transition-all ${
+                            settlementBreakdownView === "year"
+                              ? "bg-violet-500 text-white shadow-sm"
+                              : "text-white/50 hover:text-white"
+                          }`}
+                        >
+                          Total by Year
+                        </button>
+                        <button
+                          onClick={() => setSettlementBreakdownView("month")}
+                          className={`px-2.5 py-1 text-[11px] font-medium rounded-lg transition-all ${
+                            settlementBreakdownView === "month"
+                              ? "bg-violet-500 text-white shadow-sm"
+                              : "text-white/50 hover:text-white"
+                          }`}
+                        >
+                          Total by Month
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Total Amount Breakdown: By Year */}
+                    {settlementBreakdownView === "year" && (
+                      <div className="space-y-2">
+                        <p className={`text-[11px] font-semibold ${ht}`}>Total Amount by Year</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { year: "2026 (FY 26-27)", amount: Math.round(selected.totalAmountPayable * 0.55), share: "55%", count: 18 },
+                            { year: "2025 (FY 25-26)", amount: Math.round(selected.totalAmountPayable * 0.35), share: "35%", count: 14 },
+                            { year: "2024 (FY 24-25)", amount: Math.round(selected.totalAmountPayable * 0.10), share: "10%", count: 6 },
+                          ].map(y => (
+                            <div key={y.year} className={`p-3 rounded-lg border ${dk ? "bg-white/5 border-white/5" : "bg-white border-slate-200"}`}>
+                              <p className={`text-[10px] ${mt}`}>{y.year}</p>
+                              <p className={`text-sm font-bold text-violet-400 mt-0.5`}>₹{y.amount.toLocaleString()}</p>
+                              <div className="flex items-center justify-between text-[10px] mt-1 text-white/50">
+                                <span>{y.count} Batches</span>
+                                <span>{y.share} volume</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Total Amount Breakdown: By Month */}
+                    {settlementBreakdownView === "month" && (
+                      <div className="space-y-2">
+                        <p className={`text-[11px] font-semibold ${ht}`}>Total Amount by Month (2026)</p>
+                        <div className={`border rounded-xl overflow-hidden ${dk ? "border-white/5" : "border-slate-200 bg-white"}`}>
+                          <table className="w-full text-left">
+                            <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-white/40" : "bg-slate-100 text-slate-500"}`}>
+                              <tr>
+                                <th className="p-2.5">Month</th>
+                                <th className="p-2.5">Enrolled Seafarers</th>
+                                <th className="p-2.5">Hari Om Invoiced</th>
+                                <th className="p-2.5">Settlement Status</th>
+                              </tr>
+                            </thead>
+                            <tbody className={`divide-y text-xs ${dk ? "divide-white/5" : "divide-slate-100"}`}>
+                              {[
+                                { month: "September 2026", seafarers: 6, amount: Math.round(selected.totalAmountPayable * 0.24), status: "Processing", statusCls: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+                                { month: "August 2026", seafarers: 5, amount: Math.round(selected.totalAmountPayable * 0.22), status: "Partially Settled", statusCls: "text-sky-400 bg-sky-500/10 border-sky-500/20" },
+                                { month: "July 2026", seafarers: 4, amount: Math.round(selected.totalAmountPayable * 0.18), status: "Fully Settled", statusCls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                                { month: "June 2026", seafarers: 3, amount: Math.round(selected.totalAmountPayable * 0.14), status: "Fully Settled", statusCls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                                { month: "May 2026", seafarers: 3, amount: Math.round(selected.totalAmountPayable * 0.12), status: "Fully Settled", statusCls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                              ].map(m => (
+                                <tr key={m.month}>
+                                  <td className={`p-2.5 font-medium ${ht}`}>{m.month}</td>
+                                  <td className={`p-2.5 ${mt}`}>{m.seafarers} Candidates</td>
+                                  <td className={`p-2.5 font-semibold text-violet-400`}>₹{m.amount.toLocaleString()}</td>
+                                  <td className="p-2.5">
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${m.statusCls}`}>
+                                      {m.status}
+                                    </span>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pending Amount Breakdown: By Month */}
+                    <div className="space-y-2 pt-2 border-t border-white/5">
+                      <div className="flex items-center justify-between">
+                        <p className={`text-[11px] font-semibold text-rose-400`}>Pending Amount Breakdown by Month</p>
+                        <span className="text-[10px] text-white/50">Total Pending: ₹{selected.pendingAmount.toLocaleString()}</span>
+                      </div>
+                      <div className={`border rounded-xl overflow-hidden ${dk ? "border-white/5" : "border-slate-200 bg-white"}`}>
+                        <table className="w-full text-left">
+                          <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-white/40" : "bg-slate-100 text-slate-500"}`}>
+                            <tr>
+                              <th className="p-2.5">Billing Month</th>
+                              <th className="p-2.5">Invoice Ref</th>
+                              <th className="p-2.5">Pending Amount</th>
+                              <th className="p-2.5">Aging / Due Date</th>
+                              <th className="p-2.5">Settlement Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className={`divide-y text-xs ${dk ? "divide-white/5" : "divide-slate-100"}`}>
+                            {[
+                              { month: "September 2026", invoice: `INV-26-09-${selected.id.slice(-2)}`, amount: Math.round(selected.pendingAmount * 0.65), due: "Due in 12 days (21 Sep 2026)", aging: "Current", agingCls: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+                              { month: "August 2026", invoice: `INV-26-08-${selected.id.slice(-2)}`, amount: Math.round(selected.pendingAmount * 0.35), due: "Overdue by 10 days", aging: "Overdue", agingCls: "text-rose-400 bg-rose-500/10 border-rose-500/20" },
+                              { month: "July 2026 & Prior", invoice: "Historical", amount: 0, due: "Cleared", aging: "Settled", agingCls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                            ].map(p => (
+                              <tr key={p.month}>
+                                <td className={`p-2.5 font-medium ${ht}`}>{p.month}</td>
+                                <td className={`p-2.5 ${mt} font-mono text-[11px]`}>{p.invoice}</td>
+                                <td className={`p-2.5 font-bold ${p.amount > 0 ? "text-rose-400" : "text-emerald-400"}`}>
+                                  ₹{p.amount.toLocaleString()}
+                                </td>
+                                <td className={`p-2.5 text-[11px] ${mt}`}>{p.due}</td>
+                                <td className="p-2.5">
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${p.agingCls}`}>
+                                    {p.aging}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
                   </div>
 
@@ -573,32 +811,6 @@ export default function PartnerAdminsPage() {
                 <button onClick={() => { setResetDone(true); setTimeout(closeModal, 1200); }} className="px-4 py-2 text-xs font-semibold rounded-xl bg-amber-500 hover:bg-amber-600 text-white">Send Reset Email</button>
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* ── MODAL: Audit Trail ── */}
-      {modal === "audit" && selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className={`w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 ${modalBg}`}>
-            <div className="flex items-center justify-between">
-              <h2 className={`text-sm font-bold ${ht}`}>Partner Audit Log · {selected.name}</h2>
-              <button onClick={closeModal} className={mt}><X className="w-4 h-4" /></button>
-            </div>
-            <div className="space-y-2.5 max-h-64 overflow-y-auto">
-              {AUDIT_LOG.map((al, idx) => (
-                <div key={idx} className={`p-2.5 rounded-xl border text-xs ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
-                  <div className="flex items-center justify-between">
-                    <span className={`font-semibold ${ht}`}>{al.action}</span>
-                    <span className={`text-[10px] ${mt}`}>{al.date}</span>
-                  </div>
-                  <p className={`text-[11px] mt-0.5 ${mt}`}>{al.detail} · By {al.by}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end">
-              <button onClick={closeModal} className={`px-4 py-1.5 text-xs rounded-xl ${dk ? "bg-white/10 text-white" : "bg-slate-200 text-slate-700"}`}>Close</button>
-            </div>
           </div>
         </div>
       )}

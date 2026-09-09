@@ -111,7 +111,7 @@ export default function MasterDashboard(){
           <p className={`text-xs font-semibold uppercase tracking-wider ${mt}`}>Operational & Financial Metrics</p>
           <span className={`text-[11px] ${mt}`}>Live Platform Overview</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-3">
           {[
             { label: "Total Seafarers",             value: "1,420",   sub: "Master records",        Icon: Users,         ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
             { label: "Company Seafarers",           value: "890",     sub: "Direct / Company-side", Icon: Building2,     ib: dk?"bg-blue-500/15":"bg-blue-50",     ic: "#3b82f6" },
@@ -126,6 +126,7 @@ export default function MasterDashboard(){
             { label: "Revenue (Current Month)",     value: "₹3.88L",  sub: "Current cycle",         Icon: BarChart3,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
             { label: "Received from Partners",      value: "₹14.2L",  sub: "Settled collections",   Icon: Receipt,       ib: dk?"bg-green-500/15":"bg-green-50",   ic: "#22c55e" },
             { label: "Pending from Partners",       value: "₹2.60L",  sub: "Outstanding balance",   Icon: Clock,         ib: dk?"bg-rose-500/15":"bg-rose-50",     ic: "#f43f5e" },
+            { label: "Amount for Institute",        value: "₹9.80L",  sub: "Due to institutes",     Icon: Building2,     ib: dk?"bg-amber-500/15":"bg-amber-50",   ic: "#f59e0b" },
           ].map((k) => (
             <div key={k.label} className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}>
               <div className="flex items-center justify-between mb-2">

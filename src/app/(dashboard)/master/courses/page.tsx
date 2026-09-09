@@ -158,16 +158,6 @@ export default function CoursesPage() {
         </button>
       </div>
 
-      {/* Relationship Note (PRD 1.10) */}
-      <div className={`p-4 rounded-2xl flex items-center justify-between border ${dk ? "bg-indigo-500/10 border-indigo-500/20 text-indigo-300" : "bg-indigo-50 border-indigo-100 text-indigo-800"}`}>
-        <div className="flex items-center gap-3">
-          <GraduationCap className="w-5 h-5 text-indigo-500 shrink-0" />
-          <p className="text-xs">
-            <strong>Institute & Course Relationship (PRD §1.10):</strong> Each course may be offered at multiple maritime institutes, and each institute conducts multiple courses. Institute options are linked dynamically without duplicate catalogs.
-          </p>
-        </div>
-      </div>
-
       {/* Filters & Search */}
       <div className={`p-4 rounded-2xl ${bg} flex flex-wrap items-center justify-between gap-3`}>
         <div className="flex flex-1 items-center gap-3 min-w-[280px]">
@@ -223,7 +213,7 @@ export default function CoursesPage() {
               <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${dk ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"}`}>
                 <th className="text-left px-6 py-3.5">Course Title & Code</th>
                 <th className="text-left px-6 py-3.5">Category</th>
-                <th className="text-left px-6 py-3.5">Associated Institutes (PRD §1.10)</th>
+                <th className="text-left px-6 py-3.5">Associated Institutes</th>
                 <th className="text-left px-6 py-3.5">Duration</th>
                 <th className="text-left px-6 py-3.5">Hari Om Price</th>
                 <th className="text-left px-6 py-3.5">Enrolled</th>
@@ -405,7 +395,7 @@ export default function CoursesPage() {
               {/* PRD 1.10 Associated Institutes Multi-Select */}
               <div className="pt-2">
                 <label className={`text-[11px] font-bold block mb-1.5 ${headText}`}>
-                  Associated Institutes Offering This Course (PRD §1.10)
+                  Associated Institutes Offering This Course
                 </label>
                 <p className={`text-[10px] mb-2 ${mutedText}`}>
                   Select which physical training institutions are accredited to conduct this course:

@@ -107,10 +107,10 @@ export default function MasterPaymentsPage() {
           />
         </div>
 
-        {/* Purchase Type Filter (Direct vs Partner) */}
+        {/* Purchase Type Filter (Direct vs Partner vs Institute Billable) */}
         <div className="flex items-center gap-1.5">
           <span className={`text-[11px] font-semibold uppercase ${mt}`}>Type:</span>
-          {["all", "Direct", "Partner"].map(t => (
+          {["all", "Direct", "Partner", "Institute Billable"].map(t => (
             <button
               key={t}
               onClick={() => setTypeFilter(t)}
@@ -180,6 +180,8 @@ export default function MasterPaymentsPage() {
                       <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
                         p.purchaseType === "Partner"
                           ? "bg-violet-500/10 text-violet-400 border-violet-500/20"
+                          : p.purchaseType === "Institute Billable"
+                          ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
                           : "bg-sky-500/10 text-sky-400 border-sky-500/20"
                       }`}>
                         {p.purchaseType}

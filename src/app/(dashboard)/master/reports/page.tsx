@@ -22,6 +22,30 @@ import {
   MOCK_SEAFARERS,
 } from "@/data/master-portal-mock";
 
+// Overall Performance Data (1.01.1 Benchmark)
+const OVERALL_PERFORMANCE_DATA = [
+  { month: "Jan", index: 0.96, enrollments: 140, completions: 128, passRate: 91 },
+  { month: "Feb", index: 0.98, enrollments: 165, completions: 152, passRate: 92 },
+  { month: "Mar", index: 1.01, enrollments: 190, completions: 180, passRate: 95 },
+  { month: "Apr", index: 1.02, enrollments: 210, completions: 202, passRate: 96 },
+  { month: "May", index: 1.01, enrollments: 205, completions: 195, passRate: 95 },
+  { month: "Jun", index: 1.03, enrollments: 230, completions: 220, passRate: 96 },
+  { month: "Jul", index: 1.04, enrollments: 250, completions: 242, passRate: 97 },
+  { month: "Aug", index: 1.06, enrollments: 280, completions: 271, passRate: 97 },
+  { month: "Sep", index: 1.08, enrollments: 310, completions: 298, passRate: 98 },
+];
+
+// Courses Sold More Data
+const COURSES_SOLD_DATA = [
+  { name: "STCW Basic Safety (BST)", shortName: "STCW-BST", enrolled: 412, revenue: 2060000, category: "Safety", color: "#38bdf8" },
+  { name: "Advanced Fire Fighting (AFF)", shortName: "STCW-AFF", enrolled: 289, revenue: 2080800, category: "Safety", color: "#818cf8" },
+  { name: "Ship Nav & Radar Simulation", shortName: "NAV-RADAR", enrolled: 194, revenue: 1319200, category: "Technical", color: "#a78bfa" },
+  { name: "Maritime Law & PSC Compliance", shortName: "LAW-MAR", enrolled: 137, revenue: 438400, category: "Compliance", color: "#34d399" },
+  { name: "GMDSS General Operator (GOC)", shortName: "GMDSS-GOC", enrolled: 115, revenue: 1322500, category: "Radio", color: "#fbbf24" },
+  { name: "Tanker Cargo Handling Safety", shortName: "OPS-TANK", enrolled: 98, revenue: 921200, category: "Operations", color: "#f472b6" },
+  { name: "Engine Room Resource Mgmt", shortName: "ENG-SIM", enrolled: 86, revenue: 670800, category: "Technical", color: "#f87171" },
+];
+
 // Secondary report categories (PRD 2.7)
 type ReportTab =
   | "overview"
@@ -410,6 +434,116 @@ export default function MasterReportsPage() {
             ))}
           </div>
 
+          {/* Performance Graphs Grid (Overall 1.01.1 & Courses Sold More) */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+            {/* Overall Performance Graph (Overall 1.01.1) */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className={`text-base font-bold ${ht}`}>Overall Performance (Overall 1.01.1)</h3>
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                      1.01.1 Benchmark
+                    </span>
+                  </div>
+                  <p className={`text-xs mt-0.5 ${mt}`}>Platform completion index vs target baseline 1.01.1</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-sm font-bold text-emerald-400">1.08 Index</p>
+                  <p className={`text-[10px] ${mt}`}>+6.9% above baseline</p>
+                </div>
+              </div>
+
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={OVERALL_PERFORMANCE_DATA} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="perfGradient" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
+                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#64748b" }} axisLine={false} tickLine={false} />
+                    <YAxis domain={[0.9, 1.15]} tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#64748b" }} axisLine={false} tickLine={false} tickFormatter={v => v.toFixed(2)} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                      formatter={(val: any) => [`${val} Index`, "Performance Index"] as any}
+                    />
+                    <Area type="monotone" dataKey="index" stroke="#10b981" strokeWidth={2.5} fill="url(#perfGradient)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 text-center">
+                <div className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}>
+                  <p className={`text-[10px] ${mt}`}>Enrollment Volume</p>
+                  <p className={`text-sm font-bold mt-0.5 ${ht}`}>310/mo</p>
+                </div>
+                <div className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}>
+                  <p className={`text-[10px] ${mt}`}>Course Completions</p>
+                  <p className={`text-sm font-bold mt-0.5 text-emerald-400`}>298/mo</p>
+                </div>
+                <div className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}>
+                  <p className={`text-[10px] ${mt}`}>Average Pass Rate</p>
+                  <p className={`text-sm font-bold mt-0.5 text-sky-400`}>98.2%</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Course Sold More Graph */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className={`text-base font-bold ${ht}`}>Courses Sold More</h3>
+                  <p className={`text-xs mt-0.5 ${mt}`}>Top courses ranked by enrollment volume and sales demand</p>
+                </div>
+                <span className="text-[11px] font-semibold text-violet-400">Total: 1,331 Enrollments</span>
+              </div>
+
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={COURSES_SOLD_DATA} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} horizontal={false} />
+                    <XAxis type="number" tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.4)" : "#64748b" }} axisLine={false} tickLine={false} />
+                    <YAxis type="category" dataKey="shortName" tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.7)" : "#334155" }} axisLine={false} tickLine={false} width={80} />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                      formatter={(val: any, name: any, item: any) => [
+                        `${val} Enrolled (₹${(item.payload.revenue / 100000).toFixed(1)}L)`,
+                        item.payload.name
+                      ] as any}
+                    />
+                    <Bar dataKey="enrolled" radius={[0, 6, 6, 0]}>
+                      {COURSES_SOLD_DATA.map((c, i) => (
+                        <Cell key={i} fill={c.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] pt-2 border-t border-white/5">
+                <span className={mt}>Top Leader: <strong className="text-sky-400">STCW-BST (412 Sold)</strong></span>
+                <span className={mt}>Highest Revenue: <strong className="text-violet-400">STCW-AFF (₹20.8L)</strong></span>
+              </div>
+            </div>
+
+          </div>
+
           {/* Seafarer Distribution & Source Breakdown */}
           <div className={`border ${card} p-6 space-y-4`}>
             <div className="flex items-center justify-between">
@@ -727,7 +861,7 @@ export default function MasterReportsPage() {
       )}
 
       {/* ─────────────────────────────────────────────────────────────────────
-          TAB 7: Course Progress Reports (PRD 2.13)
+          TAB 7: Course Progress Reports
           ───────────────────────────────────────────────────────────────────── */}
       {activeTab === "progress" && (
         <div className={`border ${card} overflow-hidden`}>
@@ -738,9 +872,7 @@ export default function MasterReportsPage() {
                   <th className="text-left px-6 py-3.5">Seafarer Trainee</th>
                   <th className="text-left px-6 py-3.5">Course Title</th>
                   <th className="text-left px-6 py-3.5">Conducting Institute</th>
-                  <th className="text-left px-6 py-3.5">Batch</th>
-                  <th className="text-left px-6 py-3.5">Course Progress (PRD §2.13)</th>
-                  <th className="text-left px-6 py-3.5">Operational Status</th>
+                  <th className="text-left px-6 py-3.5">Course Progress</th>
                   <th className="text-left px-6 py-3.5">Start Date</th>
                 </tr>
               </thead>
@@ -753,26 +885,23 @@ export default function MasterReportsPage() {
                     </td>
                     <td className={`px-6 py-4 text-[12px] font-medium ${ht}`}>{e.courseTitle}</td>
                     <td className={`px-6 py-4 text-[12px] ${mt}`}>{e.instituteName}</td>
-                    <td className={`px-6 py-4 text-[12px] font-mono ${ht}`}>{e.batch}</td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-20 h-2 rounded-full bg-white/10 overflow-hidden">
+                      <div className="flex items-center gap-3">
+                        <div className="w-24 h-2 rounded-full bg-white/10 overflow-hidden">
                           <div
                             className={`h-full ${e.progressPercent === 100 ? "bg-teal-400" : e.status === "On Hold" ? "bg-amber-400" : "bg-sky-400"}`}
                             style={{ width: `${e.progressPercent}%` }}
                           />
                         </div>
-                        <span className="text-xs font-bold">{e.progressPercent}%</span>
+                        <span className="text-xs font-bold w-9">{e.progressPercent}%</span>
+                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
+                          e.status === "Completed" ? "bg-teal-500/10 text-teal-400 border-teal-500/20" :
+                          e.status === "Ongoing" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" :
+                          "bg-amber-500/10 text-amber-400 border-amber-500/20"
+                        }`}>
+                          {e.status}
+                        </span>
                       </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                        e.status === "Completed" ? "bg-teal-500/10 text-teal-400 border-teal-500/20" :
-                        e.status === "Ongoing" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" :
-                        "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                      }`}>
-                        {e.status}
-                      </span>
                     </td>
                     <td className={`px-6 py-4 text-[12px] ${mt}`}>{e.startDate}</td>
                   </tr>
@@ -782,7 +911,7 @@ export default function MasterReportsPage() {
           </div>
           <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs ${mt}`}>
             <span>Showing {allEnrollmentProgress.length} active course enrollments</span>
-            <span>Compliant with PRD §2.13 (Course Progress and Candidate Status)</span>
+            <span>Streamlined candidate progress tracking</span>
           </div>
         </div>
       )}
