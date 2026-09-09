@@ -399,6 +399,7 @@ export default function CoursesPage() {
               <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${dk ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"}`}>
                 <th className="text-left px-6 py-3.5">Course Title & Code</th>
                 <th className="text-left px-6 py-3.5">Category</th>
+                <th className="text-left px-6 py-3.5">Associated Institutes</th>
                 <th className="text-left px-6 py-3.5">Duration</th>
                 <th className="text-left px-6 py-3.5">Hari Om Price</th>
                 <th className="text-left px-6 py-3.5">Enrolled</th>
@@ -897,6 +898,45 @@ export default function CoursesPage() {
                       <option key={s.id} value={s.label}>{s.label}</option>
                     ))}
                   </select>
+                </div>
+              </div>
+              {/* PRD 1.10 Associated Institutes Multi-Select */}
+              <div className="pt-2">
+                <label className={`text-[11px] font-bold block mb-1.5 ${headText}`}>
+                  Associated Institutes Offering This Course
+                </label>
+                <p className={`text-[10px] mb-2 ${mutedText}`}>
+                  Select which physical training institutions are accredited to conduct this course:
+                </p>
+
+                <div className={`p-3 rounded-xl border max-h-48 overflow-y-auto space-y-2 ${dk ? "bg-white/3 border-white/8" : "bg-slate-50 border-slate-100"}`}>
+                  {MOCK_INSTITUTES.map(inst => {
+                    const isChecked = form.associatedInstituteIds.includes(inst.id);
+                    return (
+                      <label
+                        key={inst.id}
+                        className={`flex items-start gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
+                          isChecked
+                            ? (dk ? "bg-indigo-500/15 text-white" : "bg-indigo-50 text-indigo-900")
+                            : (dk ? "hover:bg-white/5" : "hover:bg-slate-100")
+                        } ${modalMode === "view" ? "pointer-events-none" : ""}`}
+                      >
+                        <input
+                          type="checkbox"
+                          disabled={modalMode === "view"}
+                          checked={isChecked}
+                          onChange={() => toggleInstituteAssociation(inst.id)}
+                          className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold text-xs leading-tight">{inst.name}</p>
+                          <p className={`text-[10px] mt-0.5 ${mutedText}`}>
+                            IDT: {inst.idtNumber} · {inst.location} · {inst.activeBatches} active batches
+                          </p>
+                        </div>
+                      </label>
+                    );
+                  })}
                 </div>
               </div>
             </div>

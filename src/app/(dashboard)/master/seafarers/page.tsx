@@ -464,6 +464,14 @@ export default function SeafarerManagementPage() {
     setSaveSuccess(false);
   };
 
+  const openDocuments = (seafarer: Seafarer) => {
+    setSelectedSeafarer(seafarer);
+    setEditForm({ ...seafarer });
+    setIsEditing(false);
+    setActiveTab("documents");
+    setSaveSuccess(false);
+  };
+
   const handleSaveEdit = () => {
     if (!selectedSeafarer) return;
     setSeafarers(prev => prev.map(s => s.id === selectedSeafarer.id ? { ...s, ...editForm } as Seafarer : s));
@@ -689,18 +697,35 @@ export default function SeafarerManagementPage() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          openProfile(s);
-                        }}
-                        className={`p-2 rounded-lg transition-colors ${
-                          dk ? "hover:bg-white/10 text-sky-400" : "hover:bg-sky-50 text-sky-600"
-                        }`}
-                        title="View Master Profile"
-                      >
-                        <Eye className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-1.5">
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            openDocuments(s);
+                          }}
+                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                            dk
+                              ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
+                              : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200"
+                          }`}
+                          title="View Certificates & Documents"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          <span>Documents</span>
+                        </button>
+                        <button
+                          onClick={e => {
+                            e.stopPropagation();
+                            openProfile(s);
+                          }}
+                          className={`p-1.5 rounded-lg transition-colors ${
+                            dk ? "hover:bg-white/10 text-sky-400" : "hover:bg-sky-50 text-sky-600"
+                          }`}
+                          title="View Master Profile"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
