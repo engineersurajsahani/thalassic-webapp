@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import { 
-  Bell, Sun, Moon, Search, ChevronRight,
+  Bell, Sun, Moon, ChevronRight,
   BookOpen, AlertCircle, Check, Users
 } from "lucide-react";
 
@@ -64,18 +64,6 @@ export default function AgentAdminTopbar() {
             <span className={isDark ? "text-white" : "text-[#111827]"}>{currentPage}</span>
           </div>
         )}
-      </div>
-
-      {/* Search */}
-      <div className="flex-1 max-w-sm">
-        <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors duration-200 ${isDark ? "bg-[#111827] border-[#374151] text-white" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827]"}`}>
-          <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
-          <input
-            type="text"
-            placeholder="Search agents, referrals..."
-            className={`bg-transparent outline-none w-full text-[13px] ${isDark ? "placeholder:text-gray-500" : "placeholder:text-[#6B7280]"}`}
-          />
-        </label>
       </div>
 
       {/* Right */}

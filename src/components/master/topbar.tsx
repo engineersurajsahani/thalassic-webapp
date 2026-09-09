@@ -6,8 +6,8 @@ import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import { notificationService } from "@/services/notification.service";
 import { 
-  Bell, Sun, Moon, Search, ChevronRight,
-  BookOpen, AlertCircle, MessageSquare, Check, Users
+  Bell, Sun, Moon, ChevronRight,
+  BookOpen, AlertCircle, Check, Users
 } from "lucide-react";
 
 const pageNames: Record<string, string> = {
@@ -98,19 +98,6 @@ export default function MasterTopbar() {
             <span className={isDark ? "text-white" : "text-[#111827]"}>{currentPage}</span>
           </div>
         )}
-      </div>
-
-      {/* Search */}
-      <div className="flex-1 max-w-sm">
-        <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors duration-200 ${isDark ? "bg-[#111827] border-[#374151] text-white" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827]"}`}>
-          <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
-          <input
-            type="text"
-            placeholder="Search users, courses..."
-            className={`bg-transparent outline-none w-full text-[13px] ${isDark ? "placeholder:text-gray-500" : "placeholder:text-[#6B7280]"}`}
-          />
-          <kbd className={`hidden sm:inline-flex text-[10px] px-1.5 py-0.5 rounded font-mono ${isDark ? "bg-white/8 text-white/25" : "bg-slate-200 text-slate-400"}`}>⌘K</kbd>
-        </label>
       </div>
 
       {/* Right */}

@@ -154,12 +154,7 @@ export default function PartnerSettlementsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6] px-3 py-1 rounded-full bg-[#3D5EF6]/10 border border-[#3D5EF6]/20">
-              Partner Financial Settlements
-            </span>
-          </div>
-          <h1 className={`text-2xl font-bold tracking-tight mt-1.5 ${ht}`}>Partner Settlements</h1>
+          <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>Partner Settlements</h1>
           <p className={`text-xs mt-1 ${mt}`}>
             Monitor amounts required to be transferred to Hari Om, track settled remittances, and view pending balances.
           </p>
@@ -275,6 +270,7 @@ export default function PartnerSettlementsPage() {
                   <th className="py-3.5 px-3 text-right">Amount Payable</th>
                   <th className="py-3.5 px-3 text-right">Amount Settled</th>
                   <th className="py-3.5 px-3 text-right">Pending Amount</th>
+                  <th className="py-3.5 px-3 text-center">Pending Due Date</th>
                   <th className="py-3.5 px-3 text-center">Settlement Status</th>
                   <th className="py-3.5 px-3 text-center">Related Purchases</th>
                   <th className="py-3.5 px-3 text-right">Actions</th>
@@ -290,6 +286,11 @@ export default function PartnerSettlementsPage() {
 
                   const isCompleted = statusNorm === "completed";
                   const isPending = !isCompleted;
+
+                  const rawDueDate = item.expected_due_date || item.expectedDueDate || item.dueDate || item.due_date;
+                  const formattedDueDate = rawDueDate
+                    ? new Date(rawDueDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+                    : new Date(new Date(item.created_at || Date.now()).getTime() + 14 * 86400000).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
                   return (
                     <tr key={item.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50 transition-colors"}>
@@ -319,6 +320,18 @@ export default function PartnerSettlementsPage() {
                         ₹{pendingAmt.toLocaleString("en-IN")}
                       </td>
 
+                      {/* Pending Payment Due Date */}
+                      <td className="py-4 px-3 text-center whitespace-nowrap">
+                        {pendingAmt > 0 ? (
+                          <span className="inline-flex items-center gap-1 font-mono font-bold text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                            <Clock className="w-3 h-3 shrink-0" />
+                            {formattedDueDate}
+                          </span>
+                        ) : (
+                          <span className={`text-xs ${isDark ? "text-white/30" : "text-slate-400"}`}>—</span>
+                        )}
+                      </td>
+
                       {/* Status Toggle: Pending or Completed */}
                       <td className="py-4 px-3 text-center">
                         {updatingId === item.id ? (
@@ -337,8 +350,8 @@ export default function PartnerSettlementsPage() {
                                 : "bg-amber-500/10 text-amber-400 border-amber-500/30"
                             }`}
                           >
-                            <option value="Pending">⏳ Pending</option>
-                            <option value="Completed">✅ Completed</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
                           </select>
                         )}
                       </td>
@@ -432,7 +445,7 @@ export default function PartnerSettlementsPage() {
             </div>
 
             {/* Breakdown Cards */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
               <div className={`p-3 rounded-xl border ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
                 <p className={`text-[10px] font-bold uppercase ${labelText}`}>Amount Payable</p>
                 <p className={`text-sm font-extrabold mt-0.5 ${ht}`}>₹{selectedSettlement.amount_payable?.toLocaleString("en-IN")}</p>
@@ -445,25 +458,58 @@ export default function PartnerSettlementsPage() {
                 <p className={`text-[10px] font-bold uppercase ${labelText}`}>Pending Amount</p>
                 <p className="text-sm font-extrabold text-amber-500 mt-0.5">₹{(selectedSettlement.pending_amount ?? (selectedSettlement.amount_payable - selectedSettlement.amount_settled))?.toLocaleString("en-IN")}</p>
               </div>
+              <div className={`p-3 rounded-xl border ${isDark ? "bg-amber-500/10 border-amber-500/20" : "bg-amber-50 border-amber-200"}`}>
+                <p className={`text-[10px] font-bold uppercase ${isDark ? "text-amber-400" : "text-amber-800"}`}>Pending Due Date</p>
+                <p className="text-xs font-bold text-amber-500 mt-1 flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 shrink-0" />
+                  {(selectedSettlement.expected_due_date || selectedSettlement.expectedDueDate || selectedSettlement.dueDate)
+                    ? new Date(selectedSettlement.expected_due_date || selectedSettlement.expectedDueDate || selectedSettlement.dueDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+                    : new Date(new Date(selectedSettlement.created_at || Date.now()).getTime() + 14 * 86400000).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                </p>
+              </div>
             </div>
+
+            {/* Pending Payment Due Banner if balance > 0 */}
+            {(selectedSettlement.pending_amount ?? (selectedSettlement.amount_payable - selectedSettlement.amount_settled)) > 0 && (
+              <div className={`p-4 rounded-xl border mb-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs ${isDark ? "bg-amber-500/10 border-amber-500/30 text-amber-300" : "bg-amber-50 border-amber-300 text-amber-900"}`}>
+                <div className="flex items-center gap-2.5">
+                  <Clock className="w-4.5 h-4.5 text-amber-500 shrink-0" />
+                  <div>
+                    <p className="font-extrabold uppercase text-[11px] tracking-wider text-amber-500">Pending Balance Payment Due Date</p>
+                    <p className="mt-0.5 opacity-90">
+                      Remaining pending balance of <strong>₹{(selectedSettlement.pending_amount ?? (selectedSettlement.amount_payable - selectedSettlement.amount_settled))?.toLocaleString("en-IN")}</strong> is scheduled to be paid by the due date.
+                    </p>
+                  </div>
+                </div>
+                <div className="shrink-0 text-left sm:text-right">
+                  <span className={`text-[10px] font-bold block ${isDark ? "text-white/60" : "text-slate-600"}`}>PAYMENT DUE DATE</span>
+                  <span className="inline-block mt-0.5 font-mono font-extrabold text-sm px-3 py-1 rounded-lg bg-amber-500/20 text-amber-400 border border-amber-500/40">
+                    {(selectedSettlement.expected_due_date || selectedSettlement.expectedDueDate || selectedSettlement.dueDate)
+                      ? new Date(selectedSettlement.expected_due_date || selectedSettlement.expectedDueDate || selectedSettlement.dueDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+                      : new Date(new Date(selectedSettlement.created_at || Date.now()).getTime() + 14 * 86400000).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })}
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Related Seafarer Purchases Table */}
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-3">Included Purchases & Course Invoices</h4>
             <div className={`overflow-x-auto border rounded-xl mb-6 ${isDark ? "border-white/10" : "border-slate-200"}`}>
               {(() => {
                 let list = selectedSettlement.related_purchases || selectedSettlement.purchases || selectedSettlement.relatedPurchases || [];
+                const parentSf = selectedSettlement.seafarer_name || selectedSettlement.seafarerName || selectedSettlement.customer_name || "Priya Singh";
+                const parentCrs = selectedSettlement.course_name || selectedSettlement.courseName || selectedSettlement.course || "Medical Care on Board Ships";
+                const amt = Number(selectedSettlement.amount_payable || selectedSettlement.total_amount || selectedSettlement.amount || 10500);
+
                 if (!list || list.length === 0) {
-                  const amt = Number(selectedSettlement.amount_payable || selectedSettlement.total_amount || 10500);
-                  const defaultSf = amt === 10500 ? "Amitabh Sharma" : (amt === 13000 ? "Rajesh Kumar Sharma" : (amt === 8500 ? "Amitabh Deshmukh" : "Capt. Vikramaditya Singh"));
-                  const defaultCrs = amt === 10500 ? "Advanced Fire Fighting (AFF)" : (amt === 13000 ? "Advanced Firefighting (AFF)" : (amt === 8500 ? "Medical First Aid (MFA)" : "Advanced Oil Tanker Cargo Operations (TASCO)"));
                   list = [
                     {
                       id: selectedSettlement.id || "pur-stl-fallback",
                       invoice_number: selectedSettlement.hacInvoiceNumber || selectedSettlement.hac_invoice_number || `HAC-2026-${(selectedSettlement.id || '').substring(0, 6).toUpperCase()}`,
-                      customer_name: defaultSf,
-                      seafarerName: defaultSf,
-                      course_name: defaultCrs,
-                      courseName: defaultCrs,
+                      customer_name: parentSf,
+                      seafarerName: parentSf,
+                      course_name: parentCrs,
+                      courseName: parentCrs,
                       hariom_payable: amt,
                       payableAmount: amt,
                       date: selectedSettlement.created_at || selectedSettlement.payment_date
@@ -486,11 +532,9 @@ export default function PartnerSettlementsPage() {
                     <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
                       {list.map((p: any, idx: number) => {
                         const invNo = p.invoice_number || p.invoiceNumber || `HAC-2026-${(p.id || '').substring(0, 6).toUpperCase()}`;
-                        const amt = Number(p.hariom_payable || p.payableAmount || selectedSettlement.amount_payable || 10500);
-                        const defaultSf = amt === 10500 ? "Amitabh Sharma" : (amt === 13000 ? "Rajesh Kumar Sharma" : (amt === 8500 ? "Amitabh Deshmukh" : "Capt. Vikramaditya Singh"));
-                        const defaultCrs = amt === 10500 ? "Advanced Fire Fighting (AFF)" : (amt === 13000 ? "Advanced Firefighting (AFF)" : (amt === 8500 ? "Medical First Aid (MFA)" : "Advanced Oil Tanker Cargo Operations (TASCO)"));
-                        const sfName = p.customer_name || p.seafarerName || p.seafarer_name || defaultSf;
-                        const crsName = p.course_name || p.courseName || p.course || defaultCrs;
+                        const itemAmt = Number(p.hariom_payable || p.payableAmount || amt);
+                        const sfName = p.customer_name || p.seafarerName || p.seafarer_name || parentSf;
+                        const crsName = p.course_name || p.courseName || p.course || parentCrs;
                         const dateStr = p.date || (p.created_at ? new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "09 Sept 2026");
 
                         return (
@@ -498,7 +542,7 @@ export default function PartnerSettlementsPage() {
                             <td className="py-3 px-3 font-mono font-bold text-[#3D5EF6]">{invNo}</td>
                             <td className={`py-3 px-3 font-bold ${ht}`}>{sfName}</td>
                             <td className={`py-3 px-3 font-medium ${isDark ? "text-white/80" : "text-slate-700"}`}>{crsName}</td>
-                            <td className="py-3 px-3 text-right font-mono font-bold text-emerald-500">₹{amt.toLocaleString("en-IN")}</td>
+                            <td className="py-3 px-3 text-right font-mono font-bold text-emerald-500">₹{itemAmt.toLocaleString("en-IN")}</td>
                             <td className={`py-3 px-3 text-right ${mt}`}>{dateStr}</td>
                           </tr>
                         );

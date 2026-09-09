@@ -151,6 +151,7 @@ export default function SettlementsHistoryPage() {
                   <th className="py-3.5 px-4 font-semibold">Payment Method</th>
                   <th className="py-3.5 px-4 font-semibold text-right">Settlement Amount</th>
                   <th className="py-3.5 px-4 font-semibold">Submission Date</th>
+                  <th className="py-3.5 px-4 font-semibold text-center">Pending Due Date</th>
                   <th className="py-3.5 px-4 font-semibold text-center">Status</th>
                   <th className="py-3.5 px-4 font-semibold text-right">Action</th>
                 </tr>
@@ -165,6 +166,11 @@ export default function SettlementsHistoryPage() {
                   const totalAmt = Number(s.total_amount || s.totalAmount || s.amount || 0);
                   const paidAmt = Number(s.paid_amount || s.paidAmount || s.netAmount || totalAmt);
                   const remAmt = Number(s.remaining_amount || s.remainingAmount || 0);
+
+                  const rawDueDate = s.expected_due_date || s.expectedDueDate || s.dueDate || s.due_date;
+                  const formattedDueDate = rawDueDate
+                    ? new Date(rawDueDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+                    : new Date(new Date(s.created_at || s.submissionDate || Date.now()).getTime() + 14 * 86400000).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
                   return (
                     <tr key={s.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-[#EEF1FE]/30 transition-colors"}>
@@ -189,6 +195,16 @@ export default function SettlementsHistoryPage() {
                       </td>
                       <td className={`py-3.5 px-4 ${isDark ? "text-gray-400" : "text-[#6B7280] font-medium"}`}>
                         {new Date(s.created_at || s.submissionDate).toLocaleDateString("en-IN")}
+                      </td>
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        {isPartial && remAmt > 0 ? (
+                          <span className="inline-flex items-center gap-1 font-mono font-bold text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20">
+                            <Clock className="w-3 h-3 shrink-0" />
+                            {formattedDueDate}
+                          </span>
+                        ) : (
+                          <span className={`text-xs ${isDark ? "text-gray-500" : "text-slate-400"}`}>—</span>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-center">
                         <span

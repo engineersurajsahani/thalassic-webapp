@@ -128,7 +128,15 @@ export default function CreatePurchasePage() {
     try {
       const purchase = await partnerService.createPurchase({
         seafarerId: selectedSeafarer.id,
+        seafarerName: selectedSeafarer.name,
+        seafarerEmail: selectedSeafarer.email,
+        seafarerPhone: selectedSeafarer.phone,
+        indosNumber: selectedSeafarer.indosNum || selectedSeafarer.indos_num,
+        passportNumber: selectedSeafarer.passportNum || selectedSeafarer.passport_num,
         courseId: selectedCourse.id,
+        courseName: selectedCourse.name,
+        courseCode: selectedCourse.code,
+        payableAmount: pricing?.payableAmount || selectedCourse.payableAmount || selectedCourse.standardFee || 10500,
       });
       setCompletedPurchase(purchase);
     } catch (err: any) {

@@ -48,6 +48,10 @@ export default function SubmitSettlementPage() {
   const [paymentMode, setPaymentMode] = useState<"full" | "partial">("full");
   const [paidAmountInput, setPaidAmountInput] = useState<string>("");
   
+  // Partial Payment Allocation Mode (Automatic Sequential Waterfall vs Manual Split per Candidate)
+  const [allocationMode, setAllocationMode] = useState<"auto" | "manual">("auto");
+  const [manualAllocations, setManualAllocations] = useState<Record<string, number>>({});
+
   // Default expected due date: 14 days from today
   const defaultDueDate = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
   const [expectedDueDate, setExpectedDueDate] = useState<string>(defaultDueDate);
@@ -68,6 +72,15 @@ export default function SubmitSettlementPage() {
             (p.remainingAmount && p.remainingAmount > 0) ||
             (p.settlementStatus !== "Completed" && p.settlementStatus !== "Settled" && p.settlementStatus !== "Submitted")
         );
+        
+        // Sort chronologically ascending (oldest purchase first: Rajesh 1st, Rajesh 2nd, Amitabh 3rd, Vikram 4th)
+        eligible.sort((a: any, b: any) => {
+          const dateA = new Date(a.purchaseDate || a.createdAt || 0).getTime();
+          const dateB = new Date(b.purchaseDate || b.createdAt || 0).getTime();
+          if (dateA !== dateB) return dateA - dateB;
+          return (a.seafarerName || "").localeCompare(b.seafarerName || "");
+        });
+
         setPurchases(eligible);
         setSelectedIds(eligible.map((p: any) => p.id));
       } catch (err) {
@@ -127,6 +140,114 @@ export default function SubmitSettlementPage() {
     : paidAmountInput !== "" ? Math.min(totalAmount, Math.max(0, Number(paidAmountInput))) : 0;
 
   const remainingBalance = paymentMode === "full" ? 0 : Math.max(0, totalAmount - effectivePaidAmount);
+
+  // Itemized Allocation Breakdown Helper (Automatic Sequential Waterfall vs Manual Custom Split)
+  const getItemizedAllocations = () => {
+    if (paymentMode === "full") {
+      return selectedPurchases.map((p) => {
+        const payable = Number(p.payableAmount || 0);
+        return {
+          ...p,
+          paidNow: payable,
+          remainingDue: 0,
+          statusLabel: "100% Settled",
+          badgeColor: "emerald",
+        };
+      });
+    }
+
+    if (allocationMode === "manual") {
+      return selectedPurchases.map((p) => {
+        const payable = Number(p.payableAmount || 0);
+        const customPaid = manualAllocations[p.id] !== undefined
+          ? Math.min(payable, Math.max(0, Number(manualAllocations[p.id])))
+          : 0;
+        const remainingDue = Math.max(0, payable - customPaid);
+        return {
+          ...p,
+          paidNow: customPaid,
+          remainingDue,
+          statusLabel: customPaid === payable
+            ? "100% Settled"
+            : customPaid > 0
+            ? `Partial (₹${customPaid.toLocaleString("en-IN")} Paid)`
+            : "0% Paid",
+          badgeColor: customPaid === payable ? "emerald" : customPaid > 0 ? "amber" : "gray",
+        };
+      });
+    }
+
+    // Default: Automatic Sequential Waterfall (Top to Bottom / Oldest to Newest)
+    let remPool = effectivePaidAmount;
+    return selectedPurchases.map((p) => {
+      const payable = Number(p.payableAmount || 0);
+      const paidNow = Math.min(payable, Math.max(0, remPool));
+      remPool = Math.max(0, remPool - paidNow);
+      const remainingDue = Math.max(0, payable - paidNow);
+
+      return {
+        ...p,
+        paidNow,
+        remainingDue,
+        statusLabel: paidNow === payable
+          ? "100% Settled"
+          : paidNow > 0
+          ? `Partial (₹${paidNow.toLocaleString("en-IN")} Paid)`
+          : "0% Paid",
+        badgeColor: paidNow === payable ? "emerald" : paidNow > 0 ? "amber" : "gray",
+      };
+    });
+  };
+
+  const itemizedAllocations = getItemizedAllocations();
+
+  const handleManualAllocationChange = (purchaseId: string, valStr: string, maxPayable: number) => {
+    const val = valStr === "" ? 0 : Math.min(maxPayable, Math.max(0, Number(valStr)));
+    const updated = { ...manualAllocations, [purchaseId]: val };
+    setManualAllocations(updated);
+
+    // Sum manual allocations and update total paid input
+    const sumManual = selectedPurchases.reduce((acc, p) => {
+      const pId = p.id;
+      const amt = pId === purchaseId ? val : (updated[pId] !== undefined ? updated[pId] : 0);
+      return acc + amt;
+    }, 0);
+    setPaidAmountInput(String(sumManual));
+  };
+
+  const handleSplitEqually = () => {
+    if (selectedPurchases.length === 0) return;
+    setAllocationMode("manual");
+    const target = effectivePaidAmount > 0 ? effectivePaidAmount : totalAmount;
+    const share = Math.floor(target / selectedPurchases.length);
+    let remainder = target - (share * selectedPurchases.length);
+
+    const updated: Record<string, number> = {};
+    selectedPurchases.forEach((p, idx) => {
+      const payable = Number(p.payableAmount || 0);
+      const val = Math.min(payable, share + (idx === 0 ? remainder : 0));
+      updated[p.id] = val;
+    });
+    setManualAllocations(updated);
+
+    const sum = Object.values(updated).reduce((a, b) => a + b, 0);
+    setPaidAmountInput(String(sum));
+  };
+
+  const switchToManualMode = () => {
+    setAllocationMode("manual");
+    if (Object.keys(manualAllocations).length === 0) {
+      const initialManual: Record<string, number> = {};
+      itemizedAllocations.forEach((a) => {
+        initialManual[a.id] = a.paidNow;
+      });
+      setManualAllocations(initialManual);
+    }
+  };
+
+  const switchToAutoMode = () => {
+    setAllocationMode("auto");
+  };
 
   const readFileAsDataUrl = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -222,6 +343,14 @@ export default function SubmitSettlementPage() {
         totalAmount,
         proofUrl,
         proofFileName,
+        allocations: itemizedAllocations.map((a) => ({
+          purchaseId: a.id,
+          seafarerName: a.seafarerName,
+          courseName: a.courseName,
+          payableAmount: Number(a.payableAmount),
+          paidNow: a.paidNow,
+          remainingDue: a.remainingDue,
+        })),
       });
       setCreatedSettlement(res);
     } catch (err: any) {
@@ -467,7 +596,7 @@ export default function SubmitSettlementPage() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className={`text-xs font-bold uppercase tracking-wider ${labelText}`}>
-                    Covered Items ({selectedPurchases.length})
+                    Covered Items ({selectedPurchases.length} of {purchases.length})
                   </span>
                   {purchases.length > 0 && (
                     <button
@@ -477,16 +606,29 @@ export default function SubmitSettlementPage() {
                         isDark ? "text-blue-400" : "text-[#3D5EF6]"
                       }`}
                     >
-                      {selectedIds.length === purchases.length ? "Deselect All" : "Select All"}
+                      {selectedIds.length === purchases.length ? "Deselect All" : `Select All (${purchases.length})`}
                     </button>
                   )}
                 </div>
 
                 {selectedPurchases.length === 0 ? (
-                  <div className={`p-4 text-center border border-dashed rounded-[16px] text-xs font-semibold ${
-                    isDark ? "border-white/10 text-slate-400" : "border-[#E5E7EB] text-[#6B7280]"
+                  <div className={`p-4 text-center border border-dashed rounded-[16px] text-xs space-y-2 ${
+                    isDark ? "border-white/10 text-slate-400 bg-white/[0.01]" : "border-[#E5E7EB] text-[#6B7280] bg-[#FAFAFA]"
                   }`}>
-                    No purchases selected yet. Check items from the list.
+                    <AlertCircle className="w-5 h-5 mx-auto text-amber-500 opacity-80" />
+                    <p className={`font-bold ${headingText}`}>No purchases selected yet</p>
+                    <p className={`text-[11px] ${subText}`}>
+                      Check items from the list on the right to include them in this remittance batch.
+                    </p>
+                    {purchases.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={selectAll}
+                        className="mt-1 px-3 py-1.5 rounded-lg text-xs font-black bg-[#3D5EF6] text-white hover:bg-[#2E4FE0] transition-colors cursor-pointer inline-flex items-center gap-1 shadow-sm"
+                      >
+                        Select All ({purchases.length}) Purchases
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
@@ -509,9 +651,6 @@ export default function SubmitSettlementPage() {
                   </div>
                 )}
               </div>
-
-
-
             </div>
 
             {/* Remittance Guidelines & SLA Help Card */}
@@ -551,12 +690,168 @@ export default function SubmitSettlementPage() {
 
         {/* Right Column: Multi-select Purchases & Payment Form (lg:col-span-8) */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Card 1: Bank Payment & Transaction Statement (Moved to Top) */}
+          {/* Card 1: Outstanding Purchases List & Selection (Step 1) */}
+          <div className={`p-6 space-y-4 ${cardBg}`}>
+            <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b ${
+              isDark ? "border-white/10" : "border-[#E5E7EB]"
+            }`}>
+              <div>
+                <div className="flex items-center gap-2">
+                  <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
+                    <Receipt className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 1. Select Outstanding Purchases Covered
+                  </h2>
+                  <span className={`text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg ${
+                    selectedIds.length > 0
+                      ? isDark ? "bg-[#3D5EF6]/20 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
+                      : isDark ? "bg-amber-500/15 text-amber-300" : "bg-[#FEF3C7] text-[#B45309]"
+                  }`}>
+                    {selectedIds.length} of {purchases.length} Selected
+                  </span>
+                </div>
+                <p className={`text-xs mt-0.5 ${subText}`}>
+                  Choose course purchases covered in your current bank remittance batch
+                </p>
+              </div>
+
+              {/* Controls: Search + Select All / Deselect All Button */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+                {purchases.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={selectAll}
+                    className={`px-3.5 py-2 rounded-lg text-xs font-black transition-all cursor-pointer whitespace-nowrap border shadow-sm ${
+                      selectedIds.length === purchases.length
+                        ? isDark
+                          ? "bg-white/5 hover:bg-white/10 border-white/10 text-slate-300"
+                          : "bg-slate-100 hover:bg-slate-200 border-slate-200 text-slate-700"
+                        : "bg-[#3D5EF6] hover:bg-[#2E4FE0] border-[#3D5EF6] text-white"
+                    }`}
+                  >
+                    {selectedIds.length === purchases.length ? "Deselect All" : `Select All (${purchases.length})`}
+                  </button>
+                )}
+
+                <div className="w-full sm:w-64">
+                  <input
+                    type="text"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    placeholder="Search candidate, INDoS, course..."
+                    className={`w-full px-3.5 py-2 rounded-lg text-xs font-semibold outline-none ${inputStyle}`}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="p-8 text-center text-slate-400 animate-pulse">Loading eligible purchases...</div>
+            ) : filteredPurchases.length === 0 ? (
+              <div className={`p-8 text-center border border-dashed rounded-[16px] text-xs ${
+                isDark ? "border-white/15 text-slate-400" : "border-[#E5E7EB] text-[#6B7280]"
+              }`}>
+                <CheckCircle2 className="w-8 h-8 text-[#16A34A] mx-auto mb-2" />
+                <p className={`font-bold text-sm ${headingText}`}>No matching outstanding purchases.</p>
+                <p className="mt-1">All purchases are either settled or no pending record matches search.</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-[28rem] overflow-y-auto pr-1 custom-scrollbar">
+                {filteredPurchases.map((p, idx) => {
+                  const isChecked = selectedIds.includes(p.id);
+                  const candidateIndos = p.indosNumber || p.indosNum || "24IN9999";
+                  const alloc = itemizedAllocations.find((a) => a.id === p.id);
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => toggleSelect(p.id)}
+                      className={`p-4 rounded-[16px] cursor-pointer transition-all border ${
+                        isChecked
+                          ? isDark
+                            ? "bg-[#3D5EF6]/15 border-[#3D5EF6]/40 shadow-sm"
+                            : "bg-[#EEF1FE] border-[#3D5EF6]/30 shadow-sm"
+                          : isDark
+                          ? "bg-white/[0.02] border-transparent hover:bg-white/5"
+                          : "bg-[#FAFAFA] border-transparent hover:bg-[#EEF1FE]/30"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex items-center gap-3.5">
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => {}}
+                            className="w-4 h-4 rounded text-[#3D5EF6] focus:ring-[#3D5EF6] accent-[#3D5EF6] cursor-pointer"
+                          />
+                          <div>
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="w-5 h-5 rounded-full bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300 font-extrabold text-[10px] flex items-center justify-center">
+                                #{idx + 1}
+                              </span>
+                              <p className={`font-extrabold text-xs ${headingText}`}>{p.seafarerName}</p>
+                              <span className={`font-mono text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg ${
+                                isDark ? "bg-white/5 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
+                              }`}>
+                                INDoS: {candidateIndos}
+                              </span>
+                              <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-lg ${
+                                isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
+                              }`}>
+                                {p.id}
+                              </span>
+                            </div>
+                            <p className={`text-[11px] mt-1 font-medium ${subText}`}>
+                              {p.courseName} • Enrolled {new Date(p.purchaseDate).toLocaleDateString("en-IN")}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <p className={`font-black text-sm ${headingText}`}>
+                            ₹{Number(p.payableAmount).toLocaleString("en-IN")}
+                          </p>
+                          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg inline-block mt-0.5 bg-[#FEF3C7] text-[#B45309]">
+                            {p.settlementStatus || "Pending"}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* If Partial Payment Mode & item is selected: Show Breakdown Badge & Manual Input if enabled */}
+                      {isChecked && paymentMode === "partial" && alloc && (
+                        <div
+                          className={`mt-3 pt-2.5 border-t flex flex-wrap items-center justify-between gap-2 text-xs ${
+                            isDark ? "border-white/10" : "border-slate-200"
+                          }`}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className={`text-[10px] font-bold px-2.5 py-1 rounded-lg ${
+                              alloc.paidNow === Number(p.payableAmount)
+                                ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 border border-emerald-200/60"
+                                : alloc.paidNow > 0
+                                ? "bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-300 border border-amber-200/60"
+                                : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400 border border-slate-200/60"
+                            }`}>
+                              {alloc.paidNow === Number(p.payableAmount)
+                                ? `Fully Paid (₹${alloc.paidNow.toLocaleString("en-IN")})`
+                                : alloc.paidNow > 0
+                                ? `Partial: ₹${alloc.paidNow.toLocaleString("en-IN")} Paid, ₹${alloc.remainingDue.toLocaleString("en-IN")} Due`
+                                : `Unpaid (₹${alloc.remainingDue.toLocaleString("en-IN")} Pending)`}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Card 2: Bank Payment & Transaction Statement (Step 2) */}
           <div className={`p-6 space-y-4 ${cardBg}`}>
             <div className={`pb-3 border-b ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
               <div className="flex items-center justify-between">
                 <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
-                  <CreditCard className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 1. Bank Payment & Transaction Statement
+                  <CreditCard className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 2. Bank Payment & Transaction Statement
                 </h2>
                 <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-lg ${
                   isDark ? "bg-[#3D5EF6]/15 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
@@ -703,11 +998,11 @@ export default function SubmitSettlementPage() {
             </div>
           </div>
 
-          {/* Card 2: Remittance Payment Mode & Partial Installments Option */}
+          {/* Card 3: Remittance Payment Mode & Partial Installments Option (Step 3) */}
           <div className={`p-6 space-y-4 ${cardBg}`}>
             <div className={`pb-3 border-b ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
               <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
-                <PieChart className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 2. Remittance Payment Mode (Full vs Partial Split)
+                <PieChart className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 3. Remittance Payment Mode (Full vs Partial Split)
               </h2>
               <p className={`text-xs mt-0.5 ${subText}`}>
                 Choose whether you are transferring the full batch amount (100%) or making a partial payment now and scheduling the remaining balance.
@@ -769,20 +1064,48 @@ export default function SubmitSettlementPage() {
               </div>
             </div>
 
-            {/* If Partial Payment Selected: Show Amount Input & Expected Due Date */}
+            {/* If Partial Payment Selected: Show Amount Input, Allocation Mode Switcher & Candidate Breakdown */}
             {paymentMode === "partial" && (
-              <div className={`p-4 rounded-[16px] border space-y-4 animate-fadeIn ${
-                isDark ? "bg-amber-500/5 border-amber-500/20" : "bg-[#FEF3C7]/25 border-amber-200"
+              <div className={`p-5 rounded-2xl border space-y-4 animate-fadeIn ${
+                isDark ? "bg-slate-900/60 border-slate-800" : "bg-slate-50 border-slate-200"
               }`}>
-                <div className="flex items-center gap-2 text-xs font-bold text-[#B45309]">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>Specify Immediate Payment & Remaining Balance Schedule</span>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs font-bold">
+                  <div className="flex items-center gap-2 text-slate-800 dark:text-slate-200">
+                    <AlertCircle className="w-4 h-4 text-[#3D5EF6] shrink-0" />
+                    <span className="font-extrabold text-sm">Partial Payment Allocation</span>
+                  </div>
+                  
+                  {/* Allocation Mode Segmented Control Switcher */}
+                  <div className="inline-flex p-1 rounded-xl bg-slate-200/60 dark:bg-slate-800/80 text-xs font-semibold">
+                    <button
+                      type="button"
+                      onClick={switchToAutoMode}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        allocationMode === "auto"
+                          ? "bg-white dark:bg-slate-900 text-[#3D5EF6] dark:text-blue-400 shadow-sm"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      Sequential Allocation
+                    </button>
+                    <button
+                      type="button"
+                      onClick={switchToManualMode}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                        allocationMode === "manual"
+                          ? "bg-white dark:bg-slate-900 text-[#3D5EF6] dark:text-blue-400 shadow-sm"
+                          : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+                      }`}
+                    >
+                      Custom Allocation
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Amount Paid Now */}
                   <div>
-                    <label className={`block text-xs mb-1.5 ${labelText}`}>
+                    <label className={`block text-xs font-bold mb-1.5 ${labelText}`}>
                       Amount Paid Now via Bank UTR (₹) *
                     </label>
                     <div className="relative">
@@ -796,30 +1119,134 @@ export default function SubmitSettlementPage() {
                         value={paidAmountInput}
                         onChange={(e) => setPaidAmountInput(e.target.value)}
                         placeholder="e.g. 20000"
-                        className={`w-full pl-8 pr-4 py-2.5 rounded-lg text-sm font-mono font-bold outline-none transition-all ${inputStyle}`}
+                        className={`w-full pl-8 pr-4 py-2.5 rounded-xl text-sm font-mono font-bold outline-none transition-all ${inputStyle}`}
                       />
                     </div>
                     <p className="text-[10px] text-slate-400 mt-1">
-                      Enter the partial payment amount being transferred right now.
+                      Enter partial amount transferred in current UTR transaction.
                     </p>
                   </div>
 
                   {/* Calculated Remaining Balance Display */}
                   <div>
-                    <label className={`block text-xs mb-1.5 ${labelText}`}>
+                    <label className={`block text-xs font-bold mb-1.5 ${labelText}`}>
                       Calculated Pending Balance (₹)
                     </label>
-                    <div className={`w-full px-4 py-2.5 rounded-[16px] text-sm font-mono font-black flex items-center justify-between ${
-                      isDark ? "bg-black/30 text-amber-300" : "bg-white text-[#B45309]"
+                    <div className={`w-full px-4 py-2.5 rounded-xl text-sm font-mono font-extrabold flex items-center justify-between border ${
+                      isDark ? "bg-black/30 border-slate-800 text-amber-300" : "bg-white border-slate-200 text-slate-800"
                     }`}>
                       <span>₹{remainingBalance.toLocaleString("en-IN")}</span>
-                      <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-lg bg-[#FEF3C7] text-[#B45309]">
+                      <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-md bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20">
                         Pending
                       </span>
                     </div>
                     <p className="text-[10px] text-slate-400 mt-1">
-                      Auto-calculated remaining amount (₹{totalAmount.toLocaleString("en-IN")} - ₹{effectivePaidAmount.toLocaleString("en-IN")})
+                      Remaining balance (₹{totalAmount.toLocaleString("en-IN")} - ₹{effectivePaidAmount.toLocaleString("en-IN")})
                     </p>
+                  </div>
+
+                  {/* Candidate Partial Deduction Breakdown */}
+                  <div className="md:col-span-2 space-y-3 pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+                      <p className={`text-xs font-extrabold ${headingText}`}>
+                        {allocationMode === "auto"
+                          ? "Sequential Candidate Breakdown (Oldest First)"
+                          : "Custom Candidate Breakdown"}
+                      </p>
+
+                      {allocationMode === "manual" && selectedPurchases.length > 0 && (
+                        <button
+                          type="button"
+                          onClick={handleSplitEqually}
+                          className="px-3 py-1 rounded-lg text-[11px] font-bold bg-slate-200/80 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-300/80 dark:hover:bg-slate-700 transition-all cursor-pointer border border-slate-300/50 dark:border-slate-700"
+                        >
+                          Split Equally (₹{Math.floor((effectivePaidAmount || totalAmount) / Math.max(1, selectedPurchases.length)).toLocaleString("en-IN")} each)
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="space-y-2.5 max-h-64 overflow-y-auto custom-scrollbar pr-0.5">
+                      {itemizedAllocations.map((a, i) => {
+                        const payable = Number(a.payableAmount || 0);
+                        const currentPaid = manualAllocations[a.id] !== undefined ? manualAllocations[a.id] : a.paidNow;
+                        return (
+                          <div
+                            key={a.id}
+                            className={`p-3 rounded-xl grid grid-cols-1 md:grid-cols-12 gap-3 items-center border transition-all ${
+                              isDark ? "bg-slate-950/80 border-slate-800" : "bg-white border-slate-200"
+                            }`}
+                          >
+                            <div className="md:col-span-5 flex items-center gap-3 min-w-0">
+                              <span className="w-6 h-6 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-bold text-[11px] flex items-center justify-center shrink-0 border border-slate-200 dark:border-slate-700">
+                                #{i + 1}
+                              </span>
+                              <div className="min-w-0 pr-1">
+                                <p className={`font-bold text-xs truncate ${headingText}`}>{a.seafarerName}</p>
+                                <p className={`text-[10px] truncate font-medium ${subText}`} title={a.courseName}>{a.courseName}</p>
+                              </div>
+                            </div>
+
+                            {allocationMode === "manual" ? (
+                              /* Interactive Input Controls for Manual Mode */
+                              <div className="md:col-span-7 flex flex-wrap sm:flex-nowrap items-center justify-end gap-2 shrink-0">
+                                <div className="flex items-center gap-1.5 shrink-0">
+                                  <span className="text-[11px] font-semibold text-slate-500 whitespace-nowrap">Paid: ₹</span>
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max={payable}
+                                    value={currentPaid}
+                                    onChange={(e) => handleManualAllocationChange(a.id, e.target.value, payable)}
+                                    className={`w-24 px-2.5 py-1.5 rounded-lg text-xs font-mono font-bold outline-none border focus:ring-2 focus:ring-[#3D5EF6] ${
+                                      isDark ? "bg-slate-900 border-slate-700 text-white" : "bg-slate-50 border-slate-300 text-slate-900"
+                                    }`}
+                                  />
+                                  <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">/ ₹{payable.toLocaleString("en-IN")}</span>
+                                </div>
+
+                                <div className="flex items-center gap-1 shrink-0">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleManualAllocationChange(a.id, String(payable), payable)}
+                                    className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors whitespace-nowrap cursor-pointer border border-slate-200 dark:border-slate-700"
+                                  >
+                                    Full
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleManualAllocationChange(a.id, String(Math.floor(payable / 2)), payable)}
+                                    className="px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors whitespace-nowrap cursor-pointer border border-slate-200 dark:border-slate-700"
+                                  >
+                                    Half
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleManualAllocationChange(a.id, "0", payable)}
+                                    className="px-2.5 py-1 rounded-md text-[10px] font-medium bg-slate-50 dark:bg-slate-900 text-slate-500 hover:bg-slate-100 transition-colors whitespace-nowrap cursor-pointer border border-slate-200 dark:border-slate-800"
+                                  >
+                                    Clear
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              /* Display Badge for Auto Waterfall Mode */
+                              <div className="md:col-span-7 text-right shrink-0 font-mono">
+                                <div className="flex items-center gap-2 justify-end">
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-bold text-xs">
+                                    ₹{a.paidNow.toLocaleString("en-IN")} Paid
+                                  </span>
+                                  <span className="text-slate-400">/</span>
+                                  <span className="text-slate-500 font-semibold">₹{payable.toLocaleString("en-IN")}</span>
+                                </div>
+                                <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
+                                  {a.remainingDue > 0 ? `Remaining Due: ₹${a.remainingDue.toLocaleString("en-IN")}` : "Fully Settled"}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* Expected Due Date Picker for Balance */}
@@ -840,109 +1267,6 @@ export default function SubmitSettlementPage() {
                     </p>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
-
-          {/* Card 3: Outstanding Purchases List & Submission (Moved directly below Step 2) */}
-          <div className={`p-6 space-y-4 ${cardBg}`}>
-            <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b ${
-              isDark ? "border-white/10" : "border-[#E5E7EB]"
-            }`}>
-              <div>
-                <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
-                  <Receipt className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 3. Select Outstanding Purchases Covered
-                </h2>
-                <p className={`text-xs mt-0.5 ${subText}`}>
-                  Choose course purchases covered in your current bank remittance batch
-                </p>
-              </div>
-
-              {/* Quick Search with INDoS / Passport / Course / Name support */}
-              <div className="w-full sm:w-72">
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search candidate, INDoS (e.g. 24IN9999), course, ID..."
-                  className={`w-full px-3.5 py-2 rounded-lg text-xs font-semibold outline-none ${inputStyle}`}
-                />
-              </div>
-            </div>
-
-            {loading ? (
-              <div className="p-8 text-center text-slate-400 animate-pulse">Loading eligible purchases...</div>
-            ) : filteredPurchases.length === 0 ? (
-              <div className={`p-8 text-center border border-dashed rounded-[16px] text-xs ${
-                isDark ? "border-white/15 text-slate-400" : "border-[#E5E7EB] text-[#6B7280]"
-              }`}>
-                <CheckCircle2 className="w-8 h-8 text-[#16A34A] mx-auto mb-2" />
-                <p className={`font-bold text-sm ${headingText}`}>No matching outstanding purchases.</p>
-                <p className="mt-1">All purchases are either settled or no pending record matches search.</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
-                {filteredPurchases.map((p) => {
-                  const isChecked = selectedIds.includes(p.id);
-                  const candidateIndos = p.indosNumber || p.indosNum || "24IN9999";
-                  return (
-                    <div
-                      key={p.id}
-                      onClick={() => toggleSelect(p.id)}
-                      className={`p-4 rounded-[16px] cursor-pointer transition-all flex items-center justify-between gap-4 ${
-                        isChecked
-                          ? isDark
-                            ? "bg-[#3D5EF6]/15 shadow-sm"
-                            : "bg-[#EEF1FE] shadow-sm"
-                          : isDark
-                          ? "bg-white/[0.02] hover:bg-white/5"
-                          : "bg-[#FAFAFA] hover:bg-[#EEF1FE]/30"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => {}}
-                          className="w-4 h-4 rounded text-[#3D5EF6] focus:ring-[#3D5EF6] accent-[#3D5EF6] cursor-pointer"
-                        />
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className={`font-extrabold text-xs ${headingText}`}>{p.seafarerName}</p>
-                            <span className={`font-mono text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg ${
-                              isDark ? "bg-white/5 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
-                            }`}>
-                              INDoS: {candidateIndos}
-                            </span>
-                            <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-lg ${
-                              isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
-                            }`}>
-                              {p.id}
-                            </span>
-                          </div>
-                          <p className={`text-[11px] mt-1 font-medium ${subText}`}>
-                            {p.courseName} • Enrolled {new Date(p.purchaseDate).toLocaleDateString("en-IN")}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-right shrink-0">
-                        <p className={`font-black text-sm ${headingText}`}>
-                          ₹{Number(p.payableAmount).toLocaleString("en-IN")}
-                        </p>
-                        {p.settlementStatus === "Partial" || (p.remainingAmount && p.remainingAmount > 0) ? (
-                          <span className="text-[10px] font-bold text-[#B45309] bg-[#FEF3C7] px-2.5 py-0.5 rounded-lg block mt-0.5">
-                            Remaining Due Balance
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg inline-block mt-0.5 bg-[#FEF3C7] text-[#B45309]">
-                            {p.settlementStatus || "Pending"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
               </div>
             )}
 

@@ -274,6 +274,14 @@ export const agentService = {
   async createPurchase(purchaseData: {
     seafarerId: string;
     courseId: string;
+    seafarerName?: string;
+    seafarerEmail?: string;
+    seafarerPhone?: string;
+    indosNumber?: string;
+    passportNumber?: string;
+    courseName?: string;
+    courseCode?: string;
+    payableAmount?: number;
   }): Promise<Purchase> {
     const response = await api.post("/partner/purchases", purchaseData);
     return response.data;
@@ -308,6 +316,7 @@ export const agentService = {
     totalAmount?: number;
     proofUrl?: string;
     proofFileName?: string;
+    allocations?: any[];
   }): Promise<Settlement> {
     const response = await api.post("/partner/settlements", settlementData);
     return response.data;
