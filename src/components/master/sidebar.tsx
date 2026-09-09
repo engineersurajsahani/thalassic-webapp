@@ -45,7 +45,7 @@ export default function MasterSidebar() {
   const inactiveIcon= isDark ? "text-gray-400 group-hover:text-white" : "text-[#6B7280] group-hover:text-[#3D5EF6]";
   const footBorder  = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
   const userName    = isDark ? "text-white" : "text-[#111827]";
-  const userEmail   = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const userEmail   = isDark ? "text-gray-400" : "text-black";
   const signOutBtn  = isDark ? "text-gray-400 hover:bg-[#DC2626]/10 hover:text-[#DC2626] transition-colors duration-200" : "text-[#6B7280] hover:bg-red-50 hover:text-[#DC2626] transition-colors duration-200";
 
   return (

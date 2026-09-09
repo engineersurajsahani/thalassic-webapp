@@ -6,7 +6,7 @@ import { useGlobalStatus } from "@/providers/status-provider";
 import {
   Search, Plus, BookOpen,
   Clock, X, Edit, Save, Calendar,
-  Building2, MapPin, Star, Check
+  Building2, MapPin, Star, Check, Eye
 } from "lucide-react";
 import { MOCK_COURSES, MockCourse } from "@/data/master-portal-mock";
 import {
@@ -199,12 +199,12 @@ export default function CoursesPage() {
   // theme tokens
   const bg        = dk ? "bg-[#0d1f35] border border-white/6" : "bg-white border border-slate-200";
   const headText  = dk ? "text-white/80"  : "text-slate-800";
-  const mutedText = dk ? "text-white/35"  : "text-slate-400";
-  const inputBg   = dk ? "bg-white/5 border border-white/10 text-white placeholder:text-white/25 focus:border-indigo-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-indigo-400 outline-none";
+  const mutedText = dk ? "text-slate-400"  : "text-slate-600";
+  const inputBg   = dk ? "bg-white/5 border border-white/10 text-white placeholder:text-slate-400 focus:border-indigo-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-indigo-400 outline-none";
   const divider   = dk ? "divide-white/5" : "divide-slate-100";
   const rowHover  = dk ? "hover:bg-white/[0.03]" : "hover:bg-slate-50";
   const modalBg   = dk ? "bg-[#0d1f35] border border-white/10" : "bg-white border border-slate-200";
-  const labelCls  = dk ? "text-white/60"  : "text-slate-600";
+  const labelCls  = dk ? "text-slate-300 font-semibold"  : "text-slate-700 font-semibold";
 
   const filtered = courseList.filter((c) => {
     const q = search.toLowerCase();
@@ -339,7 +339,9 @@ export default function CoursesPage() {
         </div>
         <button
           onClick={openAddModal}
-          className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-md shadow-indigo-600/20"
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-colors shadow-sm ${
+            dk ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
+          }`}
         >
           <Plus className="w-4 h-4" /> Add New Course
         </button>
@@ -349,7 +351,7 @@ export default function CoursesPage() {
       <div className={`p-4 rounded-2xl ${bg} flex flex-wrap items-center justify-between gap-3`}>
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${mutedText}`} />
+            <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${dk ? "text-slate-400" : "text-slate-500"}`} />
             <input
               value={search}
               onChange={e => setSearch(e.target.value)}
@@ -369,7 +371,7 @@ export default function CoursesPage() {
                 className={`text-xs capitalize transition-colors ${
                   cat === c
                     ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-indigo-500"
-                    : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                    : dk ? "text-slate-400 hover:text-white font-medium" : "text-slate-600 hover:text-slate-900 font-medium"
                 }`}
               >
                 {c}
@@ -383,7 +385,7 @@ export default function CoursesPage() {
               className={`text-xs capitalize transition-colors ${
                 status === "All"
                   ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-violet-500"
-                  : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                  : dk ? "text-slate-400 hover:text-white font-medium" : "text-slate-600 hover:text-slate-900 font-medium"
               }`}
             >
               All Statuses
@@ -395,7 +397,7 @@ export default function CoursesPage() {
                 className={`text-xs capitalize transition-colors ${
                   status === s.label
                     ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-violet-500"
-                    : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                    : dk ? "text-slate-400 hover:text-white font-medium" : "text-slate-600 hover:text-slate-900 font-medium"
                 }`}
               >
                 {s.label}
@@ -410,7 +412,7 @@ export default function CoursesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${dk ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"}`}>
+              <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${dk ? "border-white/5 text-slate-300" : "border-slate-100 text-slate-700"}`}>
                 <th className="text-left px-6 py-3.5">Course Title & Code</th>
                 <th className="text-left px-6 py-3.5">Category</th>
                 <th className="text-left px-6 py-3.5">Associated Institutes</th>
@@ -422,6 +424,7 @@ export default function CoursesPage() {
             </thead>
             <tbody className={`divide-y ${divider}`}>
               {filtered.map(c => {
+                const institutesCount = getInstitutesForCourse(c).length;
                 return (
                   <tr
                     key={c.id}
@@ -438,7 +441,7 @@ export default function CoursesPage() {
                         </div>
                         <div>
                           <p className={`font-semibold text-[13px] ${headText}`}>{c.title}</p>
-                          <p className={`text-[11px] font-mono ${mutedText}`}>{c.code}</p>
+                          <p className={`text-[11px] font-mono font-medium ${mutedText}`}>{c.code}</p>
                         </div>
                       </div>
                     </td>
@@ -447,8 +450,14 @@ export default function CoursesPage() {
                         {c.category}
                       </span>
                     </td>
-                    <td className={`px-6 py-4 text-[12px] ${mutedText}`}>
-                      <span className="flex items-center gap-1"><Clock className="w-3 h-3" />{c.duration}</span>
+                    <td className={`px-6 py-4 text-[12px] font-medium ${mutedText}`}>
+                      <span className="flex items-center gap-1.5">
+                        <Building2 className={`w-3.5 h-3.5 ${dk ? "text-slate-400" : "text-slate-500"}`} />
+                        {institutesCount} {institutesCount === 1 ? "Institute" : "Institutes"}
+                      </span>
+                    </td>
+                    <td className={`px-6 py-4 text-[12px] font-medium ${mutedText}`}>
+                      <span className="flex items-center gap-1"><Clock className={`w-3 h-3 ${dk ? "text-slate-400" : "text-slate-500"}`} />{c.duration}</span>
                     </td>
                     <td className={`px-6 py-4 text-[13px] font-bold ${headText}`}>
                       ₹{c.price.toLocaleString()}
@@ -467,7 +476,7 @@ export default function CoursesPage() {
             </tbody>
           </table>
         </div>
-        <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs ${mutedText}`}>
+        <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs font-medium ${mutedText}`}>
           <span>Showing {filtered.length} of {courseList.length} courses</span>
         </div>
       </div>

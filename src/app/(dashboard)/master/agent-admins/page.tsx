@@ -47,14 +47,14 @@ export default function PartnerAdminsPage() {
 
   // theme tokens
   const ht       = dk ? "text-white"       : "text-slate-800";
-  const mt       = dk ? "text-white/40"    : "text-slate-400";
+  const mt       = dk ? "text-slate-400"   : "text-black";
   const card     = dk ? "bg-[#0f2035] border border-white/5 rounded-2xl" : "bg-white border border-slate-200 rounded-2xl shadow-sm";
-  const inputCls = dk ? "bg-white/5 border border-white/8 text-white placeholder:text-white/25 focus:border-violet-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-violet-400 outline-none";
+  const inputCls = dk ? "bg-white/5 border border-white/8 text-white placeholder:text-slate-400 focus:border-violet-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-black focus:border-violet-400 outline-none";
   const dv       = dk ? "divide-white/5"   : "divide-slate-100";
   const rh       = dk ? "hover:bg-white/3" : "hover:bg-slate-50/80";
-  const thCls    = dk ? "border-b border-white/5 text-white/25" : "border-b border-slate-100 text-slate-400";
+  const thCls    = dk ? "border-b border-white/5 text-slate-300" : "border-b border-slate-100 text-black font-semibold";
   const modalBg  = dk ? "bg-[#0f2035] border border-white/10" : "bg-white border border-slate-200";
-  const labelCls = dk ? "text-white/60" : "text-slate-600";
+  const labelCls = dk ? "text-slate-300 font-semibold" : "text-black font-semibold";
 
   // Close modal on Escape key
   useEffect(() => {
@@ -148,7 +148,9 @@ export default function PartnerAdminsPage() {
         </div>
         <button
           onClick={() => { setForm({ name: "", agencyName: "", rpslNumber: "", contactPerson: "", email: "", phone: "", location: "" }); openModal("add"); }}
-          className="flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white text-sm font-semibold rounded-xl transition-colors shadow-md shadow-violet-500/20"
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-colors shadow-sm ${
+            dk ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
+          }`}
         >
           <Plus className="w-4 h-4" /> Add Partner Agency
         </button>
@@ -198,7 +200,7 @@ export default function PartnerAdminsPage() {
             className={`text-xs capitalize transition-colors ${
               filter === "all"
                 ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-violet-500"
-                : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                : dk ? "text-slate-400 hover:text-white font-medium" : "text-black hover:text-black font-medium"
             }`}
           >
             All
@@ -215,7 +217,7 @@ export default function PartnerAdminsPage() {
                 className={`text-xs capitalize transition-colors ${
                   isSel
                     ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-violet-500"
-                    : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                    : dk ? "text-slate-400 hover:text-white font-medium" : "text-black hover:text-black font-medium"
                 }`}
               >
                 {s.label}
@@ -393,7 +395,7 @@ export default function PartnerAdminsPage() {
                       {getStatus(selected.status)?.label || (selected.status.charAt(0).toUpperCase() + selected.status.slice(1))}
                     </span>
                   </div>
-                  <p className={`text-xs mt-0.5 ${mt}`}>
+                  <p className="text-xs mt-0.5 text-slate-600 dark:text-slate-400 font-medium">
                     {selected.agencyName} · Registered on {selected.joinedDate}
                   </p>
                 </div>
@@ -421,8 +423,8 @@ export default function PartnerAdminsPage() {
                   onClick={() => setViewTab(t.id as "profile" | "seafarers" | "courses" | "settlements")}
                   className={`flex items-center gap-2 py-3 border-b-2 transition-all ${
                     viewTab === t.id
-                      ? (dk ? "border-violet-500 text-white" : "border-violet-600 text-black")
-                      : `border-transparent ${mt} hover:${ht}`
+                      ? (dk ? "border-violet-500 text-white" : "border-violet-600 text-slate-900")
+                      : (dk ? "border-transparent text-slate-400 hover:text-white" : "border-transparent text-slate-600 hover:text-slate-900")
                   }`}
                 >
                   <t.Icon className="w-3.5 h-3.5" />
@@ -439,64 +441,64 @@ export default function PartnerAdminsPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Agency Identification */}
                     <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                      <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${mt}`}>Agency Identification & Legal</p>
+                      <p className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Agency Identification & Legal</p>
                       <div className="space-y-3 text-xs">
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Partner Name:</span>
-                          <span className={`font-semibold ${ht}`}>{selected.name}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Partner Name:</span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-100">{selected.name}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Legal / Company Name:</span>
-                          <span className={`font-semibold ${ht}`}>{selected.agencyName}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Legal / Company Name:</span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-100">{selected.agencyName}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Partner ID:</span>
-                          <span className="font-mono font-semibold text-black dark:text-white">{selected.id}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Partner ID:</span>
+                          <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{selected.id}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>RPSL License Number:</span>
-                          <span className="font-mono font-semibold text-black dark:text-white">{selected.rpslNumber}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">RPSL License Number:</span>
+                          <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{selected.rpslNumber}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Operational Status:</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Operational Status:</span>
                           <span className={`inline-flex items-center gap-1 font-semibold ${getStatus(selected.status)?.color || "text-emerald-500"}`}>
                             {getStatus(selected.status)?.label || selected.status}
                           </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Registration Date:</span>
-                          <span className={ht}>{selected.joinedDate}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Registration Date:</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.joinedDate}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Contact & Location Details */}
                     <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                      <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${mt}`}>Contact & Location Details</p>
+                      <p className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Contact & Location Details</p>
                       <div className="space-y-3 text-xs">
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Contact Person:</span>
-                          <span className={`font-semibold ${ht}`}>{selected.contactPerson}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Contact Person:</span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-100">{selected.contactPerson}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Official Email:</span>
-                          <span className={ht}>{selected.email}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Official Email:</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.email}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Phone / Hotline:</span>
-                          <span className={ht}>{selected.phone}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Phone / Hotline:</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.phone}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Registered Location:</span>
-                          <span className={ht}>{selected.location}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Registered Location:</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.location}</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Country:</span>
-                          <span className={ht}>India</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Country:</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">India</span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className={mt}>Last Active:</span>
-                          <span className={ht}>{selected.lastActive}</span>
+                          <span className="text-slate-600 dark:text-slate-300 font-medium">Last Active:</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.lastActive}</span>
                         </div>
                       </div>
                     </div>
@@ -504,41 +506,41 @@ export default function PartnerAdminsPage() {
 
                   {/* Financial & Settlement Overview */}
                   <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                    <h3 className={`text-xs font-semibold uppercase tracking-wider mb-3 ${mt}`}>Financial & Settlement Overview</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Financial & Settlement Overview</h3>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                       <div>
-                        <p className={`text-[10px] font-semibold uppercase ${mt}`}>Total Amount Payable</p>
-                        <p className={`text-lg font-bold mt-1 ${ht}`}>₹{selected.totalAmountPayable.toLocaleString()}</p>
-                        <p className={`text-[11px] mt-0.5 ${mt}`}>Configured Hari Om Pricing</p>
+                        <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Total Amount Payable</p>
+                        <p className="text-lg font-bold mt-1 text-slate-900 dark:text-slate-100">₹{selected.totalAmountPayable.toLocaleString()}</p>
+                        <p className="text-[11px] mt-0.5 text-slate-600 dark:text-slate-400 font-medium">Configured Hari Om Pricing</p>
                       </div>
                       <div>
-                        <p className={`text-[10px] font-semibold uppercase ${mt}`}>Total Settled / Received</p>
+                        <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Total Settled / Received</p>
                         <p className="text-lg font-bold mt-1 text-emerald-600 dark:text-emerald-400">₹{selected.totalAmountReceived.toLocaleString()}</p>
-                        <p className={`text-[11px] mt-0.5 ${mt}`}>Verified Bank Credits</p>
+                        <p className="text-[11px] mt-0.5 text-slate-600 dark:text-slate-400 font-medium">Verified Bank Credits</p>
                       </div>
                       <div>
-                        <p className={`text-[10px] font-semibold uppercase ${mt}`}>Pending Settlement</p>
+                        <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Pending Settlement</p>
                         <p className="text-lg font-bold mt-1 text-rose-500 dark:text-rose-400">₹{selected.pendingAmount.toLocaleString()}</p>
-                        <p className={`text-[11px] mt-0.5 ${mt}`}>Action Required</p>
+                        <p className="text-[11px] mt-0.5 text-slate-600 dark:text-slate-400 font-medium">Action Required</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Operational Crew Statistics */}
                   <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                    <h3 className={`text-xs font-semibold uppercase tracking-wider mb-3 ${mt}`}>Operational Statistics</h3>
+                    <h3 className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Operational Statistics</h3>
                     <div className="grid grid-cols-3 gap-4 text-center">
                       <div>
-                        <p className={`text-xl font-bold ${ht}`}>{selected.totalSeafarers}</p>
-                        <p className={`text-[11px] ${mt} mt-0.5`}>Associated Seafarers</p>
+                        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{selected.totalSeafarers}</p>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium mt-0.5">Associated Seafarers</p>
                       </div>
                       <div>
-                        <p className={`text-xl font-bold ${ht}`}>{selected.totalCoursePurchases}</p>
-                        <p className={`text-[11px] ${mt} mt-0.5`}>Course Purchases</p>
+                        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{selected.totalCoursePurchases}</p>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium mt-0.5">Course Purchases</p>
                       </div>
                       <div>
-                        <p className="text-xl font-bold text-black dark:text-white">₹{(selected.totalAmountPayable / 1000).toFixed(0)}K</p>
-                        <p className={`text-[11px] ${mt} mt-0.5`}>Total Revenue Volume</p>
+                        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">₹{(selected.totalAmountPayable / 1000).toFixed(0)}K</p>
+                        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium mt-0.5">Total Revenue Volume</p>
                       </div>
                     </div>
                   </div>
@@ -549,22 +551,22 @@ export default function PartnerAdminsPage() {
               {viewTab === "seafarers" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className={`text-xs font-semibold uppercase tracking-wider ${mt}`}>Associated Seafarers ({associatedSeafarers.length})</p>
-                    <span className={`text-[11px] ${mt}`}>Registered via {selected.name}</span>
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Associated Seafarers ({associatedSeafarers.length})</p>
+                    <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Registered via {selected.name}</span>
                   </div>
                   {associatedSeafarers.length > 0 ? (
                     <div className={`border rounded-xl divide-y ${dk ? "border-white/5 divide-white/5" : "border-slate-200 divide-slate-100"}`}>
                       {associatedSeafarers.map(s => (
                         <div key={s.id} className="p-3.5 flex items-center justify-between">
                           <div>
-                            <p className={`font-semibold text-xs ${ht}`}>{s.name} ({s.rank})</p>
-                            <p className={`text-[11px] font-mono ${mt} mt-0.5`}>INDOS: {s.indosNumber} · CDC: {s.cdcNumber}</p>
+                            <p className="font-semibold text-xs text-slate-900 dark:text-slate-100">{s.name} ({s.rank})</p>
+                            <p className="text-[11px] font-mono text-slate-600 dark:text-slate-400 mt-0.5">INDOS: {s.indosNumber} · CDC: {s.cdcNumber}</p>
                           </div>
                           <div className="text-right">
                             <span className="text-[11px] font-semibold text-sky-600 dark:text-sky-400">
                               {s.status}
                             </span>
-                            <p className={`text-[10px] ${mt} mt-0.5`}>{s.enrollments.length} Course Enrollments</p>
+                            <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">{s.enrollments.length} Course Enrollments</p>
                           </div>
                         </div>
                       ))}
@@ -582,12 +584,12 @@ export default function PartnerAdminsPage() {
               {viewTab === "courses" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className={`text-xs font-semibold uppercase tracking-wider ${mt}`}>Assigned Course Pricing Schedule</p>
-                    <span className={`text-[11px] ${mt}`}>Amount Payable to Hari Om</span>
+                    <p className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Assigned Course Pricing Schedule</p>
+                    <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Amount Payable to Hari Om</span>
                   </div>
                   <div className={`border rounded-xl overflow-hidden ${dk ? "border-white/5" : "border-slate-200"}`}>
                     <table className="w-full text-left">
-                      <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-white/40" : "bg-slate-100 text-slate-500"}`}>
+                      <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-600"}`}>
                         <tr>
                           <th className="p-3">Course Title</th>
                           <th className="p-3">Payable to Hari Om</th>
@@ -600,7 +602,7 @@ export default function PartnerAdminsPage() {
                           <tr key={ap.courseId}>
                             <td className={`p-3 font-medium ${ht}`}>{ap.courseTitle}</td>
                             <td className="p-3 font-bold text-emerald-500">₹{ap.hariomPrice.toLocaleString()}</td>
-                            <td className={`p-3 ${mt}`}>₹{ap.suggestedSellingPrice.toLocaleString()}</td>
+                            <td className="p-3 text-slate-700 dark:text-slate-300 font-medium">₹{ap.suggestedSellingPrice.toLocaleString()}</td>
                             <td className="p-3">
                               <span className="text-[10px] font-semibold text-black dark:text-white">
                                 {ap.status}
@@ -637,66 +639,66 @@ export default function PartnerAdminsPage() {
                 return (
                   <div className="space-y-4">
                     <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                      <h3 className={`text-xs font-semibold uppercase tracking-wider mb-4 ${mt}`}>Settlement Details</h3>
+                      <h3 className="text-xs font-bold uppercase tracking-wider mb-4 text-slate-700 dark:text-slate-300">Settlement Details</h3>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
                         <div>
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>Settlement ID</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Settlement ID</p>
                           <p className="text-sm font-bold font-mono mt-1 text-black dark:text-white">
                             {s.id}
                           </p>
                         </div>
 
                         <div>
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>Partner Agency</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Partner Agency</p>
                           <p className={`text-sm font-semibold mt-1 ${ht}`}>{s.partnerName}</p>
-                          <p className={`text-[11px] font-mono ${mt}`}>ID: {s.partnerId}</p>
+                          <p className="text-[11px] font-mono text-slate-600 dark:text-slate-400">ID: {s.partnerId}</p>
                         </div>
 
                         <div>
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>Total Amount Payable</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Total Amount Payable</p>
                           <p className={`text-sm font-bold mt-1 ${ht}`}>
                             ₹{s.totalPayable.toLocaleString()}
                           </p>
                         </div>
 
                         <div>
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>Total Amount Received</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Total Amount Received</p>
                           <p className="text-sm font-bold mt-1 text-emerald-600 dark:text-emerald-400">
                             ₹{s.totalReceived.toLocaleString()}
                           </p>
                         </div>
 
                         <div>
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>Pending Amount</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Pending Amount</p>
                           <p className="text-sm font-bold mt-1 text-rose-500 dark:text-rose-400">
                             ₹{s.pendingAmount.toLocaleString()}
                           </p>
                         </div>
 
                         <div>
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>Settlement Status</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Settlement Status</p>
                           <p className={`text-sm mt-1 ${statusColor}`}>
                             {s.settlementStatus}
                           </p>
                         </div>
 
                         <div>
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>Settlement Date</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Settlement Date</p>
                           <p className={`text-sm font-medium mt-1 ${ht}`}>
                             {s.settlementDate}
                           </p>
                         </div>
 
                         <div>
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>UTR / Bank Reference</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">UTR / Bank Reference</p>
                           <p className={`text-sm font-mono font-medium mt-1 ${dk ? "text-white/80" : "text-slate-700"}`}>
                             {s.settlementReference}
                           </p>
                         </div>
 
                         <div className="md:col-span-2 pt-3 border-t border-slate-200/50 dark:border-white/5">
-                          <p className={`text-[10px] font-semibold uppercase ${mt}`}>Related Purchases</p>
+                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Related Purchases</p>
                           <button
                             type="button"
                             onClick={() => setShowPurchases(prev => !prev)}
@@ -712,10 +714,10 @@ export default function PartnerAdminsPage() {
                     {/* Interactive Purchases Breakdown */}
                     {showPurchases && s.purchases && s.purchases.length > 0 && (
                       <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                        <h4 className={`text-xs font-semibold uppercase tracking-wider mb-3 ${mt}`}>Purchases in Settlement ({s.id})</h4>
+                        <h4 className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Purchases in Settlement ({s.id})</h4>
                         <div className={`border rounded-lg overflow-hidden ${dk ? "border-white/5" : "border-slate-200"}`}>
                           <table className="w-full text-left text-xs">
-                            <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-white/40" : "bg-slate-100 text-slate-500"}`}>
+                            <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-600"}`}>
                               <tr>
                                 <th className="p-2.5">Seafarer</th>
                                 <th className="p-2.5">Course Title</th>
@@ -727,9 +729,9 @@ export default function PartnerAdminsPage() {
                               {s.purchases.map((p, idx) => (
                                 <tr key={idx}>
                                   <td className={`p-2.5 font-medium ${ht}`}>{p.seafarerName}</td>
-                                  <td className={`p-2.5 ${mt}`}>{p.courseTitle}</td>
+                                  <td className="p-2.5 text-slate-600 dark:text-slate-400">{p.courseTitle}</td>
                                   <td className="p-2.5 font-bold text-emerald-600 dark:text-emerald-400">₹{p.amount.toLocaleString()}</td>
-                                  <td className={`p-2.5 ${mt}`}>{p.date}</td>
+                                  <td className="p-2.5 text-slate-600 dark:text-slate-400">{p.date}</td>
                                 </tr>
                               ))}
                             </tbody>
@@ -744,13 +746,13 @@ export default function PartnerAdminsPage() {
 
             {/* Modal Footer */}
             <div className={`px-6 py-3 border-t flex items-center justify-between shrink-0 ${dk ? "border-white/8" : "border-slate-100"}`}>
-              <span className={`text-xs ${mt}`}>
+              <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                 RPSL: {selected.rpslNumber} · Partner ID: {selected.id} · Location: {selected.location}
               </span>
               <button
                 onClick={closeModal}
                 className={`px-4 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-                  dk ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  dk ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-700 hover:bg-slate-50"
                 }`}
               >
                 Close Profile
@@ -766,46 +768,46 @@ export default function PartnerAdminsPage() {
           <div className={`w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 ${modalBg}`} onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className={`text-base font-bold ${ht}`}>Add Partner Agency</h2>
-              <button onClick={closeModal} className={mt}><X className="w-5 h-5" /></button>
+              <button onClick={closeModal} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Partner Name / Brand *</label>
+                <label className={`text-[11px] block mb-1 ${labelCls}`}>Partner Name / Brand *</label>
                 <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="e.g. Ocean Maritime Recruitment" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Legal Agency Name</label>
+                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Legal Agency Name</label>
                   <input value={form.agencyName} onChange={e => setForm({ ...form, agencyName: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="e.g. Ocean Maritime Services Pvt Ltd" />
                 </div>
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>RPSL Number *</label>
+                  <label className={`text-[11px] block mb-1 ${labelCls}`}>RPSL Number *</label>
                   <input value={form.rpslNumber} onChange={e => setForm({ ...form, rpslNumber: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="e.g. RPSL-MUM-482" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Contact Person</label>
+                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Contact Person</label>
                   <input value={form.contactPerson} onChange={e => setForm({ ...form, contactPerson: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="Capt. Name" />
                 </div>
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Official Email *</label>
+                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Official Email *</label>
                   <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="partner@agency.com" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Phone Number</label>
+                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Phone Number</label>
                   <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="+91 98000 00000" />
                 </div>
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Location</label>
+                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Location</label>
                   <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="e.g. Mumbai, India" />
                 </div>
               </div>
             </div>
             <div className="flex items-center justify-end gap-2 pt-2">
-              <button onClick={closeModal} className={`px-4 py-2 text-xs rounded-xl ${dk ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-600"}`}>Cancel</button>
+              <button onClick={closeModal} className={`px-4 py-2 text-xs font-semibold rounded-xl border transition-colors ${dk ? "bg-white/5 border-white/10 text-white/80 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"}`}>Cancel</button>
               <button onClick={handleAddPartner} className="px-5 py-2 text-xs font-semibold rounded-xl bg-violet-500 hover:bg-violet-600 text-white transition-colors">
                 {saved ? "Partner Added!" : "Register Partner"}
               </button>

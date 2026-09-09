@@ -44,14 +44,14 @@ export default function CompanyAdminsPage() {
 
   //  theme tokens ─
   const ht       = dk ? "text-white"       : "text-slate-800";
-  const mt       = dk ? "text-white/40"    : "text-slate-400";
+  const mt       = dk ? "text-slate-400"   : "text-black";
   const card     = dk ? "bg-[#0f2035] border border-white/5 rounded-2xl" : "bg-white border border-slate-200 rounded-2xl shadow-sm";
-  const inputCls = dk ? "bg-white/5 border border-white/8 text-white placeholder:text-white/25 focus:border-sky-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-sky-400 outline-none";
+  const inputCls = dk ? "bg-white/5 border border-white/8 text-white placeholder:text-slate-400 focus:border-sky-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-black focus:border-sky-400 outline-none";
   const dv       = dk ? "divide-white/5"   : "divide-slate-100";
   const rh       = dk ? "hover:bg-white/3" : "hover:bg-slate-50/80";
-  const thCls    = dk ? "border-b border-white/5 text-white/25" : "border-b border-slate-100 text-slate-400";
+  const thCls    = dk ? "border-b border-white/5 text-slate-300" : "border-b border-slate-100 text-black font-semibold";
   const modalBg  = dk ? "bg-[#0f2035] border border-white/10" : "bg-white border border-slate-200";
-  const labelCls = dk ? "text-white/60" : "text-slate-600";
+  const labelCls = dk ? "text-slate-300 font-semibold" : "text-black font-semibold";
 
   const filtered = adminList.filter(a => {
     const matchSearch = a.name.toLowerCase().includes(search.toLowerCase()) ||
@@ -164,7 +164,12 @@ export default function CompanyAdminsPage() {
           <h1 className={`text-xl font-bold ${ht}`}>Admin Management</h1>
           <p className={`text-sm mt-0.5 ${mt}`}>Manage company administrators and access privileges across the platform</p>
         </div>
-        <button onClick={() => openModal("add")} className="flex items-center gap-2 px-4 py-2 bg-sky-500 hover:bg-sky-600 text-white text-sm font-semibold rounded-xl transition-colors shadow-md shadow-sky-500/20">
+        <button
+          onClick={() => openModal("add")}
+          className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-colors shadow-sm ${
+            dk ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
+          }`}
+        >
           <Plus className="w-4 h-4" /> Add Administrator
         </button>
       </div>
@@ -199,7 +204,7 @@ export default function CompanyAdminsPage() {
               className={`text-xs capitalize transition-colors ${
                 filter === "all"
                   ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-sky-500"
-                  : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                  : dk ? "text-slate-400 hover:text-white font-medium" : "text-black hover:text-black font-medium"
               }`}
             >
               All
@@ -213,7 +218,7 @@ export default function CompanyAdminsPage() {
                   className={`text-xs capitalize transition-colors ${
                     isSel
                       ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-sky-500"
-                      : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                      : dk ? "text-slate-400 hover:text-white font-medium" : "text-black hover:text-black font-medium"
                   }`}
                 >
                   {s.label}

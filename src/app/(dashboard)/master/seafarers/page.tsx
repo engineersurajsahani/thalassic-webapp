@@ -638,14 +638,11 @@ export default function SeafarerManagementPage() {
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold uppercase tracking-wider">
                   CDC & INDoS
                 </th>
-                <th className="text-left px-4 py-3.5 text-[10px] font-semibold uppercase tracking-wider">
+                <th className="text-left px-4 py-3.5 text-[10px] font-semibold uppercase tracking-wider text-black dark:text-white">
                   Contact
                 </th>
                 <th className="text-left px-4 py-3.5 text-[10px] font-semibold uppercase tracking-wider">
                   Status
-                </th>
-                <th className="text-right px-6 py-3.5 text-[10px] font-semibold uppercase tracking-wider">
-                  Actions
                 </th>
               </tr>
             </thead>
@@ -687,45 +684,14 @@ export default function SeafarerManagementPage() {
                       <p className={`text-[10px] font-mono ${mt}`}>{s.indosNumber}</p>
                     </td>
                     <td className="px-4 py-4">
-                      <p className={`text-[11px] ${mt} truncate max-w-[160px]`}>{s.email}</p>
-                      <p className={`text-[11px] ${mt}`}>{s.phone}</p>
+                      <p className="text-[11px] text-black dark:text-white truncate max-w-[160px]">{s.email}</p>
+                      <p className="text-[11px] text-black dark:text-white">{s.phone}</p>
                     </td>
                     <td className="px-4 py-4">
                       <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold ${statusColor}`}>
                         <SIcon className="w-3 h-3" />
                         {statusLabel}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={e => {
-                            e.stopPropagation();
-                            openDocuments(s);
-                          }}
-                          className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                            dk
-                              ? "bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20"
-                              : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200"
-                          }`}
-                          title="View Certificates & Documents"
-                        >
-                          <FileText className="w-3.5 h-3.5" />
-                          <span>Documents</span>
-                        </button>
-                        <button
-                          onClick={e => {
-                            e.stopPropagation();
-                            openProfile(s);
-                          }}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            dk ? "hover:bg-white/10 text-sky-400" : "hover:bg-sky-50 text-sky-600"
-                          }`}
-                          title="View Master Profile"
-                        >
-                          <Eye className="w-4 h-4" />
-                        </button>
-                      </div>
                     </td>
                   </tr>
                 );
@@ -777,7 +743,7 @@ export default function SeafarerManagementPage() {
                       {selectedSeafarer.sourceType} - {selectedSeafarer.sourceName}
                     </span>
                   </div>
-                  <p className={`text-xs mt-0.5 ${mt}`}>
+                  <p className="text-xs mt-0.5 text-slate-600 dark:text-slate-400 font-medium">
                     Seafarer Master Record · Registered on {selectedSeafarer.joined}
                   </p>
                 </div>
@@ -814,7 +780,7 @@ export default function SeafarerManagementPage() {
             <div className={`flex items-center gap-6 px-6 border-b text-xs font-semibold shrink-0 ${dk ? "border-white/8" : "border-slate-100"}`}>
               {[
                 { id: "overview",  label: "Personal Profile", Icon: Users },
-                { id: "history",   label: "Purchases & Enrollments (Multi-Source)", Icon: CreditCard },
+                { id: "history",   label: "Purchases & Enrollments", Icon: CreditCard },
                 { id: "documents", label: "Certificates & Documents", Icon: FileText },
                 { id: "vessel",    label: "Vessel History / Services", Icon: Anchor },
               ].map(tab => {
@@ -826,8 +792,8 @@ export default function SeafarerManagementPage() {
                     onClick={() => setActiveTab(tab.id as "overview" | "history" | "documents" | "vessel")}
                     className={`flex items-center gap-2 py-3 border-b-2 transition-all ${
                       active
-                        ? (dk ? "border-sky-500 text-white" : "border-sky-600 text-black")
-                        : `border-transparent ${mt} hover:${ht}`
+                        ? (dk ? "border-sky-500 text-white" : "border-sky-600 text-slate-900")
+                        : (dk ? "border-transparent text-slate-400 hover:text-white" : "border-transparent text-slate-600 hover:text-slate-900")
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -845,100 +811,108 @@ export default function SeafarerManagementPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Basic details */}
                   <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                    <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${mt}`}>Identification</p>
+                    <p className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">
+                      Identification
+                    </p>
                     <div className="space-y-3 text-xs">
-                      <div className="flex justify-between">
-                        <span className={mt}>CDC Number:</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">CDC Number:</span>
                         {isEditing ? (
                           <input
                             value={editForm.cdcNumber || ""}
                             onChange={e => setEditForm(f => ({ ...f, cdcNumber: e.target.value }))}
-                            className={`px-2 py-1 rounded border text-xs ${inputCls}`}
+                            className="w-48 sm:w-52 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-white font-mono font-semibold text-xs shadow-sm hover:border-slate-400 dark:hover:border-white/40 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all"
+                            placeholder="Enter CDC Number"
                           />
                         ) : (
-                          <span className={`font-mono font-semibold ${ht}`}>{selectedSeafarer.cdcNumber}</span>
+                          <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{selectedSeafarer.cdcNumber}</span>
                         )}
                       </div>
-                      <div className="flex justify-between">
-                        <span className={mt}>INDoS Number:</span>
-                        <span className={`font-mono font-semibold ${ht}`}>{selectedSeafarer.indosNumber}</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">INDoS Number:</span>
+                        <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{selectedSeafarer.indosNumber}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className={mt}>Passport Number:</span>
-                        <span className={`font-mono font-semibold ${ht}`}>{selectedSeafarer.passportNumber}</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Passport Number:</span>
+                        <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{selectedSeafarer.passportNumber}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className={mt}>Nationality:</span>
-                        <span className={ht}>{selectedSeafarer.nationality}</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Nationality:</span>
+                        <span className="font-medium text-slate-900 dark:text-slate-100">{selectedSeafarer.nationality}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className={mt}>Date of Birth:</span>
-                        <span className={ht}>{selectedSeafarer.dob}</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Date of Birth:</span>
+                        <span className="font-medium text-slate-900 dark:text-slate-100">{selectedSeafarer.dob}</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Contact & Status */}
                   <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                    <p className={`text-xs font-semibold uppercase tracking-wider mb-3 ${mt}`}>Contact & Role</p>
+                    <p className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">
+                      Contact & Role
+                    </p>
                     <div className="space-y-3 text-xs">
-                      <div className="flex justify-between items-center">
-                        <span className={mt}>Rank:</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Rank:</span>
                         {isEditing ? (
                           <input
                             value={editForm.rank || ""}
                             onChange={e => setEditForm(f => ({ ...f, rank: e.target.value }))}
-                            className={`px-2 py-1 rounded border text-xs ${inputCls}`}
+                            className="w-48 sm:w-52 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-white font-semibold text-xs shadow-sm hover:border-slate-400 dark:hover:border-white/40 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all"
+                            placeholder="Enter Rank"
                           />
                         ) : (
-                          <span className={`font-semibold ${ht}`}>{selectedSeafarer.rank}</span>
+                          <span className="font-semibold text-slate-900 dark:text-slate-100">{selectedSeafarer.rank}</span>
                         )}
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className={mt}>Email:</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Email:</span>
                         {isEditing ? (
                           <input
                             value={editForm.email || ""}
                             onChange={e => setEditForm(f => ({ ...f, email: e.target.value }))}
-                            className={`px-2 py-1 rounded border text-xs ${inputCls}`}
+                            className="w-48 sm:w-52 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-white font-medium text-xs shadow-sm hover:border-slate-400 dark:hover:border-white/40 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all"
+                            placeholder="Enter Email"
                           />
                         ) : (
-                          <span className={ht}>{selectedSeafarer.email}</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">{selectedSeafarer.email}</span>
                         )}
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className={mt}>Mobile:</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Mobile:</span>
                         {isEditing ? (
                           <input
                             value={editForm.phone || ""}
                             onChange={e => setEditForm(f => ({ ...f, phone: e.target.value }))}
-                            className={`px-2 py-1 rounded border text-xs ${inputCls}`}
+                            className="w-48 sm:w-52 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-white font-medium text-xs shadow-sm hover:border-slate-400 dark:hover:border-white/40 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all"
+                            placeholder="Enter Mobile"
                           />
                         ) : (
-                          <span className={ht}>{selectedSeafarer.phone}</span>
+                          <span className="font-medium text-slate-900 dark:text-slate-100">{selectedSeafarer.phone}</span>
                         )}
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className={mt}>Status:</span>
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Status:</span>
                         {isEditing ? (
                           <select
                             value={editForm.status || "active"}
                             onChange={e => setEditForm(f => ({ ...f, status: e.target.value as Seafarer["status"] }))}
-                            className={`px-2 py-1 rounded border text-xs ${inputCls}`}
+                            className="w-48 sm:w-52 px-3 py-1.5 rounded-lg border border-slate-300 dark:border-white/20 bg-white dark:bg-slate-900/90 text-slate-900 dark:text-white font-medium text-xs shadow-sm hover:border-slate-400 dark:hover:border-white/40 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none transition-all cursor-pointer"
                           >
                             {seafarerStatuses.map(st => (
                               <option key={st.id} value={st.id}>{st.label}</option>
                             ))}
                           </select>
                         ) : (
-                          <span className={`inline-flex items-center gap-1 font-semibold ${getStatus(selectedSeafarer.status)?.color || "text-slate-400"}`}>
+                          <span className={`inline-flex items-center gap-1 font-semibold ${getStatus(selectedSeafarer.status)?.color || "text-slate-700 dark:text-slate-300"}`}>
                             {getStatus(selectedSeafarer.status)?.label || selectedSeafarer.status}
                           </span>
                         )}
                       </div>
-                      <div className="flex justify-between items-center">
-                        <span className={mt}>Primary Attribution:</span>
-                        <span className="text-black dark:text-white font-medium">
+                      <div className="flex justify-between items-center min-h-[34px]">
+                        <span className="text-slate-600 dark:text-slate-300 font-medium">Primary Attribution:</span>
+                        <span className="font-semibold text-slate-900 dark:text-slate-100">
                           {selectedSeafarer.sourceType} - {selectedSeafarer.sourceName}
                         </span>
                       </div>
@@ -1205,13 +1179,13 @@ export default function SeafarerManagementPage() {
 
             {/* Modal Footer */}
             <div className={`px-6 py-3 border-t flex items-center justify-between shrink-0 ${dk ? "border-white/8" : "border-slate-100"}`}>
-              <span className={`text-xs ${mt}`}>
+              <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
                 CDC: {selectedSeafarer.cdcNumber} · INDoS: {selectedSeafarer.indosNumber}
               </span>
               <button
                 onClick={() => setSelectedSeafarer(null)}
                 className={`px-4 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-                  dk ? "border-white/10 text-white/60 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  dk ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-700 hover:bg-slate-50"
                 }`}
               >
                 Close Profile
