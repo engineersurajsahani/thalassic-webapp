@@ -34,14 +34,14 @@ export default function FinanceTabs() {
           <Link
             key={tab.href}
             href={tab.href}
-            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-xl transition-all whitespace-nowrap border-b-2 -mb-px ${
+            className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold transition-all whitespace-nowrap border-b-2 -mb-px ${
               isActive
                 ? (dk
-                    ? "border-sky-500 text-sky-400 bg-sky-500/10"
-                    : "border-sky-600 text-sky-700 bg-sky-50")
+                    ? "border-sky-500 text-white"
+                    : "border-sky-600 text-black")
                 : (dk
-                    ? "border-transparent text-white/50 hover:text-white/80 hover:bg-white/5"
-                    : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")
+                    ? "border-transparent text-white/50 hover:text-white/80"
+                    : "border-transparent text-slate-500 hover:text-slate-800")
             }`}
           >
             <Icon className={`w-3.5 h-3.5 ${isActive ? (dk ? "text-sky-400" : "text-sky-600") : "opacity-60"}`} />

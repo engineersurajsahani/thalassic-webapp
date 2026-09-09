@@ -126,7 +126,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab("system")}
           className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer ${
             activeTab === "system"
-              ? "border-indigo-500 text-indigo-500"
+              ? "border-indigo-500 text-black dark:text-white"
               : "border-transparent text-slate-500 hover:text-slate-700"
           }`}
         >
@@ -136,7 +136,7 @@ export default function SettingsPage() {
           onClick={() => setActiveTab("profile")}
           className={`flex items-center gap-2 px-5 py-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 outline-none cursor-pointer ${
             activeTab === "profile"
-              ? "border-indigo-500 text-indigo-500"
+              ? "border-indigo-500 text-black dark:text-white"
               : "border-transparent text-slate-500 hover:text-slate-700"
           }`}
         >

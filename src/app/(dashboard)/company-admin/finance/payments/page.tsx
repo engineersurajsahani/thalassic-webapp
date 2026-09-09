@@ -11,10 +11,10 @@ import { mockPayments } from "@/components/company-admin/mockData";
 import FinanceTabs from "@/components/company-admin/FinanceTabs";
 
 const statusMeta: Record<string, { light: string; dark: string; icon: React.ReactNode }> = {
-  Paid:    { light: "bg-emerald-100 text-emerald-700", dark: "bg-emerald-500/15 text-emerald-400", icon: <CheckCircle2 className="w-3 h-3" /> },
-  Partial: { light: "bg-blue-100 text-blue-700",       dark: "bg-blue-500/15 text-blue-400",       icon: <Clock className="w-3 h-3" /> },
-  Pending: { light: "bg-amber-100 text-amber-700",     dark: "bg-amber-500/15 text-amber-400",     icon: <Clock className="w-3 h-3" /> },
-  Overdue: { light: "bg-red-100 text-red-700",          dark: "bg-red-500/15 text-red-400",          icon: <AlertCircle className="w-3 h-3" /> },
+  Paid:    { light: "text-emerald-700", dark: "text-emerald-400", icon: <CheckCircle2 className="w-3 h-3" /> },
+  Partial: { light: "text-blue-700",    dark: "text-blue-400",    icon: <Clock className="w-3 h-3" /> },
+  Pending: { light: "text-amber-700",   dark: "text-amber-400",   icon: <Clock className="w-3 h-3" /> },
+  Overdue: { light: "text-red-700",     dark: "text-red-400",     icon: <AlertCircle className="w-3 h-3" /> },
 };
 
 function formatDDMMYY(dateStr: string) {
@@ -125,15 +125,15 @@ export default function PaymentsPage() {
               className={`w-full pl-9 pr-3 py-2 text-xs rounded-xl border outline-none transition-colors ${inputBg}`}
             />
           </div>
-          <div className="flex items-center gap-1.5 overflow-x-auto">
+          <div className="flex items-center gap-4 overflow-x-auto py-1">
             {["All", "Paid", "Partial", "Pending", "Overdue"].map(s => (
               <button
                 key={s}
                 onClick={() => setFilterStat(s)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
+                className={`text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   filterStat === s
-                    ? "bg-sky-500 text-white shadow-sm"
-                    : dk ? "bg-white/5 text-white/40 hover:text-white/70" : "bg-slate-100 text-slate-500 hover:text-slate-800"
+                    ? "text-sky-600 dark:text-sky-400 font-bold underline underline-offset-4 decoration-2 decoration-sky-500"
+                    : dk ? "text-white/40 hover:text-white/80" : "text-slate-500 hover:text-slate-800"
                 }`}
               >
                 {s}
@@ -177,7 +177,7 @@ export default function PaymentsPage() {
                       ₹{received.toLocaleString("en-IN")}
                     </td>
                     <td className="px-5 py-3.5">
-                      <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${dk ? sm.dark : sm.light}`}>
+                      <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${dk ? sm.dark : sm.light}`}>
                         {sm.icon}
                         {p.status}
                       </span>
@@ -310,7 +310,7 @@ export default function PaymentsPage() {
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] uppercase font-bold opacity-60 block">Status</span>
-                  <span className="inline-flex px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-500 text-white">
+                  <span className="text-[11px] font-bold uppercase text-emerald-400">
                     {selectedInvoicePayment.status}
                   </span>
                 </div>

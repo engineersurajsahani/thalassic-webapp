@@ -30,6 +30,7 @@ export interface MockCourse {
   rating: number;
   enrolledCount: number;
   associatedInstituteIds: string[]; // M:N relationship (PRD 1.10)
+  description?: string;
 }
 
 export interface MockPartnerCoursePricing {
@@ -902,7 +903,7 @@ export const MOCK_PARTNER_SETTLEMENTS: MockPartnerSettlement[] = [
     pendingAmount: 35000,
     settlementStatus: "Pending",
     settlementDate: "10 Jul 2026",
-    settlementReference: "UTR-AXIS-8291039481",
+    settlementReference: "UTR-AXIS-8291093481",
     relatedPurchasesCount: 25,
     purchases: [
       { seafarerName: "Naveen Fernandes", courseTitle: "Medical First Aid at Sea (MFA)", amount: 4100, date: "15 Oct 2023" },

@@ -730,7 +730,7 @@ export default function SeafarerManagementPage() {
                         </div>
                         <button
                           onClick={() => handleOpenEdit(selectedSeafarer)}
-                          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-xs font-semibold cursor-pointer transition-colors shadow-sm"
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 transition-colors cursor-pointer"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                           <span>Edit Details</span>

@@ -1,12 +1,16 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import {
   GraduationCap, Search, Download, CheckCircle2,
   Clock, XCircle, FileText, ChevronRight, X,
   Building2, Users, BookOpen, Wallet,
 } from "lucide-react";
+import {
+  BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+} from "recharts";
 import FinanceTabs from "@/components/master/FinanceTabs";
 import {
   MOCK_INSTITUTE_FINANCE,
@@ -15,9 +19,9 @@ import {
 } from "@/data/master-portal-mock";
 
 const STATUS_BADGES: Record<string, { cls: string; label: string }> = {
-  Settled:             { label: "Settled",           cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" },
-  "Partially Settled": { label: "Partially Settled", cls: "bg-amber-500/10 text-amber-400 border-amber-500/20" },
-  Pending:             { label: "Pending",           cls: "bg-rose-500/10 text-rose-400 border-rose-500/20" },
+  Settled:             { label: "Settled",           cls: "text-emerald-600 dark:text-emerald-400" },
+  "Partially Settled": { label: "Partially Settled", cls: "text-emerald-600 dark:text-emerald-400" },
+  Pending:             { label: "Pending",           cls: "text-rose-600 dark:text-rose-400" },
 };
 
 export default function InstituteFinancePage() {
@@ -45,6 +49,56 @@ export default function InstituteFinancePage() {
     const matchStatus = statusFilter === "all" || i.paymentStatus === statusFilter;
     return matchSearch && matchStatus;
   });
+
+  const instituteFinancialData = useMemo(() => {
+    return filtered.map(inst => {
+      const shortName = inst.instituteName
+        .replace("Institute of Maritime Studies", "")
+        .replace("Maritime Training Institute", "")
+        .replace("Maritime Academy", "")
+        .replace("Institute", "")
+        .trim();
+      return {
+        id: inst.instituteId,
+        name: shortName || inst.instituteName.slice(0, 10),
+        fullName: inst.instituteName,
+        payable: inst.amountPayable,
+        received: inst.amountReceived,
+        pending: inst.pendingAmount,
+      };
+    });
+  }, [filtered]);
+
+  const instituteActivityData = useMemo(() => {
+    return filtered.map(inst => {
+      const shortName = inst.instituteName
+        .replace("Institute of Maritime Studies", "")
+        .replace("Maritime Training Institute", "")
+        .replace("Maritime Academy", "")
+        .replace("Institute", "")
+        .trim();
+      return {
+        id: inst.instituteId,
+        name: shortName || inst.instituteName.slice(0, 10),
+        fullName: inst.instituteName,
+        seafarers: inst.seafarerCount,
+        purchases: inst.coursePurchasesCount,
+      };
+    });
+  }, [filtered]);
+
+  const totalPayable = useMemo(() => filtered.reduce((acc, i) => acc + i.amountPayable, 0), [filtered]);
+  const totalReceived = useMemo(() => filtered.reduce((acc, i) => acc + i.amountReceived, 0), [filtered]);
+  const totalPending = useMemo(() => filtered.reduce((acc, i) => acc + i.pendingAmount, 0), [filtered]);
+
+  const ttStyle = {
+    backgroundColor: dk ? "#0a1525" : "#ffffff",
+    border: dk ? "1px solid rgba(255,255,255,0.1)" : "1px solid #e2e8f0",
+    borderRadius: "12px",
+    color: dk ? "#ffffff" : "#1e293b",
+    fontSize: "12px",
+    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)",
+  };
 
   return (
     <div className="space-y-6">
@@ -104,16 +158,16 @@ export default function InstituteFinancePage() {
             className={`w-full pl-9 pr-4 py-2 text-xs rounded-xl border ${inputBg}`}
           />
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <span className={`text-[11px] font-semibold uppercase ${mt}`}>Status:</span>
           {["all", "Settled", "Partially Settled", "Pending"].map(st => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-xl capitalize transition-colors ${
+              className={`text-xs capitalize transition-colors ${
                 statusFilter === st
-                  ? "bg-sky-500 text-white shadow-sm"
-                  : dk ? "bg-white/5 text-white/50 hover:bg-white/10" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                  ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-sky-500"
+                  : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
               }`}
             >
               {st === "all" ? "All" : st}
@@ -121,6 +175,152 @@ export default function InstituteFinancePage() {
           ))}
         </div>
       </div>
+
+      {/* Financial Visualizations: Institute Financial Overview & Activity Breakdown */}
+      {filtered.length === 0 ? (
+        <div className={`p-8 text-center rounded-2xl border ${card}`}>
+          <p className={`text-sm font-semibold ${ht}`}>No institute financial records found</p>
+          <p className={`text-xs mt-1 ${mt}`}>Try adjusting your search query or status filter to see financial visualizations.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+          {/* Left — Institute Financial Overview (≈70%) */}
+          <div className={`${card} xl:col-span-2 border`}>
+            <div className={`flex flex-col sm:flex-row sm:items-center justify-between px-6 py-4 border-b gap-2 ${dk ? "border-white/5" : "border-slate-100"}`}>
+              <div>
+                <p className={`text-sm font-semibold ${ht}`}>Institute Financial Overview</p>
+                <p className={`text-[11px] mt-0.5 ${mt}`}>Payable, received, and pending balances by accredited training center</p>
+              </div>
+              <div className="flex flex-wrap items-center gap-4">
+                {[
+                  { label: "Amount Payable", color: "#8b5cf6" },
+                  { label: "Amount Received", color: "#10b981" },
+                  { label: "Pending Amount", color: "#f43f5e" },
+                ].map(item => (
+                  <div key={item.label} className="flex items-center gap-1.5">
+                    <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: item.color }} />
+                    <span className={`text-[11px] ${mt}`}>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="px-5 pt-4 pb-3">
+              <ResponsiveContainer width="100%" height={230}>
+                <BarChart data={instituteFinancialData} barSize={12} barGap={4} barCategoryGap="25%" margin={{ top: 10, right: 15, left: 5, bottom: 0 }}>
+                  <CartesianGrid vertical={false} stroke={dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.06)"} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#94a3b8" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    tickFormatter={v => v >= 100000 ? `₹${(v/100000).toFixed(1)}L` : `₹${v/1000}K`}
+                    tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#94a3b8" }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={48}
+                  />
+                  <Tooltip
+                    cursor={{ fill: dk ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)" }}
+                    contentStyle={ttStyle}
+                    formatter={(v: unknown, name: unknown, item: { payload?: { fullName?: string } }) => [
+                      `₹${Number(v || 0).toLocaleString("en-IN")}`,
+                      `${String(name || "")} (${item.payload?.fullName || ""})`
+                    ]}
+                  />
+                  <Bar dataKey="payable" name="Amount Payable" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="received" name="Amount Received" fill="#10b981" radius={[3, 3, 0, 0]} />
+                  <Bar dataKey="pending" name="Pending Amount" fill="#f43f5e" radius={[3, 3, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+
+          {/* Right — Institute Activity Breakdown (≈30%) */}
+          <div className={`${card} border`}>
+            <div className={`flex items-center justify-between px-6 py-4 border-b ${dk ? "border-white/5" : "border-slate-100"}`}>
+              <div>
+                <p className={`text-sm font-semibold ${ht}`}>Institute Activity Breakdown</p>
+                <p className={`text-[11px] mt-0.5 ${mt}`}>Candidates & purchases comparison</p>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-violet-500" />
+                  <span className={`text-[10px] ${mt}`}>Purchases</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-sky-500" />
+                  <span className={`text-[10px] ${mt}`}>Seafarers</span>
+                </div>
+              </div>
+            </div>
+            <div className="px-4 py-4 space-y-4">
+              <ResponsiveContainer width="100%" height={220}>
+                <BarChart
+                  data={instituteActivityData}
+                  layout="vertical"
+                  margin={{ top: 6, right: 15, left: 8, bottom: 0 }}
+                  barSize={8}
+                  barGap={3}
+                  barCategoryGap="28%"
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.05)"} horizontal={false} />
+                  <XAxis
+                    type="number"
+                    tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.3)" : "#94a3b8" }}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    type="category"
+                    dataKey="name"
+                    tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.5)" : "#64748b" }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={95}
+                  />
+                  <Tooltip
+                    contentStyle={ttStyle}
+                    formatter={(v: unknown, name: unknown, item: { payload?: { fullName?: string } }) => [
+                      `${Number(v || 0).toLocaleString("en-IN")}`,
+                      `${String(name || "")} (${item.payload?.fullName || ""})`
+                    ]}
+                  />
+                  <Bar dataKey="purchases" name="Purchases" fill="#8b5cf6" radius={[0, 4, 4, 0]} />
+                  <Bar dataKey="seafarers" name="Seafarers" fill="#0ea5e9" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+
+              <div className={`space-y-2 pt-3 border-t ${dk ? "border-white/5" : "border-slate-100"}`}>
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-violet-500 shrink-0" />
+                    <span className={mt}>Total Payable</span>
+                  </div>
+                  <span className={`font-bold ${ht}`}>₹{totalPayable.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0" />
+                    <span className={mt}>Total Received</span>
+                  </div>
+                  <span className={`font-bold text-emerald-500`}>₹{totalReceived.toLocaleString("en-IN")}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+                    <span className={mt}>Total Pending</span>
+                  </div>
+                  <span className={`font-bold ${totalPending > 0 ? "text-rose-500" : ht}`}>
+                    ₹{totalPending.toLocaleString("en-IN")}
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Institute-wise Finance Table (PRD 2.5) */}
       <div className={`border ${card} overflow-hidden`}>
@@ -157,14 +357,14 @@ export default function InstituteFinancePage() {
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-[12px] font-mono font-medium ${dk ? "text-sky-300" : "text-sky-700"}`}>
+                      <span className="text-[12px] font-mono font-medium text-black dark:text-white">
                         {i.idtNumber}
                       </span>
                     </td>
                     <td className={`px-6 py-4 text-[13px] font-bold ${ht}`}>{i.seafarerCount}</td>
                     <td className={`px-6 py-4 text-[13px] font-medium ${ht}`}>{i.coursePurchasesCount}</td>
                     <td className="px-6 py-4">
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-white/5 font-semibold">
+                      <span className={`text-[11px] font-semibold ${mt}`}>
                         {i.coursesOfferedCount} Courses
                       </span>
                     </td>
@@ -178,7 +378,7 @@ export default function InstituteFinancePage() {
                       ₹{i.pendingAmount.toLocaleString()}
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-[10px] font-semibold px-2.5 py-0.5 rounded-full border ${b.cls}`}>
+                      <span className={`text-[11px] font-semibold ${b.cls}`}>
                         {i.paymentStatus}
                       </span>
                     </td>
@@ -186,7 +386,7 @@ export default function InstituteFinancePage() {
                       <button
                         onClick={() => setSelectedInst(i)}
                         className={`p-1.5 rounded-lg border transition-colors ${
-                          dk ? "bg-white/5 border-white/10 text-sky-400 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-sky-600 hover:bg-slate-200"
+                          dk ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-slate-100 border-slate-200 text-black hover:bg-slate-200"
                         }`}
                       >
                         <ChevronRight className="w-4 h-4" />
@@ -223,7 +423,7 @@ export default function InstituteFinancePage() {
               </div>
               <div className={`p-3 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
                 <p className={`text-[10px] uppercase font-semibold ${mt}`}>Total Received</p>
-                <p className="text-sm font-bold mt-1 text-emerald-400">₹{selectedInst.amountReceived.toLocaleString()}</p>
+                <p className={`text-sm font-bold mt-1 ${ht}`}>₹{selectedInst.amountReceived.toLocaleString()}</p>
               </div>
               <div className={`p-3 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
                 <p className={`text-[10px] uppercase font-semibold ${mt}`}>Pending Balance</p>

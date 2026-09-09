@@ -4,9 +4,9 @@ import toast from 'react-hot-toast';
 import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import {
-  GraduationCap, Search, Plus, Mail, Phone, MapPin,
+  GraduationCap, Search, Plus, MapPin,
   CheckCircle2, Clock, XCircle, Eye, Edit,
-  X, Check, Award, BookOpen, Users, Building, Download,
+  X, Check, Award, BookOpen, Users, Download,
 } from "lucide-react";
 
 export type Institute = {
@@ -142,9 +142,9 @@ const EMPTY_INST: Omit<Institute, "id"> = {
 };
 
 const STATUS_CONFIG = {
-  active:   { label: "Accredited",   icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400 border border-emerald-500/20" },
-  pending:  { label: "Under Audit",  icon: Clock,        cls: "bg-amber-500/15 text-amber-400 border border-amber-500/20" },
-  inactive: { label: "Suspended",    icon: XCircle,      cls: "bg-red-500/15 text-red-400 border border-red-500/20" },
+  active:   { label: "Accredited",   icon: CheckCircle2, cls: "text-emerald-500 dark:text-emerald-400" },
+  pending:  { label: "Under Audit",  icon: Clock,        cls: "text-amber-500 dark:text-amber-400" },
+  inactive: { label: "Suspended",    icon: XCircle,      cls: "text-red-500 dark:text-red-400" },
 };
 
 export default function InstitutesManagementPage() {
@@ -280,20 +280,23 @@ export default function InstitutesManagementPage() {
             />
           </div>
 
-          <div className="flex items-center gap-2">
-            {["all", "active", "pending", "inactive"].map(f => (
-              <button
-                key={f}
-                onClick={() => setFilter(f)}
-                className={`px-3 py-1.5 text-xs font-semibold rounded-lg capitalize transition-colors ${
-                  filter === f
-                    ? "bg-emerald-500 text-white"
-                    : dk ? "bg-white/5 text-white/50 hover:bg-white/10" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
-                }`}
-              >
-                {f}
-              </button>
-            ))}
+          <div className="flex items-center gap-3">
+            {["all", "active", "pending", "inactive"].map(f => {
+              const isSel = filter === f;
+              return (
+                <button
+                  key={f}
+                  onClick={() => setFilter(f)}
+                  className={`text-xs capitalize transition-colors ${
+                    isSel
+                      ? "text-emerald-500 dark:text-emerald-400 font-bold underline underline-offset-4 decoration-2 decoration-emerald-500"
+                      : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                  }`}
+                >
+                  {f}
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -343,13 +346,13 @@ export default function InstitutesManagementPage() {
                       <p className={`text-[11px] ${mt}`}>{i.email}</p>
                     </td>
                     <td className="px-4 py-4 text-center">
-                      <span className="inline-block px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-400 text-xs font-semibold">
+                      <span className="inline-block text-black dark:text-white text-xs font-semibold">
                         {i.activeBatches} active ({i.coursesOffered} courses)
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full ${S.cls}`}>
-                        <SIcon className="w-3 h-3" />
+                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold ${S.cls}`}>
+                        <SIcon className="w-3.5 h-3.5" />
                         {S.label}
                       </span>
                     </td>
@@ -505,7 +508,7 @@ export default function InstitutesManagementPage() {
                   <select
                     disabled={modalMode === "view"}
                     value={form.status}
-                    onChange={e => setForm(f => ({ ...f, status: e.target.value as any }))}
+                    onChange={e => setForm(f => ({ ...f, status: e.target.value as Institute["status"] }))}
                     className={`w-full px-3 py-2 text-sm rounded-lg border ${inputCls}`}
                   >
                     <option value="active">Accredited</option>

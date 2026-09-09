@@ -18,6 +18,8 @@
   --radius-card: 16px;
   --radius-btn: 9999px;
   --radius-badge: 9999px;
+
+  --color-theme-text-accent: var(--theme-text-accent);
 }
 
 :root {
@@ -39,11 +41,18 @@
 
   --background: #F7F8FA;
   --foreground: #111827;
+
+  --theme-text-accent: #000000;
 }
 
-:root.dark {
+:root.dark, .dark {
   --background: #0B0F19;
   --foreground: #F9FAFB;
+  --theme-text-accent: #FFFFFF;
+}
+
+.text-theme-accent {
+  color: var(--theme-text-accent);
 }
 
 body {

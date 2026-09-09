@@ -34,10 +34,10 @@ export default function InstituteFinancePage() {
     : "bg-slate-50 border-slate-200 text-slate-700 placeholder:text-slate-400 focus:border-sky-400";
 
   const statusCls = (s: string) => {
-    if (s === "Paid")    return dk ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-100 text-emerald-700";
-    if (s === "Pending") return dk ? "bg-amber-500/15 text-amber-400"     : "bg-amber-100 text-amber-700";
-    if (s === "Partial") return dk ? "bg-blue-500/15 text-blue-400"       : "bg-blue-100 text-blue-700";
-    return dk ? "bg-red-500/15 text-red-400" : "bg-red-100 text-red-700";
+    if (s === "Paid")    return dk ? "text-emerald-400" : "text-emerald-700";
+    if (s === "Pending") return dk ? "text-amber-400"   : "text-amber-700";
+    if (s === "Partial") return dk ? "text-blue-400"    : "text-blue-700";
+    return dk ? "text-red-400" : "text-red-700";
   };
   const statusIcon = (s: string) => {
     if (s === "Paid")    return <CheckCircle2 className="w-3 h-3" />;
@@ -305,7 +305,7 @@ export default function InstituteFinancePage() {
                     <p className={`text-sm font-bold text-amber-500`}>₹{g.pendingAmount.toLocaleString("en-IN")}</p>
                     <p className={`text-[10px] ${mt}`}>Pending</p>
                   </div>
-                  <span className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full ${statusCls(status)}`}>
+                  <span className={`hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold ${statusCls(status)}`}>
                     {statusIcon(status === "Partial" ? "Pending" : status)}{status}
                   </span>
                   {isOpen ? <ChevronUp className={`w-4 h-4 ${mt}`} /> : <ChevronDown className={`w-4 h-4 ${mt}`} />}
@@ -334,7 +334,7 @@ export default function InstituteFinancePage() {
                             <td className={`px-5 py-3 text-[13px] font-bold text-emerald-500`}>₹{row.amountReceived.toLocaleString("en-IN")}</td>
                             <td className={`px-5 py-3 text-[13px] font-bold text-amber-500`}>₹{row.pendingAmount.toLocaleString("en-IN")}</td>
                             <td className="px-5 py-3">
-                              <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusCls(rowStatus)}`}>
+                              <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${statusCls(rowStatus)}`}>
                                 {statusIcon(rowStatus === "Partial" ? "Pending" : rowStatus)}{rowStatus}
                               </span>
                             </td>

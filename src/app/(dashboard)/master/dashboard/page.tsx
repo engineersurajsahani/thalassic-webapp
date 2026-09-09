@@ -16,8 +16,8 @@ const PD=[{id:"TXN-9921",name:"Amit Patel",course:"STCW Basic Safety",amount:"50
 const DIV=[{name:"Safety Training",icon:ShieldCheck,color:"#6366f1",count:412},{name:"Navigation",icon:Anchor,color:"#10b981",count:289},{name:"Technical Ops",icon:GraduationCap,color:"#f59e0b",count:194},{name:"Maritime Law",icon:Globe,color:"#ef4444",count:137},{name:"Deck Operations",icon:BookOpen,color:"#8b5cf6",count:98}];
 const REG=[{id:"SEA-4821",name:"Raj Kumar",rank:"Chief Officer",date:"Today, 9:14 AM",status:"Active"},{id:"SEA-4820",name:"Priya Singh",rank:"Deck Cadet",date:"Today, 7:02 AM",status:"Pending"},{id:"SEA-4819",name:"Amit Patel",rank:"Second Engineer",date:"Yesterday",status:"Active"},{id:"SEA-4818",name:"Suresh Verma",rank:"AB Seaman",date:"Yesterday",status:"Active"},{id:"SEA-4817",name:"Deepa Nair",rank:"Bosun",date:"2 days ago",status:"Inactive"}];
 const PUR=[{user:"Raj Kumar",course:"STCW Basic Safety",amount:"5000",date:"Today",method:"UPI"},{user:"Priya Singh",course:"Basic Safety Training",amount:"3500",date:"Today",method:"Card"},{user:"Amit Patel",course:"Advanced Fire Fighting",amount:"7200",date:"Yesterday",method:"Net Banking"},{user:"Karan Mehta",course:"Ship Navigation",amount:"6800",date:"Yesterday",method:"UPI"},{user:"Suresh Verma",course:"Tanker Cargo Ops",amount:"9400",date:"2 days ago",method:"Card"}];
-const SL:Record<string,string>={Active:"bg-emerald-100 text-emerald-700",Pending:"bg-amber-100 text-amber-700",Inactive:"bg-slate-100 text-slate-500",Overdue:"bg-red-100 text-red-700","Due Soon":"bg-orange-100 text-orange-700"};
-const SD:Record<string,string>={Active:"bg-emerald-500/10 text-emerald-400",Pending:"bg-amber-500/10 text-amber-400",Inactive:"bg-white/5 text-white/30",Overdue:"bg-red-500/10 text-red-400","Due Soon":"bg-orange-500/10 text-orange-400"};
+const SL:Record<string,string>={Active:"text-emerald-700",Pending:"text-amber-700",Inactive:"text-slate-500",Overdue:"text-red-700","Due Soon":"text-orange-700"};
+const SD:Record<string,string>={Active:"text-emerald-400",Pending:"text-amber-400",Inactive:"text-white/30",Overdue:"text-red-400","Due Soon":"text-orange-400"};
 const AB=["bg-indigo-500","bg-sky-500","bg-amber-500","bg-emerald-500","bg-violet-500"];
 const YC:Record<string,string>={"2025":"#6366f1","2024":"#10b981","2023":"#f59e0b"};
 const fmt=(n:number)=>`\u20B9${n.toLocaleString("en-IN")}`;
@@ -70,7 +70,7 @@ function Modal({type,dk,onClose}:{type:"outstanding"|"done";dk:boolean;onClose:(
               <div className="text-right shrink-0 ml-3">
                 <p className={`text-[13px] font-bold ${type==="outstanding"?(dk?"text-red-400":"text-red-600"):(dk?"text-emerald-400":"text-emerald-600")}`}>{fmt(Number(r.amount))}</p>
                 <p className={`text-[10px] mt-0.5 ${mt}`}>{type==="outstanding"?`Due ${r.due}`:r.date}</p>
-                {type==="outstanding"&&<span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block ${dk?SD[r.status]:SL[r.status]}`}>{r.status}</span>}
+                {type==="outstanding"&&<span className={`text-[11px] font-semibold mt-1 inline-block ${dk?SD[r.status]:SL[r.status]}`}>{r.status}</span>}
                 {type==="done"&&<p className={`text-[10px] ${mt}`}>{r.method}</p>}
               </div>
             </div>
@@ -105,41 +105,123 @@ export default function MasterDashboard(){
   return(
     <div className="space-y-5">
 
-      {/*  Section 1.3 Operational & Financial Metrics Grid  */}
-      <div>
-        <div className="flex items-center justify-between mb-3">
+      {/*  Section 1.3 Operational & Financial Metrics - Logically Grouped  */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
           <p className={`text-xs font-semibold uppercase tracking-wider ${mt}`}>Operational & Financial Metrics</p>
           <span className={`text-[11px] ${mt}`}>Live Platform Overview</span>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
-          {[
-            { label: "Total Seafarers",             value: "1,420",   sub: "Master records",        Icon: Users,         ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
-            { label: "Company Seafarers",           value: "890",     sub: "Direct / Company-side", Icon: Building2,     ib: dk?"bg-blue-500/15":"bg-blue-50",     ic: "#3b82f6" },
-            { label: "Partner Seafarers",           value: "530",     sub: "Partner-side network",  Icon: Handshake,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
-            { label: "Candidates on Hold",          value: "14",      sub: "Action required",       Icon: AlertCircle,   ib: dk?"bg-amber-500/15":"bg-amber-50",   ic: "#f59e0b" },
-            { label: "Total Partners",              value: "28",      sub: "Active partners",       Icon: UserCog,       ib: dk?"bg-violet-500/15":"bg-violet-50", ic: "#8b5cf6" },
-            { label: "Total Institutes",            value: "14",      sub: "Training academies",    Icon: GraduationCap, ib: dk?"bg-emerald-500/15":"bg-emerald-50",ic: "#10b981" },
-            { label: "Active Courses",              value: "42",      sub: "Live in catalog",       Icon: BookOpen,      ib: dk?"bg-cyan-500/15":"bg-cyan-50",     ic: "#06b6d4" },
-            { label: "Ongoing Courses",             value: "18",      sub: "Active batches",        Icon: Clock,         ib: dk?"bg-purple-500/15":"bg-purple-50", ic: "#a855f7" },
-            { label: "Completed Courses",           value: "124",     sub: "Archived batches",      Icon: CheckCircle2,  ib: dk?"bg-teal-500/15":"bg-teal-50",     ic: "#14b8a6" },
-            { label: "Total Revenue",               value: "₹28.4L",  sub: "All-time platform",     Icon: Wallet,        ib: dk?"bg-emerald-500/15":"bg-emerald-50",ic: "#10b981" },
-            { label: "Revenue (Current Month)",     value: "₹3.88L",  sub: "Current cycle",         Icon: BarChart3,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
-            { label: "Received from Partners",      value: "₹14.2L",  sub: "Settled collections",   Icon: Receipt,       ib: dk?"bg-green-500/15":"bg-green-50",   ic: "#22c55e" },
-            { label: "Pending from Partners",       value: "₹2.60L",  sub: "Outstanding balance",   Icon: Clock,         ib: dk?"bg-rose-500/15":"bg-rose-50",     ic: "#f43f5e" },
-          ].map((k) => (
-            <div key={k.label} className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}>
-              <div className="flex items-center justify-between mb-2">
-                <span className={`text-[11px] font-semibold truncate ${ht} opacity-80`}>{k.label}</span>
-                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}>
-                  <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
+
+        {/* GROUP 1 — FINANCIAL OVERVIEW */}
+        <div>
+          <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2.5 ${dk ? "text-white/50" : "text-slate-500"}`}>
+            Financial Overview
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "Total Revenue",           value: "₹28.4L",  sub: "All-time platform",     Icon: Wallet,        ib: dk?"bg-emerald-500/15":"bg-emerald-50",ic: "#10b981" },
+              { label: "Revenue (Current Month)", value: "₹3.88L",  sub: "Current cycle",         Icon: BarChart3,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
+              { label: "Received from Partners",  value: "₹14.2L",  sub: "Settled collections",   Icon: Receipt,       ib: dk?"bg-green-500/15":"bg-green-50",   ic: "#22c55e" },
+              { label: "Pending from Partners",   value: "₹2.60L",  sub: "Outstanding balance",   Icon: Clock,         ib: dk?"bg-rose-500/15":"bg-rose-50",     ic: "#f43f5e" },
+            ].map((k) => (
+              <div key={k.label} className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-[11px] font-semibold truncate ${ht} opacity-80`}>{k.label}</span>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}>
+                    <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
+                  </div>
+                </div>
+                <div>
+                  <p className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
+                  <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
                 </div>
               </div>
-              <div>
-                <p className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
-                <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
+            ))}
+          </div>
+        </div>
+
+        {/* GROUP 2 — SEAFARER OVERVIEW */}
+        <div>
+          <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2.5 ${dk ? "text-white/50" : "text-slate-500"}`}>
+            Seafarer Overview
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {[
+              { label: "Total Seafarers",         value: "1,420",   sub: "Master records",        Icon: Users,         ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
+              { label: "Company Seafarers",       value: "890",     sub: "Direct / Company-side", Icon: Building2,     ib: dk?"bg-blue-500/15":"bg-blue-50",     ic: "#3b82f6" },
+              { label: "Partner Seafarers",       value: "530",     sub: "Partner-side network",  Icon: Handshake,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
+              { label: "Candidates on Hold",      value: "14",      sub: "Action required",       Icon: AlertCircle,   ib: dk?"bg-amber-500/15":"bg-amber-50",   ic: "#f59e0b" },
+            ].map((k) => (
+              <div key={k.label} className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`text-[11px] font-semibold truncate ${ht} opacity-80`}>{k.label}</span>
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}>
+                    <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
+                  </div>
+                </div>
+                <div>
+                  <p className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
+                  <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
+                </div>
               </div>
+            ))}
+          </div>
+        </div>
+
+        {/* GROUP 3 & GROUP 4 — COURSE OVERVIEW & PARTNER & INSTITUTE OVERVIEW */}
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
+          {/* GROUP 3 — PLATFORM / COURSE OVERVIEW */}
+          <div className="lg:col-span-3">
+            <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2.5 ${dk ? "text-white/50" : "text-slate-500"}`}>
+              Course Overview
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {[
+                { label: "Active Courses",          value: "42",      sub: "Live in catalog",       Icon: BookOpen,      ib: dk?"bg-cyan-500/15":"bg-cyan-50",     ic: "#06b6d4" },
+                { label: "Ongoing Courses",         value: "18",      sub: "Active batches",        Icon: Clock,         ib: dk?"bg-purple-500/15":"bg-purple-50", ic: "#a855f7" },
+                { label: "Completed Courses",       value: "124",     sub: "Archived batches",      Icon: CheckCircle2,  ib: dk?"bg-teal-500/15":"bg-teal-50",     ic: "#14b8a6" },
+              ].map((k) => (
+                <div key={k.label} className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-[11px] font-semibold truncate ${ht} opacity-80`}>{k.label}</span>
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}>
+                      <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
+                    </div>
+                  </div>
+                  <div>
+                    <p className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
+                    <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+
+          {/* GROUP 4 — PARTNER & INSTITUTE OVERVIEW */}
+          <div className="lg:col-span-2">
+            <p className={`text-[11px] font-semibold uppercase tracking-wider mb-2.5 ${dk ? "text-white/50" : "text-slate-500"}`}>
+              Partner & Institute Overview
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {[
+                { label: "Total Partners",          value: "28",      sub: "Active partners",       Icon: UserCog,       ib: dk?"bg-violet-500/15":"bg-violet-50", ic: "#8b5cf6" },
+                { label: "Total Institutes",        value: "14",      sub: "Training academies",    Icon: GraduationCap, ib: dk?"bg-emerald-500/15":"bg-emerald-50",ic: "#10b981" },
+              ].map((k) => (
+                <div key={k.label} className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className={`text-[11px] font-semibold truncate ${ht} opacity-80`}>{k.label}</span>
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}>
+                      <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
+                    </div>
+                  </div>
+                  <div>
+                    <p className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
+                    <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -149,7 +231,20 @@ export default function MasterDashboard(){
             <div className="flex items-center gap-2">
               <span className={`text-[11px] ${mt}`}>Compare:</span>
               {["2023","2024","2025"].map(y=>(
-                <button key={y} onClick={()=>toggleY(y)} className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all ${cy.includes(y)?"text-white border-transparent":dk?"border-white/10 text-white/30 hover:text-white/60":"border-slate-200 text-slate-400 hover:text-slate-600"}`} style={cy.includes(y)?{background:YC[y],borderColor:YC[y]}:{}}>{y}</button>
+                <button
+                  key={y}
+                  onClick={()=>toggleY(y)}
+                  className={`text-xs transition-colors ${
+                    cy.includes(y)
+                      ? "font-bold underline underline-offset-4 decoration-2"
+                      : dk
+                      ? "text-white/40 hover:text-white/70 font-medium"
+                      : "text-slate-400 hover:text-slate-600 font-medium"
+                  }`}
+                  style={cy.includes(y) ? { color: YC[y], textDecorationColor: YC[y] } : {}}
+                >
+                  {y}
+                </button>
               ))}
             </div>
           }/>
@@ -185,11 +280,11 @@ export default function MasterDashboard(){
       </div>
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-5">
         <div className={`${card} xl:col-span-3`}>
-          <CH title="Recent Registrations" dk={dk} action={<button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>View all <ArrowUpRight className="w-3 h-3"/></button>}/>
-          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className={dk?"border-b border-white/5":"border-b border-slate-100"}>{["Name","Rank","Registered","Status"].map(h=>(<th key={h} className={`text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider ${mt}`}>{h}</th>))}</tr></thead><tbody className={`divide-y ${dv}`}>{REG.map((r,i)=>(<tr key={r.id} className={`${rh} transition-colors`}><td className="px-5 py-3"><div className="flex items-center gap-2.5"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${AB[i%AB.length]}`}>{r.name.split(" ").map(n=>n[0]).join("")}</div><div><p className={`text-[13px] font-medium ${ht}`}>{r.name}</p><p className={`text-[10px] font-mono ${mt}`}>{r.id}</p></div></div></td><td className={`px-5 py-3 text-[12px] ${dk?"text-white/55":"text-slate-500"}`}>{r.rank}</td><td className={`px-5 py-3 text-[12px] ${mt}`}>{r.date}</td><td className="px-5 py-3"><span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${dk?SD[r.status]:SL[r.status]}`}>{r.status}</span></td></tr>))}</tbody></table></div>
+          <CH title="Recent Registrations" dk={dk} action={<button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-white hover:text-white/80":"text-black hover:text-slate-700"}`}>View all <ArrowUpRight className="w-3 h-3"/></button>}/>
+          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className={dk?"border-b border-white/5":"border-b border-slate-100"}>{["Name","Rank","Registered","Status"].map(h=>(<th key={h} className={`text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider ${mt}`}>{h}</th>))}</tr></thead><tbody className={`divide-y ${dv}`}>{REG.map((r,i)=>(<tr key={r.id} className={`${rh} transition-colors`}><td className="px-5 py-3"><div className="flex items-center gap-2.5"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${AB[i%AB.length]}`}>{r.name.split(" ").map(n=>n[0]).join("")}</div><div><p className={`text-[13px] font-medium ${ht}`}>{r.name}</p><p className={`text-[10px] font-mono ${mt}`}>{r.id}</p></div></div></td><td className={`px-5 py-3 text-[12px] ${dk?"text-white/55":"text-slate-500"}`}>{r.rank}</td><td className={`px-5 py-3 text-[12px] ${mt}`}>{r.date}</td><td className="px-5 py-3"><span className={`text-[11px] font-semibold ${dk?SD[r.status]:SL[r.status]}`}>{r.status}</span></td></tr>))}</tbody></table></div>
         </div>
         <div className={`${card} xl:col-span-2`}>
-          <CH title="Recent Purchases" dk={dk} action={<button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>View all <ArrowUpRight className="w-3 h-3"/></button>}/>
+          <CH title="Recent Purchases" dk={dk} action={<button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-white hover:text-white/80":"text-black hover:text-slate-700"}`}>View all <ArrowUpRight className="w-3 h-3"/></button>}/>
           <div className={`divide-y ${dv}`}>{PUR.map((p,i)=>(<div key={i} className={`flex items-start justify-between px-5 py-3.5 ${rh} transition-colors`}><div className="flex items-start gap-2.5 min-w-0"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 mt-0.5 ${AB[i%AB.length]}`}>{p.user.split(" ").map(n=>n[0]).join("")}</div><div className="min-w-0"><p className={`text-[13px] font-medium truncate ${ht}`}>{p.course}</p><p className={`text-[11px] mt-0.5 ${mt}`}>{p.user} · {p.date}</p><p className={`text-[10px] mt-0.5 ${mt} opacity-60`}>{p.method}</p></div></div><span className={`text-[13px] font-bold shrink-0 ml-2 ${dk?"text-emerald-400":"text-emerald-600"}`}>{fmt(Number(p.amount))}</span></div>))}</div>
         </div>
       </div>
@@ -219,7 +314,7 @@ export default function MasterDashboard(){
         {/* Recent Activities */}
         <div className={`${card} xl:col-span-2`}>
           <CH title="Recent Activities" dk={dk} action={
-            <button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>
+            <button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-white hover:text-white/80":"text-black hover:text-slate-700"}`}>
               View all <ArrowUpRight className="w-3 h-3"/>
             </button>
           }/>

@@ -36,12 +36,12 @@ export default function MasterSidebar() {
   const sidebarBg   = isDark ? "bg-[#0B0F19] border-r border-[#1F2937]" : "bg-[#FFFFFF] border-r border-[#E5E7EB]";
   const brandBorder = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
   const logoText    = isDark ? "text-white" : "text-[#111827]";
-  const logoSub     = isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]";
+  const logoSub     = isDark ? "text-white" : "text-black";
   const navLabel    = isDark ? "text-gray-400" : "text-[#6B7280]";
   const activeLink  = isDark ? "bg-[#3D5EF6] text-white" : "bg-[#3D5EF6] text-white";
   const activeIcon  = "text-white";
   const activeChev  = "text-white/80";
-  const inactiveLink= isDark ? "text-gray-300 hover:bg-[#1F2937] hover:text-white transition-colors duration-200" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-[#3D5EF6] transition-colors duration-200";
+  const inactiveLink= isDark ? "text-gray-300 hover:bg-[#1F2937] hover:text-white transition-colors duration-200" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-black transition-colors duration-200";
   const inactiveIcon= isDark ? "text-gray-400 group-hover:text-white" : "text-[#6B7280] group-hover:text-[#3D5EF6]";
   const footBorder  = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
   const userName    = isDark ? "text-white" : "text-[#111827]";
