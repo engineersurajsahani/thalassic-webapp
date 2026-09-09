@@ -628,8 +628,18 @@ export const agentService = {
   async createSupportTicket(ticketData: {
     subject: string;
     description: string;
+    category?: string;
   }): Promise<SupportTicket> {
     const response = await api.post("/agent/support", ticketData);
+    return response.data;
+  },
+
+  async updatePassword(data: {
+    oldPassword?: string;
+    newPassword?: string;
+    currentPassword?: string;
+  }): Promise<any> {
+    const response = await api.put("/users/security", data);
     return response.data;
   },
 

@@ -220,7 +220,7 @@ export default function CreatePurchasePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn pb-12">
+    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
       {/* Header */}
       <div>
         <Link
@@ -521,11 +521,11 @@ export default function CreatePurchasePage() {
               <div>
                 <p className="font-bold text-[#111827] dark:text-white text-sm">{selectedCourse?.name}</p>
                 <p className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
-                  Duration: {selectedCourse?.duration} • Training Type: In-Person
+                  Duration: {selectedCourse?.duration} • STCW Certified
                 </p>
               </div>
               <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
-                In-Person Class
+                DG Approved
               </span>
             </div>
           </div>

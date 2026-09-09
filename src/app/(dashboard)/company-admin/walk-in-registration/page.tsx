@@ -130,7 +130,7 @@ export default function WalkInRegistrationPage() {
       {/* Page header */}
       <div>
         <h1 className={`text-xl font-bold ${ht}`}>Walk-in Registration Log</h1>
-        <p className={`text-sm mt-0.5 ${mt}`}>Quickly add seafarers who visit in person</p>
+        <p className={`text-sm mt-0.5 ${mt}`}>Quickly add walk-in seafarers</p>
       </div>
 
       {/* Stats strip */}

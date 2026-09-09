@@ -18,14 +18,14 @@ export default function AgentAdminLayout({
     setMounted(true);
   }, []);
 
-  const themeClasses = mounted && !isDark ? "bg-[#f8fafc] text-slate-900" : "bg-[#050a14] text-white";
+  const themeClasses = mounted && !isDark ? "bg-[#FAFAFA] text-[#111827]" : "bg-[#050a14] text-white";
   const isDarkActive = mounted ? isDark : true;
 
   return (
     <div className={`flex h-screen relative overflow-hidden font-outfit ${themeClasses}`}>
       {/* Decorative Background Elements */}
       <div className={`absolute top-0 right-0 w-[800px] h-[800px] rounded-full blur-[120px] pointer-events-none transition-all duration-1000 ${
-        isDarkActive ? "bg-blue-500/10" : "bg-blue-400/5"
+        isDarkActive ? "bg-[#3D5EF6]/10" : "bg-[#3D5EF6]/5"
       }`} />
       <div className={`absolute bottom-0 left-0 w-[600px] h-[600px] rounded-full blur-[100px] pointer-events-none transition-all duration-1000 ${
         isDarkActive ? "bg-[#3D5EF6]/10" : "bg-[#3D5EF6]/5"
@@ -40,8 +40,8 @@ export default function AgentAdminLayout({
         <AgentAdminTopbar />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-6 max-w-7xl mx-auto">{children}</div>
+        <main className="flex-1 overflow-y-auto custom-scrollbar">
+          <div className="p-6 w-full max-w-7xl">{children}</div>
         </main>
       </div>
     </div>

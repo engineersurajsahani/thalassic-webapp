@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 
 const TYPE_COLORS: Record<string, { bg: string; text: string }> = {
-  HOC: { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-700 dark:text-emerald-400" },
-  HAC: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400" },
+  HOC: { bg: "bg-[#DCFCE7]", text: "text-[#16A34A]" },
+  HAC: { bg: "bg-[#EEF1FE]", text: "text-[#3D5EF6]" },
 };
 
 function TypeBadge({ type }: { type: string }) {
@@ -23,16 +23,16 @@ function TypeBadge({ type }: { type: string }) {
 export default function InvoicesPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+  const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
     isDark
-      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
-      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+      ? "bg-[#111827] text-white"
+      : "bg-white text-[#111827]"
   }`;
-  const ht = isDark ? "text-white/90" : "text-slate-800";
-  const mt = isDark ? "text-white/40" : "text-slate-400";
-  const inputCls = `bg-transparent outline-none w-full text-xs ${isDark ? "text-white" : "text-slate-800"}`;
-  const inputWrap = `flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-slate-200 text-slate-600 shadow-sm"}`;
-  const selectCls = `px-3 py-2.5 rounded-lg border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-[#0d1f35] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"}`;
+  const ht = isDark ? "text-white/90" : "text-[#111827]";
+  const mt = isDark ? "text-white/40" : "text-[#9CA3AF]";
+  const inputCls = `bg-transparent outline-none w-full text-xs ${isDark ? "text-white" : "text-[#111827]"}`;
+  const inputWrap = `flex items-center gap-2 px-3 py-2.5 rounded-[10px] border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-[#E5E7EB] text-[#6B7280] shadow-sm"}`;
+  const selectCls = `px-3 py-2.5 rounded-[10px] border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-[#E5E7EB] text-[#111827] shadow-sm"}`;
 
   const [loading, setLoading] = useState(true);
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -221,7 +221,7 @@ export default function InvoicesPage() {
               ) : invoices.map((inv: any) => (
                 <tr key={inv.id} className={`border-b ${isDark ? "border-white/5 hover:bg-white/[0.025]" : "border-slate-50 hover:bg-slate-50/60"} transition-colors`}>
                   {/* Invoice Number */}
-                  <td className="pl-5 pr-2.5 py-3.5 font-mono font-bold text-blue-500 text-xs whitespace-nowrap">
+                  <td className="pl-5 pr-2.5 py-3.5 font-mono font-bold text-[#3D5EF6] text-xs whitespace-nowrap">
                     {inv.invoice_number}
                   </td>
 
@@ -238,7 +238,7 @@ export default function InvoicesPage() {
 
                   {/* Course */}
                   <td className="px-2.5 py-3.5 max-w-[160px]">
-                    <div className={`truncate font-semibold text-xs ${isDark ? "text-white/80" : "text-slate-700"}`} title={inv.course_name}>
+                    <div className={`truncate font-semibold text-xs ${isDark ? "text-white/80" : "text-[#111827]"}`} title={inv.course_name}>
                       {inv.course_name}
                     </div>
                   </td>
@@ -251,7 +251,7 @@ export default function InvoicesPage() {
                   </td>
 
                   {/* Amount Applicable to Hari Om */}
-                  <td className="px-2.5 py-3.5 font-mono font-bold text-xs text-emerald-500 whitespace-nowrap">
+                  <td className="px-2.5 py-3.5 font-mono font-bold text-xs text-[#16A34A] whitespace-nowrap">
                     ₹{(inv.hariom_payable_amount ?? inv.final_amount ?? 0).toLocaleString("en-IN")}
                   </td>
 
@@ -259,8 +259,8 @@ export default function InvoicesPage() {
                   <td className="px-2.5 py-3.5 whitespace-nowrap">
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
                       (inv.payment_status || inv.status) === "Paid"
-                        ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                        ? "bg-[#DCFCE7] text-[#16A34A]"
+                        : "bg-[#FEF3C7] text-[#B45309]"
                     }`}>
                       {inv.payment_status || inv.status || "Paid"}
                     </span>
@@ -270,8 +270,8 @@ export default function InvoicesPage() {
                   <td className="px-2.5 py-3.5 whitespace-nowrap">
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
                       (inv.invoice_status || "Issued") === "Issued"
-                        ? "bg-blue-500/10 text-blue-500 border border-blue-500/20"
-                        : "bg-slate-500/10 text-slate-400 border border-slate-500/20"
+                        ? "bg-[#EEF1FE] text-[#3D5EF6]"
+                        : "bg-slate-100 text-[#6B7280]"
                     }`}>
                       {inv.invoice_status || "Issued"}
                     </span>
@@ -298,8 +298,8 @@ export default function InvoicesPage() {
       {selectedInvoice && (
         pdfLoading ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-            <div className="bg-white dark:bg-[#0d1f35] rounded-2xl p-8 text-center shadow-2xl">
-              <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <div className="bg-white dark:bg-[#111827] rounded-[16px] card-elevated border-0 p-8 text-center shadow-2xl">
+              <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
               <div className={`text-sm ${ht}`}>Loading invoice...</div>
             </div>
           </div>
@@ -307,11 +307,11 @@ export default function InvoicesPage() {
           <InvoiceModal pdfData={pdfData} onClose={() => { setSelectedInvoice(null); setPdfData(null); }} />
         ) : (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-            <div className="bg-white dark:bg-[#0d1f35] rounded-2xl p-8 text-center shadow-2xl max-w-sm w-full">
-              <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
+            <div className="bg-white dark:bg-[#111827] rounded-[16px] card-elevated border-0 p-8 text-center shadow-2xl max-w-sm w-full">
+              <AlertCircle className="w-10 h-10 text-[#DC2626] mx-auto mb-3" />
               <div className={`text-sm font-semibold mb-1 ${ht}`}>Failed to load invoice</div>
               <div className={`text-xs ${mt} mb-4`}>Could not retrieve invoice PDF data. Please try again.</div>
-              <button onClick={() => setSelectedInvoice(null)} className="text-xs font-semibold px-4 py-2 rounded-xl bg-slate-100 dark:bg-white/5 hover:bg-slate-200 text-slate-700 dark:text-white/70">Close</button>
+              <button onClick={() => setSelectedInvoice(null)} className="text-xs font-semibold px-4 py-2 rounded-[10px] bg-slate-100 dark:bg-white/5 hover:bg-slate-200 text-[#111827] dark:text-white">Close</button>
             </div>
           </div>
         )

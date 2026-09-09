@@ -175,7 +175,7 @@ export default function PurchasesPage() {
                     </td>
                     <td className="py-3.5 px-4">
                       <p className="font-semibold text-[#111827] dark:text-white">{p.courseName}</p>
-                      <p className="text-[10px] text-[#9CA3AF] dark:text-gray-400">In-Person Training</p>
+                      <p className="text-[10px] text-[#9CA3AF] dark:text-gray-400">Classroom Training</p>
                     </td>
                     <td className="py-3.5 px-4 font-bold text-right text-[#111827] dark:text-white">
                       ₹{Number(p.payableAmount).toLocaleString("en-IN")}

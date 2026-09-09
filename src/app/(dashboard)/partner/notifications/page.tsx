@@ -52,11 +52,11 @@ export default function PartnerNotificationsPage() {
   };
 
   const cardBg = isDark
-    ? "bg-[#0B0F19] rounded-[16px] border-0 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
-    : "bg-[#FFFFFF] rounded-[16px] border-0 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)]";
+    ? "bg-[#111827] rounded-[16px] border-0 card-elevated"
+    : "bg-[#FFFFFF] rounded-[16px] border-0 card-elevated";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn pb-12">
+    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
       <div>
         <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-[#111827]"}`}>
           Notifications Inbox

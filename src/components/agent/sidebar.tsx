@@ -81,7 +81,7 @@ export default function AgentSidebar() {
   return (
     <aside className={`w-64 h-screen flex flex-col shrink-0 ${sidebarBg}`}>
       {/* Brand */}
-      <div className={`px-5 py-5 border-b ${brandBorder}`}>
+      <div className={`h-16 px-5 border-b ${brandBorder} flex items-center shrink-0`}>
         <Link href="/partner/dashboard" className="flex items-center gap-3 group">
           <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#3D5EF6]/30 shrink-0 shadow-sm">
             <Image
@@ -100,12 +100,12 @@ export default function AgentSidebar() {
       </div>
 
       {/* Nav label */}
-      <div className="px-5 pt-4 pb-1.5">
+      <div className="px-5 pt-4 pb-2">
         <p className={`text-[10px] font-bold tracking-widest uppercase ${navLabel}`}>Navigation</p>
       </div>
 
       {/* Menu */}
-      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto custom-scrollbar">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
@@ -113,7 +113,7 @@ export default function AgentSidebar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`group flex items-center justify-between px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-150 ${
+              className={`group flex items-center justify-between px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all duration-150 ${
                 active ? activeLink : inactiveLink
               }`}
             >
@@ -128,7 +128,7 @@ export default function AgentSidebar() {
       </nav>
 
       {/* User info & Signout */}
-      <div className={`p-3 border-t ${footBorder} space-y-1`}>
+      <div className={`p-4 border-t ${footBorder} space-y-2`}>
         <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5">
           <div className="w-8 h-8 rounded-full bg-[#3D5EF6] flex items-center justify-center text-white text-[11px] font-black uppercase shrink-0">
             {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "HP"}

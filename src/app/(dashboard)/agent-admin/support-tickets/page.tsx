@@ -23,16 +23,16 @@ export default function SupportTickets() {
   const [replyLoading, setReplyLoading] = useState(false);
   const [statusLoading, setStatusLoading] = useState(false);
 
-  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+  const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
     isDark
-      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
-      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+      ? "bg-[#111827] text-white"
+      : "bg-white text-[#111827]"
   }`;
-  const labelText = isDark ? "text-white/50" : "text-slate-500";
-  const ht = isDark ? "text-white/95" : "text-slate-800";
-  const mt = isDark ? "text-white/35" : "text-slate-400";
-  const inputWrap = `flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-slate-200 text-slate-600 shadow-sm"}`;
-  const selectCls = `px-3 py-2.5 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-[#0d1f35] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"}`;
+  const labelText = isDark ? "text-white/50" : "text-[#6B7280]";
+  const ht = isDark ? "text-white/95" : "text-[#111827]";
+  const mt = isDark ? "text-white/35" : "text-[#9CA3AF]";
+  const inputWrap = `flex items-center gap-2 px-3 py-2.5 rounded-[10px] border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-[#E5E7EB] text-[#6B7280] shadow-sm"}`;
+  const selectCls = `px-3 py-2.5 rounded-[10px] border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-[#E5E7EB] text-[#111827] shadow-sm"}`;
 
   const [mounted, setMounted] = useState(false);
 
@@ -203,10 +203,10 @@ export default function SupportTickets() {
                     <td className="py-4 px-4">
                       <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                         ticket.status === "open"
-                          ? "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
+                          ? "bg-[#FEF3C7] text-[#B45309]"
                           : ticket.status === "replied"
-                          ? "bg-blue-500/10 text-blue-500"
-                          : "bg-emerald-500/10 text-emerald-500"
+                          ? "bg-[#EEF1FE] text-[#3D5EF6]"
+                          : "bg-[#DCFCE7] text-[#16A34A]"
                       }`}>
                         {ticket.status}
                       </span>
@@ -237,8 +237,8 @@ export default function SupportTickets() {
       {/* Ticket Chat Modal */}
       {selectedTicket && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className={`w-full max-w-2xl h-[550px] flex flex-col rounded-lg relative animate-in zoom-in-95 duration-200 overflow-hidden ${
-            isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
+          <div className={`w-full max-w-2xl h-[550px] flex flex-col rounded-[16px] card-elevated border-0 relative animate-in zoom-in-95 duration-200 overflow-hidden ${
+            isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
           }`}>
             {/* Modal Header */}
             <div className="p-4 border-b border-white/5 flex items-center justify-between">
@@ -255,14 +255,14 @@ export default function SupportTickets() {
                 <button
                   onClick={() => handleUpdateStatus("resolved")}
                   disabled={statusLoading || selectedTicket.status === "resolved"}
-                  className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-[10px] font-bold rounded-xl flex items-center gap-1"
+                  className="px-2.5 py-1.5 bg-[#16A34A] hover:bg-[#15803D] disabled:opacity-50 text-white text-[10px] font-bold rounded-xl flex items-center gap-1"
                 >
                   <CheckSquare className="w-3 h-3" />
                   Resolve
                 </button>
                 <button
                   onClick={() => setSelectedTicket(null)}
-                  className={`p-1.5 rounded-full transition ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}
+                  className={`p-1.5 rounded-full transition ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-[#6B7280] hover:text-[#111827]"}`}
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -270,14 +270,14 @@ export default function SupportTickets() {
             </div>
 
             {/* Chat Body */}
-            <div className={`flex-1 p-4 overflow-y-auto space-y-4 ${isDark ? "bg-[#081527]" : "bg-slate-50"}`}>
+            <div className={`flex-1 p-4 overflow-y-auto space-y-4 ${isDark ? "bg-[#111827]" : "bg-[#FAFAFA]"}`}>
               {/* Initial Ticket Description */}
               <div className="flex gap-2">
-                <div className="w-8 h-8 rounded-full bg-[#3D5EF6]/10 text-[#3D5EF6] flex items-center justify-center shrink-0 text-xs font-bold uppercase">
+                <div className="w-8 h-8 rounded-full bg-[#EEF1FE] text-[#3D5EF6] flex items-center justify-center shrink-0 text-xs font-bold uppercase">
                   {selectedTicket.User?.name?.substring(0, 2) || "AG"}
                 </div>
                 <div className="max-w-[75%]">
-                  <div className={`p-3 rounded-2xl rounded-tl-none ${isDark ? "bg-white/[0.04] border border-white/5" : "bg-white border border-slate-200"}`}>
+                  <div className={`p-3 rounded-2xl rounded-tl-none ${isDark ? "bg-white/[0.04] border border-white/5" : "bg-white border border-[#E5E7EB]"}`}>
                     <p className="text-xs leading-relaxed">{selectedTicket.description}</p>
                   </div>
                   <span className={`text-[9px] mt-1 block ml-1 ${labelText}`}>

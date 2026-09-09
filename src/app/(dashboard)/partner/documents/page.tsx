@@ -187,11 +187,11 @@ export default function PartnerDocumentsPage() {
   };
 
   const cardBg = isDark
-    ? "bg-[#0B0F19] rounded-[16px] border-0 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
-    : "bg-[#FFFFFF] rounded-[16px] border-0 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)]";
+    ? "bg-[#111827] rounded-[16px] border-0 card-elevated"
+    : "bg-[#FFFFFF] rounded-[16px] border-0 card-elevated";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn pb-12">
+    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
       <div>
         <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-[#111827]"}`}>
           Verification Documents
@@ -298,7 +298,7 @@ export default function PartnerDocumentsPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
           <div
             className={`w-full max-w-2xl rounded-[16px] overflow-hidden border-0 shadow-2xl space-y-0 ${
-              isDark ? "bg-[#0B0F19] text-white" : "bg-white text-[#111827]"
+              isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
             }`}
           >
             {/* Modal Header */}
@@ -364,7 +364,7 @@ export default function PartnerDocumentsPage() {
                 </div>
               ) : (
                 /* High-fidelity official document verification preview sheet */
-                <div className="p-6 rounded-xl border border-[#E5E7EB] dark:border-[#1F2937] bg-gradient-to-b from-white to-[#F9FAFB] dark:from-[#111827] dark:to-[#0B0F19] space-y-5">
+                <div className="p-6 rounded-[16px] border border-[#E5E7EB] dark:border-[#1F2937] bg-white dark:bg-[#111827] space-y-5">
                   <div className="flex items-center justify-between border-b pb-4 dark:border-[#1F2937]">
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full bg-[#3D5EF6] text-white flex items-center justify-center font-black text-sm">

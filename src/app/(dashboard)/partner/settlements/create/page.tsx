@@ -19,6 +19,10 @@ import {
   Layers,
   PieChart,
   Clock,
+  Upload,
+  FileText,
+  X,
+  Paperclip,
 } from "lucide-react";
 
 export default function SubmitSettlementPage() {
@@ -35,6 +39,10 @@ export default function SubmitSettlementPage() {
   const [paymentMethod, setPaymentMethod] = useState("Bank Transfer (NEFT / RTGS)");
   const [paymentDate, setPaymentDate] = useState(new Date().toISOString().split("T")[0]);
   const [remarks, setRemarks] = useState("");
+
+  // Bank Statement / Payment Proof Attachment State
+  const [bankStatementFile, setBankStatementFile] = useState<File | null>(null);
+  const [statementError, setStatementError] = useState("");
 
   // Partial Payment State
   const [paymentMode, setPaymentMode] = useState<"full" | "partial">("full");
@@ -87,11 +95,25 @@ export default function SubmitSettlementPage() {
     }
   };
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStatementError("");
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 10 * 1024 * 1024) {
+        setStatementError("File size exceeds 10MB limit.");
+        return;
+      }
+      setBankStatementFile(file);
+    }
+  };
+
   const filteredPurchases = purchases.filter((p) => {
     const term = searchTerm.toLowerCase();
     return (
       (p.seafarerName || "").toLowerCase().includes(term) ||
       (p.id || "").toLowerCase().includes(term) ||
+      (p.indosNumber || p.indosNum || "").toLowerCase().includes(term) ||
+      (p.passportNum || "").toLowerCase().includes(term) ||
       (p.courseName || "").toLowerCase().includes(term)
     );
   });
@@ -133,6 +155,10 @@ export default function SubmitSettlementPage() {
 
     if (!referenceNumber.trim()) {
       setError("Bank UTR / Payment reference number is required.");
+      return;
+    }
+    if (referenceNumber.trim().length > 22) {
+      setError("Bank UTR / Remittance reference number cannot exceed 22 characters.");
       return;
     }
 
@@ -291,7 +317,7 @@ export default function SubmitSettlementPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 animate-fadeIn pb-12">
+    <div className="max-w-6xl space-y-8 animate-fadeIn pb-12">
       {/* Top Header & Wizard Stepper */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -342,214 +368,305 @@ export default function SubmitSettlementPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column: Interactive Live Settlement Summary (lg:col-span-4) */}
-        <div className="lg:col-span-4 space-y-6">
-          <div className={`p-6 space-y-6 sticky top-6 ${cardBg}`}>
-            <div className={`border-b pb-4 ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
-              <span className={`text-[10px] font-black uppercase tracking-wider ${accentText}`}>
-                Live Settlement Batch Calculation
-              </span>
-              <p className={`text-3xl font-black mt-1 ${headingText}`}>
-                ₹{totalAmount.toLocaleString("en-IN")}
-              </p>
-              <p className={`text-xs mt-1 ${subText}`}>
-                Total payable by Partner to Hari Om for {selectedIds.length} selected course purchases.
-              </p>
+      <form onSubmit={handleSubmit} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* Left Column: Interactive Live Settlement Summary & Guidelines (lg:col-span-4) */}
+        <div className="lg:col-span-4">
+          <div className="sticky top-6 space-y-4">
+            {/* Live Settlement Calculation Card */}
+            <div className={`p-6 space-y-5 ${cardBg}`}>
+              <div className={`border-b pb-4 ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
+                <span className={`text-[10px] font-black uppercase tracking-wider ${accentText}`}>
+                  Live Settlement Batch Calculation
+                </span>
+                <p className={`text-3xl font-black mt-1 ${headingText}`}>
+                  ₹{totalAmount.toLocaleString("en-IN")}
+                </p>
+                <p className={`text-xs mt-1 ${subText}`}>
+                  Total payable by Partner to Hari Om for {selectedIds.length} selected course purchases.
+                </p>
 
-              {/* Partial Payment Calculation Summary in Left Box */}
-              {paymentMode === "partial" && (
-                <div className={`mt-4 pt-3 border-t border-dashed space-y-2 text-xs ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#16A34A] font-bold flex items-center gap-1">
-                      <CheckCircle2 className="w-3.5 h-3.5" /> Paying Now:
-                    </span>
-                    <span className="font-black text-sm text-[#16A34A]">
-                      ₹{effectivePaidAmount.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-[#B45309] font-bold flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" /> Remaining Due:
-                    </span>
-                    <span className="font-black text-sm text-[#B45309]">
-                      ₹{remainingBalance.toLocaleString("en-IN")}
-                    </span>
-                  </div>
-                  {expectedDueDate && (
-                    <div className="flex justify-between items-center text-[11px] pt-1">
-                      <span className={subText}>Balance Due Date:</span>
-                      <span className={`font-bold ${isDark ? "text-slate-200" : "text-[#111827]"}`}>
-                        {new Date(expectedDueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                {/* Partial Payment Calculation Summary in Left Box */}
+                {paymentMode === "partial" && (
+                  <div className={`mt-4 pt-3 border-t border-dashed space-y-2 text-xs ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#16A34A] font-bold flex items-center gap-1">
+                        <CheckCircle2 className="w-3.5 h-3.5" /> Paying Now:
+                      </span>
+                      <span className="font-black text-sm text-[#16A34A]">
+                        ₹{effectivePaidAmount.toLocaleString("en-IN")}
                       </span>
                     </div>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* Selected Candidates Breakdown List */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <span className={`text-xs font-bold uppercase tracking-wider ${labelText}`}>
-                  Covered Items ({selectedPurchases.length})
-                </span>
-                {purchases.length > 0 && (
-                  <button
-                    type="button"
-                    onClick={selectAll}
-                    className={`text-[11px] font-extrabold cursor-pointer hover:underline transition-colors duration-200 ${
-                      isDark ? "text-blue-400" : "text-[#3D5EF6]"
-                    }`}
-                  >
-                    {selectedIds.length === purchases.length ? "Deselect All" : "Select All"}
-                  </button>
+                    <div className="flex justify-between items-center">
+                      <span className="text-[#B45309] font-bold flex items-center gap-1">
+                        <Clock className="w-3.5 h-3.5" /> Remaining Due:
+                      </span>
+                      <span className="font-black text-sm text-[#B45309]">
+                        ₹{remainingBalance.toLocaleString("en-IN")}
+                      </span>
+                    </div>
+                    {expectedDueDate && (
+                      <div className="flex justify-between items-center text-[11px] pt-1">
+                        <span className={subText}>Balance Due Date:</span>
+                        <span className={`font-bold ${isDark ? "text-slate-200" : "text-[#111827]"}`}>
+                          {new Date(expectedDueDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 )}
               </div>
 
-              {selectedPurchases.length === 0 ? (
-                <div className={`p-4 text-center border border-dashed rounded-[16px] text-xs font-semibold ${
-                  isDark ? "border-white/10 text-slate-400" : "border-[#E5E7EB] text-[#6B7280]"
-                }`}>
-                  No purchases selected yet. Check items from the list.
-                </div>
-              ) : (
-                <div className="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
-                  {selectedPurchases.map((p) => (
-                    <div
-                      key={p.id}
-                      className={`p-3 rounded-[16px] flex items-center justify-between text-xs ${
-                        isDark ? "bg-white/[0.03]" : "bg-[#FAFAFA]"
+              {/* Selected Candidates Breakdown List */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-bold uppercase tracking-wider ${labelText}`}>
+                    Covered Items ({selectedPurchases.length})
+                  </span>
+                  {purchases.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={selectAll}
+                      className={`text-[11px] font-extrabold cursor-pointer hover:underline transition-colors duration-200 ${
+                        isDark ? "text-blue-400" : "text-[#3D5EF6]"
                       }`}
                     >
-                      <div className="min-w-0 flex-1 pr-2">
-                        <p className={`font-bold truncate ${headingText}`}>{p.seafarerName}</p>
-                        <p className={`text-[10px] truncate ${subText}`}>{p.courseName}</p>
-                      </div>
-                      <span className={`font-extrabold font-mono shrink-0 ${accentText}`}>
-                        ₹{Number(p.payableAmount).toLocaleString("en-IN")}
-                      </span>
-                    </div>
-                  ))}
+                      {selectedIds.length === purchases.length ? "Deselect All" : "Select All"}
+                    </button>
+                  )}
                 </div>
-              )}
+
+                {selectedPurchases.length === 0 ? (
+                  <div className={`p-4 text-center border border-dashed rounded-[16px] text-xs font-semibold ${
+                    isDark ? "border-white/10 text-slate-400" : "border-[#E5E7EB] text-[#6B7280]"
+                  }`}>
+                    No purchases selected yet. Check items from the list.
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
+                    {selectedPurchases.map((p) => (
+                      <div
+                        key={p.id}
+                        className={`p-3 rounded-[16px] flex items-center justify-between text-xs ${
+                          isDark ? "bg-white/[0.03]" : "bg-[#FAFAFA]"
+                        }`}
+                      >
+                        <div className="min-w-0 flex-1 pr-2">
+                          <p className={`font-bold truncate ${headingText}`}>{p.seafarerName}</p>
+                          <p className={`text-[10px] truncate ${subText}`}>{p.courseName}</p>
+                        </div>
+                        <span className={`font-extrabold font-mono shrink-0 ${accentText}`}>
+                          ₹{Number(p.payableAmount).toLocaleString("en-IN")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Trust & Policy Badge */}
+              <div className={`p-4 rounded-[16px] text-xs leading-relaxed space-y-1.5 ${
+                isDark ? "bg-[#3D5EF6]/10 text-blue-300" : "bg-[#EEF1FE] text-[#111827]"
+              }`}>
+                <div className="flex items-center gap-1.5 font-bold">
+                  <ShieldCheck className="w-4 h-4 shrink-0 text-[#3D5EF6]" /> Zero Commission Policy
+                </div>
+                <p className="text-[11px] opacity-90">
+                  100% Hari Om payable amount. Partner collects candidate fee directly with zero commission markup.
+                </p>
+              </div>
             </div>
 
-            {/* Trust & Policy Badge */}
-            <div className={`p-4 rounded-[16px] text-xs leading-relaxed space-y-1.5 ${
-              isDark ? "bg-[#3D5EF6]/10 text-blue-300" : "bg-[#EEF1FE] text-[#111827]"
-            }`}>
-              <div className="flex items-center gap-1.5 font-bold">
-                <ShieldCheck className="w-4 h-4 shrink-0 text-[#3D5EF6]" /> Zero Commission Policy
+            {/* Remittance Guidelines & SLA Help Card */}
+            <div className={`p-5 rounded-[16px] border-0 space-y-3 ${cardBg}`}>
+              <div className="flex items-center gap-2">
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
+                  <Building className="w-3.5 h-3.5" />
+                </div>
+                <div>
+                  <p className={`text-xs font-bold ${headingText}`}>Settlement Guidelines</p>
+                  <p className={`text-[10px] ${subText}`}>Hari Om Remittance Process</p>
+                </div>
               </div>
-              <p className="text-[11px] opacity-90">
-                100% Hari Om payable amount. Partner collects candidate fee directly with zero commission markup.
-              </p>
+              <div className={`text-[11px] space-y-2 leading-relaxed ${subText}`}>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#3D5EF6] mt-1.5 shrink-0" />
+                  <p>Remittances are audited and verified within <strong>2–4 business hours</strong> of UTR confirmation.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#16A34A] mt-1.5 shrink-0" />
+                  <p>Candidate course enrollments are confirmed immediately upon verification.</p>
+                </div>
+                <div className="flex items-start gap-2">
+                  <div className="w-1.5 h-1.5 rounded-full bg-[#B45309] mt-1.5 shrink-0" />
+                  <p>For partial remittances, remaining balances must be settled on or before the selected due date.</p>
+                </div>
+              </div>
+              <div className={`pt-2 border-t text-[11px] flex items-center justify-between ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
+                <span className={subText}>Need assistance?</span>
+                <Link href="/partner/support" className="font-bold text-[#3D5EF6] hover:underline">
+                  Raise Support Ticket →
+                </Link>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Right Column: Multi-select Purchases & Payment Form (lg:col-span-8) */}
         <div className="lg:col-span-8 space-y-6">
-          {/* Card 1: Outstanding Purchases List */}
-          <div className={`p-6 md:p-8 space-y-4 ${cardBg}`}>
-            <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b ${
-              isDark ? "border-white/10" : "border-[#E5E7EB]"
-            }`}>
-              <div>
+          {/* Card 1: Bank Payment & Transaction Statement (Moved to Top) */}
+          <div className={`p-6 space-y-4 ${cardBg}`}>
+            <div className={`pb-3 border-b ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
+              <div className="flex items-center justify-between">
                 <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
-                  <Receipt className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 1. Select Outstanding Purchases
+                  <CreditCard className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 1. Bank Payment & Transaction Statement
                 </h2>
-                <p className={`text-xs mt-0.5 ${subText}`}>
-                  Choose course purchases covered in your current bank remittance batch
+                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                  isDark ? "bg-[#3D5EF6]/15 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
+                }`}>
+                  Bank Remittance Proof
+                </span>
+              </div>
+              <p className={`text-xs mt-0.5 ${subText}`}>
+                Enter your bank remittance reference, UTR number, and upload bank statement / transfer receipt proof for audit.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* UTR / Transaction Reference Number with Real Size Limit */}
+              <div className="md:col-span-2">
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className={`block text-xs ${labelText}`}>
+                    Bank UTR / Remittance Reference Number *
+                  </label>
+                  <span className={`text-[10px] font-mono font-bold ${
+                    referenceNumber.length > 22 ? "text-[#DC2626]" : referenceNumber.length > 0 ? "text-[#3D5EF6]" : subText
+                  }`}>
+                    {referenceNumber.length}/22 characters
+                  </span>
+                </div>
+                <input
+                  type="text"
+                  required
+                  maxLength={22}
+                  value={referenceNumber}
+                  onChange={(e) => setReferenceNumber(e.target.value.toUpperCase())}
+                  placeholder="e.g. HDFC001234567890 (12-22 chars max)"
+                  className={`w-full px-4 py-3 rounded-full text-sm font-mono font-extrabold uppercase outline-none transition-all ${inputStyle}`}
+                />
+                <p className={`text-[10px] mt-1 ${subText}`}>
+                  Standard banking limits: UPI / IMPS (12 digits), NEFT (16 characters), RTGS (22 characters). Max 22 alphanumeric characters.
                 </p>
               </div>
 
-              {/* Quick Search */}
-              <div className="w-full sm:w-64">
+              {/* Bank Statement / Remittance Receipt Upload Box */}
+              <div className="md:col-span-2">
+                <label className={`block text-xs mb-1.5 ${labelText} flex items-center justify-between`}>
+                  <span>Bank Statement / Transfer Receipt Proof (PDF / Image)</span>
+                  <span className="text-[10px] font-normal text-[#6B7280]">Max 10MB</span>
+                </label>
+
+                {bankStatementFile ? (
+                  <div className={`p-3.5 rounded-[16px] flex items-center justify-between border ${
+                    isDark ? "bg-white/[0.03] border-white/10" : "bg-[#FAFAFA] border-[#E5E7EB]"
+                  }`}>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        isDark ? "bg-[#3D5EF6]/20 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"
+                      }`}>
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className={`text-xs font-bold truncate ${headingText}`}>{bankStatementFile.name}</p>
+                        <p className={`text-[10px] ${subText}`}>
+                          {(bankStatementFile.size / 1024).toFixed(1)} KB • Attached for finance audit
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBankStatementFile(null)}
+                      className="p-1.5 rounded-lg text-[#DC2626] hover:bg-[#FEE2E2] dark:hover:bg-red-500/10 transition-colors cursor-pointer"
+                      title="Remove file"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <label className={`border-2 border-dashed rounded-[16px] p-4 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+                    isDark
+                      ? "border-white/10 hover:border-[#3D5EF6] bg-white/[0.01] hover:bg-[#3D5EF6]/5"
+                      : "border-[#E5E7EB] hover:border-[#3D5EF6] bg-[#FAFAFA] hover:bg-[#EEF1FE]/30"
+                  }`}>
+                    <input
+                      type="file"
+                      accept=".pdf,.jpg,.jpeg,.png"
+                      onChange={handleFileChange}
+                      className="hidden"
+                    />
+                    <Upload className="w-6 h-6 text-[#3D5EF6] mb-1.5" />
+                    <p className={`text-xs font-bold ${headingText}`}>
+                      Click to browse or drop Bank Statement / Payment Receipt
+                    </p>
+                    <p className={`text-[10px] mt-0.5 ${subText}`}>
+                      Accepted: PDF, JPG, PNG (Bank slip, e-statement, or net banking UTR screenshot)
+                    </p>
+                  </label>
+                )}
+                {statementError && (
+                  <p className="text-[11px] text-[#DC2626] font-semibold mt-1">{statementError}</p>
+                )}
+              </div>
+
+              {/* Payment Method */}
+              <div>
+                <label className={`block text-xs mb-1.5 ${labelText}`}>
+                  Payment Method *
+                </label>
+                <select
+                  value={paymentMethod}
+                  onChange={(e) => setPaymentMethod(e.target.value)}
+                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-bold outline-none ${inputStyle}`}
+                >
+                  <option value="Bank Transfer (NEFT / RTGS)">Bank Transfer (NEFT / RTGS / IMPS)</option>
+                  <option value="UPI Transfer">UPI / Corporate QR</option>
+                  <option value="Cheque / DD">Cheque / Demand Draft</option>
+                  <option value="Cash / Direct Branch Deposit">Direct Branch Cash Deposit</option>
+                </select>
+              </div>
+
+              {/* Payment Remittance Date */}
+              <div>
+                <label className={`block text-xs mb-1.5 ${labelText}`}>
+                  Payment Remittance Date *
+                </label>
+                <input
+                  type="date"
+                  required
+                  value={paymentDate}
+                  onChange={(e) => setPaymentDate(e.target.value)}
+                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-bold outline-none ${inputStyle}`}
+                />
+              </div>
+
+              {/* Payment Remarks */}
+              <div className="md:col-span-2">
+                <label className={`block text-xs mb-1.5 ${labelText}`}>
+                  Payment Remarks / Batch Notes (Optional)
+                </label>
                 <input
                   type="text"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  placeholder="Search seafarer / course / ID..."
-                  className={`w-full px-3 py-1.5 rounded-full text-xs font-semibold outline-none ${inputStyle}`}
+                  maxLength={250}
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  placeholder="e.g. Remittance via corporate net banking. Batch covers 2 seafarers."
+                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-semibold outline-none ${inputStyle}`}
                 />
               </div>
             </div>
-
-            {loading ? (
-              <div className="p-8 text-center text-slate-400 animate-pulse">Loading eligible purchases...</div>
-            ) : filteredPurchases.length === 0 ? (
-              <div className={`p-8 text-center border border-dashed rounded-[16px] text-xs ${
-                isDark ? "border-white/15 text-slate-400" : "border-[#E5E7EB] text-[#6B7280]"
-              }`}>
-                <CheckCircle2 className="w-8 h-8 text-[#16A34A] mx-auto mb-2" />
-                <p className={`font-bold text-sm ${headingText}`}>No matching outstanding purchases.</p>
-                <p className="mt-1">All purchases are either settled or no pending record matches search.</p>
-              </div>
-            ) : (
-              <div className="space-y-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
-                {filteredPurchases.map((p) => {
-                  const isChecked = selectedIds.includes(p.id);
-                  return (
-                    <div
-                      key={p.id}
-                      onClick={() => toggleSelect(p.id)}
-                      className={`p-4 rounded-[16px] cursor-pointer transition-all flex items-center justify-between gap-4 ${
-                        isChecked
-                          ? isDark
-                            ? "bg-[#3D5EF6]/15 shadow-sm"
-                            : "bg-[#EEF1FE] shadow-sm"
-                          : isDark
-                          ? "bg-white/[0.02] hover:bg-white/5"
-                          : "bg-[#FAFAFA] hover:bg-[#EEF1FE]/30"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3.5">
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => {}}
-                          className="w-4 h-4 rounded text-[#3D5EF6] focus:ring-[#3D5EF6] accent-[#3D5EF6] cursor-pointer"
-                        />
-                        <div>
-                          <div className="flex flex-wrap items-center gap-2">
-                            <p className={`font-extrabold text-xs ${headingText}`}>{p.seafarerName}</p>
-                            <span className={`font-mono text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
-                              isDark ? "bg-white/5 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
-                            }`}>
-                              {p.id}
-                            </span>
-                          </div>
-                          <p className={`text-[11px] mt-1 font-medium ${subText}`}>
-                            {p.courseName} • Enrolled {new Date(p.purchaseDate).toLocaleDateString("en-IN")}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="text-right shrink-0">
-                        <p className={`font-black text-sm ${headingText}`}>
-                          ₹{Number(p.payableAmount).toLocaleString("en-IN")}
-                        </p>
-                        {p.settlementStatus === "Partial" || (p.remainingAmount && p.remainingAmount > 0) ? (
-                          <span className="text-[10px] font-bold text-[#B45309] bg-[#FEF3C7] px-2.5 py-0.5 rounded-full block mt-0.5">
-                            Remaining Due Balance
-                          </span>
-                        ) : (
-                          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full inline-block mt-0.5 bg-[#FEF3C7] text-[#B45309]">
-                            {p.settlementStatus || "Pending"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
           </div>
 
           {/* Card 2: Remittance Payment Mode & Partial Installments Option */}
-          <div className={`p-6 md:p-8 space-y-5 ${cardBg}`}>
+          <div className={`p-6 space-y-4 ${cardBg}`}>
             <div className={`pb-3 border-b ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
               <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
                 <PieChart className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 2. Remittance Payment Mode (Full vs Partial Split)
@@ -583,22 +700,17 @@ export default function SubmitSettlementPage() {
                   </span>
                 </div>
                 <p className={`text-[11px] mt-2 leading-relaxed ${subText}`}>
-                  Pay total batch amount <strong className="text-[#16A34A]">₹{totalAmount.toLocaleString("en-IN")}</strong> at once.
+                  Pay 100% total batch amount (₹{totalAmount.toLocaleString("en-IN")}) in one bank transfer. All courses are immediately submitted for audit.
                 </p>
               </div>
 
               <div
-                onClick={() => {
-                  setPaymentMode("partial");
-                  if (paidAmountInput === "") {
-                    setPaidAmountInput(Math.round(totalAmount / 2).toString());
-                  }
-                }}
+                onClick={() => setPaymentMode("partial")}
                 className={`p-4 rounded-[16px] cursor-pointer transition-all ${
                   paymentMode === "partial"
                     ? isDark
                       ? "bg-amber-500/15 ring-1 ring-amber-500/50 shadow-sm"
-                      : "bg-[#FEF3C7]/60 ring-1 ring-amber-400 shadow-sm"
+                      : "bg-[#FEF3C7]/60 ring-1 ring-[#B45309] shadow-sm"
                     : isDark
                     ? "bg-white/[0.02] hover:bg-white/5"
                     : "bg-[#FAFAFA] hover:bg-[#EEF1FE]/30"
@@ -607,40 +719,42 @@ export default function SubmitSettlementPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Clock className={`w-5 h-5 ${paymentMode === "partial" ? "text-[#B45309]" : "text-slate-400"}`} />
-                    <span className={`text-xs font-black ${headingText}`}>Partial / Split Payment</span>
+                    <span className={`text-xs font-black ${headingText}`}>Partial Remittance Split</span>
                   </div>
                   <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309]">
-                    Pay in Parts
+                    Installment
                   </span>
                 </div>
                 <p className={`text-[11px] mt-2 leading-relaxed ${subText}`}>
-                  Pay part amount now (e.g. ₹20,000) and set an expected due date for remaining pending balance.
+                  Pay part of the balance now via UTR, and schedule the remaining balance to be remitted on or before a selected due date.
                 </p>
               </div>
             </div>
 
-            {/* Expanded Form Fields when Partial Payment Mode is selected */}
+            {/* If Partial Payment Selected: Show Amount Input & Expected Due Date */}
             {paymentMode === "partial" && (
-              <div className={`p-5 rounded-[16px] space-y-4 animate-fadeIn ${
-                isDark ? "bg-amber-500/[0.05]" : "bg-[#FEF3C7]/30"
+              <div className={`p-4 rounded-[16px] border space-y-4 animate-fadeIn ${
+                isDark ? "bg-amber-500/5 border-amber-500/20" : "bg-[#FEF3C7]/25 border-amber-200"
               }`}>
-                <div className="flex items-center gap-2 text-xs font-extrabold text-[#B45309]">
-                  <Info className="w-4 h-4 shrink-0" /> Partial Remittance & Balance Due Date Details
+                <div className="flex items-center gap-2 text-xs font-bold text-[#B45309]">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>Specify Immediate Payment & Remaining Balance Schedule</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Amount Paid Now */}
                   <div>
                     <label className={`block text-xs mb-1.5 ${labelText}`}>
-                      Amount Paid Now (₹) *
+                      Amount Paid Now via Bank UTR (₹) *
                     </label>
                     <div className="relative">
-                      <span className="absolute left-3.5 top-1/2 -translate-y-1/2 font-bold text-xs text-slate-400">₹</span>
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 font-bold text-xs text-slate-400">
+                        ₹
+                      </span>
                       <input
                         type="number"
                         min="1"
                         max={totalAmount - 1}
-                        required={paymentMode === "partial"}
                         value={paidAmountInput}
                         onChange={(e) => setPaidAmountInput(e.target.value)}
                         placeholder="e.g. 20000"
@@ -692,76 +806,109 @@ export default function SubmitSettlementPage() {
             )}
           </div>
 
-          {/* Card 3: Bank Remittance Reference & Submission */}
-          <div className={`p-6 md:p-8 space-y-5 ${cardBg}`}>
-            <div className={`pb-3 border-b ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
-              <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
-                <CreditCard className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 3. Bank Payment & Transaction Reference
-              </h2>
-              <p className={`text-xs mt-0.5 ${subText}`}>
-                Enter your bank transfer UTR / RTGS / NEFT confirmation details for finance audit
-              </p>
-            </div>
+          {/* Card 3: Outstanding Purchases List & Submission (Moved directly below Step 2) */}
+          <div className={`p-6 space-y-4 ${cardBg}`}>
+            <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b ${
+              isDark ? "border-white/10" : "border-[#E5E7EB]"
+            }`}>
+              <div>
+                <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
+                  <Receipt className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 3. Select Outstanding Purchases Covered
+                </h2>
+                <p className={`text-xs mt-0.5 ${subText}`}>
+                  Choose course purchases covered in your current bank remittance batch
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="md:col-span-2">
-                <label className={`block text-xs mb-1.5 ${labelText}`}>
-                  Bank UTR / Remittance Reference Number *
-                </label>
+              {/* Quick Search with INDoS / Passport / Course / Name support */}
+              <div className="w-full sm:w-72">
                 <input
                   type="text"
-                  required
-                  value={referenceNumber}
-                  onChange={(e) => setReferenceNumber(e.target.value)}
-                  placeholder="e.g. HDFC1234567890 / RTGS987654321"
-                  className={`w-full px-4 py-3 rounded-full text-sm font-mono font-extrabold uppercase outline-none transition-all ${inputStyle}`}
-                />
-              </div>
-
-              <div>
-                <label className={`block text-xs mb-1.5 ${labelText}`}>
-                  Payment Method *
-                </label>
-                <select
-                  value={paymentMethod}
-                  onChange={(e) => setPaymentMethod(e.target.value)}
-                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-bold outline-none ${inputStyle}`}
-                >
-                  <option value="Bank Transfer (NEFT / RTGS)">Bank Transfer (NEFT / RTGS / IMPS)</option>
-                  <option value="UPI Transfer">UPI / Corporate QR</option>
-                  <option value="Cheque / DD">Cheque / Demand Draft</option>
-                  <option value="Cash / Direct Branch Deposit">Direct Branch Cash Deposit</option>
-                </select>
-              </div>
-
-              <div>
-                <label className={`block text-xs mb-1.5 ${labelText}`}>
-                  Payment Remittance Date *
-                </label>
-                <input
-                  type="date"
-                  required
-                  value={paymentDate}
-                  onChange={(e) => setPaymentDate(e.target.value)}
-                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-bold outline-none ${inputStyle}`}
-                >
-                </input>
-              </div>
-
-              <div className="md:col-span-2">
-                <label className={`block text-xs mb-1.5 ${labelText}`}>
-                  Payment Remarks / Batch Notes (Optional)
-                </label>
-                <input
-                  type="text"
-                  value={remarks}
-                  onChange={(e) => setRemarks(e.target.value)}
-                  placeholder="e.g. Partial remittance paid ₹20k now, balance ₹18k due on 22 Sep"
-                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-semibold outline-none ${inputStyle}`}
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  placeholder="Search candidate, INDoS (e.g. 24IN9999), course, ID..."
+                  className={`w-full px-3.5 py-2 rounded-full text-xs font-semibold outline-none ${inputStyle}`}
                 />
               </div>
             </div>
 
+            {loading ? (
+              <div className="p-8 text-center text-slate-400 animate-pulse">Loading eligible purchases...</div>
+            ) : filteredPurchases.length === 0 ? (
+              <div className={`p-8 text-center border border-dashed rounded-[16px] text-xs ${
+                isDark ? "border-white/15 text-slate-400" : "border-[#E5E7EB] text-[#6B7280]"
+              }`}>
+                <CheckCircle2 className="w-8 h-8 text-[#16A34A] mx-auto mb-2" />
+                <p className={`font-bold text-sm ${headingText}`}>No matching outstanding purchases.</p>
+                <p className="mt-1">All purchases are either settled or no pending record matches search.</p>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
+                {filteredPurchases.map((p) => {
+                  const isChecked = selectedIds.includes(p.id);
+                  const candidateIndos = p.indosNumber || p.indosNum || "24IN9999";
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => toggleSelect(p.id)}
+                      className={`p-4 rounded-[16px] cursor-pointer transition-all flex items-center justify-between gap-4 ${
+                        isChecked
+                          ? isDark
+                            ? "bg-[#3D5EF6]/15 shadow-sm"
+                            : "bg-[#EEF1FE] shadow-sm"
+                          : isDark
+                          ? "bg-white/[0.02] hover:bg-white/5"
+                          : "bg-[#FAFAFA] hover:bg-[#EEF1FE]/30"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3.5">
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => {}}
+                          className="w-4 h-4 rounded text-[#3D5EF6] focus:ring-[#3D5EF6] accent-[#3D5EF6] cursor-pointer"
+                        />
+                        <div>
+                          <div className="flex flex-wrap items-center gap-2">
+                            <p className={`font-extrabold text-xs ${headingText}`}>{p.seafarerName}</p>
+                            <span className={`font-mono text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                              isDark ? "bg-white/5 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
+                            }`}>
+                              INDoS: {candidateIndos}
+                            </span>
+                            <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                              isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
+                            }`}>
+                              {p.id}
+                            </span>
+                          </div>
+                          <p className={`text-[11px] mt-1 font-medium ${subText}`}>
+                            {p.courseName} • Enrolled {new Date(p.purchaseDate).toLocaleDateString("en-IN")}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-right shrink-0">
+                        <p className={`font-black text-sm ${headingText}`}>
+                          ₹{Number(p.payableAmount).toLocaleString("en-IN")}
+                        </p>
+                        {p.settlementStatus === "Partial" || (p.remainingAmount && p.remainingAmount > 0) ? (
+                          <span className="text-[10px] font-bold text-[#B45309] bg-[#FEF3C7] px-2.5 py-0.5 rounded-full block mt-0.5">
+                            Remaining Due Balance
+                          </span>
+                        ) : (
+                          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full inline-block mt-0.5 bg-[#FEF3C7] text-[#B45309]">
+                            {p.settlementStatus || "Pending"}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Bottom Form Actions: Cancel & Submit buttons */}
             <div className={`flex items-center justify-end gap-3 pt-4 border-t ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
               <Link
                 href="/partner/settlements"

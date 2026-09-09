@@ -132,7 +132,11 @@ export default function CreateSeafarerPage() {
   const handlePersonalFormChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    let val = e.target.value;
+    if (["indosNum", "passportNum", "cdcNum"].includes(e.target.name)) {
+      val = val.toUpperCase();
+    }
+    setFormData({ ...formData, [e.target.name]: val });
     if (error) setError("");
   };
 
@@ -143,6 +147,21 @@ export default function CreateSeafarerPage() {
 
     if (!formData.name || !formData.email || !formData.phone) {
       setError("Please fill in candidate Name, Email, and Phone number.");
+      return;
+    }
+
+    if (formData.indosNum && formData.indosNum.length > 8) {
+      setError("INDoS number cannot exceed 8 characters.");
+      return;
+    }
+
+    if (formData.passportNum && formData.passportNum.length > 9) {
+      setError("Passport number cannot exceed 9 characters.");
+      return;
+    }
+
+    if (formData.cdcNum && formData.cdcNum.length > 12) {
+      setError("CDC number cannot exceed 12 characters.");
       return;
     }
 
@@ -303,26 +322,25 @@ export default function CreateSeafarerPage() {
   const totalMandatoryCount = REQUIRED_DOCUMENTS_SPEC.filter((i) => i.isRequired).length;
   const progressPercent = Math.round((uploadedMandatoryCount / totalMandatoryCount) * 100);
 
-  // Modern SaaS Card Tokens
   const cardBg = isDark
-    ? "bg-[#0B1528] border-white/10 shadow-2xl"
-    : "bg-white border-slate-200/90 shadow-md";
+    ? "bg-[#0B0F19] rounded-[16px] border-0 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
+    : "bg-[#FFFFFF] rounded-[16px] border-0 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)]";
 
-  const headingText = isDark ? "text-white font-extrabold" : "text-slate-900 font-extrabold";
-  const subText = isDark ? "text-slate-300 font-medium" : "text-slate-600 font-medium";
-  const labelText = isDark ? "text-slate-200 font-bold" : "text-slate-800 font-bold";
+  const headingText = isDark ? "text-white font-extrabold" : "text-[#111827] font-extrabold";
+  const subText = isDark ? "text-gray-400 font-medium" : "text-[#6B7280] font-medium";
+  const labelText = isDark ? "text-gray-300 font-bold" : "text-[#111827] font-bold";
   const inputStyle = isDark
-    ? "bg-[#080F1E] border-white/15 text-white placeholder-slate-500 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400"
-    : "bg-slate-50 border-slate-300 text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:ring-1 focus:ring-blue-600";
+    ? "bg-[#111827] border border-[#1F2937] text-white placeholder-gray-500 focus:border-[#3D5EF6]"
+    : "bg-[#FAFAFA] border border-[#E5E7EB] text-[#111827] placeholder-[#9CA3AF] focus:border-[#3D5EF6] shadow-sm";
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn pb-16">
+    <div className="max-w-4xl space-y-8 animate-fadeIn pb-16">
       {/* Page Header */}
       <div>
         <Link
           href="/partner/seafarers/search"
-          className={`inline-flex items-center gap-1.5 text-xs font-bold transition-colors mb-3 ${
-            isDark ? "text-cyan-400 hover:text-cyan-300" : "text-blue-600 hover:text-blue-700"
+          className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors mb-3 ${
+            isDark ? "text-gray-400 hover:text-white" : "text-[#6B7280] hover:text-[#3D5EF6]"
           }`}
         >
           <ArrowLeft className="w-4 h-4" /> Back to Search Seafarers
@@ -338,14 +356,10 @@ export default function CreateSeafarerPage() {
       {/* 2-Step Progress Indicator Bar */}
       <div className="grid grid-cols-2 gap-4">
         <div
-          className={`p-4 rounded-2xl border text-left transition-all ${
+          className={`p-4 rounded-[16px] text-left transition-all ${
             currentStep === 1
-              ? isDark
-                ? "bg-cyan-500/15 border-cyan-400 text-cyan-300 shadow-lg shadow-cyan-500/10"
-                : "bg-blue-50 border-blue-600 text-blue-950 shadow-md"
-              : isDark
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-400"
-              : "bg-emerald-50 border-emerald-300 text-emerald-900"
+              ? "bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 dark:text-[#3D5EF6] shadow-sm"
+              : "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
           }`}
         >
           <p className="text-[10px] font-black uppercase tracking-wider">Step 1</p>
@@ -355,14 +369,12 @@ export default function CreateSeafarerPage() {
         </div>
 
         <div
-          className={`p-4 rounded-2xl border text-left transition-all ${
+          className={`p-4 rounded-[16px] text-left transition-all ${
             currentStep === 2
-              ? isDark
-                ? "bg-cyan-500/15 border-cyan-400 text-cyan-300 shadow-lg shadow-cyan-500/10"
-                : "bg-blue-50 border-blue-600 text-blue-950 shadow-md"
+              ? "bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 dark:text-[#3D5EF6] shadow-sm"
               : isDark
-              ? "bg-white/[0.03] border-white/10 text-slate-400"
-              : "bg-slate-100 border-slate-300 text-slate-600"
+              ? "bg-white/[0.02] text-gray-500"
+              : "bg-[#FAFAFA] text-[#6B7280]"
           }`}
         >
           <p className="text-[10px] font-black uppercase tracking-wider">Step 2</p>
@@ -381,13 +393,13 @@ export default function CreateSeafarerPage() {
 
       {/* STEP 1: Personal & Identity Information */}
       {currentStep === 1 && (
-        <form onSubmit={handleStep1Submit} className={`p-6 md:p-8 rounded-3xl border space-y-6 ${cardBg}`}>
-          <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-white/10" : "border-slate-200"}`}>
+        <form onSubmit={handleStep1Submit} className={`p-6 md:p-8 space-y-6 ${cardBg}`}>
+          <div className={`flex items-center justify-between pb-4 border-b ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <div>
               <h2 className={`text-base font-extrabold ${headingText}`}>Step 1: Candidate Personal Details</h2>
               <p className={`text-xs mt-0.5 ${subText}`}>Fill personal identity details and INDoS / Passport numbers</p>
             </div>
-            <UserPlus className={`w-6 h-6 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
+            <UserPlus className="w-6 h-6 text-[#3D5EF6]" />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 text-xs">
@@ -400,7 +412,7 @@ export default function CreateSeafarerPage() {
                 value={formData.name}
                 onChange={handlePersonalFormChange}
                 placeholder="e.g. Rahul Kumar"
-                className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-semibold ${inputStyle}`}
+                className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-semibold ${inputStyle}`}
               />
             </div>
 
@@ -413,7 +425,7 @@ export default function CreateSeafarerPage() {
                 value={formData.email}
                 onChange={handlePersonalFormChange}
                 placeholder="e.g. rahul@example.com"
-                className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-semibold ${inputStyle}`}
+                className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-semibold ${inputStyle}`}
               />
             </div>
 
@@ -423,46 +435,59 @@ export default function CreateSeafarerPage() {
                 type="text"
                 name="phone"
                 required
+                maxLength={13}
                 value={formData.phone}
                 onChange={handlePersonalFormChange}
                 placeholder="+91 98765 43210"
-                className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-semibold ${inputStyle}`}
+                className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-semibold ${inputStyle}`}
               />
             </div>
 
             <div>
-              <label className={`block mb-1.5 ${labelText}`}>INDoS Number</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={`block ${labelText}`}>INDoS Number</label>
+                <span className={`text-[10px] font-mono ${subText}`}>8 chars max</span>
+              </div>
               <input
                 type="text"
                 name="indosNum"
+                maxLength={8}
                 value={formData.indosNum}
                 onChange={handlePersonalFormChange}
-                placeholder="e.g. 20N1234"
-                className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-mono font-bold ${inputStyle}`}
+                placeholder="e.g. 20N1234 (8 chars)"
+                className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-mono font-bold uppercase ${inputStyle}`}
               />
             </div>
 
             <div>
-              <label className={`block mb-1.5 ${labelText}`}>Passport Number</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={`block ${labelText}`}>Passport Number</label>
+                <span className={`text-[10px] font-mono ${subText}`}>8-9 chars max</span>
+              </div>
               <input
                 type="text"
                 name="passportNum"
+                maxLength={9}
                 value={formData.passportNum}
                 onChange={handlePersonalFormChange}
-                placeholder="e.g. Z1234567"
-                className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-mono font-bold ${inputStyle}`}
+                placeholder="e.g. Z1234567 (8 chars)"
+                className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-mono font-bold uppercase ${inputStyle}`}
               />
             </div>
 
             <div>
-              <label className={`block mb-1.5 ${labelText}`}>CDC Number</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className={`block ${labelText}`}>CDC Number</label>
+                <span className={`text-[10px] font-mono ${subText}`}>12 chars max</span>
+              </div>
               <input
                 type="text"
                 name="cdcNum"
+                maxLength={12}
                 value={formData.cdcNum}
                 onChange={handlePersonalFormChange}
-                placeholder="e.g. MUM123456"
-                className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-mono font-bold ${inputStyle}`}
+                placeholder="e.g. MUM123456 (Max 12 chars)"
+                className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-mono font-bold uppercase ${inputStyle}`}
               />
             </div>
 
@@ -473,7 +498,7 @@ export default function CreateSeafarerPage() {
                 name="dob"
                 value={formData.dob}
                 onChange={handlePersonalFormChange}
-                className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-semibold ${inputStyle}`}
+                className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-semibold ${inputStyle}`}
               />
             </div>
 
@@ -484,16 +509,16 @@ export default function CreateSeafarerPage() {
                 name="nationality"
                 value={formData.nationality}
                 onChange={handlePersonalFormChange}
-                className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-semibold ${inputStyle}`}
+                className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-semibold ${inputStyle}`}
               />
             </div>
           </div>
 
-          <div className={`flex justify-end pt-4 border-t ${isDark ? "border-white/10" : "border-slate-200"}`}>
+          <div className={`flex justify-end pt-4 border-t ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <button
               type="submit"
               disabled={loading}
-              className="px-6 py-3 rounded-xl text-xs font-black bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white shadow-lg shadow-blue-500/25 flex items-center gap-2 transition-all cursor-pointer"
+              className="px-6 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm flex items-center gap-2 transition-colors cursor-pointer"
             >
               {loading ? "Creating Candidate..." : "Save & Continue to Document Upload"}
               <ArrowRight className="w-4 h-4" />
@@ -507,16 +532,14 @@ export default function CreateSeafarerPage() {
         <div className="space-y-6">
           
           {/* Header & Progress Indicator */}
-          <div className={`p-6 rounded-3xl border flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${cardBg}`}>
+          <div className={`p-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ${cardBg}`}>
             <div>
               <div className="flex items-center gap-2">
-                <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-0.5 rounded-full ${
-                  isDark ? "bg-cyan-500/15 text-cyan-300 border border-cyan-500/30" : "bg-blue-100 text-blue-900 border border-blue-300"
-                }`}>
+                <span className="text-[10px] font-bold uppercase tracking-widest px-3 py-0.5 rounded-full bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15">
                   Candidate: {createdSeafarer.name}
                 </span>
-                <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded ${
-                  isDark ? "bg-white/5 text-slate-300" : "bg-slate-100 text-slate-800"
+                <span className={`text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full ${
+                  isDark ? "bg-white/5 text-gray-300" : "bg-[#F3F4F6] text-[#6B7280]"
                 }`}>
                   ID: {createdSeafarer.id}
                 </span>
@@ -530,16 +553,16 @@ export default function CreateSeafarerPage() {
             </div>
 
             {/* Progress Meter */}
-            <div className="w-full md:w-56 p-3.5 rounded-2xl bg-white/[0.03] border border-white/10 space-y-2 shrink-0">
+            <div className={`w-full md:w-56 p-3.5 rounded-[16px] space-y-2 shrink-0 ${isDark ? "bg-[#111827]" : "bg-[#FAFAFA]"}`}>
               <div className="flex justify-between items-center text-xs font-bold">
                 <span className={subText}>Mandatory Progress</span>
-                <span className={isDark ? "text-cyan-400 font-extrabold" : "text-blue-700 font-extrabold"}>
+                <span className="text-[#3D5EF6] font-bold">
                   {uploadedMandatoryCount} / {totalMandatoryCount}
                 </span>
               </div>
-              <div className="w-full h-2 rounded-full bg-slate-200 dark:bg-white/10 overflow-hidden">
+              <div className="w-full h-2 rounded-full bg-gray-200 dark:bg-white/10 overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-500 rounded-full"
+                  className="h-full bg-[#3D5EF6] transition-all duration-500 rounded-full"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
@@ -562,24 +585,22 @@ export default function CreateSeafarerPage() {
               return (
                 <div
                   key={item.type}
-                  className={`p-5 rounded-3xl border transition-all ${
+                  className={`p-5 rounded-[16px] transition-all card-elevated border-0 ${
                     uploadedDoc
                       ? isDark
-                        ? "bg-emerald-500/10 border-emerald-500/40 shadow-lg shadow-emerald-500/5"
-                        : "bg-emerald-50/80 border-emerald-300 shadow-sm"
+                        ? "bg-[#111827]"
+                        : "bg-[#DCFCE7]/20"
                       : isDark
-                      ? "bg-[#0B1528] border-white/10 shadow-lg"
-                      : "bg-white border-slate-200 shadow-sm"
+                      ? "bg-[#111827]"
+                      : "bg-[#FFFFFF]"
                   }`}
                 >
                   {/* Top Block: Document Header (Icon, Title, Status Badge & Desc) */}
                   <div className="flex items-start gap-4">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shrink-0 ${
+                    <div className={`w-12 h-12 rounded-[12px] flex items-center justify-center text-xl shrink-0 ${
                       uploadedDoc
-                        ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                        : isDark
-                        ? "bg-white/5 text-cyan-300 border border-white/10"
-                        : "bg-blue-50 text-blue-700 border border-blue-200"
+                        ? "bg-[#DCFCE7] text-[#16A34A]"
+                        : "bg-[#EEF1FE] text-[#3D5EF6]"
                     }`}>
                       {item.icon}
                     </div>
@@ -592,13 +613,11 @@ export default function CreateSeafarerPage() {
                             className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${
                               item.isRequired
                                 ? uploadedDoc
-                                  ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
-                                  : isDark
-                                  ? "bg-rose-500/20 text-rose-300 border border-rose-500/30"
-                                  : "bg-rose-100 text-rose-800 border border-rose-300"
+                                  ? "bg-[#DCFCE7] text-[#16A34A]"
+                                  : "bg-[#FEE2E2] text-[#DC2626]"
                                 : isDark
-                                ? "bg-slate-500/20 text-slate-400"
-                                : "bg-slate-100 text-slate-600"
+                                ? "bg-white/10 text-[#9CA3AF]"
+                                : "bg-slate-100 text-[#6B7280]"
                             }`}
                           >
                             {item.isRequired ? (uploadedDoc ? "✓ Verified" : "Mandatory") : "Optional"}
@@ -610,33 +629,21 @@ export default function CreateSeafarerPage() {
                             <button
                               type="button"
                               onClick={() => setViewingDoc(uploadedDoc)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold border flex items-center gap-1 cursor-pointer transition-all ${
-                                isDark
-                                  ? "bg-cyan-500/15 text-cyan-300 border-cyan-500/30 hover:bg-cyan-500/25"
-                                  : "bg-blue-100 text-blue-900 border-blue-300 hover:bg-blue-200"
-                              }`}
+                              className="px-3 py-1.5 rounded-[10px] text-xs font-extrabold border border-[#E5E7EB] flex items-center gap-1 cursor-pointer transition-all bg-[#EEF1FE] text-[#3D5EF6] hover:bg-[#3D5EF6] hover:text-white"
                             >
                               <Eye className="w-3.5 h-3.5" /> View
                             </button>
                             <button
                               type="button"
                               onClick={() => openEditModal(uploadedDoc)}
-                              className={`px-3 py-1.5 rounded-xl text-xs font-extrabold border flex items-center gap-1 cursor-pointer transition-all ${
-                                isDark
-                                  ? "bg-amber-500/15 text-amber-300 border-amber-500/30 hover:bg-amber-500/25"
-                                  : "bg-amber-100 text-amber-900 border-amber-300 hover:bg-amber-200"
-                              }`}
+                              className="px-3 py-1.5 rounded-[10px] text-xs font-extrabold border border-[#E5E7EB] flex items-center gap-1 cursor-pointer transition-all bg-[#FEF3C7] text-[#B45309] hover:bg-[#B45309] hover:text-white"
                             >
                               <Edit3 className="w-3.5 h-3.5" /> Edit
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDeleteDoc(uploadedDoc.id)}
-                              className={`p-1.5 rounded-xl text-xs border transition-all cursor-pointer ${
-                                isDark
-                                  ? "bg-rose-500/15 text-rose-300 border-rose-500/30 hover:bg-rose-500/25"
-                                  : "bg-rose-100 text-rose-800 border-rose-300 hover:bg-rose-200"
-                              }`}
+                              className="p-1.5 rounded-[10px] text-xs border border-[#E5E7EB] transition-all cursor-pointer bg-[#FEE2E2] text-[#DC2626] hover:bg-[#DC2626] hover:text-white"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
@@ -650,31 +657,34 @@ export default function CreateSeafarerPage() {
                   {/* Bottom Block: Form OR Uploaded Record Summary */}
                   {uploadedDoc ? (
                     <div className={`mt-4 pt-3 border-t text-xs flex flex-wrap items-center justify-between gap-2 ${
-                      isDark ? "border-white/10" : "border-emerald-200"
+                      isDark ? "border-white/10" : "border-[#E5E7EB]"
                     }`}>
                       <div className="flex flex-wrap items-center gap-4">
-                        <span className={`font-mono font-bold ${isDark ? "text-cyan-300" : "text-emerald-900"}`}>
+                        <span className="font-mono font-bold text-[#3D5EF6]">
                           Doc #: {uploadedDoc.documentNumber || "Recorded"}
                         </span>
-                        <span className={isDark ? "text-slate-300" : "text-slate-700 font-semibold"}>
+                        <span className={isDark ? "text-slate-300" : "text-[#111827] font-semibold"}>
                           Expiry: {uploadedDoc.expiryDate || "N/A"}
                         </span>
-                        <span className={`truncate max-w-xs ${isDark ? "text-slate-400" : "text-slate-600"}`}>
+                        <span className={`truncate max-w-xs ${subText}`}>
                           File: {uploadedDoc.fileName || "Attached"}
                         </span>
                       </div>
                     </div>
                   ) : (
-                    <div className={`mt-4 pt-4 border-t space-y-3 ${isDark ? "border-white/10" : "border-slate-200"}`}>
+                    <div className={`mt-4 pt-4 border-t space-y-3 ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                         <div>
-                          <label className={`block text-[11px] mb-1 font-bold ${labelText}`}>Document Number</label>
+                          <label className={`block text-[11px] mb-1 font-bold ${labelText}`}>
+                            Document Number {item.type === "INDoS Certificate" ? "(8 chars max)" : item.type === "Passport Copy" ? "(8-9 chars max)" : item.type.includes("CDC") ? "(12 chars max)" : ""}
+                          </label>
                           <input
                             type="text"
+                            maxLength={item.type === "INDoS Certificate" ? 8 : item.type === "Passport Copy" ? 9 : item.type.includes("CDC") ? 12 : 25}
                             value={rowState.docNum}
-                            onChange={(e) => updateRowInput(item.type, "docNum", e.target.value)}
-                            placeholder="Doc # (e.g. Z1234567)"
-                            className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-mono font-bold ${inputStyle}`}
+                            onChange={(e) => updateRowInput(item.type, "docNum", e.target.value.toUpperCase())}
+                            placeholder={item.type === "INDoS Certificate" ? "e.g. 20N1234 (8 chars)" : item.type === "Passport Copy" ? "e.g. Z1234567 (8 chars)" : "Doc #"}
+                            className={`w-full px-3.5 py-2.5 rounded-[10px] border outline-none font-mono font-bold uppercase ${inputStyle}`}
                           />
                         </div>
 
@@ -684,7 +694,7 @@ export default function CreateSeafarerPage() {
                             type="date"
                             value={rowState.expiry}
                             onChange={(e) => updateRowInput(item.type, "expiry", e.target.value)}
-                            className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-semibold ${inputStyle}`}
+                            className={`w-full px-3.5 py-2.5 rounded-[10px] border outline-none font-semibold ${inputStyle}`}
                           />
                         </div>
 
@@ -694,17 +704,17 @@ export default function CreateSeafarerPage() {
                             type="file"
                             accept=".pdf,.jpg,.jpeg,.png"
                             onChange={(e) => updateRowInput(item.type, "file", e.target.files?.[0] || null)}
-                            className={`w-full px-3 py-2 rounded-xl border outline-none text-[11px] font-medium file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-[10px] file:font-bold ${
+                            className={`w-full px-3 py-2 rounded-[10px] border outline-none text-[11px] font-medium file:mr-2 file:py-1 file:px-2.5 file:rounded-[8px] file:border-0 file:text-[10px] file:font-bold ${
                               isDark
-                                ? "bg-white/5 border-white/15 text-slate-300 file:bg-cyan-500/20 file:text-cyan-300"
-                                : "bg-slate-50 border-slate-300 text-slate-800 file:bg-blue-100 file:text-blue-900"
+                                ? "bg-white/5 border-white/15 text-slate-300 file:bg-[#EEF1FE] file:text-[#3D5EF6]"
+                                : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] file:bg-[#EEF1FE] file:text-[#3D5EF6]"
                             }`}
                           />
                         </div>
                       </div>
 
                       {rowState.errorMsg && (
-                        <p className="text-[11px] text-rose-500 font-bold">{rowState.errorMsg}</p>
+                        <p className="text-[11px] text-[#DC2626] font-bold">{rowState.errorMsg}</p>
                       )}
 
                       <div className="flex justify-end pt-1">
@@ -712,11 +722,7 @@ export default function CreateSeafarerPage() {
                           type="button"
                           disabled={rowState.uploading}
                           onClick={() => handleRowUpload(item.type)}
-                          className={`px-5 py-2.5 rounded-xl text-xs font-black shadow-md transition-all cursor-pointer flex items-center gap-1.5 ${
-                            isDark
-                              ? "bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/20"
-                              : "bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20"
-                          }`}
+                          className="px-5 py-2.5 rounded-[10px] text-xs font-black shadow-md transition-all cursor-pointer flex items-center gap-1.5 bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-blue-500/20"
                         >
                           <FileUp className="w-4 h-4" />
                           {rowState.uploading ? "Uploading..." : "Upload"}
@@ -730,11 +736,11 @@ export default function CreateSeafarerPage() {
           </div>
 
           {/* Bottom Actions Banner */}
-          <div className={`p-6 rounded-3xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${cardBg}`}>
+          <div className={`p-6 rounded-[16px] card-elevated border-0 flex flex-col sm:flex-row items-center justify-between gap-4 ${cardBg}`}>
             <Link
               href={`/partner/seafarers/${createdSeafarer.id}`}
-              className={`w-full sm:w-auto px-5 py-3 rounded-xl text-xs font-extrabold border transition-all text-center ${
-                isDark ? "bg-white/5 hover:bg-white/10 border-white/10 text-slate-200" : "bg-slate-100 hover:bg-slate-200 text-slate-800 border-slate-300"
+              className={`w-full sm:w-auto px-5 py-3 rounded-[10px] text-xs font-extrabold border transition-all text-center ${
+                isDark ? "bg-white/5 hover:bg-white/10 border-white/10 text-slate-200" : "bg-[#FAFAFA] hover:bg-slate-100 text-[#111827] border-[#E5E7EB]"
               }`}
             >
               View Seafarer Master Profile
@@ -742,10 +748,10 @@ export default function CreateSeafarerPage() {
 
             <Link
               href={`/partner/purchases/create?seafarerId=${createdSeafarer.id}`}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs font-black bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 text-white shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
+              className="w-full sm:w-auto px-6 py-3 rounded-[10px] text-xs font-black bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-lg shadow-blue-500/25 flex items-center justify-center gap-2 transition-all cursor-pointer"
             >
               <ShoppingCart className="w-4 h-4" />
-              Proceed to Physical Course Purchase ➔
+              Proceed to Course Purchase ➔
             </Link>
           </div>
         </div>
@@ -754,21 +760,21 @@ export default function CreateSeafarerPage() {
       {/* VIEW DOCUMENT MODAL */}
       {viewingDoc && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
-          <div className={`w-full max-w-lg p-6 rounded-3xl border ${cardBg} relative space-y-4`}>
+          <div className={`w-full max-w-lg p-6 rounded-[16px] card-elevated border-0 ${cardBg} relative space-y-4`}>
             <button
               onClick={() => setViewingDoc(null)}
-              className={`absolute right-4 top-4 ${isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}
+              className={`absolute right-4 top-4 ${isDark ? "text-slate-400 hover:text-white" : "text-[#6B7280] hover:text-[#111827]"}`}
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className={`flex items-center gap-2 ${isDark ? "text-cyan-400" : "text-blue-600"}`}>
+            <div className="flex items-center gap-2 text-[#3D5EF6]">
               <Eye className="w-5 h-5" />
               <h3 className={`text-base font-extrabold ${headingText}`}>{viewingDoc.type}</h3>
             </div>
 
-            <div className={`p-4 rounded-2xl border space-y-2.5 text-xs font-semibold ${
-              isDark ? "bg-white/[0.03] border-white/10" : "bg-slate-50 border-slate-200"
+            <div className={`p-4 rounded-[12px] border space-y-2.5 text-xs font-semibold ${
+              isDark ? "bg-white/[0.03] border-white/10" : "bg-[#FAFAFA] border-[#E5E7EB]"
             }`}>
               <div className="flex justify-between">
                 <span className={subText}>Candidate:</span>
@@ -776,7 +782,7 @@ export default function CreateSeafarerPage() {
               </div>
               <div className="flex justify-between">
                 <span className={subText}>Document Number:</span>
-                <span className={`font-mono font-bold ${isDark ? "text-cyan-300" : "text-blue-700"}`}>{viewingDoc.documentNumber || "N/A"}</span>
+                <span className="font-mono font-bold text-[#3D5EF6]">{viewingDoc.documentNumber || "N/A"}</span>
               </div>
               <div className="flex justify-between">
                 <span className={subText}>Expiry Date:</span>
@@ -788,14 +794,14 @@ export default function CreateSeafarerPage() {
               </div>
               <div className="flex justify-between">
                 <span className={subText}>File Name:</span>
-                <span className={`font-mono ${isDark ? "text-slate-300" : "text-slate-800"}`}>{viewingDoc.fileName || "document.pdf"}</span>
+                <span className={`font-mono ${isDark ? "text-slate-300" : "text-[#111827]"}`}>{viewingDoc.fileName || "document.pdf"}</span>
               </div>
             </div>
 
-            <div className={`p-6 border border-dashed rounded-2xl text-center space-y-3 ${
-              isDark ? "border-white/10" : "border-slate-300"
+            <div className={`p-6 border border-dashed rounded-[12px] text-center space-y-3 ${
+              isDark ? "border-white/10" : "border-[#E5E7EB]"
             }`}>
-              <FileText className={`w-10 h-10 mx-auto ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
+              <FileText className="w-10 h-10 mx-auto text-[#3D5EF6]" />
               <p className={`text-xs font-bold ${headingText}`}>
                 Document Preview ({viewingDoc.fileName || "Verified Record"})
               </p>
@@ -804,7 +810,7 @@ export default function CreateSeafarerPage() {
                   href={viewingDoc.fileUrl}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-md"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-[10px] text-xs font-bold bg-[#3D5EF6] text-white hover:bg-[#2E4FE0] shadow-md"
                 >
                   <Download className="w-3.5 h-3.5" /> Download / View File
                 </a>
@@ -818,8 +824,8 @@ export default function CreateSeafarerPage() {
             <div className="flex justify-end pt-2">
               <button
                 onClick={() => setViewingDoc(null)}
-                className={`px-5 py-2 rounded-xl text-xs font-bold ${
-                  isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-slate-200 hover:bg-slate-300 text-slate-900"
+                className={`px-5 py-2 rounded-[10px] text-xs font-bold ${
+                  isDark ? "bg-white/10 hover:bg-white/20 text-white" : "bg-slate-200 hover:bg-slate-300 text-[#111827]"
                 }`}
               >
                 Close Preview
@@ -832,15 +838,15 @@ export default function CreateSeafarerPage() {
       {/* EDIT DOCUMENT MODAL */}
       {editingDoc && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fadeIn">
-          <div className={`w-full max-w-lg p-6 rounded-3xl border ${cardBg} relative space-y-4`}>
+          <div className={`w-full max-w-lg p-6 rounded-[16px] card-elevated border-0 ${cardBg} relative space-y-4`}>
             <button
               onClick={() => setEditingDoc(null)}
-              className={`absolute right-4 top-4 ${isDark ? "text-slate-400 hover:text-white" : "text-slate-500 hover:text-slate-900"}`}
+              className={`absolute right-4 top-4 ${isDark ? "text-slate-400 hover:text-white" : "text-[#6B7280] hover:text-[#111827]"}`}
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-2 text-amber-500">
+            <div className="flex items-center gap-2 text-[#3D5EF6]">
               <Edit3 className="w-5 h-5" />
               <h3 className={`text-base font-extrabold ${headingText}`}>Edit {editingDoc.type}</h3>
             </div>
@@ -852,7 +858,7 @@ export default function CreateSeafarerPage() {
                   type="text"
                   value={editFormData.documentNumber}
                   onChange={(e) => setEditFormData({ ...editFormData, documentNumber: e.target.value })}
-                  className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-mono font-bold ${inputStyle}`}
+                  className={`w-full px-3.5 py-2.5 rounded-[10px] border outline-none font-mono font-bold ${inputStyle}`}
                 />
               </div>
 
@@ -863,7 +869,7 @@ export default function CreateSeafarerPage() {
                     type="date"
                     value={editFormData.expiryDate}
                     onChange={(e) => setEditFormData({ ...editFormData, expiryDate: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-semibold ${inputStyle}`}
+                    className={`w-full px-3.5 py-2.5 rounded-[10px] border outline-none font-semibold ${inputStyle}`}
                   />
                 </div>
 
@@ -873,7 +879,7 @@ export default function CreateSeafarerPage() {
                     type="text"
                     value={editFormData.placeOfIssue}
                     onChange={(e) => setEditFormData({ ...editFormData, placeOfIssue: e.target.value })}
-                    className={`w-full px-3.5 py-2.5 rounded-xl border outline-none font-semibold ${inputStyle}`}
+                    className={`w-full px-3.5 py-2.5 rounded-[10px] border outline-none font-semibold ${inputStyle}`}
                   />
                 </div>
               </div>
@@ -884,10 +890,10 @@ export default function CreateSeafarerPage() {
                   type="file"
                   accept=".pdf,.jpg,.jpeg,.png"
                   onChange={(e) => setEditFile(e.target.files?.[0] || null)}
-                  className={`w-full px-3.5 py-2 rounded-xl border outline-none font-medium file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold ${
+                  className={`w-full px-3.5 py-2 rounded-[10px] border outline-none font-medium file:mr-3 file:py-1 file:px-3 file:rounded-[8px] file:border-0 file:text-xs file:font-bold ${
                     isDark
-                      ? "bg-white/5 border-white/10 text-slate-200 file:bg-amber-500/20 file:text-amber-300"
-                      : "bg-slate-50 border-slate-300 text-slate-800 file:bg-amber-100 file:text-amber-900"
+                      ? "bg-white/5 border-white/10 text-slate-200 file:bg-[#EEF1FE] file:text-[#3D5EF6]"
+                      : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] file:bg-[#EEF1FE] file:text-[#3D5EF6]"
                   }`}
                 />
               </div>
@@ -896,8 +902,8 @@ export default function CreateSeafarerPage() {
                 <button
                   type="button"
                   onClick={() => setEditingDoc(null)}
-                  className={`px-4 py-2.5 rounded-xl text-xs font-bold ${
-                    isDark ? "bg-white/10 text-white" : "bg-slate-200 text-slate-800"
+                  className={`px-4 py-2.5 rounded-[10px] text-xs font-bold ${
+                    isDark ? "bg-white/10 text-white" : "bg-slate-200 text-[#111827]"
                   }`}
                 >
                   Cancel
@@ -905,7 +911,7 @@ export default function CreateSeafarerPage() {
                 <button
                   type="submit"
                   disabled={savingEdit}
-                  className="px-5 py-2.5 rounded-xl text-xs font-extrabold bg-amber-500 hover:bg-amber-400 text-slate-950 transition-all shadow-md cursor-pointer"
+                  className="px-5 py-2.5 rounded-[10px] text-xs font-extrabold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-all shadow-md cursor-pointer"
                 >
                   {savingEdit ? "Saving..." : "Save Document Changes"}
                 </button>

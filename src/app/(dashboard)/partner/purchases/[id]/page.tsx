@@ -74,7 +74,7 @@ export default function PurchaseDetailsPage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn pb-12">
+    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -181,7 +181,7 @@ export default function PurchaseDetailsPage() {
               <p className={`text-[11px] font-mono font-bold ${isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]"}`}>Code: {purchase.courseCode || "STCW"}</p>
               <div className="flex items-center gap-2 text-[11px]">
                 <span className="px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400 font-semibold">
-                  In-Person Training
+                  Classroom Training
                 </span>
                 <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Classroom & Practical</span>
               </div>

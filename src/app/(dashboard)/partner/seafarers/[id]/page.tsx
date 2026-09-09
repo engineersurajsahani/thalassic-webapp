@@ -49,8 +49,8 @@ export default function SeafarerProfilePage() {
   }, [seafarerId]);
 
   const cardBg = isDark
-    ? "bg-[#0B0F19] rounded-[16px] border-0 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
-    : "bg-[#FFFFFF] rounded-[16px] border-0 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)]";
+    ? "bg-[#111827] rounded-[16px] border-0 card-elevated"
+    : "bg-[#FFFFFF] rounded-[16px] border-0 card-elevated";
 
   if (loading) {
     return (
@@ -80,7 +80,7 @@ export default function SeafarerProfilePage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 animate-fadeIn pb-12">
+    <div className="max-w-5xl space-y-8 animate-fadeIn pb-12">
       {/* Back button & Action Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -235,7 +235,9 @@ export default function SeafarerProfilePage() {
                   <tr key={p.id} className={isDark ? "hover:bg-white/[0.02] transition-colors duration-200" : "hover:bg-[#EEF1FE]/30 transition-colors duration-200"}>
                     <td className="py-3 px-3 font-mono font-bold text-[#3D5EF6]">{p.id}</td>
                     <td className={`py-3 px-3 font-semibold ${isDark ? "text-white" : "text-[#111827]"}`}>{p.courseName}</td>
-                    <td className={`py-3 px-3 ${isDark ? "text-slate-300" : "text-[#6B7280]"}`}>In-Person Training</td>
+                    <td className={`py-3 px-3 ${isDark ? "text-slate-300" : "text-[#6B7280]"}`}>
+                      {p.trainingType || "Classroom Training"}
+                    </td>
                     <td className="py-3 px-3">
                       <span
                         className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${

@@ -60,7 +60,7 @@ export default function PartnerLayout({
 
         {/* Page Content */}
         <main className="flex-1 overflow-y-auto custom-scrollbar">
-          <div className="p-6 md:p-8 max-w-7xl mx-auto">{children}</div>
+          <div className="p-6 w-full max-w-7xl">{children}</div>
         </main>
       </div>
     </div>

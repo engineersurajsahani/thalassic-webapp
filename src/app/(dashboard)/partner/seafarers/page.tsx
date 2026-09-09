@@ -53,8 +53,8 @@ export default function SeafarersDirectoryPage() {
   });
 
   const cardBg = isDark
-    ? "bg-[#0B0F19] rounded-[16px] border-0 shadow-[0_4px_20px_rgba(0,0,0,0.3)]"
-    : "bg-[#FFFFFF] rounded-[16px] border-0 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)]";
+    ? "bg-[#111827] rounded-[16px] border-0 card-elevated"
+    : "bg-[#FFFFFF] rounded-[16px] border-0 card-elevated";
 
   return (
     <div className="space-y-8 animate-fadeIn pb-10">

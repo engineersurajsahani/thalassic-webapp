@@ -55,7 +55,7 @@ export default function AgentAdminSidebar() {
     <aside className={`w-60 h-screen flex flex-col shrink-0 ${sidebarBg}`}>
 
       {/* Brand Logo */}
-      <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
+      <div className={`h-16 px-5 flex items-center gap-3 border-b ${brandBorder} shrink-0`}>
         <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#3D5EF6]/20 shrink-0">
           <Image
             src="/logo.jpeg"
@@ -72,20 +72,20 @@ export default function AgentAdminSidebar() {
       </div>
 
       {/* Nav label */}
-      <div className="px-5 pt-5 pb-2">
+      <div className="px-5 pt-4 pb-2">
         <p className={`text-[10px] font-semibold tracking-widest uppercase ${navLabel}`}>
           Navigation
         </p>
       </div>
 
       {/* Menu */}
-      <nav className="flex-1 px-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-4 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
           const active = isActive(item.href);
           return (
             <Link key={item.href} href={item.href}
-              className={`group flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${active ? activeLink : inactiveLink}`}
+              className={`group flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${active ? activeLink : inactiveLink}`}
             >
               <div className="flex items-center gap-3">
                 <Icon className={`w-4 h-4 shrink-0 ${active ? activeIcon : inactiveIcon}`} />
@@ -98,7 +98,7 @@ export default function AgentAdminSidebar() {
       </nav>
 
       {/* User + logout */}
-      <div className={`p-3 border-t ${footBorder} space-y-1`}>
+      <div className={`p-4 border-t ${footBorder} space-y-2`}>
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
           <div className="w-7 h-7 rounded-full bg-[#3D5EF6] flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
             {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "PA"}

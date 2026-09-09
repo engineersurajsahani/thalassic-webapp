@@ -70,16 +70,16 @@ export default function AgentManagement() {
   const [commError, setCommError] = useState("");
   const [commSuccess, setCommSuccess] = useState(false);
 
-  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+  const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
     isDark
-      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
-      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+      ? "bg-[#111827] text-white"
+      : "bg-white text-[#111827]"
   }`;
-  const inputBg = isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/20" : "bg-slate-50 border-slate-200 text-slate-700 placeholder:text-slate-400";
-  const labelText = isDark ? "text-slate-300 font-medium" : "text-slate-700 font-semibold";
-  const valueText = isDark ? "text-white font-bold" : "text-slate-900 font-bold";
-  const ht = isDark ? "text-white font-extrabold" : "text-slate-900 font-extrabold";
-  const mt = isDark ? "text-slate-400 font-medium" : "text-slate-600 font-medium";
+  const inputBg = isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/20" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF]";
+  const labelText = isDark ? "text-slate-300 font-medium" : "text-[#111827] font-semibold";
+  const valueText = isDark ? "text-white font-bold" : "text-[#111827] font-bold";
+  const ht = isDark ? "text-white font-extrabold" : "text-[#111827] font-extrabold";
+  const mt = isDark ? "text-slate-400 font-medium" : "text-[#6B7280] font-medium";
 
   const fetchAgents = async () => {
     try {
@@ -423,8 +423,8 @@ export default function AgentManagement() {
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Grid 1: Operations & Summary KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-                <div className="p-2.5 rounded-xl bg-[#3D5EF6]/10 text-[#3D5EF6] shrink-0">
+              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+                <div className="p-2.5 rounded-[12px] bg-[#EEF1FE] text-[#3D5EF6] shrink-0">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
@@ -433,23 +433,23 @@ export default function AgentManagement() {
                 </div>
               </div>
 
-              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
+              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+                <div className="p-2.5 rounded-[12px] bg-[#DCFCE7] text-[#16A34A] shrink-0">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
                   <p className={`text-[10px] font-bold uppercase ${labelText}`}>Course Purchases</p>
-                  <p className="text-base font-bold text-emerald-500 mt-0.5">38 Completed</p>
+                  <p className="text-base font-bold text-[#16A34A] mt-0.5">38 Completed</p>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
+              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+                <div className="p-2.5 rounded-[12px] bg-[#FEF3C7] text-[#B45309] shrink-0">
                   <DollarSign className="w-5 h-5" />
                 </div>
                 <div>
                   <p className={`text-[10px] font-bold uppercase ${labelText}`}>Total Settled Revenue</p>
-                  <p className="text-base font-bold text-amber-500 mt-0.5">₹14,50,000</p>
+                  <p className="text-base font-bold text-[#B45309] mt-0.5">₹14,50,000</p>
                 </div>
               </div>
             </div>
@@ -644,37 +644,37 @@ export default function AgentManagement() {
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Status KPI Summary Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-                <div className="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-500 shrink-0">
+              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+                <div className="p-2.5 rounded-[12px] bg-[#DCFCE7] text-[#16A34A] shrink-0">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
                   <p className={`text-[10px] font-bold uppercase ${labelText}`}>Active In-Use Prices</p>
-                  <p className="text-base font-bold text-emerald-500 mt-0.5">
+                  <p className="text-base font-bold text-[#16A34A] mt-0.5">
                     {coursePricings.filter(c => c.status === "Active").length} Courses Active
                   </p>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-                <div className="p-2.5 rounded-xl bg-amber-500/10 text-amber-500 shrink-0">
+              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+                <div className="p-2.5 rounded-[12px] bg-[#FEF3C7] text-[#B45309] shrink-0">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
                   <p className={`text-[10px] font-bold uppercase ${labelText}`}>Pending Master Review</p>
-                  <p className="text-base font-bold text-amber-500 mt-0.5">
+                  <p className="text-base font-bold text-[#B45309] mt-0.5">
                     {coursePricings.filter(c => c.status === "Pending Approval").length} Proposals Pending
                   </p>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-2xl border flex items-center gap-3.5 ${isDark ? "bg-[#0c1629] border-white/10" : "bg-white border-slate-200 shadow-sm"}`}>
-                <div className="p-2.5 rounded-xl bg-red-500/10 text-red-500 shrink-0">
+              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+                <div className="p-2.5 rounded-[12px] bg-[#FEE2E2] text-[#DC2626] shrink-0">
                   <XCircle className="w-5 h-5" />
                 </div>
                 <div>
                   <p className={`text-[10px] font-bold uppercase ${labelText}`}>Rejected Proposals</p>
-                  <p className="text-base font-bold text-red-500 mt-0.5">
+                  <p className="text-base font-bold text-[#DC2626] mt-0.5">
                     {coursePricings.filter(c => c.status === "Rejected").length} Proposals Rejected
                   </p>
                 </div>
@@ -857,7 +857,7 @@ export default function AgentManagement() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className={`px-3 py-2.5 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-[#0d1f35] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"}`}
+            className={`px-3 py-2.5 rounded-[10px] border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-[#E5E7EB] text-[#111827] shadow-sm"}`}
           >
             <option value="all">All Statuses</option>
             <option value="active">Active Accounts</option>
@@ -1008,7 +1008,7 @@ export default function AgentManagement() {
       {/* --- CREATE AGENT MODAL --- */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-lg relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
             <button 
               onClick={() => setShowCreateModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -1020,8 +1020,8 @@ export default function AgentManagement() {
               <h3 className="text-sm font-bold">Onboard New Manning Placement Agent</h3>
             </div>
 
-            {createError && <p className="mb-4 text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">{createError}</p>}
-            {createSuccess && <p className="mb-4 text-xs text-emerald-500 bg-emerald-500/10 p-2 rounded-lg">Agent created successfully! Sending invite...</p>}
+            {createError && <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">{createError}</p>}
+            {createSuccess && <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">Agent created successfully! Sending invite...</p>}
 
             <form onSubmit={handleCreateAgent} className="space-y-4">
               <div className="space-y-1">
@@ -1098,7 +1098,7 @@ export default function AgentManagement() {
       {/* --- RESET PASSWORD MODAL --- */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-sm p-6 rounded-lg relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-sm p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
             <button 
               onClick={() => setShowPasswordModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -1111,8 +1111,8 @@ export default function AgentManagement() {
             </div>
             <p className={`text-[11px] mb-4 ${labelText}`}>Reset password for {selectedAgent?.name}. The agent will use this to sign in.</p>
 
-            {passError && <p className="mb-4 text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">{passError}</p>}
-            {passSuccess && <p className="mb-4 text-xs text-emerald-500 bg-emerald-500/10 p-2 rounded-lg">Password reset successfully!</p>}
+            {passError && <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">{passError}</p>}
+            {passSuccess && <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">Password reset successfully!</p>}
 
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-1">
@@ -1141,7 +1141,7 @@ export default function AgentManagement() {
       {/* --- EDIT COMMISSIONS MODAL --- */}
       {showCommissionModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-lg relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
             <button 
               onClick={() => setShowCommissionModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -1205,7 +1205,7 @@ export default function AgentManagement() {
       {/* --- ONBOARDING DETAILS MODAL --- */}
       {showOnboardingModal && onboardingChecklist && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-2xl p-6 rounded-lg relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-2xl p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
             <button 
               onClick={() => setShowOnboardingModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -1361,7 +1361,7 @@ export default function AgentManagement() {
       {/* --- EDIT AGENT MODAL --- */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-lg relative shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/5 text-white" : "bg-white border border-slate-200 text-slate-800"}`}>
+          <div className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
             <button 
               onClick={() => setShowEditModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -1373,8 +1373,8 @@ export default function AgentManagement() {
               <h3 className="text-sm font-bold">Edit Agent Information</h3>
             </div>
 
-            {editError && <p className="mb-4 text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">{editError}</p>}
-            {editSuccess && <p className="mb-4 text-xs text-emerald-500 bg-emerald-500/10 p-2 rounded-lg">Agent profile updated successfully!</p>}
+            {editError && <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">{editError}</p>}
+            {editSuccess && <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">Agent profile updated successfully!</p>}
 
             <form onSubmit={handleEditAgent} className="space-y-4">
               <div className="space-y-1">
