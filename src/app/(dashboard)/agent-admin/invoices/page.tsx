@@ -244,9 +244,9 @@ export default function InvoicesPage() {
                   </td>
 
                   {/* Institute */}
-                  <td className="px-2.5 py-3.5 max-w-[150px]">
-                    <div className={`truncate text-xs ${mt}`} title={inv.institute_name || "Hari Om Maritime Institute, Mumbai"}>
-                      {inv.institute_name || "Hari Om Maritime Institute"}
+                  <td className="px-2.5 py-3.5 max-w-[180px]">
+                    <div className={`truncate text-xs ${mt}`} title={inv.institute_name || "Hari Om Thalassic Maritime Training Institute"}>
+                      {inv.institute_name || "Hari Om Thalassic Maritime Training Institute"}
                     </div>
                   </td>
 
