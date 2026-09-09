@@ -944,7 +944,7 @@ export default function CoursesPage() {
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold text-xs leading-tight">{inst.name}</p>
                           <p className={`text-[10px] mt-0.5 ${mutedText}`}>
-                            IDT: {inst.idtNumber} · {inst.location} · {inst.activeBatches} active batches
+                            {inst.location} · {inst.contact || "Accredited Training Center"}
                           </p>
                         </div>
                       </label>
