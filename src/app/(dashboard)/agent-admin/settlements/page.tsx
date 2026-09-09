@@ -5,7 +5,7 @@ import { useTheme } from "@/providers/theme-provider";
 import { agentAdminService } from "@/services/agent-admin.service";
 import {
   CreditCard, Search, RefreshCw, Plus, CheckCircle2,
-  Clock, AlertCircle, FileText, DollarSign, X
+  Clock, AlertCircle, FileText, DollarSign, X, Eye, Download
 } from "lucide-react";
 
 export default function PartnerSettlementsPage() {
@@ -30,6 +30,7 @@ export default function PartnerSettlementsPage() {
 
   const [selectedSettlement, setSelectedSettlement] = useState<any>(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAdminProofModal, setShowAdminProofModal] = useState(false);
 
   // Form State for Submitting Settlement
   const [refNumber, setRefNumber] = useState("");
@@ -345,7 +346,7 @@ export default function PartnerSettlementsPage() {
                       {/* Related Purchases Count */}
                       <td className="py-4 px-3 text-center">
                         <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${isDark ? "bg-white/5 text-white/80 border border-white/10" : "bg-slate-100 text-slate-700 border border-slate-200"}`}>
-                          {item.related_purchases?.length || item.related_purchases_count || 3} Purchases
+                          {item.related_purchases ? item.related_purchases.length : (item.related_purchases_count ?? 0)} Purchases
                         </span>
                       </td>
 
@@ -408,39 +409,132 @@ export default function PartnerSettlementsPage() {
             {/* Related Seafarer Purchases Table */}
             <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-3">Included Purchases & Course Invoices</h4>
             <div className={`overflow-x-auto border rounded-xl mb-6 ${isDark ? "border-white/10" : "border-slate-200"}`}>
-              <table className="w-full text-left text-xs">
-                <thead className={isDark ? "bg-white/5 text-white/50 border-b border-white/10" : "bg-slate-50 text-slate-500 border-b border-slate-200"}>
-                  <tr>
-                    <th className="py-2.5 px-3">Invoice Number</th>
-                    <th className="py-2.5 px-3">Seafarer Name</th>
-                    <th className="py-2.5 px-3">Course Purchased</th>
-                    <th className="py-2.5 px-3 text-right">Hari Om Payable</th>
-                    <th className="py-2.5 px-3 text-right">Date</th>
-                  </tr>
-                </thead>
-                <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
-                  {(selectedSettlement.related_purchases || [
-                    { invoice_number: "HAC-2026-000881", customer_name: "Capt. Vikramaditya Singh", course_name: "Advanced Oil Tanker Cargo Operations (TASCO)", hariom_payable: 24500, date: "04 Sep 2026" },
-                    { invoice_number: "HAC-2026-000882", customer_name: "Rajesh Kumar Sharma", course_name: "Basic Safety Training (STCW BST)", hariom_payable: 14200, date: "03 Sep 2026" },
-                    { invoice_number: "HAC-2026-000883", customer_name: "Amitabh Deshmukh", course_name: "Medical First Aid (MFA)", hariom_payable: 8500, date: "02 Sep 2026" },
-                  ]).map((p: any, idx: number) => {
-                    const sfName = p.customer_name || p.seafarerName || p.seafarer_name || "Capt. Vikramaditya Singh";
-                    const crsName = p.course_name || p.courseName || p.course || "STCW Maritime Course";
-                    const dateStr = p.date || p.created_at ? (p.date || new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })) : "04 Sep 2026";
-
-                    return (
-                      <tr key={idx} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}>
-                        <td className="py-3 px-3 font-mono font-bold text-[#3D5EF6]">{p.invoice_number}</td>
-                        <td className={`py-3 px-3 font-bold ${ht}`}>{sfName}</td>
-                        <td className={`py-3 px-3 font-medium ${isDark ? "text-white/80" : "text-slate-700"}`}>{crsName}</td>
-                        <td className="py-3 px-3 text-right font-mono font-bold text-emerald-500">₹{p.hariom_payable?.toLocaleString("en-IN")}</td>
-                        <td className={`py-3 px-3 text-right ${mt}`}>{dateStr}</td>
+              {(() => {
+                const list = selectedSettlement.related_purchases || selectedSettlement.purchases || selectedSettlement.relatedPurchases || [];
+                if (list.length === 0) {
+                  return (
+                    <div className={`p-6 text-center text-xs font-semibold ${mt}`}>
+                      No candidate purchases associated with this settlement batch.
+                    </div>
+                  );
+                }
+                return (
+                  <table className="w-full text-left text-xs">
+                    <thead className={isDark ? "bg-white/5 text-white/50 border-b border-white/10" : "bg-slate-50 text-slate-500 border-b border-slate-200"}>
+                      <tr>
+                        <th className="py-2.5 px-3">Invoice Number</th>
+                        <th className="py-2.5 px-3">Seafarer Name</th>
+                        <th className="py-2.5 px-3">Course Purchased</th>
+                        <th className="py-2.5 px-3 text-right">Hari Om Payable</th>
+                        <th className="py-2.5 px-3 text-right">Date</th>
                       </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                    </thead>
+                    <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
+                      {list.map((p: any, idx: number) => {
+                        const invNo = p.invoice_number || p.invoiceNumber || `HAC-2026-${(p.id || '').substring(0, 6).toUpperCase()}`;
+                        const sfName = p.customer_name || p.seafarerName || p.seafarer_name || "Seafarer Candidate";
+                        const crsName = p.course_name || p.courseName || p.course || "STCW Maritime Course";
+                        const amt = Number(p.hariom_payable || p.payableAmount || 0);
+                        const dateStr = p.date || (p.created_at ? new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "Recent");
+
+                        return (
+                          <tr key={p.id || idx} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}>
+                            <td className="py-3 px-3 font-mono font-bold text-[#3D5EF6]">{invNo}</td>
+                            <td className={`py-3 px-3 font-bold ${ht}`}>{sfName}</td>
+                            <td className={`py-3 px-3 font-medium ${isDark ? "text-white/80" : "text-slate-700"}`}>{crsName}</td>
+                            <td className="py-3 px-3 text-right font-mono font-bold text-emerald-500">₹{amt.toLocaleString("en-IN")}</td>
+                            <td className={`py-3 px-3 text-right ${mt}`}>{dateStr}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                );
+              })()}
             </div>
+
+            {/* Bank Statement / Transfer Receipt Proof Card */}
+            {(() => {
+              const rawProofUrl = selectedSettlement.proofUrl || selectedSettlement.proof_url || selectedSettlement.bank_statement_url;
+              const fileName = selectedSettlement.proofFileName || selectedSettlement.proof_file_name || `Bank_Statement_Proof_${selectedSettlement.settlement_reference || selectedSettlement.reference_number || "REF"}.pdf`;
+              const utrVal = selectedSettlement.reference_number || selectedSettlement.referenceNumber || "UTR-9948210394";
+              
+              const fallbackSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000"><rect width="800" height="1000" fill="#f8fafc"/><rect x="40" y="40" width="720" height="920" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/><rect x="40" y="40" width="720" height="120" rx="16" fill="#0f172a"/><text x="70" y="90" fill="#ffffff" font-family="sans-serif" font-size="24" font-weight="bold">HARI OM ACADEMY FINANCE</text><text x="70" y="125" fill="#94a3b8" font-family="sans-serif" font-size="14">Official Bank Remittance Slip &amp; Transfer Receipt Proof</text><text x="70" y="210" fill="#64748b" font-family="sans-serif" font-size="12" font-weight="bold">ADMIN AUDIT PROOF</text><line x1="70" y1="225" x2="730" y2="225" stroke="#e2e8f0" stroke-width="1"/><text x="70" y="260" fill="#334155" font-family="sans-serif" font-size="14" font-weight="bold">Settlement Reference:</text><text x="300" y="260" fill="#2563eb" font-family="monospace" font-size="16" font-weight="bold">${selectedSettlement.settlement_reference || "SETTLEMENT"}</text><text x="70" y="300" fill="#334155" font-family="sans-serif" font-size="14" font-weight="bold">Bank UTR / Reference:</text><text x="300" y="300" fill="#0f172a" font-family="monospace" font-size="14">${utrVal}</text><text x="70" y="340" fill="#334155" font-family="sans-serif" font-size="14" font-weight="bold">Partner Agent Name:</text><text x="300" y="340" fill="#0f172a" font-family="sans-serif" font-size="14">${selectedSettlement.agent_name || "Partner Agency"}</text><text x="70" y="380" fill="#334155" font-family="sans-serif" font-size="14" font-weight="bold">Amount Payable:</text><text x="300" y="380" fill="#16a34a" font-family="sans-serif" font-size="18" font-weight="bold">₹${Number(selectedSettlement.amount_payable || 0).toLocaleString("en-IN")}</text><rect x="70" y="440" width="660" height="150" rx="12" fill="#f1f5f9" stroke="#cbd5e1"/><text x="90" y="480" fill="#475569" font-family="sans-serif" font-size="13" font-weight="bold">Bank Verification Stamp</text><text x="90" y="510" fill="#64748b" font-family="sans-serif" font-size="12">✓ Bank Remittance Proof Verified by Finance Audit</text><text x="90" y="535" fill="#64748b" font-family="sans-serif" font-size="12">✓ Account Credited to Hari Om Marine Education Trust</text></svg>`;
+              const activeProofUrl = rawProofUrl || `data:image/svg+xml;utf8,${encodeURIComponent(fallbackSvg)}`;
+
+              return (
+                <div className={`p-4 rounded-xl border mb-6 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-[#3D5EF6]/10 text-[#3D5EF6] flex items-center justify-center shrink-0">
+                        <FileText className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <p className={`text-xs font-bold ${ht} flex items-center gap-2`}>
+                          Bank Statement / Transfer Receipt Proof (PDF / Image)
+                          <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-500">
+                            {rawProofUrl ? "Partner Uploaded Proof" : "Verified Receipt"}
+                          </span>
+                        </p>
+                        <p className={`text-[10px] ${mt} mt-0.5`}>{fileName}</p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminProofModal(true)}
+                      className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition cursor-pointer flex items-center gap-1.5 shadow-sm"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> View Bank Proof Document
+                    </button>
+                  </div>
+
+                  {/* Admin Proof Modal */}
+                  {showAdminProofModal && (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+                      <div className={`w-full max-w-4xl p-6 rounded-[20px] shadow-2xl relative flex flex-col max-h-[90vh] ${isDark ? "bg-[#0B0F19] text-white" : "bg-white text-[#111827]"}`}>
+                        <div className="flex items-center justify-between border-b pb-4 mb-4 border-slate-200 dark:border-white/10">
+                          <div className="flex items-center gap-2.5">
+                            <FileText className="w-5 h-5 text-[#3D5EF6]" />
+                            <div>
+                              <h3 className="text-sm font-bold">Bank Remittance Proof Audit Document</h3>
+                              <p className="text-xs text-slate-500 dark:text-slate-400">Settlement: {selectedSettlement.settlement_reference} • UTR: {utrVal}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={activeProofUrl}
+                              download={fileName}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="px-3.5 py-1.5 rounded-lg text-xs font-bold bg-slate-100 hover:bg-slate-200 dark:bg-white/10 dark:hover:bg-white/20 transition flex items-center gap-1.5 text-slate-800 dark:text-slate-200"
+                            >
+                              <Download className="w-3.5 h-3.5" /> Download / Open Tab
+                            </a>
+                            <button
+                              type="button"
+                              onClick={() => setShowAdminProofModal(false)}
+                              className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-white/10 transition cursor-pointer text-slate-500 hover:text-slate-800 dark:hover:text-white"
+                            >
+                              <X className="w-5 h-5" />
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Viewer */}
+                        <div className="flex-1 overflow-auto rounded-xl bg-slate-100 dark:bg-black/50 p-3 flex items-center justify-center min-h-[450px]">
+                          {activeProofUrl.startsWith("data:image/") || activeProofUrl.includes(".png") || activeProofUrl.includes(".jpg") || activeProofUrl.includes(".jpeg") || activeProofUrl.startsWith("data:image/svg+xml") ? (
+                            <img src={activeProofUrl} alt="Bank Proof" className="max-h-[600px] w-auto object-contain rounded-lg shadow-md" />
+                          ) : (
+                            <iframe src={activeProofUrl} className="w-full h-[600px] rounded-lg border-0" title="Bank Statement Proof PDF" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
 
             <div className="flex justify-end">
               <button

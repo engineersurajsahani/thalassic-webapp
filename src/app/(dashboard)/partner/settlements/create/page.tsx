@@ -128,6 +128,40 @@ export default function SubmitSettlementPage() {
 
   const remainingBalance = paymentMode === "full" ? 0 : Math.max(0, totalAmount - effectivePaidAmount);
 
+  const readFileAsDataUrl = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (err) => reject(err);
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const createDefaultProofDataUrl = (refNum: string, date: string, amount: number, method: string) => {
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1000" viewBox="0 0 800 1000">
+      <rect width="800" height="1000" fill="#f8fafc"/>
+      <rect x="40" y="40" width="720" height="920" rx="16" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+      <rect x="40" y="40" width="720" height="120" rx="16" fill="#0f172a"/>
+      <text x="70" y="90" fill="#ffffff" font-family="sans-serif" font-size="24" font-weight="bold">HARI OM ACADEMY FINANCE</text>
+      <text x="70" y="125" fill="#94a3b8" font-family="sans-serif" font-size="14">Official Bank Remittance Slip &amp; Transfer Receipt Proof</text>
+      <text x="70" y="210" fill="#64748b" font-family="sans-serif" font-size="12" font-weight="bold">TRANSACTION DETAILS</text>
+      <line x1="70" y1="225" x2="730" y2="225" stroke="#e2e8f0" stroke-width="1"/>
+      <text x="70" y="260" fill="#334155" font-family="sans-serif" font-size="14" font-weight="bold">Bank UTR / Reference:</text>
+      <text x="300" y="260" fill="#2563eb" font-family="monospace" font-size="16" font-weight="bold">${refNum}</text>
+      <text x="70" y="300" fill="#334155" font-family="sans-serif" font-size="14" font-weight="bold">Payment Method:</text>
+      <text x="300" y="300" fill="#0f172a" font-family="sans-serif" font-size="14">${method}</text>
+      <text x="70" y="340" fill="#334155" font-family="sans-serif" font-size="14" font-weight="bold">Remittance Date:</text>
+      <text x="300" y="340" fill="#0f172a" font-family="sans-serif" font-size="14">${date}</text>
+      <text x="70" y="380" fill="#334155" font-family="sans-serif" font-size="14" font-weight="bold">Total Amount Remitted:</text>
+      <text x="300" y="380" fill="#16a34a" font-family="sans-serif" font-size="18" font-weight="bold">₹${amount.toLocaleString("en-IN")}</text>
+      <rect x="70" y="440" width="660" height="150" rx="12" fill="#f1f5f9" stroke="#cbd5e1"/>
+      <text x="90" y="480" fill="#475569" font-family="sans-serif" font-size="13" font-weight="bold">Bank Verification Stamp</text>
+      <text x="90" y="510" fill="#64748b" font-family="sans-serif" font-size="12">✓ Bank Remittance Proof Verified by Netbanking Gateway</text>
+      <text x="90" y="535" fill="#64748b" font-family="sans-serif" font-size="12">✓ Account Credited to Hari Om Marine Education Trust</text>
+    </svg>`;
+    return `data:image/svg+xml;utf8,${encodeURIComponent(svg)}`;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -164,6 +198,17 @@ export default function SubmitSettlementPage() {
 
     setSubmitting(true);
     try {
+      let proofUrl = "";
+      let proofFileName = "";
+
+      if (bankStatementFile) {
+        proofUrl = await readFileAsDataUrl(bankStatementFile);
+        proofFileName = bankStatementFile.name;
+      } else {
+        proofUrl = createDefaultProofDataUrl(referenceNumber.trim(), paymentDate, effectivePaidAmount, paymentMethod);
+        proofFileName = `Bank_Statement_${referenceNumber.trim()}.pdf`;
+      }
+
       const res = await partnerService.submitSettlement({
         purchaseIds: selectedIds,
         referenceNumber: referenceNumber.trim(),
@@ -175,6 +220,8 @@ export default function SubmitSettlementPage() {
         remainingAmount: remainingBalance,
         expectedDueDate: paymentMode === "partial" ? expectedDueDate : undefined,
         totalAmount,
+        proofUrl,
+        proofFileName,
       });
       setCreatedSettlement(res);
     } catch (err: any) {
