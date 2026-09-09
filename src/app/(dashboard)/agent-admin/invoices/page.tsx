@@ -191,7 +191,7 @@ export default function InvoicesPage() {
                   <th
                     key={h}
                     className={`py-3 font-semibold ${mt} whitespace-nowrap ${
-                      i === 0 ? "pl-5 pr-2.5 text-left" : i === 8 ? "pl-2.5 pr-5 text-right" : "px-2.5 text-left"
+                      i === 0 ? "pl-4 pr-2 text-left" : i === 8 ? "px-3 text-right" : "px-2 text-left"
                     }`}
                   >
                     {h}
@@ -204,7 +204,7 @@ export default function InvoicesPage() {
                 Array.from({ length: 6 }).map((_, i) => (
                   <tr key={i} className={`border-b ${isDark ? "border-white/5" : "border-slate-50"}`}>
                     {Array.from({ length: 9 }).map((_, j) => (
-                      <td key={j} className={`py-3 ${j === 0 ? "pl-5 pr-2.5" : j === 8 ? "pl-2.5 pr-5" : "px-2.5"}`}>
+                      <td key={j} className={`py-3 ${j === 0 ? "pl-4 pr-2" : j === 8 ? "px-3" : "px-2"}`}>
                         <div className={`h-3 rounded-full animate-pulse ${isDark ? "bg-white/10" : "bg-slate-200"}`} style={{ width: `${[60, 45, 75, 50, 65, 80, 55, 70, 40, 60][(i + j) % 10]}%` }} />
                       </td>
                     ))}
@@ -221,42 +221,42 @@ export default function InvoicesPage() {
               ) : invoices.map((inv: any) => (
                 <tr key={inv.id} className={`border-b ${isDark ? "border-white/5 hover:bg-white/[0.025]" : "border-slate-50 hover:bg-slate-50/60"} transition-colors`}>
                   {/* Invoice Number */}
-                  <td className="pl-5 pr-2.5 py-3.5 font-mono font-bold text-[#3D5EF6] text-xs whitespace-nowrap">
+                  <td className="pl-4 pr-2 py-3 font-mono font-bold text-[#3D5EF6] text-xs whitespace-nowrap">
                     {inv.invoice_number}
                   </td>
 
                   {/* Invoice Date */}
-                  <td className="px-2.5 py-3.5 whitespace-nowrap text-[11px] font-medium">
+                  <td className="px-2 py-3 whitespace-nowrap text-[11px] font-medium">
                     {inv.payment_date ? new Date(inv.payment_date).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—"}
                   </td>
 
                   {/* Seafarer */}
-                  <td className="px-2.5 py-3.5 max-w-[150px]">
-                    <div className={`font-bold text-xs truncate ${ht}`}>{inv.customer_name}</div>
-                    <div className={`text-[10px] truncate ${mt}`}>{inv.customer_email}</div>
+                  <td className="px-2 py-3 max-w-[130px]">
+                    <div className={`font-bold text-xs truncate ${ht}`} title={inv.customer_name}>{inv.customer_name}</div>
+                    <div className={`text-[10px] truncate ${mt}`} title={inv.customer_email}>{inv.customer_email}</div>
                   </td>
 
                   {/* Course */}
-                  <td className="px-2.5 py-3.5 max-w-[160px]">
+                  <td className="px-2 py-3 max-w-[140px]">
                     <div className={`truncate font-semibold text-xs ${isDark ? "text-white/80" : "text-[#111827]"}`} title={inv.course_name}>
                       {inv.course_name}
                     </div>
                   </td>
 
                   {/* Institute */}
-                  <td className="px-2.5 py-3.5 max-w-[180px]">
+                  <td className="px-2 py-3 max-w-[140px]">
                     <div className={`truncate text-xs ${mt}`} title={inv.institute_name || "Hari Om Thalassic Maritime Training Institute"}>
                       {inv.institute_name || "Hari Om Thalassic Maritime Training Institute"}
                     </div>
                   </td>
 
                   {/* Amount Applicable to Hari Om */}
-                  <td className="px-2.5 py-3.5 font-mono font-bold text-xs text-[#16A34A] whitespace-nowrap">
+                  <td className="px-2 py-3 font-mono font-bold text-xs text-[#16A34A] whitespace-nowrap">
                     ₹{(inv.hariom_payable_amount ?? inv.final_amount ?? 0).toLocaleString("en-IN")}
                   </td>
 
                   {/* Payment Status */}
-                  <td className="px-2.5 py-3.5 whitespace-nowrap">
+                  <td className="px-2 py-3 whitespace-nowrap">
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
                       (inv.payment_status || inv.status) === "Paid"
                         ? "bg-[#DCFCE7] text-[#16A34A]"
@@ -267,7 +267,7 @@ export default function InvoicesPage() {
                   </td>
 
                   {/* Invoice Status */}
-                  <td className="px-2.5 py-3.5 whitespace-nowrap">
+                  <td className="px-2 py-3 whitespace-nowrap">
                     <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full ${
                       (inv.invoice_status || "Issued") === "Issued"
                         ? "bg-[#EEF1FE] text-[#3D5EF6]"
@@ -278,10 +278,10 @@ export default function InvoicesPage() {
                   </td>
 
                   {/* Actions */}
-                  <td className="pl-2.5 pr-5 py-3.5 text-right whitespace-nowrap">
+                  <td className="px-3 py-3 text-right whitespace-nowrap">
                     <button
                       onClick={() => openPdf(inv)}
-                      className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors cursor-pointer flex items-center gap-1.5 ml-auto shadow-sm"
+                      className="text-[11px] font-bold px-2.5 py-1.5 rounded-lg bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors cursor-pointer inline-flex items-center gap-1.5 shadow-sm"
                     >
                       <FileText className="w-3.5 h-3.5" />
                       View Invoice
