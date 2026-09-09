@@ -102,7 +102,7 @@ export default function MasterTopbar() {
         {isHome ? (
           <>
             <p className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>{getFormattedDate()}</p>
-            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}>{getGreeting()}, Admin</p>
+            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}>{getGreeting()}, Master Admin</p>
           </>
         ) : (
           <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>

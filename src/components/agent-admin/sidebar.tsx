@@ -54,20 +54,22 @@ export default function AgentAdminSidebar() {
     <aside className={`w-60 h-screen flex flex-col shrink-0 ${sidebarBg}`}>
 
       {/* Brand Logo */}
-      <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
-        <div className="relative w-9 h-9 rounded-full overflow-hidden border border-[#3D5EF6]/20 shrink-0">
-          <Image
-            src="/logo.jpeg"
-            alt="Hari Om Thalassic"
-            width={36}
-            height={36}
-            className="object-cover w-full h-full"
-          />
-        </div>
-        <div className="leading-tight">
-          <p className={`text-sm font-bold tracking-wide ${logoText}`}>Hari Om</p>
-          <p className={`text-[11px] font-semibold tracking-wider uppercase ${logoSub}`}>Partner Admin</p>
-        </div>
+      <div className={`px-5 py-5 flex items-center gap-2.5 border-b ${brandBorder}`}>
+        <Image
+          src="/logo.jpeg"
+          alt="Hari Om Thalassic"
+          width={34}
+          height={34}
+          className="w-[34px] h-[34px] rounded-full object-contain shrink-0 border border-slate-200 dark:border-white/10 shadow-xs"
+          priority
+        />
+        <span
+          className={`font-bold tracking-tight text-[15px] whitespace-nowrap ${
+            isDark ? "text-slate-100" : "text-slate-900"
+          }`}
+        >
+          Hari Om Thalassic
+        </span>
       </div>
 
       {/* Nav label */}
