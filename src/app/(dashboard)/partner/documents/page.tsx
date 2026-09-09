@@ -191,7 +191,7 @@ export default function PartnerDocumentsPage() {
     : "bg-[#FFFFFF] rounded-[16px] border-0 card-elevated";
 
   return (
-    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
+    <div className="space-y-8 animate-fadeIn pb-12">
       <div>
         <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-[#111827]"}`}>
           Verification Documents
@@ -231,15 +231,15 @@ export default function PartnerDocumentsPage() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className={`font-bold text-xs ${isDark ? "text-white" : "text-[#111827]"}`}>{dt.label}</h3>
                     {isVerified ? (
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A]">
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#DCFCE7] text-[#16A34A]">
                         Verified ✓
                       </span>
                     ) : isUnderReview ? (
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#EEF1FE] text-[#3D5EF6]">
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#EEF1FE] text-[#3D5EF6]">
                         Under Review
                       </span>
                     ) : (
-                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309]">
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#FEF3C7] text-[#B45309]">
                         Pending Upload
                       </span>
                     )}
@@ -259,7 +259,7 @@ export default function PartnerDocumentsPage() {
                 <button
                   type="button"
                   onClick={() => openPreview(dt, uploaded)}
-                  className={`w-[116px] h-9 rounded-full text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors duration-200 cursor-pointer ${
+                  className={`w-[116px] h-9 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-colors duration-200 cursor-pointer ${
                     isDark
                       ? "bg-[#111827] hover:bg-[#1F2937] text-gray-200 border border-[#1F2937]"
                       : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#4B5563] border border-[#E5E7EB]"
@@ -270,7 +270,7 @@ export default function PartnerDocumentsPage() {
                 </button>
 
                 {/* REPLACE / UPLOAD FILE BUTTON */}
-                <label className="w-[116px] h-9 cursor-pointer rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm flex items-center justify-center gap-1.5">
+                <label className="w-[116px] h-9 cursor-pointer rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm flex items-center justify-center gap-1.5">
                   {uploading === dt.type ? (
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                   ) : isUploaded ? (
@@ -295,27 +295,27 @@ export default function PartnerDocumentsPage() {
 
       {/* DOCUMENT PREVIEW MODAL */}
       {previewDoc && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 md:p-6 animate-fadeIn">
           <div
-            className={`w-full max-w-2xl rounded-[16px] overflow-hidden border-0 shadow-2xl space-y-0 ${
+            className={`w-full max-w-5xl xl:max-w-6xl h-[90vh] max-h-[920px] flex flex-col rounded-[16px] overflow-hidden border-0 shadow-2xl space-y-0 ${
               isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
             }`}
           >
             {/* Modal Header */}
             <div
-              className={`p-5 flex items-center justify-between border-b ${
+              className={`p-4 px-6 flex items-center justify-between border-b shrink-0 ${
                 isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#EEF1FE] text-[#3D5EF6] flex items-center justify-center">
-                  <FileText className="w-4 h-4" />
+                <div className="w-9 h-9 rounded-xl bg-[#EEF1FE] text-[#3D5EF6] flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5" />
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-extrabold text-sm">{previewDoc.label}</h3>
+                    <h3 className="font-extrabold text-sm md:text-base">{previewDoc.label}</h3>
                     <span
-                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                      className={`text-[10px] font-bold px-2.5 py-0.5 rounded-lg ${
                         previewDoc.status === "Verified"
                           ? "bg-[#DCFCE7] text-[#16A34A]"
                           : previewDoc.status === "Under Review"
@@ -326,80 +326,98 @@ export default function PartnerDocumentsPage() {
                       {previewDoc.status || "Under Review"}
                     </span>
                   </div>
-                  <p className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
+                  <p className={`text-[11px] mt-0.5 truncate max-w-md ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                     {previewDoc.fileName}
                   </p>
                 </div>
               </div>
 
-              <button
-                type="button"
-                onClick={() => setPreviewDoc(null)}
-                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors duration-200 ${
-                  isDark ? "hover:bg-[#1F2937] text-gray-400 hover:text-white" : "hover:bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827]"
-                }`}
-              >
-                <X className="w-4 h-4" />
-              </button>
+              <div className="flex items-center gap-2 shrink-0">
+                {(previewDoc.url || previewDoc.file) && (
+                  <a
+                    href={previewDoc.url || (previewDoc.file ? URL.createObjectURL(previewDoc.file) : "#")}
+                    target="_blank"
+                    rel="noreferrer"
+                    title="Open in new tab"
+                    className={`h-8 px-3 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors duration-200 ${
+                      isDark
+                        ? "bg-[#1F2937] hover:bg-[#374151] text-gray-200 border border-[#374151]"
+                        : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#4B5563] border border-[#E5E7EB]"
+                    }`}
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">Open in New Tab</span>
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setPreviewDoc(null)}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors duration-200 ${
+                    isDark ? "hover:bg-[#1F2937] text-gray-400 hover:text-white" : "hover:bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827]"
+                  }`}
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
             {/* Modal Body / Document Preview Canvas */}
-            <div className="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+            <div className="p-4 md:p-6 flex-1 min-h-0 flex flex-col overflow-y-auto">
               {/* If preview is an image or officePhoto */}
               {previewDoc.url && (previewDoc.type === "officePhoto" || previewDoc.fileName?.match(/\.(jpg|jpeg|png|webp|gif)$/i)) ? (
-                <div className="bg-slate-950/80 rounded-xl p-4 flex items-center justify-center min-h-[260px] max-h-[400px] overflow-hidden">
+                <div className="bg-slate-950/90 rounded-xl p-4 flex items-center justify-center flex-1 min-h-[450px] overflow-hidden">
                   <img
                     src={previewDoc.url}
                     alt={previewDoc.label}
-                    className="max-h-[380px] w-auto max-w-full object-contain rounded-lg shadow-lg"
+                    className="max-h-full w-auto max-w-full object-contain rounded-lg shadow-lg"
                   />
                 </div>
-              ) : previewDoc.file && previewDoc.file.type === "application/pdf" ? (
-                <div className="w-full h-[380px] rounded-xl overflow-hidden border border-[#E5E7EB] dark:border-[#1F2937]">
+              ) : (previewDoc.file && previewDoc.file.type === "application/pdf") || (previewDoc.url && previewDoc.fileName?.toLowerCase().endsWith(".pdf")) || previewDoc.file ? (
+                <div className="w-full flex-1 min-h-[480px] md:min-h-[580px] rounded-xl overflow-hidden border border-[#E5E7EB] dark:border-[#1F2937] bg-slate-900 shadow-inner">
                   <iframe
-                    src={URL.createObjectURL(previewDoc.file)}
+                    src={previewDoc.url || (previewDoc.file ? URL.createObjectURL(previewDoc.file) : "")}
                     title={previewDoc.label}
-                    className="w-full h-full border-0"
+                    className="w-full h-full border-0 min-h-[500px]"
                   />
                 </div>
               ) : (
                 /* High-fidelity official document verification preview sheet */
-                <div className="p-6 rounded-[16px] border border-[#E5E7EB] dark:border-[#1F2937] bg-white dark:bg-[#111827] space-y-5">
+                <div className="p-6 md:p-8 rounded-[16px] border border-[#E5E7EB] dark:border-[#1F2937] bg-white dark:bg-[#111827] space-y-6 max-w-3xl mx-auto w-full my-auto shadow-sm">
                   <div className="flex items-center justify-between border-b pb-4 dark:border-[#1F2937]">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-[#3D5EF6] text-white flex items-center justify-center font-black text-sm">
+                      <div className="w-12 h-12 rounded-xl bg-[#3D5EF6] text-white flex items-center justify-center font-black text-base">
                         DG
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-wider text-[#111827] dark:text-white">
+                        <p className="text-sm font-bold uppercase tracking-wider text-[#111827] dark:text-white">
                           Directorate General of Shipping
                         </p>
-                        <p className="text-[10px] text-[#6B7280] dark:text-gray-400">
+                        <p className="text-xs text-[#6B7280] dark:text-gray-400">
                           Authorized Partner Compliance Document
                         </p>
                       </div>
                     </div>
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A]">
+                    <span className="px-3 py-1 rounded-lg text-xs font-bold bg-[#DCFCE7] text-[#16A34A]">
                       Verified Record
                     </span>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4 text-xs py-2">
+                  <div className="grid grid-cols-2 gap-6 text-sm py-3">
                     <div>
-                      <p className="text-[10px] text-[#6B7280] dark:text-gray-400 uppercase font-bold">Document Type</p>
-                      <p className="font-bold text-[#111827] dark:text-white mt-0.5">{previewDoc.label}</p>
+                      <p className="text-xs text-[#6B7280] dark:text-gray-400 uppercase font-bold">Document Type</p>
+                      <p className="font-bold text-[#111827] dark:text-white mt-1 text-base">{previewDoc.label}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-[#6B7280] dark:text-gray-400 uppercase font-bold">Verification Status</p>
-                      <p className="font-bold text-[#16A34A] mt-0.5">{previewDoc.status || "Active / Approved"}</p>
+                      <p className="text-xs text-[#6B7280] dark:text-gray-400 uppercase font-bold">Verification Status</p>
+                      <p className="font-bold text-[#16A34A] mt-1 text-base">{previewDoc.status || "Active / Approved"}</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-[#6B7280] dark:text-gray-400 uppercase font-bold">Issuer / Authority</p>
-                      <p className="font-semibold text-[#111827] dark:text-white mt-0.5">DG Shipping / Govt. of India</p>
+                      <p className="text-xs text-[#6B7280] dark:text-gray-400 uppercase font-bold">Issuer / Authority</p>
+                      <p className="font-semibold text-[#111827] dark:text-white mt-1">DG Shipping / Govt. of India</p>
                     </div>
                     <div>
-                      <p className="text-[10px] text-[#6B7280] dark:text-gray-400 uppercase font-bold">Document Number</p>
-                      <p className="font-mono font-bold text-[#3D5EF6] mt-0.5">
+                      <p className="text-xs text-[#6B7280] dark:text-gray-400 uppercase font-bold">Document Number</p>
+                      <p className="font-mono font-bold text-[#3D5EF6] mt-1 text-base">
                         {previewDoc.type === "rpslCertificate"
                           ? "RPSL-MUM-2024-0091"
                           : previewDoc.type === "companyPan"
@@ -409,9 +427,9 @@ export default function PartnerDocumentsPage() {
                     </div>
                   </div>
 
-                  <div className="p-3.5 rounded-xl bg-[#EEF1FE]/60 dark:bg-[#3D5EF6]/10 text-xs text-[#3D5EF6] flex items-center gap-2.5">
-                    <ShieldCheck className="w-5 h-5 shrink-0" />
-                    <span>
+                  <div className="p-4 rounded-xl bg-[#EEF1FE]/60 dark:bg-[#3D5EF6]/10 text-xs text-[#3D5EF6] flex items-center gap-3">
+                    <ShieldCheck className="w-6 h-6 shrink-0" />
+                    <span className="leading-relaxed">
                       Digitally validated & linked to your Authorized Partner Account profile for Hari Om Maritime Training operations.
                     </span>
                   </div>
@@ -421,18 +439,18 @@ export default function PartnerDocumentsPage() {
 
             {/* Modal Footer Actions */}
             <div
-              className={`p-4 px-6 flex items-center justify-between border-t ${
+              className={`p-4 px-6 flex items-center justify-between border-t shrink-0 ${
                 isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"
               }`}
             >
               <div>
-                {previewDoc.url ? (
+                {(previewDoc.url || previewDoc.file) ? (
                   <a
-                    href={previewDoc.url}
+                    href={previewDoc.url || (previewDoc.file ? URL.createObjectURL(previewDoc.file) : "#")}
                     download={previewDoc.fileName}
                     target="_blank"
                     rel="noreferrer"
-                    className={`px-4 py-2 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-colors duration-200 ${
+                    className={`px-4 py-2 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-colors duration-200 ${
                       isDark
                         ? "bg-[#111827] hover:bg-[#1F2937] text-gray-300 border border-[#1F2937]"
                         : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#4B5563] border border-[#E5E7EB]"
@@ -450,7 +468,7 @@ export default function PartnerDocumentsPage() {
 
               <div className="flex items-center gap-2">
                 {/* Replace button directly inside modal */}
-                <label className="cursor-pointer px-4 py-2 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm flex items-center gap-1.5">
+                <label className="cursor-pointer px-4 py-2 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm flex items-center gap-1.5">
                   <RefreshCw className="w-3.5 h-3.5" />
                   Replace Document
                   <input
@@ -467,7 +485,7 @@ export default function PartnerDocumentsPage() {
                 <button
                   type="button"
                   onClick={() => setPreviewDoc(null)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold transition-colors duration-200 ${
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors duration-200 ${
                     isDark
                       ? "bg-[#111827] hover:bg-[#1F2937] text-gray-300 border border-[#1F2937]"
                       : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#4B5563] border border-[#E5E7EB]"

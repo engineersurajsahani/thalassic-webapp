@@ -137,7 +137,7 @@ export default function PartnerDashboard() {
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Link
             href="/partner/purchases/create"
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors cursor-pointer"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors cursor-pointer"
           >
             <ShoppingCart className="w-4 h-4" />
             New Purchase
@@ -303,7 +303,7 @@ export default function PartnerDashboard() {
                         <td className={`py-3.5 px-3 font-black text-right ${headingText}`}>₹{Number(p.payableAmount).toLocaleString("en-IN")}</td>
                         <td className="py-3.5 px-3 text-center">
                           <span
-                            className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full inline-flex items-center justify-center gap-1 ${
+                            className={`text-[10px] font-bold uppercase px-3 py-1 rounded-lg inline-flex items-center justify-center gap-1 ${
                               isSettled
                                 ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
                                 : isSubmitted
@@ -385,7 +385,7 @@ export default function PartnerDashboard() {
                         ₹{Number(s.paid_amount || s.amount || 0).toLocaleString("en-IN")}
                       </p>
                       <span
-                        className={`inline-block mt-0.5 text-[9px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                        className={`inline-block mt-0.5 text-[9px] font-bold uppercase px-2 py-0.5 rounded-lg ${
                           isPaid
                             ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
                             : isPartial

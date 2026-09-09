@@ -56,7 +56,7 @@ export default function PartnerNotificationsPage() {
     : "bg-[#FFFFFF] rounded-[16px] border-0 card-elevated";
 
   return (
-    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
+    <div className="space-y-8 animate-fadeIn pb-12">
       <div>
         <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-[#111827]"}`}>
           Notifications Inbox
@@ -107,7 +107,7 @@ export default function PartnerNotificationsPage() {
                   {!n.isRead && (
                     <button
                       onClick={() => handleMarkRead(n.id)}
-                      className="p-2 rounded-full text-[#3D5EF6] hover:bg-[#EEF1FE] dark:hover:bg-white/10 transition-colors duration-200 text-xs"
+                      className="p-2 rounded-md text-[#3D5EF6] hover:bg-[#EEF1FE] dark:hover:bg-white/10 transition-colors duration-200 text-xs"
                       title="Mark as read"
                     >
                       <CheckCircle2 className="w-4 h-4" />
@@ -115,7 +115,7 @@ export default function PartnerNotificationsPage() {
                   )}
                   <button
                     onClick={() => handleDelete(n.id)}
-                    className="p-2 rounded-full text-[#DC2626] hover:bg-[#FEE2E2] dark:hover:bg-white/10 transition-colors duration-200 text-xs"
+                    className="p-2 rounded-md text-[#DC2626] hover:bg-[#FEE2E2] dark:hover:bg-white/10 transition-colors duration-200 text-xs"
                     title="Delete"
                   >
                     <Trash2 className="w-4 h-4" />

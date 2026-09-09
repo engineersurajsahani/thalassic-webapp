@@ -70,7 +70,7 @@ export default function SettlementDetailsPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-4xl mx-auto animate-pulse">
+      <div className="space-y-6 mx-auto animate-pulse">
         <div className="h-8 w-48 rounded-full bg-slate-200 dark:bg-white/5" />
         <div className="h-44 rounded-[16px] bg-slate-200 dark:bg-white/5" />
         <div className="h-64 rounded-[16px] bg-slate-200 dark:bg-white/5" />
@@ -116,7 +116,7 @@ export default function SettlementDetailsPage() {
   const utrValue = settlement.reference_number || settlement.referenceNumber || "N/A";
 
   return (
-    <div className="max-w-4xl space-y-6 animate-fadeIn pb-12">
+    <div className="space-y-6 animate-fadeIn pb-12">
       {/* Header */}
       <div>
         <Link
@@ -129,7 +129,7 @@ export default function SettlementDetailsPage() {
           <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight font-mono ${headingText}`}>
             {sNumber}
           </h1>
-          <span className={`px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 ${
+          <span className={`px-3 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
             isPaid
               ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400 border border-[#16A34A]/20"
               : isRejected
@@ -159,7 +159,7 @@ export default function SettlementDetailsPage() {
               Real-time audit progression through verification and clearance
             </p>
           </div>
-          <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-full ${
+          <span className={`text-[10px] font-mono font-bold px-2.5 py-1 rounded-lg ${
             isPaid ? "bg-[#DCFCE7] text-[#16A34A]" : isRejected ? "bg-[#FEE2E2] text-[#DC2626]" : "bg-[#EEF1FE] text-[#3D5EF6]"
           }`}>
             Stage {stepIdx + 1} of 4
@@ -224,12 +224,12 @@ export default function SettlementDetailsPage() {
                       </div>
 
                       {isCurrent && (
-                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-full bg-white/20 text-white tracking-wider border border-white/30">
+                        <span className="text-[9px] font-black uppercase px-2 py-0.5 rounded-lg bg-white/20 text-white tracking-wider border border-white/30">
                           Current
                         </span>
                       )}
                       {isCompleted && (
-                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-full bg-[#16A34A]/15 text-[#16A34A] dark:text-emerald-400">
+                        <span className="text-[9px] font-bold uppercase px-2 py-0.5 rounded-lg bg-[#16A34A]/15 text-[#16A34A] dark:text-emerald-400">
                           Passed
                         </span>
                       )}
@@ -291,11 +291,11 @@ export default function SettlementDetailsPage() {
               ₹{Number(settlement.total_amount || settlement.totalAmount || settlement.amount || 0).toLocaleString("en-IN")}
             </p>
             {(settlement.payment_mode === "partial" || settlement.paymentMode === "partial") ? (
-              <span className="inline-block mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/15 dark:text-amber-400">
+              <span className="inline-block mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/15 dark:text-amber-400">
                 Partial / Split Remittance
               </span>
             ) : (
-              <span className="inline-block mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
+              <span className="inline-block mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
                 Full 100% Remittance
               </span>
             )}
@@ -347,7 +347,7 @@ export default function SettlementDetailsPage() {
               <span className="text-xs font-bold text-[#B45309] dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
                 <Clock className="w-4 h-4" /> Partial Payment Breakdown
               </span>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/20 dark:text-amber-300">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/20 dark:text-amber-300">
                 Split Remittance Mode
               </span>
             </div>
@@ -439,7 +439,7 @@ export default function SettlementDetailsPage() {
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-5 py-2.5 rounded-full text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm"
+              className="px-5 py-2.5 rounded-lg text-xs font-bold flex items-center gap-2 transition-colors cursor-pointer bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm"
             >
               <Download className="w-3.5 h-3.5" />
               Download Remittance Receipt (PDF)

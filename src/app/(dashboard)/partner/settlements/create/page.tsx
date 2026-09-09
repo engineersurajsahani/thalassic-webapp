@@ -228,7 +228,7 @@ export default function SubmitSettlementPage() {
             
             <div className="flex justify-between">
               <span className={subText}>Settlement Type:</span>
-              <span className={`font-bold px-2.5 py-0.5 rounded-full text-[10px] ${
+              <span className={`font-bold px-2.5 py-0.5 rounded-lg text-[10px] ${
                 isPartialSuccess
                   ? "bg-[#FEF3C7] text-[#B45309]"
                   : "bg-[#DCFCE7] text-[#16A34A]"
@@ -285,7 +285,7 @@ export default function SubmitSettlementPage() {
 
             <div className={`flex justify-between items-center pt-2.5 border-t ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
               <span className={subText}>Current Status:</span>
-              <span className={`text-[10px] font-extrabold px-3 py-1 rounded-full ${
+              <span className={`text-[10px] font-extrabold px-3 py-1 rounded-lg ${
                 isPartialSuccess
                   ? "bg-[#FEF3C7] text-[#B45309]"
                   : "bg-[#EEF1FE] text-[#3D5EF6]"
@@ -298,13 +298,13 @@ export default function SubmitSettlementPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href={`/partner/settlements/${createdSettlement.id || createdSettlement.settlementNumber}`}
-              className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-black bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm"
+              className="w-full sm:w-auto px-6 py-3 rounded-lg text-xs font-black bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm"
             >
               View Settlement Details
             </Link>
             <Link
               href="/partner/settlements"
-              className={`w-full sm:w-auto px-5 py-3 rounded-full text-xs font-bold transition-colors duration-200 ${
+              className={`w-full sm:w-auto px-5 py-3 rounded-lg text-xs font-bold transition-colors duration-200 ${
                 isDark ? "bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300" : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
               }`}
             >
@@ -317,7 +317,7 @@ export default function SubmitSettlementPage() {
   }
 
   return (
-    <div className="max-w-6xl space-y-8 animate-fadeIn pb-12">
+    <div className="space-y-8 animate-fadeIn pb-12">
       {/* Top Header & Wizard Stepper */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -339,7 +339,7 @@ export default function SubmitSettlementPage() {
 
         {/* Dynamic Wizard Steps Pills */}
         <div className="flex items-center gap-2 shrink-0">
-          <div className={`px-3.5 py-1.5 rounded-full border text-xs font-bold flex items-center gap-2 ${
+          <div className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-2 ${
             selectedIds.length > 0
               ? isDark ? "bg-[#3D5EF6]/20 border-[#3D5EF6]/40 text-blue-300" : "bg-[#EEF1FE] border-[#3D5EF6]/30 text-[#3D5EF6]"
               : isDark ? "bg-white/5 border-white/10 text-slate-400" : "bg-[#F3F4F6] border-[#E5E7EB] text-[#6B7280]"
@@ -348,7 +348,7 @@ export default function SubmitSettlementPage() {
             Select Purchases ({selectedIds.length})
           </div>
           <span className={`text-xs ${subText}`}>→</span>
-          <div className={`px-3.5 py-1.5 rounded-full border text-xs font-bold flex items-center gap-2 ${
+          <div className={`px-3.5 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-2 ${
             paymentMode === "partial"
               ? isDark ? "bg-amber-500/15 border-amber-500/30 text-amber-300" : "bg-[#FEF3C7] border-amber-300 text-[#B45309]"
               : isDark ? "bg-emerald-500/15 border-emerald-500/30 text-emerald-300" : "bg-[#DCFCE7] border-emerald-300 text-[#16A34A]"
@@ -463,17 +463,8 @@ export default function SubmitSettlementPage() {
                 )}
               </div>
 
-              {/* Trust & Policy Badge */}
-              <div className={`p-4 rounded-[16px] text-xs leading-relaxed space-y-1.5 ${
-                isDark ? "bg-[#3D5EF6]/10 text-blue-300" : "bg-[#EEF1FE] text-[#111827]"
-              }`}>
-                <div className="flex items-center gap-1.5 font-bold">
-                  <ShieldCheck className="w-4 h-4 shrink-0 text-[#3D5EF6]" /> Zero Commission Policy
-                </div>
-                <p className="text-[11px] opacity-90">
-                  100% Hari Om payable amount. Partner collects candidate fee directly with zero commission markup.
-                </p>
-              </div>
+
+
             </div>
 
             {/* Remittance Guidelines & SLA Help Card */}
@@ -520,7 +511,7 @@ export default function SubmitSettlementPage() {
                 <h2 className={`text-base font-extrabold flex items-center gap-2 ${headingText}`}>
                   <CreditCard className={`w-5 h-5 ${isDark ? "text-blue-400" : "text-[#3D5EF6]"}`} /> 1. Bank Payment & Transaction Statement
                 </h2>
-                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full ${
+                <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-lg ${
                   isDark ? "bg-[#3D5EF6]/15 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
                 }`}>
                   Bank Remittance Proof
@@ -551,7 +542,7 @@ export default function SubmitSettlementPage() {
                   value={referenceNumber}
                   onChange={(e) => setReferenceNumber(e.target.value.toUpperCase())}
                   placeholder="e.g. HDFC001234567890 (12-22 chars max)"
-                  className={`w-full px-4 py-3 rounded-full text-sm font-mono font-extrabold uppercase outline-none transition-all ${inputStyle}`}
+                  className={`w-full px-4 py-3 rounded-lg text-sm font-mono font-extrabold uppercase outline-none transition-all ${inputStyle}`}
                 />
                 <p className={`text-[10px] mt-1 ${subText}`}>
                   Standard banking limits: UPI / IMPS (12 digits), NEFT (16 characters), RTGS (22 characters). Max 22 alphanumeric characters.
@@ -625,7 +616,7 @@ export default function SubmitSettlementPage() {
                 <select
                   value={paymentMethod}
                   onChange={(e) => setPaymentMethod(e.target.value)}
-                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-bold outline-none ${inputStyle}`}
+                  className={`w-full px-3.5 py-2.5 rounded-lg text-xs font-bold outline-none ${inputStyle}`}
                 >
                   <option value="Bank Transfer (NEFT / RTGS)">Bank Transfer (NEFT / RTGS / IMPS)</option>
                   <option value="UPI Transfer">UPI / Corporate QR</option>
@@ -644,7 +635,7 @@ export default function SubmitSettlementPage() {
                   required
                   value={paymentDate}
                   onChange={(e) => setPaymentDate(e.target.value)}
-                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-bold outline-none ${inputStyle}`}
+                  className={`w-full px-3.5 py-2.5 rounded-lg text-xs font-bold outline-none ${inputStyle}`}
                 />
               </div>
 
@@ -659,7 +650,7 @@ export default function SubmitSettlementPage() {
                   value={remarks}
                   onChange={(e) => setRemarks(e.target.value)}
                   placeholder="e.g. Remittance via corporate net banking. Batch covers 2 seafarers."
-                  className={`w-full px-3.5 py-2.5 rounded-full text-xs font-semibold outline-none ${inputStyle}`}
+                  className={`w-full px-3.5 py-2.5 rounded-lg text-xs font-semibold outline-none ${inputStyle}`}
                 />
               </div>
             </div>
@@ -695,7 +686,7 @@ export default function SubmitSettlementPage() {
                     <CheckCircle2 className={`w-5 h-5 ${paymentMode === "full" ? "text-[#16A34A]" : "text-slate-400"}`} />
                     <span className={`text-xs font-black ${headingText}`}>Full Remittance (100%)</span>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A]">
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#DCFCE7] text-[#16A34A]">
                     Full Pay
                   </span>
                 </div>
@@ -721,7 +712,7 @@ export default function SubmitSettlementPage() {
                     <Clock className={`w-5 h-5 ${paymentMode === "partial" ? "text-[#B45309]" : "text-slate-400"}`} />
                     <span className={`text-xs font-black ${headingText}`}>Partial Remittance Split</span>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309]">
+                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#FEF3C7] text-[#B45309]">
                     Installment
                   </span>
                 </div>
@@ -758,7 +749,7 @@ export default function SubmitSettlementPage() {
                         value={paidAmountInput}
                         onChange={(e) => setPaidAmountInput(e.target.value)}
                         placeholder="e.g. 20000"
-                        className={`w-full pl-8 pr-4 py-2.5 rounded-full text-sm font-mono font-bold outline-none transition-all ${inputStyle}`}
+                        className={`w-full pl-8 pr-4 py-2.5 rounded-lg text-sm font-mono font-bold outline-none transition-all ${inputStyle}`}
                       />
                     </div>
                     <p className="text-[10px] text-slate-400 mt-1">
@@ -775,7 +766,7 @@ export default function SubmitSettlementPage() {
                       isDark ? "bg-black/30 text-amber-300" : "bg-white text-[#B45309]"
                     }`}>
                       <span>₹{remainingBalance.toLocaleString("en-IN")}</span>
-                      <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309]">
+                      <span className="text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-lg bg-[#FEF3C7] text-[#B45309]">
                         Pending
                       </span>
                     </div>
@@ -795,7 +786,7 @@ export default function SubmitSettlementPage() {
                       min={new Date().toISOString().split("T")[0]}
                       value={expectedDueDate}
                       onChange={(e) => setExpectedDueDate(e.target.value)}
-                      className={`w-full px-4 py-2.5 rounded-full text-xs font-bold outline-none transition-all ${inputStyle}`}
+                      className={`w-full px-4 py-2.5 rounded-lg text-xs font-bold outline-none transition-all ${inputStyle}`}
                     />
                     <p className="text-[10px] text-slate-400 mt-1">
                       Specify the date by which your agency will pay the remaining ₹{remainingBalance.toLocaleString("en-IN")} balance.
@@ -827,7 +818,7 @@ export default function SubmitSettlementPage() {
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Search candidate, INDoS (e.g. 24IN9999), course, ID..."
-                  className={`w-full px-3.5 py-2 rounded-full text-xs font-semibold outline-none ${inputStyle}`}
+                  className={`w-full px-3.5 py-2 rounded-lg text-xs font-semibold outline-none ${inputStyle}`}
                 />
               </div>
             </div>
@@ -871,12 +862,12 @@ export default function SubmitSettlementPage() {
                         <div>
                           <div className="flex flex-wrap items-center gap-2">
                             <p className={`font-extrabold text-xs ${headingText}`}>{p.seafarerName}</p>
-                            <span className={`font-mono text-[10px] font-extrabold px-2.5 py-0.5 rounded-full ${
+                            <span className={`font-mono text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg ${
                               isDark ? "bg-white/5 text-blue-300" : "bg-[#EEF1FE] text-[#3D5EF6]"
                             }`}>
                               INDoS: {candidateIndos}
                             </span>
-                            <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                            <span className={`font-mono text-[10px] font-bold px-2 py-0.5 rounded-lg ${
                               isDark ? "bg-white/5 text-gray-400" : "bg-gray-100 text-gray-600"
                             }`}>
                               {p.id}
@@ -893,11 +884,11 @@ export default function SubmitSettlementPage() {
                           ₹{Number(p.payableAmount).toLocaleString("en-IN")}
                         </p>
                         {p.settlementStatus === "Partial" || (p.remainingAmount && p.remainingAmount > 0) ? (
-                          <span className="text-[10px] font-bold text-[#B45309] bg-[#FEF3C7] px-2.5 py-0.5 rounded-full block mt-0.5">
+                          <span className="text-[10px] font-bold text-[#B45309] bg-[#FEF3C7] px-2.5 py-0.5 rounded-lg block mt-0.5">
                             Remaining Due Balance
                           </span>
                         ) : (
-                          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-full inline-block mt-0.5 bg-[#FEF3C7] text-[#B45309]">
+                          <span className="text-[10px] font-extrabold px-2.5 py-0.5 rounded-lg inline-block mt-0.5 bg-[#FEF3C7] text-[#B45309]">
                             {p.settlementStatus || "Pending"}
                           </span>
                         )}
@@ -912,7 +903,7 @@ export default function SubmitSettlementPage() {
             <div className={`flex items-center justify-end gap-3 pt-4 border-t ${isDark ? "border-white/10" : "border-[#E5E7EB]"}`}>
               <Link
                 href="/partner/settlements"
-                className={`px-5 py-3 rounded-full text-xs font-bold transition-colors duration-200 ${
+                className={`px-5 py-3 rounded-lg text-xs font-bold transition-colors duration-200 ${
                   isDark ? "bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300" : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
                 }`}
               >
@@ -921,7 +912,7 @@ export default function SubmitSettlementPage() {
               <button
                 type="submit"
                 disabled={submitting || selectedIds.length === 0}
-                className="px-6 py-3.5 rounded-full text-xs font-black text-white shadow-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer bg-[#3D5EF6] hover:bg-[#2E4FE0] transition-colors duration-200"
+                className="px-6 py-3.5 rounded-lg text-xs font-black text-white shadow-sm flex items-center gap-2 disabled:opacity-50 cursor-pointer bg-[#3D5EF6] hover:bg-[#2E4FE0] transition-colors duration-200"
               >
                 <CreditCard className="w-4 h-4" />
                 {submitting

@@ -177,13 +177,13 @@ export default function CreatePurchasePage() {
             </div>
             <div className="flex justify-between items-center">
               <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Settlement Status:</span>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/15 dark:text-amber-400">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/15 dark:text-amber-400">
                 Pending Settlement
               </span>
             </div>
             <div className="flex justify-between items-center">
               <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Enrollment Status:</span>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
                 Course Enrolled
               </span>
             </div>
@@ -192,13 +192,13 @@ export default function CreatePurchasePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href={`/partner/purchases/${completedPurchase.id}`}
-              className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm"
+              className="w-full sm:w-auto px-6 py-3 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm"
             >
               View Purchase Details
             </Link>
             <Link
               href="/partner/settlements/create"
-              className={`w-full sm:w-auto px-5 py-3 rounded-full text-xs font-semibold transition-colors duration-200 flex items-center justify-center gap-1.5 ${
+              className={`w-full sm:w-auto px-5 py-3 rounded-lg text-xs font-semibold transition-colors duration-200 flex items-center justify-center gap-1.5 ${
                 isDark ? "bg-[#1F2937] hover:bg-[#374151] text-gray-200" : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
               }`}
             >
@@ -207,7 +207,7 @@ export default function CreatePurchasePage() {
             </Link>
             <Link
               href="/partner/purchases"
-              className={`w-full sm:w-auto px-5 py-3 rounded-full text-xs font-semibold transition-colors duration-200 ${
+              className={`w-full sm:w-auto px-5 py-3 rounded-lg text-xs font-semibold transition-colors duration-200 ${
                 isDark ? "bg-[#111827] hover:bg-white/10 text-gray-300" : "bg-[#F3F4F6] hover:bg-[#EEF1FE] text-[#6B7280] hover:text-[#3D5EF6]"
               }`}
             >
@@ -220,7 +220,7 @@ export default function CreatePurchasePage() {
   }
 
   return (
-    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
+    <div className="space-y-8 animate-fadeIn pb-12">
       {/* Header */}
       <div>
         <Link
@@ -331,7 +331,7 @@ export default function CreatePurchasePage() {
                 value={seafarerQuery}
                 onChange={(e) => setQueryAndSearch(e.target.value)}
                 placeholder="Search by INDoS, Passport, CDC, Email, or Name..."
-                className={`w-full pl-10 pr-4 py-2.5 rounded-full text-xs font-medium outline-none transition-colors duration-200 ${
+                className={`w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium outline-none transition-colors duration-200 ${
                   isDark ? "bg-[#111827] border-0 text-white focus:ring-1 focus:ring-[#3D5EF6]" : "bg-[#FAFAFA] border-0 text-[#111827] placeholder:text-[#9CA3AF] focus:ring-1 focus:ring-[#3D5EF6]"
                 }`}
               />
@@ -339,7 +339,7 @@ export default function CreatePurchasePage() {
             <button
               type="submit"
               disabled={seafarerLoading}
-              className="px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shrink-0"
+              className="px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shrink-0"
             >
               {seafarerLoading ? "Searching..." : "Search"}
             </button>
@@ -380,7 +380,7 @@ export default function CreatePurchasePage() {
                       <div>
                         <div className="flex items-center gap-2">
                           <p className="font-bold text-[#111827] dark:text-white text-xs">{s.name}</p>
-                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
+                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded-lg ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
                             INDoS: {s.indosNum || "N/A"}
                           </span>
                         </div>
@@ -392,7 +392,7 @@ export default function CreatePurchasePage() {
 
                     <button
                       type="button"
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors duration-200 shrink-0 ${
+                      className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-colors duration-200 shrink-0 ${
                         isSelected
                           ? "bg-[#3D5EF6] text-white"
                           : isDark
@@ -524,7 +524,7 @@ export default function CreatePurchasePage() {
                   Duration: {selectedCourse?.duration} • STCW Certified
                 </p>
               </div>
-              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
                 DG Approved
               </span>
             </div>
@@ -539,7 +539,7 @@ export default function CreatePurchasePage() {
                   Configured Hari Om Payable Amount (Read-Only)
                 </span>
               </div>
-              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isDark ? "bg-[#3D5EF6]/20 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg ${isDark ? "bg-[#3D5EF6]/20 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
                 Partner Pricing
               </span>
             </div>
@@ -565,7 +565,7 @@ export default function CreatePurchasePage() {
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-colors duration-200 ${
+              className={`px-5 py-2.5 rounded-lg text-xs font-semibold transition-colors duration-200 ${
                 isDark ? "bg-[#1F2937] hover:bg-[#374151] text-gray-300" : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
               }`}
             >
@@ -576,7 +576,7 @@ export default function CreatePurchasePage() {
               type="button"
               disabled={submitting}
               onClick={handleConfirmPurchase}
-              className="px-6 py-3 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-3 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
             >
               <ShoppingCart className="w-4 h-4" />
               {submitting ? "Processing Enrollment..." : "Confirm & Create Purchase"}

@@ -53,7 +53,7 @@ export default function PurchaseDetailsPage() {
 
   if (loading) {
     return (
-      <div className="max-w-4xl mx-auto py-12 text-center animate-pulse text-[#6B7280] dark:text-gray-400">
+      <div className="mx-auto py-12 text-center animate-pulse text-[#6B7280] dark:text-gray-400">
         Loading purchase details...
       </div>
     );
@@ -74,7 +74,7 @@ export default function PurchaseDetailsPage() {
   }
 
   return (
-    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
+    <div className="space-y-8 animate-fadeIn pb-12">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -99,7 +99,7 @@ export default function PurchaseDetailsPage() {
         {purchase.settlementStatus === "Pending" && (
           <Link
             href="/partner/settlements/create"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors duration-200 shrink-0"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors duration-200 shrink-0"
           >
             <CreditCard className="w-4 h-4" />
             Submit Settlement for this Purchase
@@ -128,7 +128,7 @@ export default function PurchaseDetailsPage() {
             <div className="text-right">
               <p className={`text-[10px] uppercase font-bold ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Settlement Status</p>
               <span
-                className={`inline-block mt-0.5 text-xs font-bold uppercase px-3 py-1 rounded-full ${
+                className={`inline-block mt-0.5 text-xs font-bold uppercase px-3 py-1 rounded-lg ${
                   purchase.settlementStatus === "Completed"
                     ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
                     : purchase.settlementStatus === "Rejected"
@@ -152,10 +152,10 @@ export default function PurchaseDetailsPage() {
             <div className="space-y-2 text-xs">
               <p className="font-bold text-[#111827] dark:text-white text-base">{purchase.seafarerName}</p>
               <div className="flex flex-wrap gap-2 text-[11px] font-mono pt-1">
-                <span className={`px-2 py-0.5 rounded-full ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
+                <span className={`px-2 py-0.5 rounded-lg ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
                   INDoS: {purchase.indosNumber || "N/A"}
                 </span>
-                <span className={`px-2 py-0.5 rounded-full ${isDark ? "bg-white/5 text-gray-300" : "bg-[#F3F4F6] text-[#6B7280]"}`}>
+                <span className={`px-2 py-0.5 rounded-lg ${isDark ? "bg-white/5 text-gray-300" : "bg-[#F3F4F6] text-[#6B7280]"}`}>
                   Passport: {purchase.passportNumber || "N/A"}
                 </span>
               </div>
@@ -180,7 +180,7 @@ export default function PurchaseDetailsPage() {
               <p className="font-bold text-[#111827] dark:text-white text-base">{purchase.courseName}</p>
               <p className={`text-[11px] font-mono font-bold ${isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]"}`}>Code: {purchase.courseCode || "STCW"}</p>
               <div className="flex items-center gap-2 text-[11px]">
-                <span className="px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400 font-semibold">
+                <span className="px-2.5 py-0.5 rounded-lg bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400 font-semibold">
                   Classroom Training
                 </span>
                 <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Classroom & Practical</span>

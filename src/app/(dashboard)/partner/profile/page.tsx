@@ -129,7 +129,7 @@ export default function PartnerProfilePage() {
   const initial = agencyDisplayName ? agencyDisplayName.charAt(0).toUpperCase() : "A";
 
   return (
-    <div className="max-w-5xl space-y-8 animate-fadeIn pb-12">
+    <div className="space-y-8 animate-fadeIn pb-12">
       {/* Top Header */}
       <div>
         <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight ${headingText}`}>
@@ -163,7 +163,7 @@ export default function PartnerProfilePage() {
           <div className="flex-1 min-w-0 space-y-1">
             <div className="flex flex-wrap items-center gap-2.5">
               <h2 className={`text-xl font-extrabold ${headingText}`}>{agencyDisplayName}</h2>
-              <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
+              <span className="text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-lg bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
                 VERIFIED PARTNER AGENCY
               </span>
             </div>
@@ -306,7 +306,7 @@ export default function PartnerProfilePage() {
               <button
                 type="submit"
                 disabled={saving}
-                className="px-6 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
+                className="px-6 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <Save className="w-4 h-4" />
                 {saving ? "Saving Changes..." : "Save Agency Details"}
@@ -367,7 +367,7 @@ export default function PartnerProfilePage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors cursor-pointer"
+              className="w-full py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors cursor-pointer"
             >
               {saving ? "Updating..." : "Update Security Password"}
             </button>

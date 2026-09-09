@@ -71,7 +71,7 @@ export default function SettlementsHistoryPage() {
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Link
             href="/partner/financials"
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold transition-colors ${
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
               isDark
                 ? "bg-[#1F2937] hover:bg-[#374151] text-gray-200"
                 : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
@@ -82,7 +82,7 @@ export default function SettlementsHistoryPage() {
           </Link>
           <Link
             href="/partner/settlements/create"
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors shrink-0"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors shrink-0"
           >
             <CreditCard className="w-4 h-4" />
             Submit Settlement
@@ -99,7 +99,7 @@ export default function SettlementsHistoryPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by Settlement # or UTR reference..."
-            className={`w-full pl-10 pr-4 py-2.5 rounded-full text-xs font-medium outline-none transition-colors ${
+            className={`w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium outline-none transition-colors ${
               isDark
                 ? "bg-[#111827] border-0 text-white placeholder:text-gray-500 focus:ring-1 focus:ring-[#3D5EF6]"
                 : "bg-[#FAFAFA] border-0 text-[#111827] placeholder:text-[#9CA3AF] focus:ring-1 focus:ring-[#3D5EF6]"
@@ -112,7 +112,7 @@ export default function SettlementsHistoryPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className={`px-3.5 py-2.5 rounded-full text-xs font-semibold outline-none transition-colors ${
+            className={`px-3.5 py-2.5 rounded-lg text-xs font-semibold outline-none transition-colors ${
               isDark ? "bg-[#111827] border-0 text-gray-200" : "bg-[#FAFAFA] border-0 text-[#111827]"
             }`}
           >
@@ -192,7 +192,7 @@ export default function SettlementsHistoryPage() {
                       </td>
                       <td className="py-3.5 px-4 text-center">
                         <span
-                          className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${
+                          className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-lg ${
                             isPaid
                               ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
                               : isPartial

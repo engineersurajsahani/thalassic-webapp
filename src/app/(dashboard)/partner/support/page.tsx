@@ -98,7 +98,7 @@ export default function PartnerSupportPage() {
   const resolvedCount = tickets.filter((t) => t.status === "Resolved" || t.status === "Closed").length;
 
   return (
-    <div className="max-w-5xl space-y-8 animate-fadeIn pb-12">
+    <div className="space-y-8 animate-fadeIn pb-12">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
@@ -112,7 +112,7 @@ export default function PartnerSupportPage() {
 
         <button
           onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors shadow-sm shrink-0 cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors shadow-sm shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           Create Support Ticket
@@ -147,7 +147,7 @@ export default function PartnerSupportPage() {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-3.5 py-1.5 rounded-full text-xs font-bold transition-colors cursor-pointer ${
+                className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer ${
                   activeTab === tab
                     ? "bg-[#3D5EF6] text-white shadow-sm"
                     : isDark
@@ -183,7 +183,7 @@ export default function PartnerSupportPage() {
             </div>
             <button
               onClick={() => setShowModal(true)}
-              className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm cursor-pointer transition-colors"
+              className="mt-2 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm cursor-pointer transition-colors"
             >
               <Plus className="w-4 h-4" /> Open New Ticket
             </button>
@@ -208,7 +208,7 @@ export default function PartnerSupportPage() {
                     </div>
 
                     <div className="flex items-center gap-2">
-                      <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${
+                      <span className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-lg ${
                         isOpen
                           ? "bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/15 dark:text-amber-400"
                           : "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
@@ -294,7 +294,7 @@ export default function PartnerSupportPage() {
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className={`px-4 py-2 rounded-full text-xs font-semibold ${
+                  className={`px-4 py-2 rounded-lg text-xs font-semibold ${
                     isDark ? "bg-white/10 text-white" : "bg-[#F3F4F6] text-[#6B7280]"
                   }`}
                 >
@@ -303,7 +303,7 @@ export default function PartnerSupportPage() {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="px-6 py-2 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors cursor-pointer"
+                  className="px-6 py-2 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors cursor-pointer"
                 >
                   {submitting ? "Submitting..." : "Submit Ticket"}
                 </button>

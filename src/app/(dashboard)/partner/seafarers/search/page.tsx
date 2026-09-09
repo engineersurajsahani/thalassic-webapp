@@ -61,7 +61,7 @@ export default function SeafarerSearchPage() {
   const accentText = "text-[#3D5EF6] font-extrabold";
 
   return (
-    <div className="space-y-8 animate-fadeIn pb-10 max-w-5xl">
+    <div className="space-y-8 animate-fadeIn pb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -75,7 +75,7 @@ export default function SeafarerSearchPage() {
 
         <Link
           href="/partner/seafarers/create"
-          className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors shrink-0 cursor-pointer"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors shrink-0 cursor-pointer"
         >
           <UserPlus className="w-4 h-4" />
           Create New Seafarer
@@ -92,7 +92,7 @@ export default function SeafarerSearchPage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Enter INDoS (e.g. 20N1234 - 8 chars), Passport, CDC, Email, or Name..."
-              className={`w-full pl-10 pr-4 py-3 rounded-full text-sm font-medium outline-none transition-colors ${
+              className={`w-full pl-10 pr-4 py-3 rounded-lg text-sm font-medium outline-none transition-colors ${
                 isDark
                   ? "bg-[#111827] border border-[#1F2937] text-white placeholder-gray-500 focus:border-[#3D5EF6]"
                   : "bg-[#FAFAFA] border border-[#E5E7EB] text-[#111827] placeholder-[#9CA3AF] focus:border-[#3D5EF6]"
@@ -102,7 +102,7 @@ export default function SeafarerSearchPage() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+            className="w-full sm:w-auto px-6 py-3 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors flex items-center justify-center gap-2 shrink-0 cursor-pointer"
           >
             {loading ? "Searching..." : "Search Identity"}
           </button>
@@ -115,7 +115,7 @@ export default function SeafarerSearchPage() {
               setQuery("20N1234");
               partnerService.searchSeafarers("20N1234").then(setResults);
             }}
-            className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 hover:opacity-80 transition-colors cursor-pointer"
+            className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 hover:opacity-80 transition-colors cursor-pointer"
           >
             INDoS: 20N1234
           </button>
@@ -125,7 +125,7 @@ export default function SeafarerSearchPage() {
               setQuery("Z1234567");
               partnerService.searchSeafarers("Z1234567").then(setResults);
             }}
-            className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 hover:opacity-80 transition-colors cursor-pointer"
+            className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 hover:opacity-80 transition-colors cursor-pointer"
           >
             Passport: Z1234567
           </button>
@@ -135,7 +135,7 @@ export default function SeafarerSearchPage() {
               setQuery("raj@example.com");
               partnerService.searchSeafarers("raj@example.com").then(setResults);
             }}
-            className="px-2.5 py-1 rounded-full text-xs font-mono font-bold bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 hover:opacity-80 transition-colors cursor-pointer"
+            className="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 hover:opacity-80 transition-colors cursor-pointer"
           >
             raj@example.com
           </button>
@@ -171,7 +171,7 @@ export default function SeafarerSearchPage() {
             <div className="mt-4">
               <Link
                 href="/partner/seafarers/create"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm"
               >
                 <UserPlus className="w-4 h-4" />
                 Create New Seafarer Master
@@ -194,10 +194,10 @@ export default function SeafarerSearchPage() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className={`text-base font-black ${headingText}`}>{seafarer.name}</h3>
-                        <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15">
+                        <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-lg bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15">
                           ID: {seafarer.id.substring(0, 8)}...
                         </span>
-                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
+                        <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
                           Seafarer Master
                         </span>
                       </div>
@@ -235,7 +235,7 @@ export default function SeafarerSearchPage() {
                   }`}>
                     <Link
                       href={`/partner/seafarers/${seafarer.id}`}
-                      className={`px-3.5 py-2 rounded-full text-xs font-semibold border transition-colors ${
+                      className={`px-3.5 py-2 rounded-lg text-xs font-semibold border transition-colors ${
                         isDark
                           ? "border-[#1F2937] hover:bg-[#1F2937] text-gray-200"
                           : "border-[#E5E7EB] hover:bg-[#F3F4F6] text-[#6B7280]"
@@ -245,7 +245,7 @@ export default function SeafarerSearchPage() {
                     </Link>
                     <Link
                       href={`/partner/purchases/create?seafarerId=${seafarer.id}`}
-                      className="flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm cursor-pointer transition-colors"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm cursor-pointer transition-colors"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       Proceed to Course Purchase
