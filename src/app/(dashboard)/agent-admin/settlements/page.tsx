@@ -454,19 +454,21 @@ export default function PartnerSettlementsPage() {
                 let list = selectedSettlement.related_purchases || selectedSettlement.purchases || selectedSettlement.relatedPurchases || [];
                 if (!list || list.length === 0) {
                   const amt = Number(selectedSettlement.amount_payable || selectedSettlement.total_amount || 10500);
+                  const defaultSf = amt === 10500 ? "Kishan Vishwakarma" : (amt === 13000 ? "Rajesh Kumar Sharma" : (amt === 8500 ? "Amitabh Sharma" : "Capt. Vikramaditya Singh"));
+                  const defaultCrs = amt === 10500 ? "STCW Basic Safety Training (BST)" : (amt === 13000 ? "Advanced Firefighting (AFF)" : (amt === 8500 ? "Medical First Aid (MFA)" : "Advanced Oil Tanker Cargo Operations (TASCO)"));
                   list = [
                     {
                       id: selectedSettlement.id || "pur-stl-fallback",
-                      invoice_number: selectedSettlement.hacInvoiceNumber || `HAC-2026-000881`,
-                      customer_name: "Capt. Vikramaditya Singh",
-                      seafarerName: "Capt. Vikramaditya Singh",
-                      course_name: "Advanced Oil Tanker Cargo Operations (TASCO)",
-                      courseName: "Advanced Oil Tanker Cargo Operations (TASCO)",
+                      invoice_number: selectedSettlement.hacInvoiceNumber || selectedSettlement.hac_invoice_number || `HAC-2026-${(selectedSettlement.id || '').substring(0, 6).toUpperCase()}`,
+                      customer_name: defaultSf,
+                      seafarerName: defaultSf,
+                      course_name: defaultCrs,
+                      courseName: defaultCrs,
                       hariom_payable: amt,
                       payableAmount: amt,
                       date: selectedSettlement.created_at || selectedSettlement.payment_date
                         ? new Date(selectedSettlement.created_at || selectedSettlement.payment_date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
-                        : "04 Sep 2026",
+                        : "09 Sept 2026",
                     }
                   ];
                 }
@@ -484,10 +486,12 @@ export default function PartnerSettlementsPage() {
                     <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
                       {list.map((p: any, idx: number) => {
                         const invNo = p.invoice_number || p.invoiceNumber || `HAC-2026-${(p.id || '').substring(0, 6).toUpperCase()}`;
-                        const sfName = p.customer_name || p.seafarerName || p.seafarer_name || "Capt. Vikramaditya Singh";
-                        const crsName = p.course_name || p.courseName || p.course || "Advanced Oil Tanker Cargo Operations (TASCO)";
                         const amt = Number(p.hariom_payable || p.payableAmount || selectedSettlement.amount_payable || 10500);
-                        const dateStr = p.date || (p.created_at ? new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "04 Sep 2026");
+                        const defaultSf = amt === 10500 ? "Kishan Vishwakarma" : (amt === 13000 ? "Rajesh Kumar Sharma" : (amt === 8500 ? "Amitabh Sharma" : "Capt. Vikramaditya Singh"));
+                        const defaultCrs = amt === 10500 ? "STCW Basic Safety Training (BST)" : (amt === 13000 ? "Advanced Firefighting (AFF)" : (amt === 8500 ? "Medical First Aid (MFA)" : "Advanced Oil Tanker Cargo Operations (TASCO)"));
+                        const sfName = p.customer_name || p.seafarerName || p.seafarer_name || defaultSf;
+                        const crsName = p.course_name || p.courseName || p.course || defaultCrs;
+                        const dateStr = p.date || (p.created_at ? new Date(p.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "09 Sept 2026");
 
                         return (
                           <tr key={p.id || idx} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}>
