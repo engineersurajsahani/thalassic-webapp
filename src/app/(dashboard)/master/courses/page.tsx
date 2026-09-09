@@ -152,6 +152,7 @@ const EMPTY_FORM: {
   duration: string;
   price: number;
   status: "Active" | "Draft" | "Inactive";
+  associatedInstituteIds: string[];
 } = {
   title: "",
   code: "",
@@ -159,6 +160,7 @@ const EMPTY_FORM: {
   duration: "",
   price: 5000,
   status: "Active",
+  associatedInstituteIds: [],
 };
 
 export default function CoursesPage() {
@@ -217,6 +219,18 @@ export default function CoursesPage() {
     setForm({ ...EMPTY_FORM });
     setSaved(false);
     setIsAddModalOpen(true);
+  };
+
+  const toggleInstituteAssociation = (instId: string) => {
+    setForm(prev => {
+      const exists = prev.associatedInstituteIds.includes(instId);
+      return {
+        ...prev,
+        associatedInstituteIds: exists
+          ? prev.associatedInstituteIds.filter(id => id !== instId)
+          : [...prev.associatedInstituteIds, instId],
+      };
+    });
   };
 
   const closeModal = () => {
@@ -911,7 +925,7 @@ export default function CoursesPage() {
 
                 <div className={`p-3 rounded-xl border max-h-48 overflow-y-auto space-y-2 ${dk ? "bg-white/3 border-white/8" : "bg-slate-50 border-slate-100"}`}>
                   {MOCK_INSTITUTES.map(inst => {
-                    const isChecked = form.associatedInstituteIds.includes(inst.id);
+                    const isChecked = form.associatedInstituteIds?.includes(inst.id) || false;
                     return (
                       <label
                         key={inst.id}
@@ -919,11 +933,10 @@ export default function CoursesPage() {
                           isChecked
                             ? (dk ? "bg-indigo-500/15 text-white" : "bg-indigo-50 text-indigo-900")
                             : (dk ? "hover:bg-white/5" : "hover:bg-slate-100")
-                        } ${modalMode === "view" ? "pointer-events-none" : ""}`}
+                        }`}
                       >
                         <input
                           type="checkbox"
-                          disabled={modalMode === "view"}
                           checked={isChecked}
                           onChange={() => toggleInstituteAssociation(inst.id)}
                           className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
