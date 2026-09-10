@@ -517,6 +517,7 @@ export default function PartnerSettlementsPage() {
                     selectedSettlement.firstInstallmentAmount ||
                     (selectedSettlement.amount_settled > 0 && selectedSettlement.amount_settled < selectedSettlement.amount_payable) ||
                     (netAmt > 0 && netAmt < payAmt) ||
+                    refStr.includes("652496") ||
                     refStr.includes("313763") ||
                     refStr.includes("333733") ||
                     refStr.includes("829741") ||
@@ -609,6 +610,7 @@ export default function PartnerSettlementsPage() {
                 selectedSettlement.firstInstallmentAmount ||
                 (selectedSettlement.amount_settled > 0 && selectedSettlement.amount_settled < selectedSettlement.amount_payable) ||
                 (netAmt > 0 && netAmt < payAmt) ||
+                refStr.includes("652496") ||
                 refStr.includes("313763") ||
                 refStr.includes("333733") ||
                 refStr.includes("829741") ||
