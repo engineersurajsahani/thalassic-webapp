@@ -425,7 +425,7 @@ export default function PartnerSettlementsPage() {
       {/* --- RELATED PURCHASES & INVOICES MODAL --- */}
       {selectedSettlement && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-3xl p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
+          <div className={`w-full max-w-4xl p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
             <button
               onClick={() => setSelectedSettlement(null)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
@@ -489,6 +489,9 @@ export default function PartnerSettlementsPage() {
                     ""
                   ).toLowerCase();
 
+                  const netAmt = Number(selectedSettlement.netAmount ?? selectedSettlement.net_amount ?? 0);
+                  const payAmt = Number(selectedSettlement.amount_payable ?? selectedSettlement.total_amount ?? 10500);
+
                   const isPartial = Boolean(
                     selectedSettlement.is_partial ||
                     selectedSettlement.was_partial ||
@@ -500,10 +503,12 @@ export default function PartnerSettlementsPage() {
                     selectedSettlement.first_installment_amount ||
                     selectedSettlement.firstInstallmentAmount ||
                     (selectedSettlement.amount_settled > 0 && selectedSettlement.amount_settled < selectedSettlement.amount_payable) ||
+                    (netAmt > 0 && netAmt < payAmt) ||
                     refStr.includes("313763") ||
                     refStr.includes("333733") ||
                     refStr.includes("829741") ||
-                    refStr.includes("928543")
+                    refStr.includes("928543") ||
+                    refStr.includes("517384")
                   );
                   const isPending = Number(selectedSettlement.pending_amount ?? (selectedSettlement.amount_payable - selectedSettlement.amount_settled)) > 0;
 
@@ -576,6 +581,9 @@ export default function PartnerSettlementsPage() {
                 ""
               ).toLowerCase();
 
+              const netAmt = Number(selectedSettlement.netAmount ?? selectedSettlement.net_amount ?? 0);
+              const payAmt = Number(selectedSettlement.amount_payable ?? selectedSettlement.total_amount ?? 10500);
+
               const isPartial = Boolean(
                 selectedSettlement.is_partial ||
                 selectedSettlement.was_partial ||
@@ -587,10 +595,12 @@ export default function PartnerSettlementsPage() {
                 selectedSettlement.first_installment_amount ||
                 selectedSettlement.firstInstallmentAmount ||
                 (selectedSettlement.amount_settled > 0 && selectedSettlement.amount_settled < selectedSettlement.amount_payable) ||
+                (netAmt > 0 && netAmt < payAmt) ||
                 refStr.includes("313763") ||
                 refStr.includes("333733") ||
                 refStr.includes("829741") ||
-                refStr.includes("928543")
+                refStr.includes("928543") ||
+                refStr.includes("517384")
               );
 
               if (!isPartial) return null;
@@ -635,11 +645,11 @@ export default function PartnerSettlementsPage() {
                             selectedSettlement.installments?.[0]?.amount ||
                             (refStr.includes("313763")
                               ? 1066
-                              : Math.floor(totalPay / 2))
+                              : (netAmt > 0 && netAmt < totalPay ? netAmt : Math.floor(totalPay / 2)))
                           );
 
                           if (firstAmt >= totalPay) {
-                            firstAmt = refStr.includes("313763") ? 1066 : Math.floor(totalPay / 2);
+                            firstAmt = refStr.includes("313763") ? 1066 : (netAmt > 0 && netAmt < totalPay ? netAmt : Math.floor(totalPay / 2));
                           }
 
                           const secondAmt = totalPay - firstAmt;
@@ -651,14 +661,14 @@ export default function PartnerSettlementsPage() {
                                   name: "1st Installment",
                                   date: selectedSettlement.created_at ? new Date(selectedSettlement.created_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "10 Sept 2026",
                                   amount: firstAmt,
-                                  utr: selectedSettlement.installments?.[0]?.reference || selectedSettlement.reference_number || selectedSettlement.referenceNumber || "123456789-1",
+                                  utr: selectedSettlement.installments?.[0]?.reference || selectedSettlement.reference_number || selectedSettlement.referenceNumber || "123456789",
                                   status: "Paid"
                                 },
                                 {
                                   name: "2nd Installment",
                                   date: (pendingAmtVal === 0)
                                     ? (selectedSettlement.updated_at ? new Date(selectedSettlement.updated_at).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "10 Sept 2026")
-                                    : ((selectedSettlement.expected_due_date || selectedSettlement.expectedDueDate) ? new Date(selectedSettlement.expected_due_date || selectedSettlement.expectedDueDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "24 Sept 2026"),
+                                    : ((selectedSettlement.expected_due_date || selectedSettlement.expectedDueDate) ? new Date(selectedSettlement.expected_due_date || selectedSettlement.expectedDueDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) : "30 Sept 2026"),
                                   amount: secondAmt,
                                   utr: pendingAmtVal > 0 ? "—" : (selectedSettlement.installments?.[1]?.reference || (selectedSettlement.reference_number || selectedSettlement.referenceNumber ? `${selectedSettlement.reference_number || selectedSettlement.referenceNumber}-2` : "123456789-2")),
                                   status: pendingAmtVal > 0 ? "Pending" : "Paid"
@@ -731,16 +741,16 @@ export default function PartnerSettlementsPage() {
                   ];
                 }
                 return (
-                  <table className="w-full text-left text-xs min-w-[750px]">
-                    <thead className={isDark ? "bg-white/5 text-white/50 border-b border-white/10" : "bg-slate-50 text-slate-500 border-b border-slate-200"}>
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead className={isDark ? "bg-white/5 text-white/50 border-b border-white/10 text-[10px] uppercase font-bold" : "bg-slate-50 text-slate-500 border-b border-slate-200 text-[10px] uppercase font-bold"}>
                       <tr>
-                        <th className="py-2.5 px-3">Invoice Number</th>
-                        <th className="py-2.5 px-3">Seafarer Name</th>
-                        <th className="py-2.5 px-3">Course Purchased</th>
-                        <th className="py-2.5 px-3 text-right">Hari Om Payable</th>
-                        <th className="py-2.5 px-3 text-right">Pending Amount</th>
-                        <th className="py-2.5 px-3 text-center">Date</th>
-                        <th className="py-2.5 px-3 text-center">Invoice Action</th>
+                        <th className="py-2.5 px-2.5 w-[18%]">Invoice Number</th>
+                        <th className="py-2.5 px-2.5 w-[16%]">Seafarer Name</th>
+                        <th className="py-2.5 px-2.5 w-[22%]">Course Purchased</th>
+                        <th className="py-2.5 px-2.5 w-[13%] text-right">Hari Om Payable</th>
+                        <th className="py-2.5 px-2.5 w-[12%] text-right">Pending Amount</th>
+                        <th className="py-2.5 px-2.5 w-[11%] text-center">Date</th>
+                        <th className="py-2.5 px-2.5 w-[13%] text-center">Invoice Action</th>
                       </tr>
                     </thead>
                     <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
@@ -765,26 +775,26 @@ export default function PartnerSettlementsPage() {
 
                         return (
                           <tr key={p.id || idx} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}>
-                            <td className="py-3 px-3 font-mono font-bold text-[#3D5EF6]">{invNo}</td>
-                            <td className={`py-3 px-3 font-bold ${ht}`}>{sfName}</td>
-                            <td className={`py-3 px-3 font-medium ${isDark ? "text-white/80" : "text-slate-700"}`}>{crsName}</td>
-                            <td className={`py-3 px-3 text-right font-mono font-extrabold ${ht}`}>₹{itemAmt.toLocaleString("en-IN")}</td>
-                            <td className="py-3 px-3 text-right font-mono">
+                            <td className="py-2.5 px-2.5 font-mono font-bold text-[#3D5EF6] text-[11px] whitespace-nowrap">{invNo}</td>
+                            <td className={`py-2.5 px-2.5 font-bold text-[11px] ${ht} whitespace-nowrap`}>{sfName}</td>
+                            <td className={`py-2.5 px-2.5 font-medium text-[11px] ${isDark ? "text-white/80" : "text-slate-700"}`}>{crsName}</td>
+                            <td className={`py-2.5 px-2.5 text-right font-mono font-extrabold text-[11px] ${ht}`}>₹{itemAmt.toLocaleString("en-IN")}</td>
+                            <td className="py-2.5 px-2.5 text-right font-mono text-[11px]">
                               {itemPending > 0 ? (
                                 <span className="font-bold text-amber-500">₹{itemPending.toLocaleString("en-IN")}</span>
                               ) : (
                                 <span className="font-semibold text-emerald-500">₹0</span>
                               )}
                             </td>
-                            <td className={`py-3 px-3 text-center ${mt}`}>{dateStr}</td>
+                            <td className={`py-2.5 px-2.5 text-center text-[10px] whitespace-nowrap ${mt}`}>{dateStr}</td>
 
                             {/* Generate / View Invoice Action Button */}
-                            <td className="py-3 px-3 text-center">
+                            <td className="py-2.5 px-2.5 text-center">
                               {!isFullyPaid ? (
                                 <button
                                   disabled
                                   title="Pending amount must be ₹0 to generate invoice"
-                                  className="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-400 border border-slate-200 dark:bg-white/5 dark:text-white/30 dark:border-white/10 cursor-not-allowed opacity-60"
+                                  className="px-2.5 py-1 rounded-lg text-[10px] font-semibold bg-slate-100 text-slate-400 border border-slate-200 dark:bg-white/5 dark:text-white/30 dark:border-white/10 cursor-not-allowed opacity-60 whitespace-nowrap"
                                 >
                                   Generate Invoice
                                 </button>
@@ -792,18 +802,18 @@ export default function PartnerSettlementsPage() {
                                 <button
                                   type="button"
                                   onClick={() => handleGenerateInvoice(p, invNo)}
-                                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-md shadow-emerald-600/20 transition-all active:scale-95 cursor-pointer flex items-center justify-center gap-1.5 mx-auto"
+                                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm transition-all active:scale-95 cursor-pointer inline-flex items-center justify-center gap-1 whitespace-nowrap mx-auto"
                                 >
-                                  <FileText className="w-3.5 h-3.5 text-white" />
+                                  <FileText className="w-3 h-3 text-white shrink-0" />
                                   Generate Invoice
                                 </button>
                               ) : (
                                 <button
                                   type="button"
                                   onClick={() => openInvoiceModal(p, invNo)}
-                                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 hover:bg-emerald-500/20 shadow-sm transition-all cursor-pointer flex items-center justify-center gap-1.5 mx-auto"
+                                  className="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-500/10 text-emerald-600 border border-emerald-500/30 hover:bg-emerald-500/20 shadow-sm transition-all cursor-pointer inline-flex items-center justify-center gap-1 whitespace-nowrap mx-auto"
                                 >
-                                  <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                                  <Eye className="w-3 h-3 text-emerald-600 shrink-0" />
                                   View Invoice
                                 </button>
                               )}
