@@ -665,16 +665,16 @@ export default function DocumentVerificationPage() {
                           ₹{rec.amount.toLocaleString("en-IN")}
                         </td>
                         <td className="px-5 py-3.5">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${
                             rec.status === "Completed"
-                              ? isDark ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-100 text-emerald-700"
+                              ? "text-emerald-600 dark:text-emerald-400"
                               : rec.status === "Processing"
-                              ? isDark ? "bg-sky-500/15 text-sky-400" : "bg-sky-100 text-sky-700"
-                              : isDark ? "bg-amber-500/15 text-amber-400" : "bg-amber-100 text-amber-700"
+                              ? "text-sky-600 dark:text-sky-400"
+                              : "text-amber-600 dark:text-amber-400"
                           }`}>
-                            {rec.status === "Completed" && <CheckCircle2 className="w-3 h-3" />}
-                            {rec.status === "Processing" && <Clock className="w-3 h-3" />}
-                            {rec.status === "Pending" && <Clock className="w-3 h-3" />}
+                            {rec.status === "Completed" && <CheckCircle2 className="w-3.5 h-3.5" />}
+                            {rec.status === "Processing" && <Clock className="w-3.5 h-3.5" />}
+                            {rec.status === "Pending" && <Clock className="w-3.5 h-3.5" />}
                             {rec.status}
                           </span>
                         </td>

@@ -126,10 +126,10 @@ export default function FinanceOverviewPage() {
   }, []);
 
   const statusCls = (s: string) => {
-    if (s === "Paid")    return dk ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-100 text-emerald-700";
-    if (s === "Pending") return dk ? "bg-amber-500/15 text-amber-400"     : "bg-amber-100 text-amber-700";
-    if (s === "Partial") return dk ? "bg-blue-500/15 text-blue-400"       : "bg-blue-100 text-blue-700";
-    return dk ? "bg-red-500/15 text-red-400" : "bg-red-100 text-red-700";
+    if (s === "Paid")    return dk ? "text-emerald-400" : "text-emerald-700";
+    if (s === "Pending") return dk ? "text-amber-400"   : "text-amber-700";
+    if (s === "Partial") return dk ? "text-blue-400"    : "text-blue-700";
+    return dk ? "text-red-400" : "text-red-700";
   };
 
   return (
@@ -352,7 +352,7 @@ export default function FinanceOverviewPage() {
             <p className={`text-sm font-semibold ${ht}`}>Recent Transactions</p>
             <p className={`text-[11px] ${mt}`}>Transactions from the last 30 days ({recentTransactions.length} payments)</p>
           </div>
-          <span className="text-[10px] font-semibold px-2.5 py-1 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
+          <span className={`text-[11px] font-semibold ${dk ? "text-sky-400" : "text-sky-600"}`}>
             Last 30 Days
           </span>
         </div>
@@ -374,7 +374,7 @@ export default function FinanceOverviewPage() {
                   <td className={`px-5 py-3.5 text-[11px] max-w-[130px] truncate ${mt}`}>{p.instituteName}</td>
                   <td className={`px-5 py-3.5 text-[13px] font-bold ${ht}`}>₹{p.amount.toLocaleString("en-IN")}</td>
                   <td className="px-5 py-3.5">
-                    <span className={`inline-flex text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusCls(p.status)}`}>{p.status}</span>
+                    <span className={`text-[11px] font-semibold ${statusCls(p.status)}`}>{p.status}</span>
                   </td>
                   <td className={`px-5 py-3.5 text-[12px] ${mt}`}>
                     <div className="flex items-center gap-1.5">

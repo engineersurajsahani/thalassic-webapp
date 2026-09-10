@@ -154,7 +154,9 @@ export default function PartnerSettlementsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6] px-3 py-1 rounded-full bg-[#3D5EF6]/10 border border-[#3D5EF6]/20">
+            <span className={`text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-md border ${
+              isDark ? "text-[#3D5EF6] bg-[#3D5EF6]/10 border-[#3D5EF6]/20" : "text-[#3D5EF6] bg-[#EEF1FE] border-[#3D5EF6]/20"
+            }`}>
               Partner Financial Settlements
             </span>
           </div>
@@ -330,21 +332,21 @@ export default function PartnerSettlementsPage() {
                             value={isCompleted ? "Completed" : "Pending"}
                             onChange={(e) => handleStatusChange(item.id, e.target.value)}
                             disabled={updatingId !== null}
-                            className={`px-3 py-1.5 rounded-full text-[10px] font-bold outline-none cursor-pointer border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                            className={`px-3 py-1.5 rounded-md text-[10px] font-bold outline-none cursor-pointer border transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                               isCompleted
-                                ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/30"
-                                : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                                ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/30"
+                                : "bg-amber-500/10 text-amber-600 border-amber-500/30"
                             }`}
                           >
-                            <option value="Pending">⏳ Pending</option>
-                            <option value="Completed">✅ Completed</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Completed">Completed</option>
                           </select>
                         )}
                       </td>
 
                       {/* Related Purchases Count */}
                       <td className="py-4 px-3 text-center">
-                        <span className={`px-2.5 py-1 rounded-xl text-xs font-bold ${isDark ? "bg-white/5 text-white/80 border border-white/10" : "bg-slate-100 text-slate-700 border border-slate-200"}`}>
+                        <span className={`px-3 py-1.5 rounded-md text-[10px] font-bold outline-none border transition-all inline-block ${isDark ? "bg-white/5 text-white/80 border-white/10" : "bg-slate-100 text-slate-700 border-slate-200"}`}>
                           {item.related_purchases?.length || item.related_purchases_count || 3} Purchases
                         </span>
                       </td>

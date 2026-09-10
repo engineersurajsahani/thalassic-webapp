@@ -23,7 +23,7 @@ import {
 export default function SeafarerSearchPage() {
   const { theme } = useTheme();
   const router = useRouter();
-  const [mounted, setMounted] = useState(false);
+  const mounted = true;
   useEffect(() => setMounted(true), []);
   const isDark = mounted ? theme === "dark" : true;
 

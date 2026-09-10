@@ -364,7 +364,7 @@ export default function CourseManagementPage() {
                 {!isEditing && (
                   <button
                     onClick={startEditing}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 text-amber-400 border border-amber-500/20 hover:bg-amber-500/20 transition-colors cursor-pointer"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 border border-amber-500/30 transition-colors cursor-pointer"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
                     Edit
@@ -476,7 +476,7 @@ export default function CourseManagementPage() {
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-xs font-semibold uppercase tracking-wider opacity-60 flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5 text-purple-400" />
-                      Available Institutes & Pricing ({getCourseInstitutes(selectedCourse.title).length})
+                      AVAILABLE INSTITUTES & PRICE ({getCourseInstitutes(selectedCourse.title).length})
                     </h4>
                     <span className="text-[11px] text-sky-400 font-medium">Prices vary by institute</span>
                   </div>
@@ -511,18 +511,11 @@ export default function CourseManagementPage() {
                           </div>
                         </div>
 
-                        <div className="flex items-center justify-between sm:justify-end gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
-                          <div className="text-right">
+                        <div className="flex items-center sm:justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-white/5">
+                          <div className="text-left sm:text-right">
                             <span className="text-[10px] uppercase font-semibold opacity-40 block">Price</span>
                             <span className="text-sm font-bold text-emerald-400">{inst.price}</span>
                           </div>
-
-                          <button
-                            onClick={() => handleQuickAssign(selectedCourse, inst.id)}
-                            className="px-3 py-1.5 rounded-lg text-xs font-semibold bg-sky-500 hover:bg-sky-600 text-white shadow-sm shadow-sky-500/20 transition-all cursor-pointer"
-                          >
-                            Assign Crew
-                          </button>
                         </div>
                       </div>
                     ))}

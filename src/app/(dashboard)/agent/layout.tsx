@@ -14,11 +14,7 @@ export default function AgentLayout({
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = true;
 
   const isOnboarding = pathname === "/agent/onboarding";
 

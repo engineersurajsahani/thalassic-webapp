@@ -13,11 +13,7 @@ import {
 export default function AgentDashboard() {
   const { theme } = useTheme();
   const { user } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
 

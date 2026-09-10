@@ -43,9 +43,9 @@ export default function SeafarerFinancePage() {
     : "bg-slate-50 border-slate-200 text-slate-700 placeholder:text-slate-400 focus:border-sky-400";
 
   const statusCls = (s: string) => {
-    if (s === "Paid")    return dk ? "bg-emerald-500/15 text-emerald-400" : "bg-emerald-100 text-emerald-700";
-    if (s === "Pending") return dk ? "bg-amber-500/15 text-amber-400"     : "bg-amber-100 text-amber-700";
-    return dk ? "bg-red-500/15 text-red-400" : "bg-red-100 text-red-700";
+    if (s === "Paid")    return dk ? "text-emerald-400" : "text-emerald-700";
+    if (s === "Pending") return dk ? "text-amber-400"   : "text-amber-700";
+    return dk ? "text-red-400" : "text-red-700";
   };
   const statusIcon = (s: string) => {
     if (s === "Paid")    return <CheckCircle2 className="w-3 h-3" />;
@@ -102,8 +102,8 @@ export default function SeafarerFinancePage() {
     });
   }, [seafarerGroups, query, filterStatus]);
 
-  const chipAct = "bg-sky-500 text-white";
-  const chipIn  = dk ? "bg-white/5 text-white/40 hover:text-white/60" : "bg-slate-100 text-slate-500 hover:text-slate-700";
+  const chipAct = "text-sky-600 dark:text-sky-400 font-bold underline underline-offset-4 decoration-2 decoration-sky-500";
+  const chipIn  = dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium";
 
   // Pagination
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
@@ -153,11 +153,11 @@ export default function SeafarerFinancePage() {
               className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`}
             />
           </div>
-          <div className="flex items-center gap-1.5 flex-wrap">
+          <div className="flex items-center gap-4 flex-wrap py-1">
             <Filter className={`w-3.5 h-3.5 ${mt}`} />
             {["All","Paid","Pending","Overdue"].map(s => (
               <button key={s} onClick={() => setFilterStatus(s)}
-                className={`text-xs px-3 py-1.5 rounded-lg font-medium transition-all cursor-pointer ${filterStatus === s ? chipAct : chipIn}`}
+                className={`text-xs transition-all cursor-pointer ${filterStatus === s ? chipAct : chipIn}`}
               >{s}</button>
             ))}
           </div>
@@ -204,7 +204,7 @@ export default function SeafarerFinancePage() {
                     <p className={`text-sm font-bold text-amber-500`}>₹{g.pendingAmount.toLocaleString("en-IN")}</p>
                     <p className={`text-[10px] ${mt}`}>Pending</p>
                   </div>
-                  <span className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full ${statusCls(overallStatus === "Partial" ? "Pending" : overallStatus)}`}>
+                  <span className={`hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold ${statusCls(overallStatus === "Partial" ? "Pending" : overallStatus)}`}>
                     {overallStatus === "Partial" ? "Partial" : (statusIcon(overallStatus))}
                     {overallStatus === "Partial" ? "" : overallStatus}
                   </span>
@@ -236,7 +236,7 @@ export default function SeafarerFinancePage() {
                             <td className={`px-5 py-3 text-[13px] font-bold text-emerald-500`}>₹{paid.toLocaleString("en-IN")}</td>
                             <td className={`px-5 py-3 text-[13px] font-bold text-amber-500`}>₹{pending.toLocaleString("en-IN")}</td>
                             <td className="px-5 py-3">
-                              <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusCls(p.status)}`}>
+                              <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${statusCls(p.status)}`}>
                                 {statusIcon(p.status)}{p.status}
                               </span>
                             </td>
@@ -380,7 +380,7 @@ export default function SeafarerFinancePage() {
                 </div>
                 <div className="text-right">
                   <span className="text-[10px] uppercase font-bold opacity-60 block">Payment Status</span>
-                  <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded text-[10px] font-bold uppercase ${statusCls(selectedInvoicePayment.status)}`}>
+                  <span className={`inline-flex items-center gap-1 text-[11px] font-bold uppercase ${statusCls(selectedInvoicePayment.status)}`}>
                     {statusIcon(selectedInvoicePayment.status)}
                     {selectedInvoicePayment.status}
                   </span>
