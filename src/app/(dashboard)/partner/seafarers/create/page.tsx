@@ -338,12 +338,12 @@ export default function CreateSeafarerPage() {
       {/* Page Header */}
       <div>
         <Link
-          href="/partner/seafarers/search"
+          href="/partner/seafarers"
           className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors mb-3 ${
             isDark ? "text-gray-400 hover:text-white" : "text-[#6B7280] hover:text-[#3D5EF6]"
           }`}
         >
-          <ArrowLeft className="w-4 h-4" /> Back to Search Seafarers
+          <ArrowLeft className="w-4 h-4" /> Back to Seafarer Management
         </Link>
         <h1 className={`text-2xl md:text-3xl font-extrabold tracking-tight mt-2 ${headingText}`}>
           Create & Upload Seafarer Master

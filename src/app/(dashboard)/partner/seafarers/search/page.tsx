@@ -24,7 +24,10 @@ export default function SeafarerSearchPage() {
   const { theme } = useTheme();
   const router = useRouter();
   const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
+  useEffect(() => {
+    setMounted(true);
+    router.replace("/partner/seafarers");
+  }, [router]);
   const isDark = mounted ? theme === "dark" : true;
 
   const [query, setQuery] = useState("");
