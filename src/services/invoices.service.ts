@@ -11,6 +11,15 @@ export const invoicesService = {
     startDate?: string;
     endDate?: string;
   }) {
+    let localSaved: any[] = [];
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("thalassic_saved_invoices_list");
+        if (stored) localSaved = JSON.parse(stored);
+      } catch {}
+    }
+
+    let apiData: any[] = [];
     try {
       const queryParams = new URLSearchParams();
       if (params?.search) queryParams.append("search", params.search);
@@ -22,14 +31,26 @@ export const invoicesService = {
       const query = queryParams.toString();
       const response = await api.get(`/invoices${query ? `?${query}` : ""}`);
       if (Array.isArray(response.data)) {
-        return response.data;
+        apiData = response.data;
       }
     } catch (e) {
       console.warn("Failed to fetch invoices from API, using fallback data", e);
     }
 
-    // Filter fallback data
-    let list = [...MOCK_PARTNER_INVOICES];
+    // Combine localSaved, apiData, and MOCK_PARTNER_INVOICES cleanly without duplicates
+    const combined = [...localSaved];
+    for (const item of apiData) {
+      if (!combined.some((i) => i.id === item.id || i.invoice_number === item.invoice_number)) {
+        combined.push(item);
+      }
+    }
+    for (const item of MOCK_PARTNER_INVOICES) {
+      if (!combined.some((i) => i.id === item.id || i.invoice_number === item.invoice_number)) {
+        combined.push(item);
+      }
+    }
+
+    let list = combined;
     if (params?.search) {
       const q = params.search.toLowerCase();
       list = list.filter(
@@ -41,10 +62,10 @@ export const invoicesService = {
       );
     }
     if (params?.status && params.status !== "all") {
-      list = list.filter((i) => i.status?.toLowerCase() === params.status?.toLowerCase());
+      list = list.filter((i) => (i.status || i.payment_status)?.toLowerCase() === params.status?.toLowerCase());
     }
     if (params?.type && params.type !== "all") {
-      list = list.filter((i) => i.invoice_type?.toLowerCase() === params.type?.toLowerCase());
+      list = list.filter((i) => (i.invoice_type || i.type)?.toLowerCase() === params.type?.toLowerCase());
     }
     return list;
   },
@@ -60,25 +81,37 @@ export const invoicesService = {
     hariomPayable?: number;
     transactionId?: string;
     paymentMethod?: string;
+    seafarerName?: string;
+    seafarer_name?: string;
+    customer_name?: string;
+    course_name?: string;
   }) {
+    const custName = data.customerName || data.customer_name || data.seafarerName || data.seafarer_name || "Seafarer Candidate";
+    const crsName = data.courseName || data.course_name || "STCW Maritime Course";
+    const invNo = data.invoiceNumber || (data.id && data.id.startsWith("HAC-") ? data.id : `HAC-2026-${(data.id || "").substring(0, 6).toUpperCase()}`);
+    const amt = Number(data.finalAmount || data.hariomPayable || 10500);
+
     const newInvoice = {
-      id: data.id || data.invoiceNumber || data.purchaseId || `INV-${Date.now()}`,
-      purchase_id: data.purchaseId,
-      invoice_number: data.invoiceNumber || `INV-2026-${Date.now()}`,
-      customer_name: data.customerName || "Seafarer",
-      customer_email: data.customerEmail || `${(data.customerName || "seafarer").toLowerCase().replace(/\s+/g, ".")}@maritime.com`,
+      id: data.id || invNo || `INV-${Date.now()}`,
+      purchase_id: data.purchaseId || data.id,
+      invoice_number: invNo,
+      customer_name: custName,
+      customer_email: data.customerEmail || `${custName.toLowerCase().replace(/\s+/g, ".")}@maritime.com`,
       customer_phone: "+91 98765 43210",
-      course_name: data.courseName || "Maritime Course",
+      course_name: crsName,
       institute_name: "Hari Om Maritime Institute, Mumbai",
-      course_fee: Number(data.finalAmount || data.hariomPayable || 0),
+      course_fee: amt,
       discount: 0,
-      final_amount: Number(data.finalAmount || data.hariomPayable || 0),
-      hariom_payable_amount: Number(data.hariomPayable || data.finalAmount || 0),
-      payment_gateway: "Bank Remittance",
+      final_amount: amt,
+      hariom_payable_amount: amt,
+      payment_gateway: "Partner Remittance Batch",
       payment_method: data.paymentMethod || "Bank Transfer",
-      transaction_id: data.transactionId || `TXN-${data.purchaseId || Date.now()}`,
+      transaction_id: data.transactionId || `TXN-REMIT-${invNo}`,
       status: "Paid",
+      payment_status: "Paid",
+      invoice_status: "Issued",
       invoice_type: "HAC",
+      type: "HAC",
       created_at: new Date().toISOString(),
       payment_date: new Date().toISOString(),
       agent_name: "Rajesh Kumar (Partner)",
@@ -93,13 +126,29 @@ export const invoicesService = {
       MOCK_PARTNER_INVOICES.unshift(newInvoice);
     }
 
+    if (typeof window !== "undefined") {
+      try {
+        const stored = localStorage.getItem("thalassic_saved_invoices_list") || "[]";
+        let list: any[] = JSON.parse(stored);
+        const idx = list.findIndex((i) => i.id === newInvoice.id || i.invoice_number === newInvoice.invoice_number);
+        if (idx >= 0) {
+          list[idx] = newInvoice;
+        } else {
+          list.unshift(newInvoice);
+        }
+        localStorage.setItem("thalassic_saved_invoices_list", JSON.stringify(list));
+      } catch (e) {
+        console.warn("Error persisting invoice in localStorage:", e);
+      }
+    }
+
     // Record generated invoice in localStorage map
     this.markInvoiceAsGenerated(newInvoice.id, data);
     this.markInvoiceAsGenerated(newInvoice.invoice_number, data);
     if (data.purchaseId) this.markInvoiceAsGenerated(data.purchaseId, data);
 
     try {
-      const response = await api.post("/invoices/generate", data);
+      const response = await api.post("/invoices/generate", newInvoice);
       if (response.data) return response.data;
     } catch (e) {
       console.warn("Failed to generate invoice via API, saved to local store:", e);

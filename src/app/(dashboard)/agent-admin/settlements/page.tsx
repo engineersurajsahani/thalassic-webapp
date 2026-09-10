@@ -58,10 +58,23 @@ export default function PartnerSettlementsPage() {
     }
   };
 
-  const handleGenerateInvoice = (purchaseItem: any, invNo: string) => {
+  const handleGenerateInvoice = async (purchaseItem: any, invNo: string) => {
+    const custName = purchaseItem.customer_name || purchaseItem.seafarerName || purchaseItem.seafarer_name || "Seafarer Candidate";
+    const crsName = purchaseItem.course_name || purchaseItem.courseName || purchaseItem.course || "STCW Maritime Course";
+    const amt = Number(purchaseItem.hariom_payable || purchaseItem.payableAmount || purchaseItem.final_amount || 10500);
+
+    await invoicesService.generateInvoice({
+      id: purchaseItem.id || invNo,
+      purchaseId: purchaseItem.id,
+      invoiceNumber: invNo,
+      customerName: custName,
+      courseName: crsName,
+      finalAmount: amt,
+      hariomPayable: amt,
+      paymentMethod: "Bank Transfer",
+    });
+
     const key = purchaseItem.id || invNo;
-    invoicesService.markInvoiceAsGenerated(key);
-    if (invNo) invoicesService.markInvoiceAsGenerated(invNo);
     setGeneratedInvoices((prev) => ({
       ...prev,
       [key]: true,
