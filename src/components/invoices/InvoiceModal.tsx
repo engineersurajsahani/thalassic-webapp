@@ -37,6 +37,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 };
 
 export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
+  if (!pdfData) return null;
   const printRef = useRef<HTMLDivElement>(null);
 
   const company = pdfData?.company || {
@@ -110,8 +111,13 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
     d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }) : "—";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-[16px] card-elevated border-0 shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col overflow-hidden">
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div className="bg-white rounded-[16px] card-elevated border-0 shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col overflow-hidden relative">
         {/* Modal Header Actions */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
           <div className="flex items-center gap-2 text-[#111827] font-semibold">
@@ -119,19 +125,26 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
             <span>Invoice: {invoice.invoice_number}</span>
             <StatusBadge status={invoice.status} />
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             <button
+              type="button"
               onClick={handlePrint}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-[10px] bg-[#3D5EF6] text-white hover:bg-[#2E4FE0] transition-colors"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-[10px] bg-[#3D5EF6] text-white hover:bg-[#2E4FE0] transition-colors cursor-pointer"
             >
               <Printer className="w-4 h-4" />
               Print / Download
             </button>
             <button
-              onClick={onClose}
-              className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onClose();
+              }}
+              className="p-2 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+              title="Close Invoice Modal"
             >
-              <X className="w-4 h-4" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>

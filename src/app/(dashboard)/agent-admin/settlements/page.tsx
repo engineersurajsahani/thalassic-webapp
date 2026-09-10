@@ -963,7 +963,7 @@ export default function PartnerSettlementsPage() {
       )}
 
       {/* --- INVOICE VIEW / PRINT MODAL --- */}
-      <InvoiceModal pdfData={pdfDataModal} onClose={() => setPdfDataModal(null)} />
+      {pdfDataModal && <InvoiceModal pdfData={pdfDataModal} onClose={() => setPdfDataModal(null)} />}
     </div>
   );
 }
