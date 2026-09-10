@@ -38,7 +38,7 @@ export default function ApprovalTab({
   };
 
   const processedData = useMemo(() => {
-    const approvals: Record<string, unknown>[] = [];
+    let approvals: Record<string, unknown>[] = [];
 
     mockSeafarers.forEach((sf) => {
       sf.documents.forEach((doc) => {
