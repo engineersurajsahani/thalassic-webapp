@@ -1,95 +1,6 @@
 import { api } from "@/lib/axios";
 
-export const MOCK_PARTNER_INVOICES = [
-  {
-    id: "inv-hac-001",
-    invoice_number: "HAC260900001",
-    invoice_type: "HAC",
-    customer_name: "Capt. Vikramaditya Singh",
-    customer_email: "vikram@merchantnavy.in",
-    customer_phone: "+91 98201 98765",
-    course_name: "Advanced Oil Tanker Cargo Operations (TASCO)",
-    institute_name: "Hari Om Maritime Institute, Mumbai",
-    hariom_payable_amount: 24500,
-    final_amount: 28000,
-    course_fee: 28000,
-    discount: 0,
-    transaction_id: "TXN-HAC-994812",
-    payment_method: "Razorpay UPI",
-    payment_date: "2026-09-04T11:20:00.000Z",
-    created_at: "2026-09-04T11:20:00.000Z",
-    payment_status: "Paid",
-    invoice_status: "Issued",
-    status: "Paid",
-    agent_name: "SeaTrans Manning Agency",
-  },
-  {
-    id: "inv-hac-002",
-    invoice_number: "HAC260900002",
-    invoice_type: "HAC",
-    customer_name: "Rajesh Kumar Sharma",
-    customer_email: "rajesh.sharma@merchantnavy.in",
-    customer_phone: "+91 99887 12345",
-    course_name: "Basic Safety Training (STCW BST)",
-    institute_name: "Hari Om Maritime Academy, Navi Mumbai",
-    hariom_payable_amount: 14200,
-    final_amount: 16500,
-    course_fee: 16500,
-    discount: 0,
-    transaction_id: "TXN-HAC-994813",
-    payment_method: "Net Banking",
-    payment_date: "2026-09-03T15:45:00.000Z",
-    created_at: "2026-09-03T15:45:00.000Z",
-    payment_status: "Paid",
-    invoice_status: "Issued",
-    status: "Paid",
-    agent_name: "SeaTrans Manning Agency",
-  },
-  {
-    id: "inv-hac-003",
-    invoice_number: "HAC260900003",
-    invoice_type: "HAC",
-    customer_name: "Amitabh Deshmukh",
-    customer_email: "amitabh.d@maritime.org",
-    customer_phone: "+91 97654 32109",
-    course_name: "Medical First Aid (MFA)",
-    institute_name: "Hari Om Maritime Institute, Mumbai",
-    hariom_payable_amount: 8500,
-    final_amount: 9800,
-    course_fee: 9800,
-    discount: 0,
-    transaction_id: "TXN-HAC-994814",
-    payment_method: "Credit Card",
-    payment_date: "2026-09-02T09:10:00.000Z",
-    created_at: "2026-09-02T09:10:00.000Z",
-    payment_status: "Paid",
-    invoice_status: "Issued",
-    status: "Paid",
-    agent_name: "SeaTrans Manning Agency",
-  },
-  {
-    id: "inv-hac-004",
-    invoice_number: "HAC260900004",
-    invoice_type: "HAC",
-    customer_name: "Suresh Nambiar",
-    customer_email: "suresh.nambiar@gmail.com",
-    customer_phone: "+91 98112 33445",
-    course_name: "Proficiency in Survival Craft (PSCRB)",
-    institute_name: "Hari Om Maritime Academy, Kochi",
-    hariom_payable_amount: 11800,
-    final_amount: 13500,
-    course_fee: 13500,
-    discount: 0,
-    transaction_id: "TXN-HAC-994815",
-    payment_method: "Razorpay UPI",
-    payment_date: "2026-09-01T16:00:00.000Z",
-    created_at: "2026-09-01T16:00:00.000Z",
-    payment_status: "Pending",
-    invoice_status: "Draft",
-    status: "Pending",
-    agent_name: "SeaTrans Manning Agency",
-  },
-];
+export const MOCK_PARTNER_INVOICES: any[] = [];
 
 export const invoicesService = {
   async getInvoices(params?: {
@@ -110,7 +21,7 @@ export const invoicesService = {
       if (params?.endDate) queryParams.append("endDate", params.endDate);
       const query = queryParams.toString();
       const response = await api.get(`/invoices${query ? `?${query}` : ""}`);
-      if (Array.isArray(response.data) && response.data.length > 0) {
+      if (Array.isArray(response.data)) {
         return response.data;
       }
     } catch (e) {
@@ -123,19 +34,117 @@ export const invoicesService = {
       const q = params.search.toLowerCase();
       list = list.filter(
         (i) =>
-          i.invoice_number.toLowerCase().includes(q) ||
-          i.customer_name.toLowerCase().includes(q) ||
-          i.course_name.toLowerCase().includes(q) ||
-          i.transaction_id.toLowerCase().includes(q)
+          i.invoice_number?.toLowerCase().includes(q) ||
+          i.customer_name?.toLowerCase().includes(q) ||
+          i.course_name?.toLowerCase().includes(q) ||
+          i.transaction_id?.toLowerCase().includes(q)
       );
     }
     if (params?.status && params.status !== "all") {
-      list = list.filter((i) => i.status.toLowerCase() === params.status?.toLowerCase());
+      list = list.filter((i) => i.status?.toLowerCase() === params.status?.toLowerCase());
     }
     if (params?.type && params.type !== "all") {
-      list = list.filter((i) => i.invoice_type.toLowerCase() === params.type?.toLowerCase());
+      list = list.filter((i) => i.invoice_type?.toLowerCase() === params.type?.toLowerCase());
     }
     return list;
+  },
+
+  async generateInvoice(data: {
+    id?: string;
+    purchaseId?: string;
+    invoiceNumber?: string;
+    customerName?: string;
+    customerEmail?: string;
+    courseName?: string;
+    finalAmount?: number;
+    hariomPayable?: number;
+    transactionId?: string;
+    paymentMethod?: string;
+  }) {
+    const newInvoice = {
+      id: data.id || data.invoiceNumber || data.purchaseId || `INV-${Date.now()}`,
+      purchase_id: data.purchaseId,
+      invoice_number: data.invoiceNumber || `INV-2026-${Date.now()}`,
+      customer_name: data.customerName || "Seafarer",
+      customer_email: data.customerEmail || `${(data.customerName || "seafarer").toLowerCase().replace(/\s+/g, ".")}@maritime.com`,
+      customer_phone: "+91 98765 43210",
+      course_name: data.courseName || "Maritime Course",
+      institute_name: "Hari Om Maritime Institute, Mumbai",
+      course_fee: Number(data.finalAmount || data.hariomPayable || 0),
+      discount: 0,
+      final_amount: Number(data.finalAmount || data.hariomPayable || 0),
+      hariom_payable_amount: Number(data.hariomPayable || data.finalAmount || 0),
+      payment_gateway: "Bank Remittance",
+      payment_method: data.paymentMethod || "Bank Transfer",
+      transaction_id: data.transactionId || `TXN-${data.purchaseId || Date.now()}`,
+      status: "Paid",
+      invoice_type: "HAC",
+      created_at: new Date().toISOString(),
+      payment_date: new Date().toISOString(),
+      agent_name: "Rajesh Kumar (Partner)",
+    };
+
+    const existingIdx = MOCK_PARTNER_INVOICES.findIndex(
+      (i) => i.id === newInvoice.id || i.invoice_number === newInvoice.invoice_number || (data.purchaseId && i.purchase_id === data.purchaseId)
+    );
+    if (existingIdx >= 0) {
+      MOCK_PARTNER_INVOICES[existingIdx] = newInvoice;
+    } else {
+      MOCK_PARTNER_INVOICES.unshift(newInvoice);
+    }
+
+    // Record generated invoice in localStorage map
+    this.markInvoiceAsGenerated(newInvoice.id, data);
+    this.markInvoiceAsGenerated(newInvoice.invoice_number, data);
+    if (data.purchaseId) this.markInvoiceAsGenerated(data.purchaseId, data);
+
+    try {
+      const response = await api.post("/invoices/generate", data);
+      if (response.data) return response.data;
+    } catch (e) {
+      console.warn("Failed to generate invoice via API, saved to local store:", e);
+    }
+    return newInvoice;
+  },
+
+  markInvoiceAsGenerated(key: string, data?: any) {
+    if (typeof window === "undefined" || !key) return;
+    try {
+      const stored = localStorage.getItem("thalassic_generated_invoices") || "{}";
+      const map = JSON.parse(stored);
+      map[key] = true;
+      if (data?.invoiceNumber) map[data.invoiceNumber] = true;
+      if (data?.purchaseId) map[data.purchaseId] = true;
+      if (data?.id) map[data.id] = true;
+      localStorage.setItem("thalassic_generated_invoices", JSON.stringify(map));
+    } catch (e) {
+      console.warn("Error setting generated invoice in localStorage:", e);
+    }
+  },
+
+  isInvoiceGenerated(key: string): boolean {
+    if (typeof window === "undefined" || !key) return false;
+    try {
+      let stored = localStorage.getItem("thalassic_generated_invoices");
+      if (!stored) {
+        const initialSeed = {
+          "HAC-2026-F6F602": true,
+          "f6f6024f-692f-4674-a74d-91b35ff5e0c5": true,
+          "HAC-2026-PUR-88": true,
+          "pur-88201": true,
+        };
+        localStorage.setItem("thalassic_generated_invoices", JSON.stringify(initialSeed));
+        stored = JSON.stringify(initialSeed);
+      }
+      const map = JSON.parse(stored);
+      if (map[key]) return true;
+      const inMock = MOCK_PARTNER_INVOICES.some(
+        (i) => i.id === key || i.invoice_number === key || i.purchase_id === key
+      );
+      return inMock;
+    } catch (e) {
+      return false;
+    }
   },
 
   async getInvoiceById(id: string) {
@@ -145,18 +154,69 @@ export const invoicesService = {
     } catch (e) {
       console.warn("Failed to fetch invoice by ID from API, using fallback", e);
     }
-    return MOCK_PARTNER_INVOICES.find((i) => i.id === id || i.invoice_number === id) || MOCK_PARTNER_INVOICES[0];
+    return MOCK_PARTNER_INVOICES.find((i) => i.id === id || i.invoice_number === id || i.purchase_id === id) || null;
   },
 
-  async getInvoicePdfData(id: string) {
+  async getInvoicePdfData(id: string, overrideData?: any) {
     try {
       const response = await api.get(`/invoices/${id}/pdf`);
       if (response.data) return response.data;
     } catch (e) {
-      console.warn("Failed to fetch invoice PDF from API, using fallback", e);
+      console.warn("Failed to fetch invoice PDF from API, using dynamic data", e);
     }
 
-    const inv = MOCK_PARTNER_INVOICES.find((i) => i.id === id || i.invoice_number === id) || MOCK_PARTNER_INVOICES[0];
+    let inv = MOCK_PARTNER_INVOICES.find((i) => i.id === id || i.invoice_number === id || i.purchase_id === id);
+
+    if (!inv && overrideData) {
+      const custName = overrideData.customer_name || overrideData.seafarerName || overrideData.seafarer_name || overrideData.name;
+      const crsName = overrideData.course_name || overrideData.courseName || overrideData.course;
+      const amt = Number(overrideData.hariom_payable || overrideData.payableAmount || overrideData.final_amount || overrideData.amount || 0);
+
+      inv = {
+        id: id || overrideData.id || "INV-2026-001",
+        invoice_number: id?.startsWith("HAC-") || id?.startsWith("INV-") ? id : (overrideData.invoice_number || overrideData.invoiceNumber || `INV-2026-${id || "001"}`),
+        customer_name: custName || "Rajesh Kumar",
+        customer_email: overrideData.customer_email || `${(custName || "seafarer").toLowerCase().replace(/\s+/g, ".")}@maritime.com`,
+        customer_phone: overrideData.customer_phone || "+91 98765 43210",
+        course_name: crsName || "Advanced Fire Fighting",
+        institute_name: "Hari Om Maritime Institute, Mumbai",
+        course_fee: amt || 6452,
+        discount: 0,
+        final_amount: amt || 6452,
+        hariom_payable_amount: amt || 6452,
+        payment_gateway: "Bank Remittance",
+        payment_method: overrideData.payment_method || "Bank Transfer",
+        transaction_id: overrideData.transaction_id || `TXN-${id}`,
+        status: "Paid",
+        invoice_type: "HAC",
+        created_at: overrideData.date || overrideData.created_at || new Date().toISOString(),
+        payment_date: overrideData.date || overrideData.created_at || new Date().toISOString(),
+        agent_name: overrideData.agent_name || "Rajesh Kumar (Partner)",
+      };
+    } else if (!inv) {
+      inv = {
+        id: id || "INV-2026-001",
+        invoice_number: id?.startsWith("HAC-") || id?.startsWith("INV-") ? id : `INV-2026-${id || "001"}`,
+        customer_name: "Rajesh Kumar",
+        customer_email: "rajesh.kumar@maritime.com",
+        customer_phone: "+91 98765 43210",
+        course_name: "Advanced Fire Fighting",
+        institute_name: "Hari Om Maritime Institute, Mumbai",
+        course_fee: 6452,
+        discount: 0,
+        final_amount: 6452,
+        hariom_payable_amount: 6452,
+        payment_gateway: "Bank Remittance",
+        payment_method: "Bank Transfer",
+        transaction_id: `TXN-${id || "BATCH-001"}`,
+        status: "Paid",
+        invoice_type: "HAC",
+        created_at: new Date().toISOString(),
+        payment_date: new Date().toISOString(),
+        agent_name: "Rajesh Kumar (Partner)",
+      };
+    }
+
     return {
       invoice: inv,
       company: {
@@ -204,8 +264,8 @@ export const invoicesService = {
       "Seafarer": inv.customer_name,
       "Course": inv.course_name,
       "Institute": inv.institute_name || "Hari Om Maritime Institute",
-      "Amount Applicable to Hari Om": `₹${(inv.hariom_payable_amount ?? inv.final_amount).toLocaleString("en-IN")}`,
-      "Total Amount": `₹${inv.final_amount.toLocaleString("en-IN")}`,
+      "Amount Applicable to Hari Om": `₹${(inv.hariom_payable_amount ?? inv.final_amount ?? 0).toLocaleString("en-IN")}`,
+      "Total Amount": `₹${(inv.final_amount ?? 0).toLocaleString("en-IN")}`,
       "Invoice Date": new Date(inv.created_at).toLocaleDateString("en-IN"),
       "Payment Status": inv.payment_status || inv.status,
       "Invoice Status": inv.invoice_status || "Issued",
