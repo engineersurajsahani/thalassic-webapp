@@ -50,7 +50,7 @@ export default function InstituteFinancePage() {
 
   const [query, setQuery] = useState("");
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [filterStatus] = useState("All");
+  const [filterStatus, setFilterStatus] = useState("All");
 
   const card = `rounded-2xl overflow-hidden ${dk ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
   const ht = dk ? "text-white" : "text-[#000000]";
@@ -59,6 +59,12 @@ export default function InstituteFinancePage() {
   const inputBg = dk
     ? "bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-sky-500/50"
     : "bg-slate-50 border-slate-200 text-[#000000] placeholder:text-slate-500 focus:border-sky-400";
+  const chipAct = dk
+    ? "bg-sky-500/20 text-sky-400 border border-sky-500/40"
+    : "bg-sky-50 text-sky-600 border border-sky-200 font-bold";
+  const chipIn = dk
+    ? "text-white/40 hover:text-white/80 font-medium"
+    : "text-slate-500 hover:text-slate-800 font-medium";
 
   const statusCls = (s: string) => {
     if (s === "Paid") return dk ? "text-emerald-400" : "text-emerald-700";
@@ -144,6 +150,19 @@ export default function InstituteFinancePage() {
     if (received === 0) return "Pending";
     return "Partial";
   };
+
+  const filtered = useMemo(() => {
+    return instituteGroups.filter((g) => {
+      const q = query.toLowerCase();
+      const matchSearch =
+        !q ||
+        g.instituteName.toLowerCase().includes(q) ||
+        g.courseRows.some((c) => c.course.toLowerCase().includes(q));
+      const st = overallStatus(g.amountReceived, g.pendingAmount);
+      const matchStat = filterStatus === "All" || st === filterStatus;
+      return matchSearch && matchStat;
+    });
+  }, [instituteGroups, query, filterStatus]);
 
   return (
     <div className="space-y-6">

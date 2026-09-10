@@ -46,21 +46,14 @@ export default function SeafarerManagementPage() {
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 4;
+  const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // Selected seafarer for Details Drawer
   const [selectedSeafarer, setSelectedSeafarer] = useState<Seafarer | null>(
     null,
   );
   const [drawerTab, setDrawerTab] = useState<
-    | "profile"
-    | "documents"
-    | "courses"
-    | "seaService"
-    | "info"
-    | "docPurchases"
-    | "purchases"
-    | "vesselHistory"
+    "profile" | "documents" | "vesselHistory" | "purchases"
   >("profile");
   const [isDrawerLoading, setIsDrawerLoading] = useState(false);
 
@@ -73,14 +66,14 @@ export default function SeafarerManagementPage() {
     useState<Seafarer | null>(null);
 
   // Extract unique filters from state for dropdowns
-  const ranks = [
-    "All",
-    ...Array.from(new Set(seafarersList.map((sf) => sf.rank))),
-  ];
-  const departments = [
-    "All",
-    ...Array.from(new Set(seafarersList.map((sf) => sf.department))),
-  ];
+  const ranks = useMemo(
+    () => Array.from(new Set(mockSeafarers.map((s) => s.rank))),
+    [],
+  );
+  const departments = useMemo(
+    () => Array.from(new Set(mockSeafarers.map((s) => s.department))),
+    [],
+  );
   const statuses = [
     "All",
     ...Array.from(new Set(seafarersList.map((sf) => sf.status))),
@@ -134,7 +127,10 @@ export default function SeafarerManagementPage() {
   ]);
 
   // Pagination Logic
-  const totalPages = Math.ceil(filteredSeafarers.length / itemsPerPage);
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredSeafarers.length / itemsPerPage),
+  );
   const paginatedSeafarers = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage;
     return filteredSeafarers.slice(startIndex, startIndex + itemsPerPage);
@@ -146,25 +142,22 @@ export default function SeafarerManagementPage() {
     }
   };
 
+  const handleItemsPerPageChange = (newCount: number) => {
+    setItemsPerPage(newCount);
+    setCurrentPage(1);
+  };
+
   // Drawer Handlers
   const openDetails = (
     sf: Seafarer,
-    tab:
-      | "profile"
-      | "documents"
-      | "courses"
-      | "seaService"
-      | "info"
-      | "docPurchases"
-      | "purchases"
-      | "vesselHistory" = "profile",
+    tab: "profile" | "documents" | "vesselHistory" | "purchases" = "profile",
   ) => {
     setIsDrawerLoading(true);
     setSelectedSeafarer(sf);
     setDrawerTab(tab);
     setTimeout(() => {
       setIsDrawerLoading(false);
-    }, 300);
+    }, 200);
   };
 
   const handleDrawerTabChange = (
@@ -422,7 +415,7 @@ export default function SeafarerManagementPage() {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setActionModalSeafarer(sf);
+                          openDetails(sf, "profile");
                         }}
                         className={`p-1.5 rounded-lg border transition-all hover:scale-105 cursor-pointer ${
                           actionModalSeafarer?.id === sf.id
@@ -446,16 +439,57 @@ export default function SeafarerManagementPage() {
         </div>
 
         {/* Pagination Panel */}
-        {totalPages > 1 && (
+        {filteredSeafarers.length > 0 && (
           <div
-            className={`px-4 py-3 border-t flex items-center justify-between gap-4 text-xs ${
+            className={`px-4 py-3 border-t flex flex-wrap items-center justify-between gap-4 text-xs ${
               isDark ? "border-white/5" : "border-slate-100"
             }`}
           >
-            <span className={isDark ? "text-white/40" : "text-slate-400"}>
-              Showing page <strong>{currentPage}</strong> of{" "}
-              <strong>{totalPages}</strong> ({filteredSeafarers.length} results)
-            </span>
+            <div className="flex items-center gap-4">
+              <span className={isDark ? "text-white/60" : "text-slate-500"}>
+                Showing{" "}
+                <strong>
+                  {Math.min(
+                    (currentPage - 1) * itemsPerPage + 1,
+                    filteredSeafarers.length,
+                  )}
+                  –
+                  {Math.min(
+                    currentPage * itemsPerPage,
+                    filteredSeafarers.length,
+                  )}
+                </strong>{" "}
+                of <strong>{filteredSeafarers.length}</strong>
+              </span>
+
+              <div className="flex items-center gap-2">
+                <span className={isDark ? "text-white/40" : "text-slate-400"}>
+                  Rows per page:
+                </span>
+                <select
+                  value={itemsPerPage}
+                  onChange={(e) =>
+                    handleItemsPerPageChange(Number(e.target.value))
+                  }
+                  className={`px-2 py-1 rounded border text-xs outline-none cursor-pointer ${
+                    isDark
+                      ? "bg-[#0b1625] border-white/10 text-white"
+                      : "bg-white border-slate-200 text-slate-700"
+                  }`}
+                >
+                  {[5, 10, 15, 20, 25].map((size) => (
+                    <option
+                      key={size}
+                      value={size}
+                      className={isDark ? "bg-[#0b1625]" : "bg-white"}
+                    >
+                      {size}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
             <div className="flex items-center gap-1">
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
@@ -484,20 +518,20 @@ export default function SeafarerManagementPage() {
         )}
       </div>
 
-      {/* ── SEAFARER DETAIL SIDE-DRAWER ────────────────────────────────────────── */}
+      {/* ── SEAFARER DETAIL CENTERED POPUP MODAL ────────────────────────────────── */}
       {selectedSeafarer && (
         <>
           {/* Backdrop */}
           <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 transition-opacity animate-fadeIn"
             onClick={closeDetails}
           />
-          {/* Drawer Body */}
+          {/* Centered Modal Container */}
           <div
-            className={`fixed inset-y-0 right-0 w-full max-w-2xl shadow-2xl z-50 flex flex-col transition-transform duration-300 overflow-hidden ${
+            className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-2xl max-h-[85vh] shadow-2xl z-50 flex flex-col rounded-2xl border overflow-hidden animate-fadeIn ${
               isDark
-                ? "bg-[#0b1625] text-white border-l border-white/5"
-                : "bg-white text-slate-800 border-l border-slate-200"
+                ? "bg-[#0b1625] text-white border-white/10"
+                : "bg-white text-slate-800 border-slate-200"
             }`}
           >
             {/* Drawer Header */}
@@ -544,12 +578,8 @@ export default function SeafarerManagementPage() {
             >
               {[
                 { id: "profile", label: "Overview Details" },
-                { id: "info", label: "Seafarer Info" },
                 { id: "documents", label: "Certificates & CDC" },
-                { id: "courses", label: "STCW Training Progress" },
-                { id: "seaService", label: "Vessel Sea Service" },
                 { id: "vesselHistory", label: "Vessel History" },
-                { id: "docPurchases", label: "Doc Purchase History" },
                 { id: "purchases", label: "Purchase History" },
               ].map((tab) => {
                 const active = drawerTab === tab.id;
@@ -559,7 +589,10 @@ export default function SeafarerManagementPage() {
                     onClick={() =>
                       handleDrawerTabChange(
                         tab.id as
-                          "profile" | "documents" | "courses" | "vesselHistory",
+                          | "profile"
+                          | "documents"
+                          | "vesselHistory"
+                          | "purchases",
                       )
                     }
                     className={`py-3 border-b-2 whitespace-nowrap transition-colors cursor-pointer ${
@@ -600,62 +633,111 @@ export default function SeafarerManagementPage() {
                 </div>
               ) : (
                 <>
-                  {/* Tab 1: Profile Details */}
+                  {/* Tab 1: Overview Details (Merged Overview + Seafarer Info) */}
                   {drawerTab === "profile" && (
                     <div className="space-y-6 animate-fadeIn">
-                      {/* Bio details card */}
-                      <div className="grid grid-cols-2 gap-4 border-b border-solid border-slate-100 dark:border-white/5 pb-6">
-                        <div className="space-y-0.5">
-                          <span className="text-[10px] opacity-40 uppercase font-black">
-                            INDOS Number
-                          </span>
-                          <p className="font-mono text-xs tracking-wider font-bold">
-                            {selectedSeafarer.indosNumber}
-                          </p>
+                      {/* Seafarer Identification & Info */}
+                      <div
+                        className={`p-4 rounded-xl border ${isDark ? "bg-[#0f1f35] border-white/5" : "bg-slate-50 border-slate-200"}`}
+                      >
+                        <div className="flex items-center justify-between gap-4 mb-3">
+                          <h4 className="text-xs font-bold uppercase tracking-wider text-sky-400">
+                            Seafarer Identification & Info
+                          </h4>
+                          <button
+                            onClick={() => handleOpenEdit(selectedSeafarer)}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-500 hover:bg-sky-600 text-white text-[11px] font-semibold cursor-pointer transition-colors shadow-sm"
+                          >
+                            <Edit2 className="w-3 h-3" />
+                            <span>Edit Details</span>
+                          </button>
                         </div>
-                        <div className="space-y-0.5">
-                          <span className="text-[10px] opacity-40 uppercase font-black">
-                            Nationality
-                          </span>
-                          <p className="text-xs font-semibold">
-                            {selectedSeafarer.nationality}
-                          </p>
-                        </div>
-                        <div className="space-y-0.5">
-                          <span className="text-[10px] opacity-40 uppercase font-black">
-                            Date of Birth
-                          </span>
-                          <p className="text-xs font-semibold">
-                            {selectedSeafarer.dob}
-                          </p>
-                        </div>
-                        <div className="space-y-0.5">
-                          <span className="text-[10px] opacity-40 uppercase font-black">
-                            Home Address
-                          </span>
-                          <p className="text-xs leading-relaxed font-semibold">
-                            {selectedSeafarer.address}
-                          </p>
+                        <div className="grid grid-cols-2 gap-3.5 text-xs">
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">
+                              Full Legal Name
+                            </span>
+                            <span className="font-bold">
+                              {selectedSeafarer.name}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">
+                              INDOS Number
+                            </span>
+                            <span className="font-mono font-bold text-sky-400">
+                              {selectedSeafarer.indosNumber}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">
+                              Assigned Rank
+                            </span>
+                            <span className="font-semibold">
+                              {selectedSeafarer.rank}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">
+                              Operational Department
+                            </span>
+                            <span className="font-semibold">
+                              {selectedSeafarer.department}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">
+                              Current Status
+                            </span>
+                            <span className="inline-block mt-0.5">
+                              <StatusBadge status={selectedSeafarer.status} />
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">
+                              Nationality
+                            </span>
+                            <span className="font-semibold">
+                              {selectedSeafarer.nationality}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">
+                              Date of Birth
+                            </span>
+                            <span className="font-semibold">
+                              {selectedSeafarer.dob}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[10px] opacity-40 uppercase block font-semibold">
+                              Primary Contact
+                            </span>
+                            <span className="font-semibold">
+                              {selectedSeafarer.phone}
+                            </span>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Contact Info Card */}
-                      <div className="space-y-3">
-                        <h4 className="text-[10px] font-bold uppercase tracking-wider opacity-50">
-                          Contact Credentials
+                      {/* Contact Credentials & Registered Address */}
+                      <div
+                        className={`p-4 rounded-xl border ${isDark ? "bg-[#0f1f35] border-white/5" : "bg-slate-50 border-slate-200"}`}
+                      >
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-sky-400 mb-2">
+                          Registered Address & Contact Credentials
                         </h4>
-                        <div className="space-y-2 text-xs">
-                          <div className="flex items-center gap-2.5">
-                            <Mail className="w-3.5 h-3.5 opacity-50 text-sky-400" />
-                            <span className="opacity-80">
-                              {selectedSeafarer.email}
-                            </span>
+                        <p className="text-xs leading-relaxed opacity-80">
+                          {selectedSeafarer.address}
+                        </p>
+                        <div className="flex flex-wrap items-center gap-4 text-xs opacity-75 mt-3 pt-3 border-t border-white/5">
+                          <div className="flex items-center gap-2">
+                            <Mail className="w-3.5 h-3.5 text-sky-400" />
+                            <span>{selectedSeafarer.email}</span>
                           </div>
-                          <div className="flex items-center gap-2.5">
-                            <Phone className="w-3.5 h-3.5 opacity-50 text-sky-400" />
-                            <span className="opacity-80">
-                              {selectedSeafarer.phone}
-                            </span>
+                          <div className="flex items-center gap-2">
+                            <Phone className="w-3.5 h-3.5 text-sky-400" />
+                            <span>{selectedSeafarer.phone}</span>
                           </div>
                         </div>
                       </div>
@@ -943,12 +1025,12 @@ export default function SeafarerManagementPage() {
                     </div>
                   )}
 
-                  {/* Tab 6: Vessel History */}
+                  {/* Tab 3: Vessel History (Merged Vessel Sea Service + Vessel History) */}
                   {drawerTab === "vesselHistory" && (
                     <div className="space-y-4 animate-fadeIn">
                       <div className="flex items-center justify-between pb-2 border-b border-white/5">
                         <span className="text-xs font-bold">
-                          Recorded Vessel Deployments
+                          Recorded Vessel Deployments & Sea Service
                         </span>
                         <span className="text-[11px] opacity-60">
                           {selectedSeafarer.seaService.length} voyages
@@ -956,21 +1038,21 @@ export default function SeafarerManagementPage() {
                       </div>
                       {selectedSeafarer.seaService.length === 0 ? (
                         <div className="text-center py-8 text-xs text-gray-500">
-                          No vessel history records on file.
+                          No vessel history or sea service logs on file.
                         </div>
                       ) : (
                         selectedSeafarer.seaService.map((service, idx) => (
                           <div
                             key={service.id || idx}
-                            className={`p-4 rounded-xl border space-y-2.5 transition-all ${
+                            className={`p-4 rounded-xl border space-y-3 transition-all hover:shadow-sm ${
                               isDark
                                 ? "bg-[#0f1f35] border-white/5"
                                 : "bg-slate-50 border-slate-200"
                             }`}
                           >
-                            <div className="flex items-center justify-between">
+                            <div className="flex items-center justify-between border-b border-solid border-slate-200 dark:border-white/5 pb-2">
                               <div className="flex items-center gap-2">
-                                <Ship className="w-4 h-4 text-sky-400" />
+                                <Anchor className="w-3.5 h-3.5 text-sky-400" />
                                 <span className="text-xs font-bold">
                                   {service.vesselName}
                                 </span>
@@ -987,7 +1069,7 @@ export default function SeafarerManagementPage() {
                             </div>
                             <div className="grid grid-cols-2 gap-2 text-xs">
                               <div>
-                                <span className="text-[10px] opacity-40 uppercase block">
+                                <span className="text-[10px] opacity-40 uppercase block mb-0.5">
                                   Vessel Type
                                 </span>
                                 <span className="font-semibold">
@@ -995,7 +1077,7 @@ export default function SeafarerManagementPage() {
                                 </span>
                               </div>
                               <div>
-                                <span className="text-[10px] opacity-40 uppercase block">
+                                <span className="text-[10px] opacity-40 uppercase block mb-0.5">
                                   Served Rank
                                 </span>
                                 <span className="font-semibold">
@@ -1003,8 +1085,8 @@ export default function SeafarerManagementPage() {
                                 </span>
                               </div>
                             </div>
-                            <div className="text-[10px] opacity-60 pt-1 border-t border-white/5 flex items-center gap-1.5">
-                              <Calendar className="w-3 h-3" />
+                            <div className="text-[10px] opacity-60 pt-2 border-t border-white/5 flex items-center gap-1.5">
+                              <Calendar className="w-3.5 h-3.5" />
                               <span>
                                 Sign-on: {service.signOn} • Sign-off:{" "}
                                 {service.signOff}
@@ -1016,18 +1098,18 @@ export default function SeafarerManagementPage() {
                     </div>
                   )}
 
-                  {/* Tab 7: Document Purchase History */}
-                  {drawerTab === "docPurchases" && (
-                    <div className="space-y-4 animate-fadeIn">
-                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                        <span className="text-xs font-bold">
-                          Document Order Records
-                        </span>
-                        <span className="text-[10px] font-mono opacity-50 font-bold">
-                          VERIFIED CDC & STCW
-                        </span>
-                      </div>
+                  {/* Tab 4: Purchase History (Merged Doc Purchases + Course Purchases) */}
+                  {drawerTab === "purchases" && (
+                    <div className="space-y-5 animate-fadeIn">
                       <div className="space-y-3">
+                        <div className="flex items-center justify-between pb-1 border-b border-white/5">
+                          <span className="text-xs font-bold">
+                            Document Purchase Orders
+                          </span>
+                          <span className="text-[10px] font-mono opacity-50 font-bold">
+                            VERIFIED CDC & STCW
+                          </span>
+                        </div>
                         {[
                           {
                             orderId: `DOC-${selectedSeafarer.indosNumber.slice(-4)}-01`,
@@ -1082,21 +1164,16 @@ export default function SeafarerManagementPage() {
                           </div>
                         ))}
                       </div>
-                    </div>
-                  )}
 
-                  {/* Tab 8: Purchase History */}
-                  {drawerTab === "purchases" && (
-                    <div className="space-y-4 animate-fadeIn">
-                      <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                        <span className="text-xs font-bold">
-                          Course & Service Purchases
-                        </span>
-                        <span className="text-[10px] font-mono opacity-50 font-bold">
-                          ALL TRANSACTIONS
-                        </span>
-                      </div>
-                      <div className="space-y-3">
+                      <div className="space-y-3 pt-2">
+                        <div className="flex items-center justify-between pb-1 border-b border-white/5">
+                          <span className="text-xs font-bold">
+                            Course & Training Transactions
+                          </span>
+                          <span className="text-[10px] font-mono opacity-50 font-bold">
+                            ALL TRANSACTIONS
+                          </span>
+                        </div>
                         {[
                           {
                             item: "Shipboard Medical Care Training Enrollment",
