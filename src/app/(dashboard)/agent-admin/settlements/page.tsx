@@ -391,7 +391,7 @@ export default function PartnerSettlementsPage() {
                             <span className="text-[10px] text-[#3D5EF6] font-bold">Updating...</span>
                           </div>
                         ) : isCompleted ? (
-                          <span className="px-3 py-1.5 rounded-full text-[10px] font-extrabold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 inline-block shadow-sm">
+                          <span className="px-2.5 py-1 rounded-md text-[10px] font-extrabold bg-emerald-500/10 text-emerald-500 border border-emerald-500/30 inline-block shadow-sm">
                             Completed
                           </span>
                         ) : (
@@ -399,7 +399,7 @@ export default function PartnerSettlementsPage() {
                             value="Pending"
                             onChange={(e) => handleStatusChange(item.id, e.target.value)}
                             disabled={updatingId !== null}
-                            className="px-3 py-1.5 rounded-full text-[10px] font-bold outline-none cursor-pointer border transition-all bg-amber-500/10 text-amber-500 border-amber-500/30"
+                            className="px-2.5 py-1 rounded-md text-[10px] font-bold outline-none cursor-pointer border transition-all bg-amber-500/10 text-amber-500 border-amber-500/30"
                           >
                             <option value="Pending">Pending</option>
                             <option value="Completed" disabled={pendingAmt > 0}>
@@ -411,7 +411,7 @@ export default function PartnerSettlementsPage() {
 
                       {/* Related Purchases Count */}
                       <td className="py-4 px-3 text-center whitespace-nowrap">
-                        <span className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap shrink-0 ${isDark ? "bg-white/5 text-white/80 border border-white/10" : "bg-slate-100 text-slate-700 border border-slate-200"}`}>
+                        <span className={`inline-flex items-center justify-center px-2.5 py-1 rounded-md text-xs font-bold whitespace-nowrap shrink-0 ${isDark ? "bg-white/5 text-white/80 border border-white/10" : "bg-slate-100 text-slate-700 border border-slate-200"}`}>
                           {(item.related_purchases ? item.related_purchases.length : (item.related_purchases_count ?? 1))} Purchase{(item.related_purchases ? item.related_purchases.length : (item.related_purchases_count ?? 1)) === 1 ? "" : "s"}
                         </span>
                       </td>

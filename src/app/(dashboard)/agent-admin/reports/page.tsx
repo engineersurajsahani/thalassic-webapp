@@ -9,6 +9,67 @@ import {
   PieChart, Pie, Cell
 } from "recharts";
 
+const MONTHS = [
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
+];
+
+const MONTHLY_AGENT_DATA: Record<string, Record<string, number>> = {
+  January: { "Kishan Manning Agency": 28, "Oceanic Seamen Agency": 22, "Maritime Crewing Corp": 18, "Global Marine Services": 10, "Apex Maritime Solutions": 8 },
+  February: { "Kishan Manning Agency": 32, "Oceanic Seamen Agency": 26, "Maritime Crewing Corp": 20, "Global Marine Services": 12, "Apex Maritime Solutions": 9 },
+  March: { "Kishan Manning Agency": 45, "Oceanic Seamen Agency": 38, "Maritime Crewing Corp": 30, "Global Marine Services": 18, "Apex Maritime Solutions": 14 },
+  April: { "Kishan Manning Agency": 30, "Oceanic Seamen Agency": 25, "Maritime Crewing Corp": 22, "Global Marine Services": 11, "Apex Maritime Solutions": 8 },
+  May: { "Kishan Manning Agency": 36, "Oceanic Seamen Agency": 29, "Maritime Crewing Corp": 25, "Global Marine Services": 14, "Apex Maritime Solutions": 10 },
+  June: { "Kishan Manning Agency": 40, "Oceanic Seamen Agency": 32, "Maritime Crewing Corp": 26, "Global Marine Services": 16, "Apex Maritime Solutions": 12 },
+  July: { "Kishan Manning Agency": 38, "Oceanic Seamen Agency": 30, "Maritime Crewing Corp": 24, "Global Marine Services": 15, "Apex Maritime Solutions": 11 },
+  August: { "Kishan Manning Agency": 44, "Oceanic Seamen Agency": 36, "Maritime Crewing Corp": 29, "Global Marine Services": 17, "Apex Maritime Solutions": 13 },
+  September: { "Kishan Manning Agency": 42, "Oceanic Seamen Agency": 35, "Maritime Crewing Corp": 28, "Global Marine Services": 15, "Apex Maritime Solutions": 12 },
+  October: { "Kishan Manning Agency": 39, "Oceanic Seamen Agency": 31, "Maritime Crewing Corp": 25, "Global Marine Services": 13, "Apex Maritime Solutions": 10 },
+  November: { "Kishan Manning Agency": 34, "Oceanic Seamen Agency": 27, "Maritime Crewing Corp": 21, "Global Marine Services": 12, "Apex Maritime Solutions": 9 },
+  December: { "Kishan Manning Agency": 48, "Oceanic Seamen Agency": 40, "Maritime Crewing Corp": 32, "Global Marine Services": 20, "Apex Maritime Solutions": 15 }
+};
+
+// Custom X-Axis Tick for Manning Agent Names (Horizontal, Black color, clean 2-line wrapping for long names)
+const CustomAgentAxisTick = (props: any) => {
+  const { x, y, payload } = props;
+  const rawText: string = payload?.value || "";
+
+  const words = rawText.split(" ");
+  let line1 = rawText;
+  let line2 = "";
+
+  if (words.length >= 4) {
+    line1 = words.slice(0, 2).join(" ");
+    line2 = words.slice(2).join(" ");
+  } else if (words.length === 3) {
+    line1 = words.slice(0, 2).join(" ");
+    line2 = words[2];
+  } else if (words.length === 2) {
+    line1 = words[0];
+    line2 = words[1];
+  } else if (rawText.length > 12) {
+    line1 = rawText.slice(0, 10);
+    line2 = rawText.slice(10);
+  }
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text
+        x={0}
+        y={0}
+        dy={4}
+        textAnchor="middle"
+        fill="#000000"
+        fontSize={9}
+        fontWeight={700}
+      >
+        <tspan x={0} dy="10">{line1}</tspan>
+        {line2 && <tspan x={0} dy="12">{line2}</tspan>}
+      </text>
+    </g>
+  );
+};
+
 export default function Reports() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -18,7 +79,8 @@ export default function Reports() {
   const [reportsData, setReportsData] = useState<any>(null);
 
   const [selectedAgentFilter, setSelectedAgentFilter] = useState("all");
-  const [selectedStatusFilter, setSelectedStatusFilter] = useState("all");
+  const [selectedRegionFilter, setSelectedRegionFilter] = useState("all");
+  const [selectedMonthFilter, setSelectedMonthFilter] = useState("All Months");
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
 
@@ -108,7 +170,8 @@ export default function Reports() {
     { agentName: "Kishan Manning Agency", seafarers: 42, courses: 38, leads: 42, conversions: 38, totalSales: "₹10,50,000", settledAmount: "₹8,40,000", pendingBalance: "₹2,10,000", earnings: "₹1,26,000" },
     { agentName: "Oceanic Seamen Agency", seafarers: 35, courses: 30, leads: 35, conversions: 30, totalSales: "₹8,75,000", settledAmount: "₹7,00,000", pendingBalance: "₹1,75,000", earnings: "₹1,05,000" },
     { agentName: "Maritime Crewing Corp", seafarers: 28, courses: 24, leads: 28, conversions: 24, totalSales: "₹7,00,000", settledAmount: "₹5,60,000", pendingBalance: "₹1,40,000", earnings: "₹84,000" },
-    { agentName: "Global Marine Services", seafarers: 15, courses: 10, leads: 15, conversions: 10, totalSales: "₹3,75,000", settledAmount: "₹3,00,000", pendingBalance: "₹75,000", earnings: "₹45,000" }
+    { agentName: "Global Marine Services", seafarers: 15, courses: 10, leads: 15, conversions: 10, totalSales: "₹3,75,000", settledAmount: "₹3,00,000", pendingBalance: "₹75,000", earnings: "₹45,000" },
+    { agentName: "Apex Maritime Solutions", seafarers: 12, courses: 8, leads: 12, conversions: 8, totalSales: "₹3,00,000", settledAmount: "₹2,40,000", pendingBalance: "₹60,000", earnings: "₹36,000" }
   ];
 
   const defaultRegionStats = [
@@ -125,12 +188,28 @@ export default function Reports() {
     return matchesAgent;
   });
 
+  const chartPerformance = performance.map((p: any) => {
+    if (selectedMonthFilter !== "All Months" && MONTHLY_AGENT_DATA[selectedMonthFilter]) {
+      const monthVal = MONTHLY_AGENT_DATA[selectedMonthFilter][p.agentName];
+      if (monthVal !== undefined) {
+        return {
+          ...p,
+          seafarers: monthVal
+        };
+      }
+    }
+    return p;
+  });
+
   // Calculate dynamic numbers based on selected manning agent filter
   const totalSeafarersSum = performance.reduce((acc: number, p: any) => acc + Number(p.seafarers ?? p.leads ?? 0), 0);
   const totalCoursesSum = performance.reduce((acc: number, p: any) => acc + Number(p.courses ?? p.conversions ?? 0), 0);
   const calculatedConversionRate = totalSeafarersSum > 0 ? `${((totalCoursesSum / totalSeafarersSum) * 100).toFixed(1)}%` : "0.0%";
 
-  const regionStats = reportsData?.regionStats?.length > 0 ? reportsData.regionStats : defaultRegionStats;
+  const rawRegionStats = reportsData?.regionStats?.length > 0 ? reportsData.regionStats : defaultRegionStats;
+  const regionStats = rawRegionStats.filter((r: any) => {
+    return selectedRegionFilter === "all" || r.name.toLowerCase() === selectedRegionFilter.toLowerCase();
+  });
   const CHART_COLORS = ["#3D5EF6", "#2E4FE0", "#6366f1", "#14b8a6", "#3B82F6"];
 
   return (
@@ -150,13 +229,13 @@ export default function Reports() {
       </div>
 
       {/* Filters and Exports Toolbar */}
-      <div className={`p-5 rounded-lg border flex flex-col md:flex-row gap-4 items-end justify-between ${
+      <div className={`p-4 rounded-xl border flex flex-col lg:flex-row gap-4 items-end justify-between ${
         isDark ? "bg-[#111827] border-white/5" : "bg-[#FAFAFA] border-[#E5E7EB]"
       }`}>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 w-full md:w-auto">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 w-full lg:w-auto flex-1">
           {/* Agent Filter */}
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Manning Agent</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Manning Agent</span>
             <select
               value={selectedAgentFilter}
               onChange={(e) => setSelectedAgentFilter(e.target.value)}
@@ -171,27 +250,28 @@ export default function Reports() {
             </select>
           </div>
 
-          {/* Status Filter */}
+          {/* Region Filter */}
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Referral Status</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Region</span>
             <select
-              value={selectedStatusFilter}
-              onChange={(e) => setSelectedStatusFilter(e.target.value)}
+              value={selectedRegionFilter}
+              onChange={(e) => setSelectedRegionFilter(e.target.value)}
               className={`w-full px-3 py-2 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${
                 isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-[#E5E7EB] text-[#111827] shadow-sm"
               }`}
             >
-              <option value="all">All Statuses</option>
-              <option value="Converted">Converted</option>
-              <option value="New">New</option>
-              <option value="Contacted">Contacted</option>
-              <option value="Expired">Expired</option>
+              <option value="all">All Regions</option>
+              <option value="Mumbai">Mumbai</option>
+              <option value="Kochi">Kochi</option>
+              <option value="Chennai">Chennai</option>
+              <option value="Kolkata">Kolkata</option>
+              <option value="Goa">Goa</option>
             </select>
           </div>
 
           {/* Start Date */}
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Start Date</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Start Date</span>
             <input
               type="date"
               value={startDateFilter}
@@ -204,7 +284,7 @@ export default function Reports() {
 
           {/* End Date */}
           <div className="space-y-1">
-            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">End Date</span>
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">End Date</span>
             <input
               type="date"
               value={endDateFilter}
@@ -217,16 +297,16 @@ export default function Reports() {
         </div>
 
         {/* Exports */}
-        <div className="flex gap-2 w-full md:w-auto">
+        <div className="flex items-center gap-2 w-full lg:w-auto shrink-0">
           <button
             onClick={() => handleExport("PDF")}
-            className="flex-1 md:flex-none px-4 py-2 rounded-xl border border-red-500/20 text-red-400 hover:bg-red-500/5 text-xs font-bold transition cursor-pointer"
+            className="flex-1 lg:flex-none px-4 py-2 rounded-xl border border-red-500/20 text-red-400 hover:bg-red-500/5 text-xs font-bold transition cursor-pointer whitespace-nowrap"
           >
             Export PDF
           </button>
           <button
             onClick={() => handleExport("Excel")}
-            className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition cursor-pointer"
+            className="flex-1 lg:flex-none px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition cursor-pointer whitespace-nowrap"
           >
             Export Excel
           </button>
@@ -266,18 +346,33 @@ export default function Reports() {
       </div>
 
       {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 no-print">
-        {/* Top Referring Agents (Bar Chart) */}
-        <div className={card}>
-          <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
-            <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
-            <h3 className="text-sm font-bold">Top Referring Manning Agents</h3>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 no-print">
+        {/* Top Referring Agents (Bar Chart) - Slightly Wider (7 cols out of 12) */}
+        <div className={`lg:col-span-7 ${card}`}>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b pb-4 mb-4 border-white/5">
+            <div className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
+              <h3 className="text-sm font-bold">Top Referring Manning Agents</h3>
+            </div>
+            {/* Month Filter Dropdown - Only month names (NO year) */}
+            <select
+              value={selectedMonthFilter}
+              onChange={(e) => setSelectedMonthFilter(e.target.value)}
+              className={`px-3 py-1.5 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${
+                isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-[#E5E7EB] text-[#111827] shadow-sm"
+              }`}
+            >
+              <option value="All Months">All Months</option>
+              {MONTHS.map((m) => (
+                <option key={m} value={m}>{m}</option>
+              ))}
+            </select>
           </div>
           <div className="h-72 w-full text-xs">
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={performance} margin={{ top: 10, right: 10, left: -20, bottom: 25 }}>
-                  <XAxis dataKey="agentName" stroke={isDark ? "#94a3b8" : "#64748b"} fontSize={9} tickLine={false} interval={0} angle={-15} textAnchor="end" />
+                <BarChart data={chartPerformance} margin={{ top: 10, right: 10, left: -20, bottom: 45 }}>
+                  <XAxis dataKey="agentName" tick={<CustomAgentAxisTick />} interval={0} tickLine={false} />
                   <YAxis stroke={isDark ? "#94a3b8" : "#64748b"} fontSize={10} tickLine={false} />
                   <Tooltip 
                     contentStyle={{ 
@@ -293,8 +388,8 @@ export default function Reports() {
           </div>
         </div>
 
-        {/* Region-wise Referrals (Pie Chart) */}
-        <div className={card}>
+        {/* Region-wise Referrals (Pie Chart) - Slightly Narrower (5 cols out of 12) */}
+        <div className={`lg:col-span-5 ${card}`}>
           <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
             <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
             <h3 className="text-sm font-bold">Region-Wise Seafarers (by City)</h3>
