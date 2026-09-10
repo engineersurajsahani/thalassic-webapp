@@ -180,7 +180,7 @@ export default function PartnerDashboard() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <Link
-            href="/partner/seafarers/search"
+            href="/partner/seafarers"
             className={`p-4 rounded-[16px] flex items-center gap-3.5 transition-all group ${
               isDark ? "bg-white/[0.02] hover:bg-white/5" : "bg-[#FAFAFA] hover:bg-[#EEF1FE]/40"
             }`}

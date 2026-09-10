@@ -23,7 +23,6 @@ import {
 
 const menuItems = [
   { label: "Dashboard", href: "/partner/dashboard", icon: LayoutDashboard },
-  { label: "Search Seafarer", href: "/partner/seafarers/search", icon: Search },
   { label: "Seafarer Management", href: "/partner/seafarers", icon: Users },
   { label: "New Purchase", href: "/partner/purchases/create", icon: ShoppingCart },
   { label: "Purchase History", href: "/partner/purchases", icon: Receipt },

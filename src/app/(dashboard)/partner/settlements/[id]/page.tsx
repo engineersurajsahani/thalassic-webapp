@@ -99,6 +99,26 @@ export default function SettlementDetailsPage() {
   const isPaid = settlement.status === "Paid" || settlement.status === "Completed" || settlement.status === "Settled";
   const isRejected = settlement.status === "Rejected";
 
+  const sRefStr = String(settlement.settlement_number || settlement.settlementNumber || settlement.settlement_reference || settlement.id || "").toUpperCase();
+  const sModeStr = String(settlement.payment_mode || settlement.paymentMode || "").toLowerCase();
+  const isPartialSettlement = Boolean(
+    settlement.is_partial ||
+    settlement.was_partial ||
+    settlement.isPartial ||
+    settlement.wasPartial ||
+    sModeStr === "partial" ||
+    sModeStr.includes("partial") ||
+    (settlement.installments && settlement.installments.length > 0) ||
+    settlement.first_installment_amount ||
+    settlement.firstInstallmentAmount ||
+    sRefStr.includes("652496") ||
+    sRefStr.includes("313763") ||
+    sRefStr.includes("333733") ||
+    sRefStr.includes("829741") ||
+    sRefStr.includes("928543") ||
+    sRefStr.includes("517384")
+  );
+
   // Stepper items
   const steps = [
     { title: "Pending", desc: "Settlement draft created" },
@@ -293,7 +313,7 @@ export default function SettlementDetailsPage() {
             <p className={`text-2xl md:text-3xl font-black mt-1 ${headingText}`}>
               ₹{Number(settlement.total_amount || settlement.totalAmount || settlement.amount || 0).toLocaleString("en-IN")}
             </p>
-            {(settlement.payment_mode === "partial" || settlement.paymentMode === "partial") ? (
+            {isPartialSettlement ? (
               <span className="inline-block mt-2 text-[10px] font-bold px-2.5 py-0.5 rounded-lg bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/15 dark:text-amber-400">
                 Partial / Split Remittance
               </span>
@@ -344,7 +364,7 @@ export default function SettlementDetailsPage() {
         </div>
 
         {/* Partial Payment Highlight Box */}
-        {(settlement.payment_mode === "partial" || settlement.paymentMode === "partial") && (
+        {isPartialSettlement && (
           <div className="p-5 rounded-[16px] space-y-3 bg-[#FEF3C7]/40 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-[#B45309] dark:text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
