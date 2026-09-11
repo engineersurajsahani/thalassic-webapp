@@ -3,28 +3,27 @@ import { api } from "@/lib/axios";
 export const notificationService = {
   async getNotifications() {
     try {
-      const response = await api.get("/notifications");
+      const response = await api.get("/master/notifications");
       return response.data || [];
-    } catch (err: any) {
-      // Gracefully return empty array on 401 or network error without throwing UI exception
+    } catch {
       return [];
     }
   },
 
   async markAsRead(id: string) {
     try {
-      const response = await api.patch(`/notifications/${id}/read`);
+      const response = await api.patch(`/master/notifications/${id}/read`);
       return response.data;
-    } catch (err: any) {
+    } catch {
       return null;
     }
   },
 
   async markAllAsRead() {
     try {
-      const response = await api.post("/notifications/read-all");
+      const response = await api.post("/master/notifications/read-all");
       return response.data;
-    } catch (err: any) {
+    } catch {
       return null;
     }
   },

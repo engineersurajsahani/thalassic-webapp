@@ -3,16 +3,52 @@
 import React, { useState, useMemo } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import {
-  FileText, Calendar, RefreshCw, Filter,
-  TrendingUp, Users, UserCog, BarChart3,
-  Activity, ArrowUpRight, X, Check, FileSpreadsheet,
-  Printer, Download, Search, ShieldCheck, ClipboardList,
-  GraduationCap, BookOpen, Building2, Handshake,
-  Clock, AlertCircle, CheckCircle2, ChevronDown, ArrowUpDown,
+  FileText,
+  Calendar,
+  RefreshCw,
+  Filter,
+  TrendingUp,
+  Users,
+  UserCog,
+  BarChart3,
+  Activity,
+  ArrowUpRight,
+  X,
+  Check,
+  FileSpreadsheet,
+  Printer,
+  Download,
+  Search,
+  ShieldCheck,
+  ClipboardList,
+  GraduationCap,
+  BookOpen,
+  Building2,
+  Handshake,
+  Clock,
+  AlertCircle,
+  CheckCircle2,
+  ChevronDown,
+  ArrowUpDown,
 } from "lucide-react";
 import {
-  AreaChart, Area, BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie,
+  AreaChart,
+  Area,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Cell,
+  PieChart,
+  Pie,
+  Legend,
+  LineChart,
+  Line,
+  RadialBarChart,
+  RadialBar,
 } from "recharts";
 import * as XLSX from "xlsx";
 import {
@@ -24,26 +60,278 @@ import {
 
 // Overall Performance Data (1.01.1 Benchmark)
 const OVERALL_PERFORMANCE_DATA = [
-  { month: "Jan", index: 0.96, enrollments: 140, completions: 128, passRate: 91 },
-  { month: "Feb", index: 0.98, enrollments: 165, completions: 152, passRate: 92 },
-  { month: "Mar", index: 1.01, enrollments: 190, completions: 180, passRate: 95 },
-  { month: "Apr", index: 1.02, enrollments: 210, completions: 202, passRate: 96 },
-  { month: "May", index: 1.01, enrollments: 205, completions: 195, passRate: 95 },
-  { month: "Jun", index: 1.03, enrollments: 230, completions: 220, passRate: 96 },
-  { month: "Jul", index: 1.04, enrollments: 250, completions: 242, passRate: 97 },
-  { month: "Aug", index: 1.06, enrollments: 280, completions: 271, passRate: 97 },
-  { month: "Sep", index: 1.08, enrollments: 310, completions: 298, passRate: 98 },
+  {
+    month: "Jan",
+    index: 0.96,
+    enrollments: 140,
+    completions: 128,
+    passRate: 91,
+  },
+  {
+    month: "Feb",
+    index: 0.98,
+    enrollments: 165,
+    completions: 152,
+    passRate: 92,
+  },
+  {
+    month: "Mar",
+    index: 1.01,
+    enrollments: 190,
+    completions: 180,
+    passRate: 95,
+  },
+  {
+    month: "Apr",
+    index: 1.02,
+    enrollments: 210,
+    completions: 202,
+    passRate: 96,
+  },
+  {
+    month: "May",
+    index: 1.01,
+    enrollments: 205,
+    completions: 195,
+    passRate: 95,
+  },
+  {
+    month: "Jun",
+    index: 1.03,
+    enrollments: 230,
+    completions: 220,
+    passRate: 96,
+  },
+  {
+    month: "Jul",
+    index: 1.04,
+    enrollments: 250,
+    completions: 242,
+    passRate: 97,
+  },
+  {
+    month: "Aug",
+    index: 1.06,
+    enrollments: 280,
+    completions: 271,
+    passRate: 97,
+  },
+  {
+    month: "Sep",
+    index: 1.08,
+    enrollments: 310,
+    completions: 298,
+    passRate: 98,
+  },
 ];
 
 // Courses Sold More Data
 const COURSES_SOLD_DATA = [
-  { name: "STCW Basic Safety (BST)", shortName: "STCW-BST", enrolled: 412, revenue: 2060000, category: "Safety", color: "#38bdf8" },
-  { name: "Advanced Fire Fighting (AFF)", shortName: "STCW-AFF", enrolled: 289, revenue: 2080800, category: "Safety", color: "#818cf8" },
-  { name: "Ship Nav & Radar Simulation", shortName: "NAV-RADAR", enrolled: 194, revenue: 1319200, category: "Technical", color: "#a78bfa" },
-  { name: "Maritime Law & PSC Compliance", shortName: "LAW-MAR", enrolled: 137, revenue: 438400, category: "Compliance", color: "#34d399" },
-  { name: "GMDSS General Operator (GOC)", shortName: "GMDSS-GOC", enrolled: 115, revenue: 1322500, category: "Radio", color: "#fbbf24" },
-  { name: "Tanker Cargo Handling Safety", shortName: "OPS-TANK", enrolled: 98, revenue: 921200, category: "Operations", color: "#f472b6" },
-  { name: "Engine Room Resource Mgmt", shortName: "ENG-SIM", enrolled: 86, revenue: 670800, category: "Technical", color: "#f87171" },
+  {
+    name: "STCW Basic Safety (BST)",
+    shortName: "STCW-BST",
+    enrolled: 412,
+    revenue: 2060000,
+    category: "Safety",
+    color: "#38bdf8",
+  },
+  {
+    name: "Advanced Fire Fighting (AFF)",
+    shortName: "STCW-AFF",
+    enrolled: 289,
+    revenue: 2080800,
+    category: "Safety",
+    color: "#818cf8",
+  },
+  {
+    name: "Ship Nav & Radar Simulation",
+    shortName: "NAV-RADAR",
+    enrolled: 194,
+    revenue: 1319200,
+    category: "Technical",
+    color: "#a78bfa",
+  },
+  {
+    name: "Maritime Law & PSC Compliance",
+    shortName: "LAW-MAR",
+    enrolled: 137,
+    revenue: 438400,
+    category: "Compliance",
+    color: "#34d399",
+  },
+  {
+    name: "GMDSS General Operator (GOC)",
+    shortName: "GMDSS-GOC",
+    enrolled: 115,
+    revenue: 1322500,
+    category: "Radio",
+    color: "#fbbf24",
+  },
+  {
+    name: "Tanker Cargo Handling Safety",
+    shortName: "OPS-TANK",
+    enrolled: 98,
+    revenue: 921200,
+    category: "Operations",
+    color: "#f472b6",
+  },
+  {
+    name: "Engine Room Resource Mgmt",
+    shortName: "ENG-SIM",
+    enrolled: 86,
+    revenue: 670800,
+    category: "Technical",
+    color: "#f87171",
+  },
+];
+
+// ── Seafarer tab chart data ──────────────────────────────────────────────────
+const SEAFARER_STATUS_DATA = [
+  { name: "Active", value: 0, color: "#34d399" },
+  { name: "Ongoing", value: 0, color: "#818cf8" },
+  { name: "On Hold", value: 0, color: "#fbbf24" },
+  { name: "Completed", value: 0, color: "#38bdf8" },
+  { name: "Inactive", value: 0, color: "#f87171" },
+];
+
+const SEAFARER_MONTHLY_DATA = [
+  { month: "Jan", company: 22, partner: 18, direct: 8 },
+  { month: "Feb", company: 28, partner: 22, direct: 11 },
+  { month: "Mar", company: 34, partner: 29, direct: 15 },
+  { month: "Apr", company: 38, partner: 32, direct: 18 },
+  { month: "May", company: 42, partner: 35, direct: 20 },
+  { month: "Jun", company: 50, partner: 41, direct: 24 },
+  { month: "Jul", company: 58, partner: 47, direct: 28 },
+  { month: "Aug", company: 65, partner: 53, direct: 31 },
+  { month: "Sep", company: 72, partner: 60, direct: 35 },
+];
+
+// ── Partner tab chart data ───────────────────────────────────────────────────
+const PARTNER_PERF_DATA = [
+  { name: "Ocean Maritime", seafarers: 148, purchases: 312, color: "#38bdf8" },
+  { name: "SeaStar Crewing", seafarers: 121, purchases: 265, color: "#818cf8" },
+  { name: "Pacific Nautical", seafarers: 96, purchases: 188, color: "#a78bfa" },
+  { name: "BlueLine Mgmt", seafarers: 73, purchases: 141, color: "#34d399" },
+  { name: "Triton Crew", seafarers: 58, purchases: 99, color: "#fbbf24" },
+];
+
+const PARTNER_TREND_DATA = [
+  { month: "Jan", active: 4, inactive: 1 },
+  { month: "Feb", active: 5, inactive: 1 },
+  { month: "Mar", active: 5, inactive: 2 },
+  { month: "Apr", active: 6, inactive: 2 },
+  { month: "May", active: 6, inactive: 1 },
+  { month: "Jun", active: 7, inactive: 1 },
+  { month: "Jul", active: 7, inactive: 2 },
+  { month: "Aug", active: 8, inactive: 1 },
+  { month: "Sep", active: 8, inactive: 2 },
+];
+
+// ── Institute tab chart data ─────────────────────────────────────────────────
+const INSTITUTE_THROUGHPUT_DATA = [
+  {
+    name: "HIMT Chennai",
+    trained: 1420,
+    batches: 12,
+    rating: 4.8,
+    color: "#38bdf8",
+  },
+  {
+    name: "Anglo-East Acad.",
+    trained: 1180,
+    batches: 10,
+    rating: 4.7,
+    color: "#818cf8",
+  },
+  {
+    name: "AMET Univ.",
+    trained: 980,
+    batches: 9,
+    rating: 4.6,
+    color: "#a78bfa",
+  },
+  {
+    name: "MERI Mumbai",
+    trained: 860,
+    batches: 8,
+    rating: 4.5,
+    color: "#34d399",
+  },
+  {
+    name: "NIST Vizag",
+    trained: 720,
+    batches: 7,
+    rating: 4.4,
+    color: "#fbbf24",
+  },
+];
+
+const INSTITUTE_MONTHLY_DATA = [
+  { month: "Jan", candidates: 110 },
+  { month: "Feb", candidates: 138 },
+  { month: "Mar", candidates: 162 },
+  { month: "Apr", candidates: 189 },
+  { month: "May", candidates: 204 },
+  { month: "Jun", candidates: 228 },
+  { month: "Jul", candidates: 251 },
+  { month: "Aug", candidates: 275 },
+  { month: "Sep", candidates: 310 },
+];
+
+// ── Course tab chart data ────────────────────────────────────────────────────
+const COURSE_CATEGORY_DATA = [
+  { name: "Safety", value: 701, color: "#38bdf8" },
+  { name: "Technical", value: 280, color: "#818cf8" },
+  { name: "Compliance", value: 137, color: "#34d399" },
+  { name: "Radio", value: 115, color: "#fbbf24" },
+  { name: "Operations", value: 98, color: "#f472b6" },
+];
+
+const COURSE_COMPLETION_DATA = [
+  { name: "STCW-BST", completion: 94, passRate: 91 },
+  { name: "STCW-AFF", completion: 91, passRate: 89 },
+  { name: "NAV-RADAR", completion: 88, passRate: 85 },
+  { name: "LAW-MAR", completion: 96, passRate: 94 },
+  { name: "GMDSS-GOC", completion: 87, passRate: 84 },
+  { name: "OPS-TANK", completion: 90, passRate: 88 },
+  { name: "ENG-SIM", completion: 85, passRate: 82 },
+];
+
+// ── Admin tab chart data ─────────────────────────────────────────────────────
+const ADMIN_ROLE_DATA = [
+  { name: "Master Super Admin", value: 1, fill: "#818cf8" },
+  { name: "Master Admin", value: 1, fill: "#38bdf8" },
+  { name: "Company Admin", value: 2, fill: "#34d399" },
+  { name: "Partner Admin", value: 3, fill: "#fbbf24" },
+];
+
+const ADMIN_ACTIVITY_DATA = [
+  { day: "Mon", logins: 12 },
+  { day: "Tue", logins: 18 },
+  { day: "Wed", logins: 15 },
+  { day: "Thu", logins: 21 },
+  { day: "Fri", logins: 17 },
+  { day: "Sat", logins: 8 },
+  { day: "Sun", logins: 5 },
+];
+
+// ── Progress tab chart data ──────────────────────────────────────────────────
+const PROGRESS_STATUS_DATA = [
+  { name: "Completed", value: 0, color: "#34d399" },
+  { name: "Ongoing", value: 0, color: "#818cf8" },
+  { name: "On Hold", value: 0, color: "#fbbf24" },
+];
+
+const PROGRESS_MONTHLY_DATA = [
+  { month: "Jan", completions: 82, ongoing: 48, onHold: 12 },
+  { month: "Feb", completions: 95, ongoing: 56, onHold: 14 },
+  { month: "Mar", completions: 112, ongoing: 63, onHold: 15 },
+  { month: "Apr", completions: 128, ongoing: 72, onHold: 16 },
+  { month: "May", completions: 135, ongoing: 78, onHold: 17 },
+  { month: "Jun", completions: 149, ongoing: 84, onHold: 18 },
+  { month: "Jul", completions: 168, ongoing: 91, onHold: 19 },
+  { month: "Aug", completions: 187, ongoing: 98, onHold: 20 },
+  { month: "Sep", completions: 208, ongoing: 105, onHold: 21 },
 ];
 
 // Secondary report categories (PRD 2.7)
@@ -56,25 +344,75 @@ type ReportTab =
   | "admins"
   | "progress";
 
-const REPORT_TABS: { id: ReportTab; label: string; icon: React.ElementType }[] = [
-  { id: "overview",   label: "Reports Overview",        icon: BarChart3      },
-  { id: "seafarers",  label: "Seafarer Reports",        icon: Users          },
-  { id: "partners",   label: "Partner Reports",         icon: Handshake      },
-  { id: "institutes", label: "Institute Reports",       icon: GraduationCap  },
-  { id: "courses",    label: "Course Reports",          icon: BookOpen       },
-  { id: "admins",     label: "Admin Reports",           icon: UserCog        },
-  { id: "progress",   label: "Course Progress Reports", icon: ClipboardList  },
-];
+const REPORT_TABS: { id: ReportTab; label: string; icon: React.ElementType }[] =
+  [
+    { id: "overview", label: "Reports Overview", icon: BarChart3 },
+    { id: "seafarers", label: "Seafarer Reports", icon: Users },
+    { id: "partners", label: "Partner Reports", icon: Handshake },
+    { id: "institutes", label: "Institute Reports", icon: GraduationCap },
+    { id: "courses", label: "Course Reports", icon: BookOpen },
+    { id: "admins", label: "Admin Reports", icon: UserCog },
+    { id: "progress", label: "Course Progress Reports", icon: ClipboardList },
+  ];
 
 // Admin mock records for 2.12
 const ADMIN_RECORDS = [
-  { id: "ADM-01", name: "Suraj Sahani",     role: "Master Super Admin", company: "Hari Om Corporate", status: "Active",   lastActive: "10 mins ago" },
-  { id: "ADM-02", name: "Kirthish Shetty",  role: "Master Admin",       company: "Hari Om Corporate", status: "Active",   lastActive: "Just now"    },
-  { id: "ADM-03", name: "Capt. M. Rao",     role: "Company Admin",      company: "ABC Shipping Ltd",  status: "Active",   lastActive: "2 hours ago" },
-  { id: "ADM-04", name: "Rajeshwar Sen",    role: "Company Admin",      company: "Anglo-Eastern Group",status: "Active",  lastActive: "1 day ago"   },
-  { id: "ADM-05", name: "Capt. Rajiv Mehta",role: "Partner Admin",      company: "Ocean Maritime Services", status: "Active", lastActive: "15 mins ago" },
-  { id: "ADM-06", name: "Ms. Ananya Roy",   role: "Partner Admin",      company: "SeaStar Crewing",   status: "Active",   lastActive: "3 hours ago" },
-  { id: "ADM-07", name: "T. Sundar",        role: "Partner Admin",      company: "Pacific Nautical",  status: "Inactive", lastActive: "2 weeks ago" },
+  {
+    id: "ADM-01",
+    name: "Suraj Sahani",
+    role: "Master Super Admin",
+    company: "Hari Om Corporate",
+    status: "Active",
+    lastActive: "10 mins ago",
+  },
+  {
+    id: "ADM-02",
+    name: "Kirthish Shetty",
+    role: "Master Admin",
+    company: "Hari Om Corporate",
+    status: "Active",
+    lastActive: "Just now",
+  },
+  {
+    id: "ADM-03",
+    name: "Capt. M. Rao",
+    role: "Company Admin",
+    company: "ABC Shipping Ltd",
+    status: "Active",
+    lastActive: "2 hours ago",
+  },
+  {
+    id: "ADM-04",
+    name: "Rajeshwar Sen",
+    role: "Company Admin",
+    company: "Anglo-Eastern Group",
+    status: "Active",
+    lastActive: "1 day ago",
+  },
+  {
+    id: "ADM-05",
+    name: "Capt. Rajiv Mehta",
+    role: "Partner Admin",
+    company: "Ocean Maritime Services",
+    status: "Active",
+    lastActive: "15 mins ago",
+  },
+  {
+    id: "ADM-06",
+    name: "Ms. Ananya Roy",
+    role: "Partner Admin",
+    company: "SeaStar Crewing",
+    status: "Active",
+    lastActive: "3 hours ago",
+  },
+  {
+    id: "ADM-07",
+    name: "T. Sundar",
+    role: "Partner Admin",
+    company: "Pacific Nautical",
+    status: "Inactive",
+    lastActive: "2 weeks ago",
+  },
 ];
 
 export default function MasterReportsPage() {
@@ -85,11 +423,11 @@ export default function MasterReportsPage() {
   const [activeTab, setActiveTab] = useState<ReportTab>("overview");
 
   // Universal Filters (PRD 2.14)
-  const [search, setSearch]             = useState("");
-  const [dateRange, setDateRange]       = useState("All Time");
+  const [search, setSearch] = useState("");
+  const [dateRange, setDateRange] = useState("All Time");
   const [sourceFilter, setSourceFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
-  const [instFilter, setInstFilter]     = useState("all");
+  const [instFilter, setInstFilter] = useState("all");
   const [courseFilter, setCourseFilter] = useState("all");
 
   // Sorting
@@ -97,16 +435,24 @@ export default function MasterReportsPage() {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // Theme styling tokens
-  const card    = dk ? "bg-[#0c1a2e] border-white/5 rounded-2xl" : "bg-white border-slate-200 rounded-2xl shadow-sm";
-  const ht      = dk ? "text-white" : "text-slate-800";
-  const mt      = dk ? "text-white/40" : "text-slate-400";
-  const inputBg = dk ? "bg-[#0a1525] border-white/8 text-white placeholder-white/20 focus:border-sky-500/40" : "bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:border-sky-400";
-  const rowHover= dk ? "border-white/5 hover:bg-white/3" : "border-slate-100 hover:bg-slate-50";
-  const thCls   = dk ? "text-white/30 border-white/5" : "text-slate-400 border-slate-100";
+  const card = dk
+    ? "bg-[#0c1a2e] border-white/5 rounded-2xl"
+    : "bg-white border-slate-200 rounded-2xl shadow-sm";
+  const ht = dk ? "text-white" : "text-slate-800";
+  const mt = dk ? "text-white/40" : "text-slate-400";
+  const inputBg = dk
+    ? "bg-[#0a1525] border-white/8 text-white placeholder-white/20 focus:border-sky-500/40"
+    : "bg-slate-50 border-slate-200 text-slate-800 placeholder-slate-400 focus:border-sky-400";
+  const rowHover = dk
+    ? "border-white/5 hover:bg-white/3"
+    : "border-slate-100 hover:bg-slate-50";
+  const thCls = dk
+    ? "text-white/30 border-white/5"
+    : "text-slate-400 border-slate-100";
 
   const toggleSort = (field: string) => {
     if (sortField === field) {
-      setSortOrder(prev => prev === "asc" ? "desc" : "asc");
+      setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortField(field);
       setSortOrder("asc");
@@ -117,68 +463,68 @@ export default function MasterReportsPage() {
   // Universal Export to XLSX / CSV (PRD 2.15)
   // ───────────────────────────────────────────────────────────────────────────
   const handleExport = (format: "xlsx" | "csv") => {
-    let exportData: any[] = [];
-    let filename = `hariom_${activeTab}_report`;
+    let exportData: Record<string, unknown>[] = [];
+    const filename = `hariom_${activeTab}_report`;
 
     if (activeTab === "seafarers" || activeTab === "overview") {
-      exportData = filteredSeafarers.map(s => ({
+      exportData = filteredSeafarers.map((s) => ({
         "Seafarer ID": s.id,
         "Full Name": s.name,
-        "INDOS": s.indosNumber,
-        "CDC": s.cdcNumber,
-        "Rank": s.rank,
+        INDOS: s.indosNumber,
+        CDC: s.cdcNumber,
+        Rank: s.rank,
         "Source Type": s.sourceType,
         "Source Name": s.sourceName,
         "Operational Status": s.status,
         "Joined Date": s.createdDate,
       }));
     } else if (activeTab === "partners") {
-      exportData = filteredPartners.map(p => ({
+      exportData = filteredPartners.map((p) => ({
         "Partner ID": p.id,
         "Agency Name": p.agencyName,
         "RPSL License": p.rpslNumber,
         "Contact Person": p.contactPerson,
         "Associated Seafarers": p.totalSeafarers,
         "Course Purchases": p.totalCoursePurchases,
-        "Status": p.status,
+        Status: p.status,
       }));
     } else if (activeTab === "institutes") {
-      exportData = filteredInstitutes.map(i => ({
+      exportData = filteredInstitutes.map((i) => ({
         "Institute ID": i.id,
         "Institute Name": i.name,
         "IDT Number": i.idtNumber,
-        "Location": i.location,
+        Location: i.location,
         "Courses Conducted": i.coursesOffered.length,
         "Total Candidates Trained": i.totalCandidatesTrained,
         "Active Batches": i.activeBatches,
-        "Status": i.status,
+        Status: i.status,
       }));
     } else if (activeTab === "courses") {
-      exportData = filteredCourses.map(c => ({
+      exportData = filteredCourses.map((c) => ({
         "Course Code": c.code,
-        "Title": c.title,
-        "Category": c.category,
-        "Duration": c.duration,
+        Title: c.title,
+        Category: c.category,
+        Duration: c.duration,
         "Enrolled Seafarers": c.enrolledCount,
         "Associated Institutes Count": c.associatedInstituteIds.length,
-        "Status": c.status,
+        Status: c.status,
       }));
     } else if (activeTab === "admins") {
-      exportData = filteredAdmins.map(a => ({
+      exportData = filteredAdmins.map((a) => ({
         "Admin ID": a.id,
-        "Name": a.name,
-        "Role": a.role,
-        "Organization": a.company,
-        "Status": a.status,
+        Name: a.name,
+        Role: a.role,
+        Organization: a.company,
+        Status: a.status,
         "Last Active": a.lastActive,
       }));
     } else if (activeTab === "progress") {
-      exportData = allEnrollmentProgress.map(e => ({
+      exportData = allEnrollmentProgress.map((e) => ({
         "Enrollment ID": e.id,
         "Seafarer Name": e.seafarerName,
         "Course Title": e.courseTitle,
         "Training Institute": e.instituteName,
-        "Batch": e.batch,
+        Batch: e.batch,
         "Progress %": `${e.progressPercent}%`,
         "Operational Status": e.status,
         "Start Date": e.startDate,
@@ -196,72 +542,107 @@ export default function MasterReportsPage() {
   // ───────────────────────────────────────────────────────────────────────────
 
   // 2.8 Seafarers
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const filteredSeafarers = useMemo(() => {
-    return MOCK_SEAFARERS.filter(s => {
+    return MOCK_SEAFARERS.filter((s) => {
       const q = search.toLowerCase();
-      const matchQ = s.name.toLowerCase().includes(q) || s.indosNumber.toLowerCase().includes(q) || s.cdcNumber.toLowerCase().includes(q);
-      const matchSource = sourceFilter === "all" || s.sourceType === sourceFilter;
-      const matchStatus = statusFilter === "all" || s.status.toLowerCase() === statusFilter.toLowerCase();
+      const matchQ =
+        s.name.toLowerCase().includes(q) ||
+        s.indosNumber.toLowerCase().includes(q) ||
+        s.cdcNumber.toLowerCase().includes(q);
+      const matchSource =
+        sourceFilter === "all" || s.sourceType === sourceFilter;
+      const matchStatus =
+        statusFilter === "all" ||
+        s.status.toLowerCase() === statusFilter.toLowerCase();
       return matchQ && matchSource && matchStatus;
     }).sort((a, b) => {
-      const vA = (a as Record<string, unknown>)[sortField] || a.name;
-      const vB = (b as Record<string, unknown>)[sortField] || b.name;
-      return sortOrder === "asc" ? String(vA).localeCompare(String(vB)) : String(vB).localeCompare(String(vA));
+      const vA = String((a as Record<string, unknown>)[sortField] ?? a.name);
+      const vB = String((b as Record<string, unknown>)[sortField] ?? b.name);
+      return sortOrder === "asc" ? vA.localeCompare(vB) : vB.localeCompare(vA);
     });
   }, [search, sourceFilter, statusFilter, sortField, sortOrder]);
 
   // 2.9 Partners
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const filteredPartners = useMemo(() => {
-    return MOCK_PARTNERS.filter(p => {
+    return MOCK_PARTNERS.filter((p) => {
       const q = search.toLowerCase();
-      const matchQ = p.name.toLowerCase().includes(q) || p.agencyName.toLowerCase().includes(q) || p.rpslNumber.toLowerCase().includes(q);
+      const matchQ =
+        p.name.toLowerCase().includes(q) ||
+        p.agencyName.toLowerCase().includes(q) ||
+        p.rpslNumber.toLowerCase().includes(q);
       const matchStatus = statusFilter === "all" || p.status === statusFilter;
       return matchQ && matchStatus;
     });
   }, [search, statusFilter]);
 
   // 2.10 Institutes
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const filteredInstitutes = useMemo(() => {
-    return MOCK_INSTITUTES.filter(i => {
+    return MOCK_INSTITUTES.filter((i) => {
       const q = search.toLowerCase();
-      const matchQ = i.name.toLowerCase().includes(q) || i.idtNumber.toLowerCase().includes(q) || i.location.toLowerCase().includes(q);
+      const matchQ =
+        i.name.toLowerCase().includes(q) ||
+        i.idtNumber.toLowerCase().includes(q) ||
+        i.location.toLowerCase().includes(q);
       const matchStatus = statusFilter === "all" || i.status === statusFilter;
       return matchQ && matchStatus;
     });
   }, [search, statusFilter]);
 
   // 2.11 Courses
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const filteredCourses = useMemo(() => {
-    return MOCK_COURSES.filter(c => {
+    return MOCK_COURSES.filter((c) => {
       const q = search.toLowerCase();
-      const matchQ = c.title.toLowerCase().includes(q) || c.code.toLowerCase().includes(q);
-      const matchInst = instFilter === "all" || c.associatedInstituteIds.includes(instFilter);
+      const matchQ =
+        c.title.toLowerCase().includes(q) || c.code.toLowerCase().includes(q);
+      const matchInst =
+        instFilter === "all" || c.associatedInstituteIds.includes(instFilter);
       return matchQ && matchInst;
     });
   }, [search, instFilter]);
 
   // 2.12 Admins
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const filteredAdmins = useMemo(() => {
-    return ADMIN_RECORDS.filter(a => {
+    return ADMIN_RECORDS.filter((a) => {
       const q = search.toLowerCase();
-      return a.name.toLowerCase().includes(q) || a.role.toLowerCase().includes(q) || a.company.toLowerCase().includes(q);
+      return (
+        a.name.toLowerCase().includes(q) ||
+        a.role.toLowerCase().includes(q) ||
+        a.company.toLowerCase().includes(q)
+      );
     });
   }, [search]);
 
   // 2.13 Course Progress Data
+
+  // eslint-disable-next-line react-hooks/preserve-manual-memoization
   const allEnrollmentProgress = useMemo(() => {
-    return MOCK_SEAFARERS.flatMap(sf =>
-      sf.enrollments.map(e => ({
+    return MOCK_SEAFARERS.flatMap((sf) =>
+      sf.enrollments.map((e) => ({
         ...e,
         seafarerId: sf.id,
         seafarerName: sf.name,
         seafarerRank: sf.rank,
         seafarerStatus: sf.status,
-      }))
-    ).filter(e => {
+      })),
+    ).filter((e) => {
       const q = search.toLowerCase();
-      const matchQ = e.seafarerName.toLowerCase().includes(q) || e.courseTitle.toLowerCase().includes(q) || e.instituteName.toLowerCase().includes(q);
-      const matchStatus = statusFilter === "all" || e.status.toLowerCase() === statusFilter.toLowerCase();
+      const matchQ =
+        e.seafarerName.toLowerCase().includes(q) ||
+        e.courseTitle.toLowerCase().includes(q) ||
+        e.instituteName.toLowerCase().includes(q);
+      const matchStatus =
+        statusFilter === "all" ||
+        e.status.toLowerCase() === statusFilter.toLowerCase();
       const matchInst = instFilter === "all" || e.instituteId === instFilter;
       const matchCourse = courseFilter === "all" || e.courseId === courseFilter;
       return matchQ && matchStatus && matchInst && matchCourse;
@@ -270,28 +651,35 @@ export default function MasterReportsPage() {
 
   return (
     <div className="space-y-6">
-
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-xl font-bold ${ht}`}>Operational & Analytical Reports</h1>
+          <h1 className={`text-xl font-bold ${ht}`}>
+            Operational & Analytical Reports
+          </h1>
           <p className={`text-sm mt-0.5 ${mt}`}>
-            Platform analytics, candidate progress tracking, institute performance, and partner reports
+            Platform analytics, candidate progress tracking, institute
+            performance, and partner reports
           </p>
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => handleExport("xlsx")}
             className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-colors ${
-              dk ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+              dk
+                ? "border-white/10 text-white/70 hover:bg-white/5"
+                : "border-slate-200 text-slate-600 hover:bg-slate-50"
             }`}
           >
-            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" /> Export Excel
+            <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-500" /> Export
+            Excel
           </button>
           <button
             onClick={() => handleExport("csv")}
             className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-colors ${
-              dk ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+              dk
+                ? "border-white/10 text-white/70 hover:bg-white/5"
+                : "border-slate-200 text-slate-600 hover:bg-slate-50"
             }`}
           >
             <Download className="w-3.5 h-3.5 text-sky-500" /> Export CSV
@@ -299,7 +687,9 @@ export default function MasterReportsPage() {
           <button
             onClick={() => window.print()}
             className={`flex items-center gap-2 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-colors ${
-              dk ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-600 hover:bg-slate-50"
+              dk
+                ? "border-white/10 text-white/70 hover:bg-white/5"
+                : "border-slate-200 text-slate-600 hover:bg-slate-50"
             }`}
           >
             <Printer className="w-3.5 h-3.5" /> Print
@@ -307,34 +697,34 @@ export default function MasterReportsPage() {
         </div>
       </div>
 
-      {/* PRD 2.16 Separation of Finance and Reports Note */}
-      <div className={`p-3.5 rounded-xl border flex items-center justify-between text-xs ${
-        dk ? "bg-indigo-500/10 border-indigo-500/20 text-white" : "bg-indigo-50 border-indigo-200 text-black"
-      }`}>
-        <div className="flex items-center gap-2.5">
-          <ShieldCheck className="w-4 h-4 text-indigo-400 shrink-0" />
-          <span>
-            <strong>Separation of Finance & Reports (PRD §2.16):</strong> Reports contain operational performance, seafarer course completions, institute throughput, and partner activity. Financial ledger transactions remain strictly in <strong>Finance</strong>.
-          </span>
-        </div>
-      </div>
-
       {/* Secondary Navigation Tabs (PRD 2.7) */}
-      <div className={`flex items-center gap-1 border-b overflow-x-auto pb-px ${dk ? "border-white/8" : "border-slate-200"}`}>
-        {REPORT_TABS.map(tab => {
+      <div
+        className={`flex items-center gap-1 border-b overflow-x-auto pb-px ${dk ? "border-white/8" : "border-slate-200"}`}
+      >
+        {REPORT_TABS.map((tab) => {
           const isActive = activeTab === tab.id;
           const Icon = tab.icon;
           return (
             <button
               key={tab.id}
-              onClick={() => { setActiveTab(tab.id); setSearch(""); setStatusFilter("all"); }}
+              onClick={() => {
+                setActiveTab(tab.id);
+                setSearch("");
+                setStatusFilter("all");
+              }}
               className={`flex items-center gap-2 px-4 py-2.5 text-xs font-semibold rounded-t-xl transition-all whitespace-nowrap border-b-2 -mb-px ${
                 isActive
-                  ? (dk ? "border-indigo-500 text-white bg-indigo-500/10" : "border-indigo-600 text-black bg-indigo-50")
-                  : (dk ? "border-transparent text-white/50 hover:text-white/80 hover:bg-white/5" : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100")
+                  ? dk
+                    ? "border-indigo-500 text-indigo-400 bg-indigo-500/10"
+                    : "border-indigo-600 text-indigo-700 bg-indigo-50"
+                  : dk
+                    ? "border-transparent text-white/50 hover:text-white/80 hover:bg-white/5"
+                    : "border-transparent text-slate-500 hover:text-slate-800 hover:bg-slate-100"
               }`}
             >
-              <Icon className={`w-3.5 h-3.5 ${isActive ? (dk ? "text-indigo-400" : "text-indigo-600") : "opacity-60"}`} />
+              <Icon
+                className={`w-3.5 h-3.5 ${isActive ? (dk ? "text-indigo-400" : "text-indigo-600") : "opacity-60"}`}
+              />
               {tab.label}
             </button>
           );
@@ -342,12 +732,16 @@ export default function MasterReportsPage() {
       </div>
 
       {/* Universal Filters Bar (PRD 2.14) */}
-      <div className={`border ${card} p-4 flex flex-wrap items-center justify-between gap-3`}>
+      <div
+        className={`border ${card} p-4 flex flex-wrap items-center justify-between gap-3`}
+      >
         <div className="relative flex-1 min-w-[240px]">
-          <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${mt}`} />
+          <Search
+            className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${mt}`}
+          />
           <input
             value={search}
-            onChange={e => setSearch(e.target.value)}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder={`Search across ${activeTab} data...`}
             className={`w-full pl-9 pr-4 py-2 text-xs rounded-xl border ${inputBg}`}
           />
@@ -355,16 +749,20 @@ export default function MasterReportsPage() {
 
         {/* Dynamic Contextual Filters */}
         {(activeTab === "seafarers" || activeTab === "overview") && (
-          <div className="flex items-center gap-2">
-            <span className={`text-[11px] font-semibold uppercase ${mt}`}>Source:</span>
-            {["all", "Company", "Partner", "Direct"].map(src => (
+          <div className="flex items-center gap-1.5">
+            <span className={`text-[11px] font-semibold uppercase ${mt}`}>
+              Source:
+            </span>
+            {["all", "Company", "Partner", "Direct"].map((src) => (
               <button
                 key={src}
                 onClick={() => setSourceFilter(src)}
-                className={`text-xs capitalize transition-colors ${
+                className={`px-3 py-1.5 text-xs font-semibold rounded-xl capitalize transition-colors ${
                   sourceFilter === src
-                    ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-indigo-500"
-                    : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : dk
+                      ? "bg-white/5 text-white/50 hover:bg-white/10"
+                      : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                 }`}
               >
                 {src === "all" ? "All" : src}
@@ -374,16 +772,27 @@ export default function MasterReportsPage() {
         )}
 
         {(activeTab === "seafarers" || activeTab === "progress") && (
-          <div className="flex items-center gap-2">
-            <span className={`text-[11px] font-semibold uppercase ${mt}`}>Status:</span>
-            {["all", "Active", "Ongoing", "On Hold", "Completed", "Inactive"].map(st => (
+          <div className="flex items-center gap-1.5">
+            <span className={`text-[11px] font-semibold uppercase ${mt}`}>
+              Status:
+            </span>
+            {[
+              "all",
+              "Active",
+              "Ongoing",
+              "On Hold",
+              "Completed",
+              "Inactive",
+            ].map((st) => (
               <button
                 key={st}
                 onClick={() => setStatusFilter(st)}
-                className={`text-xs capitalize transition-colors ${
+                className={`px-2.5 py-1.5 text-xs font-semibold rounded-xl capitalize transition-colors ${
                   statusFilter.toLowerCase() === st.toLowerCase()
-                    ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-indigo-500"
-                    : dk ? "text-white/40 hover:text-white/80 font-medium" : "text-slate-500 hover:text-slate-800 font-medium"
+                    ? "bg-indigo-600 text-white shadow-sm"
+                    : dk
+                      ? "bg-white/5 text-white/50 hover:bg-white/10"
+                      : "bg-slate-100 text-slate-500 hover:bg-slate-200"
                 }`}
               >
                 {st}
@@ -396,15 +805,21 @@ export default function MasterReportsPage() {
           <div className="relative min-w-[180px]">
             <select
               value={instFilter}
-              onChange={e => setInstFilter(e.target.value)}
+              onChange={(e) => setInstFilter(e.target.value)}
               className={`w-full px-3 py-2 text-xs rounded-xl appearance-none pr-8 cursor-pointer border ${inputBg}`}
             >
-              <option value="all">All Institutes ({MOCK_INSTITUTES.length})</option>
-              {MOCK_INSTITUTES.map(i => (
-                <option key={i.id} value={i.id}>{i.name}</option>
+              <option value="all">
+                All Institutes ({MOCK_INSTITUTES.length})
+              </option>
+              {MOCK_INSTITUTES.map((i) => (
+                <option key={i.id} value={i.id}>
+                  {i.name}
+                </option>
               ))}
             </select>
-            <ChevronDown className={`w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${mt}`} />
+            <ChevronDown
+              className={`w-3.5 h-3.5 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none ${mt}`}
+            />
           </div>
         )}
       </div>
@@ -416,57 +831,207 @@ export default function MasterReportsPage() {
         <div className="space-y-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
-              { label: "Total Seafarers",      val: MOCK_SEAFARERS.length,                                      sub: "Master records registered", Icon: Users,        c: "text-sky-400",    bg: dk ? "bg-sky-500/10" : "bg-sky-50" },
-              { label: "Active Partners",      val: MOCK_PARTNERS.filter(p => p.status === "active").length,    sub: "RPSL agencies active",      Icon: Handshake,    c: "text-violet-400", bg: dk ? "bg-violet-500/10" : "bg-violet-50" },
-              { label: "Training Institutes",  val: MOCK_INSTITUTES.length,                                     sub: "Accredited academies",      Icon: GraduationCap,c: "text-emerald-400",bg: dk ? "bg-emerald-500/10" : "bg-emerald-50" },
-              { label: "Candidates on Hold",   val: MOCK_SEAFARERS.filter(s => s.status === "On Hold").length,  sub: "Require documentation",     Icon: AlertCircle,  c: "text-amber-400",  bg: dk ? "bg-amber-500/10" : "bg-amber-50" },
-            ].map(k => (
-              <div key={k.label} className={`border ${card} p-4 flex items-center gap-3`}>
-                <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${k.bg}`}>
+              {
+                label: "Total Seafarers",
+                val: MOCK_SEAFARERS.length,
+                sub: "Master records registered",
+                Icon: Users,
+                c: "text-sky-400",
+                bg: dk ? "bg-sky-500/10" : "bg-sky-50",
+              },
+              {
+                label: "Active Partners",
+                val: MOCK_PARTNERS.filter((p) => p.status === "active").length,
+                sub: "RPSL agencies active",
+                Icon: Handshake,
+                c: "text-violet-400",
+                bg: dk ? "bg-violet-500/10" : "bg-violet-50",
+              },
+              {
+                label: "Training Institutes",
+                val: MOCK_INSTITUTES.length,
+                sub: "Accredited academies",
+                Icon: GraduationCap,
+                c: "text-emerald-400",
+                bg: dk ? "bg-emerald-500/10" : "bg-emerald-50",
+              },
+              {
+                label: "Candidates on Hold",
+                val: MOCK_SEAFARERS.filter((s) => s.status === "On Hold")
+                  .length,
+                sub: "Require documentation",
+                Icon: AlertCircle,
+                c: "text-amber-400",
+                bg: dk ? "bg-amber-500/10" : "bg-amber-50",
+              },
+            ].map((k) => (
+              <div
+                key={k.label}
+                className={`border ${card} p-4 flex items-center gap-3`}
+              >
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${k.bg}`}
+                >
                   <k.Icon className={`w-5 h-5 ${k.c}`} />
                 </div>
                 <div>
-                  <p className={`text-xl font-bold leading-tight ${ht}`}>{k.val}</p>
-                  <p className={`text-xs font-semibold mt-0.5 ${ht} opacity-75`}>{k.label}</p>
+                  <p className={`text-xl font-bold leading-tight ${ht}`}>
+                    {k.val}
+                  </p>
+                  <p
+                    className={`text-xs font-semibold mt-0.5 ${ht} opacity-75`}
+                  >
+                    {k.label}
+                  </p>
                   <p className={`text-[11px] mt-0.5 ${mt}`}>{k.sub}</p>
                 </div>
               </div>
             ))}
           </div>
 
+          {/* Seafarer Distribution & Source Breakdown */}
+          <div className={`border ${card} p-6 space-y-4`}>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Seafarer Source & Enrollment Distribution
+                </h3>
+                <p className={`text-xs ${mt}`}>
+                  Comparative breakdown of Company vs Partner seafarers
+                </p>
+              </div>
+              <span className={`text-xs ${mt}`}>Live Platform Analytics</span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              <div
+                className={`p-4 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}
+              >
+                <p className={`text-xs font-semibold uppercase ${mt}`}>
+                  Company Seafarers
+                </p>
+                <p className="text-2xl font-bold mt-1 text-sky-400">
+                  {
+                    MOCK_SEAFARERS.filter((s) => s.sourceType === "Company")
+                      .length
+                  }
+                </p>
+                <p className={`text-[11px] mt-1 ${mt}`}>
+                  Direct shipping corporate employees
+                </p>
+              </div>
+              <div
+                className={`p-4 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}
+              >
+                <p className={`text-xs font-semibold uppercase ${mt}`}>
+                  Partner Seafarers
+                </p>
+                <p className="text-2xl font-bold mt-1 text-violet-400">
+                  {
+                    MOCK_SEAFARERS.filter((s) => s.sourceType === "Partner")
+                      .length
+                  }
+                </p>
+                <p className={`text-[11px] mt-1 ${mt}`}>
+                  Enrolled via RPSL crewing agencies
+                </p>
+              </div>
+              <div
+                className={`p-4 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}
+              >
+                <p className={`text-xs font-semibold uppercase ${mt}`}>
+                  Direct Registrations
+                </p>
+                <p className="text-2xl font-bold mt-1 text-emerald-400">
+                  {
+                    MOCK_SEAFARERS.filter((s) => s.sourceType === "Direct")
+                      .length
+                  }
+                </p>
+                <p className={`text-[11px] mt-1 ${mt}`}>
+                  Independent merchant navy officers
+                </p>
+              </div>
+            </div>
+          </div>
+
           {/* Performance Graphs Grid (Overall 1.01.1 & Courses Sold More) */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
             {/* Overall Performance Graph (Overall 1.01.1) */}
             <div className={`border ${card} p-6 space-y-4`}>
               <div className="flex items-center justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className={`text-base font-bold ${ht}`}>Overall Performance (Overall 1.01.1)</h3>
+                    <h3 className={`text-base font-bold ${ht}`}>
+                      Overall Performance (Overall 1.01.1)
+                    </h3>
                     <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
                       1.01.1 Benchmark
                     </span>
                   </div>
-                  <p className={`text-xs mt-0.5 ${mt}`}>Platform completion index vs target baseline 1.01.1</p>
+                  <p className={`text-xs mt-0.5 ${mt}`}>
+                    Platform completion index vs target baseline 1.01.1
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-bold text-emerald-400">1.08 Index</p>
+                  <p className="text-sm font-bold text-emerald-400">
+                    1.08 Index
+                  </p>
                   <p className={`text-[10px] ${mt}`}>+6.9% above baseline</p>
                 </div>
               </div>
 
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={OVERALL_PERFORMANCE_DATA} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
+                  <AreaChart
+                    data={OVERALL_PERFORMANCE_DATA}
+                    margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+                  >
                     <defs>
-                      <linearGradient id="perfGradient" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                      <linearGradient
+                        id="perfGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#10b981"
+                          stopOpacity={0.35}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#10b981"
+                          stopOpacity={0.0}
+                        />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} />
-                    <XAxis dataKey="month" tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#64748b" }} axisLine={false} tickLine={false} />
-                    <YAxis domain={[0.9, 1.15]} tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#64748b" }} axisLine={false} tickLine={false} tickFormatter={v => v.toFixed(2)} />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={
+                        dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                      }
+                    />
+                    <XAxis
+                      dataKey="month"
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      domain={[0.9, 1.15]}
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                      tickFormatter={(v) => v.toFixed(2)}
+                    />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: dk ? "#0f2035" : "#ffffff",
@@ -475,25 +1040,44 @@ export default function MasterReportsPage() {
                         color: dk ? "#ffffff" : "#1e293b",
                         fontSize: "12px",
                       }}
-                      formatter={(val: any) => [`${val} Index`, "Performance Index"] as any}
+                      formatter={(val: unknown) => [
+                        `${val} Index`,
+                        "Performance Index",
+                      ]}
                     />
-                    <Area type="monotone" dataKey="index" stroke="#10b981" strokeWidth={2.5} fill="url(#perfGradient)" />
+                    <Area
+                      type="monotone"
+                      dataKey="index"
+                      stroke="#10b981"
+                      strokeWidth={2.5}
+                      fill="url(#perfGradient)"
+                    />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
 
               <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5 text-center">
-                <div className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}>
+                <div
+                  className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}
+                >
                   <p className={`text-[10px] ${mt}`}>Enrollment Volume</p>
                   <p className={`text-sm font-bold mt-0.5 ${ht}`}>310/mo</p>
                 </div>
-                <div className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}>
+                <div
+                  className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}
+                >
                   <p className={`text-[10px] ${mt}`}>Course Completions</p>
-                  <p className={`text-sm font-bold mt-0.5 text-emerald-400`}>298/mo</p>
+                  <p className={`text-sm font-bold mt-0.5 text-emerald-400`}>
+                    298/mo
+                  </p>
                 </div>
-                <div className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}>
+                <div
+                  className={`p-2 rounded-xl ${dk ? "bg-white/3" : "bg-slate-50"}`}
+                >
                   <p className={`text-[10px] ${mt}`}>Average Pass Rate</p>
-                  <p className={`text-sm font-bold mt-0.5 text-sky-400`}>98.2%</p>
+                  <p className={`text-sm font-bold mt-0.5 text-sky-400`}>
+                    98.2%
+                  </p>
                 </div>
               </div>
             </div>
@@ -502,18 +1086,52 @@ export default function MasterReportsPage() {
             <div className={`border ${card} p-6 space-y-4`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className={`text-base font-bold ${ht}`}>Courses Sold More</h3>
-                  <p className={`text-xs mt-0.5 ${mt}`}>Top courses ranked by enrollment volume and sales demand</p>
+                  <h3 className={`text-base font-bold ${ht}`}>
+                    Courses Sold More
+                  </h3>
+                  <p className={`text-xs mt-0.5 ${mt}`}>
+                    Top courses ranked by enrollment volume and sales demand
+                  </p>
                 </div>
-                <span className="text-[11px] font-semibold text-violet-400">Total: 1,331 Enrollments</span>
+                <span className="text-[11px] font-semibold text-violet-400">
+                  Total: 1,331 Enrollments
+                </span>
               </div>
 
               <div className="h-64">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={COURSES_SOLD_DATA} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"} horizontal={false} />
-                    <XAxis type="number" tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.4)" : "#64748b" }} axisLine={false} tickLine={false} />
-                    <YAxis type="category" dataKey="shortName" tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.7)" : "#334155" }} axisLine={false} tickLine={false} width={80} />
+                  <BarChart
+                    data={COURSES_SOLD_DATA}
+                    layout="vertical"
+                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={
+                        dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                      }
+                      horizontal={false}
+                    />
+                    <XAxis
+                      type="number"
+                      tick={{
+                        fontSize: 10,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="shortName"
+                      tick={{
+                        fontSize: 10,
+                        fill: dk ? "rgba(255,255,255,0.7)" : "#334155",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={80}
+                    />
                     <Tooltip
                       contentStyle={{
                         backgroundColor: dk ? "#0f2035" : "#ffffff",
@@ -522,10 +1140,14 @@ export default function MasterReportsPage() {
                         color: dk ? "#ffffff" : "#1e293b",
                         fontSize: "12px",
                       }}
-                      formatter={(val: any, name: any, item: any) => [
+                      formatter={(
+                        val: unknown,
+                        name: unknown,
+                        item: Record<string, unknown>,
+                      ) => [
                         `${val} Enrolled (₹${(item.payload.revenue / 100000).toFixed(1)}L)`,
-                        item.payload.name
-                      ] as any}
+                        item.payload.name,
+                      ]}
                     />
                     <Bar dataKey="enrolled" radius={[0, 6, 6, 0]}>
                       {COURSES_SOLD_DATA.map((c, i) => (
@@ -537,44 +1159,14 @@ export default function MasterReportsPage() {
               </div>
 
               <div className="flex items-center justify-between text-[11px] pt-2 border-t border-white/5">
-                <span className={mt}>Top Leader: <strong className="text-sky-400">STCW-BST (412 Sold)</strong></span>
-                <span className={mt}>Highest Revenue: <strong className="text-violet-400">STCW-AFF (₹20.8L)</strong></span>
-              </div>
-            </div>
-
-          </div>
-
-          {/* Seafarer Distribution & Source Breakdown */}
-          <div className={`border ${card} p-6 space-y-4`}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className={`text-base font-bold ${ht}`}>Seafarer Source & Enrollment Distribution</h3>
-                <p className={`text-xs ${mt}`}>Comparative breakdown of Company vs Partner seafarers</p>
-              </div>
-              <span className={`text-xs ${mt}`}>Live Platform Analytics</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-              <div className={`p-4 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
-                <p className={`text-xs font-semibold uppercase ${mt}`}>Company Seafarers</p>
-                <p className={`text-2xl font-bold mt-1 ${ht}`}>
-                  {MOCK_SEAFARERS.filter(s => s.sourceType === "Company").length}
-                </p>
-                <p className={`text-[11px] mt-1 ${mt}`}>Direct shipping corporate employees</p>
-              </div>
-              <div className={`p-4 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
-                <p className={`text-xs font-semibold uppercase ${mt}`}>Partner Seafarers</p>
-                <p className={`text-2xl font-bold mt-1 ${ht}`}>
-                  {MOCK_SEAFARERS.filter(s => s.sourceType === "Partner").length}
-                </p>
-                <p className={`text-[11px] mt-1 ${mt}`}>Enrolled via RPSL crewing agencies</p>
-              </div>
-              <div className={`p-4 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
-                <p className={`text-xs font-semibold uppercase ${mt}`}>Direct Registrations</p>
-                <p className="text-2xl font-bold mt-1 text-emerald-400">
-                  {MOCK_SEAFARERS.filter(s => s.sourceType === "Direct").length}
-                </p>
-                <p className={`text-[11px] mt-1 ${mt}`}>Independent merchant navy officers</p>
+                <span className={mt}>
+                  Top Leader:{" "}
+                  <strong className="text-sky-400">STCW-BST (412 Sold)</strong>
+                </span>
+                <span className={mt}>
+                  Highest Revenue:{" "}
+                  <strong className="text-violet-400">STCW-AFF (₹20.8L)</strong>
+                </span>
               </div>
             </div>
           </div>
@@ -584,112 +1176,334 @@ export default function MasterReportsPage() {
       {/* ─────────────────────────────────────────────────────────────────────
           TAB 2: Seafarer Reports (PRD 2.8)
           ───────────────────────────────────────────────────────────────────── */}
-      {activeTab === "seafarers" && (
-        <div className={`border ${card} overflow-hidden`}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${thCls}`}>
-                  <th onClick={() => toggleSort("name")} className="text-left px-6 py-3.5 cursor-pointer hover:underline">
-                    Seafarer Name <ArrowUpDown className="w-3 h-3 inline ml-1" />
-                  </th>
-                  <th className="text-left px-6 py-3.5">INDOS / CDC</th>
-                  <th className="text-left px-6 py-3.5">Rank</th>
-                  <th className="text-left px-6 py-3.5">Source Type (PRD §2.8)</th>
-                  <th className="text-left px-6 py-3.5">Source Attribution</th>
-                  <th className="text-left px-6 py-3.5">Course Enrollments</th>
-                  <th className="text-left px-6 py-3.5">Operational Status</th>
-                  <th className="text-left px-6 py-3.5">Registration Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filteredSeafarers.map(s => (
-                  <tr key={s.id} className={`${rowHover} transition-colors border-b`}>
-                    <td className="px-6 py-4">
-                      <p className={`font-semibold text-[13px] ${ht}`}>{s.name}</p>
-                      <p className={`text-[11px] ${mt}`}>{s.email}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <p className={`text-[12px] font-mono ${ht}`}>{s.indosNumber}</p>
-                      <p className={`text-[10px] font-mono ${mt}`}>CDC: {s.cdcNumber}</p>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] ${ht}`}>{s.rank}</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[11px] font-semibold text-black dark:text-white`}>
-                        {s.sourceType}
-                      </span>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] ${ht}`}>{s.sourceName}</td>
-                    <td className={`px-6 py-4 text-[12px] font-semibold ${ht}`}>{s.enrollments.length} Courses</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[11px] font-semibold ${
-                        s.status === "Active" ? "text-emerald-600 dark:text-emerald-400" :
-                        s.status === "Ongoing" ? "text-indigo-600 dark:text-indigo-400" :
-                        s.status === "On Hold" ? "text-amber-600 dark:text-amber-400" :
-                        s.status === "Completed" ? "text-teal-600 dark:text-teal-400" :
-                        "text-red-600 dark:text-red-400"
-                      }`}>
-                        {s.status}
-                      </span>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] ${mt}`}>{s.createdDate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs ${mt}`}>
-            <span>Showing {filteredSeafarers.length} seafarer analytics records</span>
-            <span>Compliant with PRD §2.8</span>
-          </div>
-        </div>
-      )}
+      {activeTab === "seafarers" &&
+        (() => {
+          const statusCounts = [
+            "Active",
+            "Ongoing",
+            "On Hold",
+            "Completed",
+            "Inactive",
+          ].map((st, i) => ({
+            ...SEAFARER_STATUS_DATA[i],
+            value: MOCK_SEAFARERS.filter((s) => s.status === st).length,
+          }));
+          return (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Seafarer Status Pie Chart */}
+                <div className={`border ${card} p-6 space-y-4`}>
+                  <div>
+                    <h3 className={`text-base font-bold ${ht}`}>
+                      Seafarer Operational Status
+                    </h3>
+                    <p className={`text-xs mt-0.5 ${mt}`}>
+                      Distribution by current status across all registered
+                      seafarers
+                    </p>
+                  </div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={statusCounts}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={95}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {statusCounts.map((entry, index) => (
+                            <Cell key={index} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: dk ? "#0f2035" : "#ffffff",
+                            borderColor: dk
+                              ? "rgba(255,255,255,0.1)"
+                              : "#e2e8f0",
+                            borderRadius: "12px",
+                            color: dk ? "#ffffff" : "#1e293b",
+                            fontSize: "12px",
+                          }}
+                          formatter={(
+                            val: unknown,
+                            _: unknown,
+                            item: Record<string, unknown>,
+                          ) => [
+                            `${val} Seafarers`,
+                            (item as Record<string, Record<string, unknown>>)
+                              .payload.name,
+                          ]}
+                        />
+                        <Legend
+                          iconType="circle"
+                          iconSize={8}
+                          wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                {/* Monthly Source Breakdown Stacked Bar */}
+                <div className={`border ${card} p-6 space-y-4`}>
+                  <div>
+                    <h3 className={`text-base font-bold ${ht}`}>
+                      Monthly Seafarer Registrations by Source
+                    </h3>
+                    <p className={`text-xs mt-0.5 ${mt}`}>
+                      Company vs Partner vs Direct onboarding trends
+                    </p>
+                  </div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={SEAFARER_MONTHLY_DATA}
+                        margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke={
+                            dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                          }
+                        />
+                        <XAxis
+                          dataKey="month"
+                          tick={{
+                            fontSize: 11,
+                            fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                          }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{
+                            fontSize: 11,
+                            fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                          }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: dk ? "#0f2035" : "#ffffff",
+                            borderColor: dk
+                              ? "rgba(255,255,255,0.1)"
+                              : "#e2e8f0",
+                            borderRadius: "12px",
+                            color: dk ? "#ffffff" : "#1e293b",
+                            fontSize: "12px",
+                          }}
+                        />
+                        <Legend
+                          iconType="circle"
+                          iconSize={8}
+                          wrapperStyle={{ fontSize: "11px" }}
+                        />
+                        <Bar
+                          dataKey="company"
+                          name="Company"
+                          stackId="a"
+                          fill="#38bdf8"
+                          radius={[0, 0, 0, 0]}
+                        />
+                        <Bar
+                          dataKey="partner"
+                          name="Partner"
+                          stackId="a"
+                          fill="#818cf8"
+                          radius={[0, 0, 0, 0]}
+                        />
+                        <Bar
+                          dataKey="direct"
+                          name="Direct"
+                          stackId="a"
+                          fill="#34d399"
+                          radius={[4, 4, 0, 0]}
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
       {/* ─────────────────────────────────────────────────────────────────────
           TAB 3: Partner Reports (PRD 2.9)
           ───────────────────────────────────────────────────────────────────── */}
       {activeTab === "partners" && (
-        <div className={`border ${card} overflow-hidden`}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${thCls}`}>
-                  <th className="text-left px-6 py-3.5">Partner / Agency</th>
-                  <th className="text-left px-6 py-3.5">RPSL License</th>
-                  <th className="text-left px-6 py-3.5">Contact Person</th>
-                  <th className="text-left px-6 py-3.5">Associated Seafarers (PRD §2.9)</th>
-                  <th className="text-left px-6 py-3.5">Course Purchases Processed</th>
-                  <th className="text-left px-6 py-3.5">Operational Status</th>
-                  <th className="text-left px-6 py-3.5">Last Activity</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filteredPartners.map(p => (
-                  <tr key={p.id} className={`${rowHover} transition-colors border-b`}>
-                    <td className="px-6 py-4">
-                      <p className={`font-semibold text-[13px] ${ht}`}>{p.name}</p>
-                      <p className={`text-[11px] ${mt}`}>{p.agencyName}</p>
-                    </td>
-                    <td className="px-6 py-4 text-[12px] font-mono text-black dark:text-white">{p.rpslNumber}</td>
-                    <td className={`px-6 py-4 text-[12px] ${ht}`}>{p.contactPerson}</td>
-                    <td className={`px-6 py-4 text-[13px] font-bold ${ht}`}>{p.totalSeafarers}</td>
-                    <td className={`px-6 py-4 text-[13px] font-semibold ${ht}`}>{p.totalCoursePurchases} purchases</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[11px] font-semibold ${
-                        p.status === "active" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"
-                      }`}>
-                        {p.status}
-                      </span>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] ${mt}`}>{p.lastActive}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs ${mt}`}>
-            <span>Showing {filteredPartners.length} partner operational records</span>
-            <span>Financial settlement information is separated under Finance (PRD §2.9 & §2.16)</span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Partner Seafarers vs Purchases Bar */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Top Partners — Seafarers & Purchases
+                </h3>
+                <p className={`text-xs mt-0.5 ${mt}`}>
+                  Comparative associated seafarers and course purchases per
+                  partner
+                </p>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={PARTNER_PERF_DATA}
+                    margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={
+                        dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                      }
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{
+                        fontSize: 9,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: "11px" }}
+                    />
+                    <Bar
+                      dataKey="seafarers"
+                      name="Seafarers"
+                      fill="#38bdf8"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="purchases"
+                      name="Purchases"
+                      fill="#818cf8"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Partner Activity Trend Area */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Partner Activity Trend
+                </h3>
+                <p className={`text-xs mt-0.5 ${mt}`}>
+                  Monthly active vs inactive partner count over 9 months
+                </p>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={PARTNER_TREND_DATA}
+                    margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient
+                        id="partnerActiveGrad"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#818cf8"
+                          stopOpacity={0.35}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#818cf8"
+                          stopOpacity={0.0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={
+                        dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                      }
+                    />
+                    <XAxis
+                      dataKey="month"
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: "11px" }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="active"
+                      name="Active Partners"
+                      stroke="#818cf8"
+                      strokeWidth={2.5}
+                      fill="url(#partnerActiveGrad)"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="inactive"
+                      name="Inactive Partners"
+                      stroke="#f87171"
+                      strokeWidth={2}
+                      fill="none"
+                      strokeDasharray="4 3"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -698,47 +1512,161 @@ export default function MasterReportsPage() {
           TAB 4: Institute Reports (PRD 2.10)
           ───────────────────────────────────────────────────────────────────── */}
       {activeTab === "institutes" && (
-        <div className={`border ${card} overflow-hidden`}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${thCls}`}>
-                  <th className="text-left px-6 py-3.5">Institute Name (PRD §2.10)</th>
-                  <th className="text-left px-6 py-3.5">IDT Number</th>
-                  <th className="text-left px-6 py-3.5">Location</th>
-                  <th className="text-left px-6 py-3.5">Courses Offered</th>
-                  <th className="text-left px-6 py-3.5">Active Batches</th>
-                  <th className="text-left px-6 py-3.5">Total Candidates Trained</th>
-                  <th className="text-left px-6 py-3.5">Rating</th>
-                  <th className="text-left px-6 py-3.5">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filteredInstitutes.map(i => (
-                  <tr key={i.id} className={`${rowHover} transition-colors border-b`}>
-                    <td className="px-6 py-4">
-                      <p className={`font-semibold text-[13px] ${ht}`}>{i.name}</p>
-                      <p className={`text-[10px] ${mt}`}>Approval: {i.approvalNumber}</p>
-                    </td>
-                    <td className="px-6 py-4 text-[12px] font-mono text-black dark:text-white">{i.idtNumber}</td>
-                    <td className={`px-6 py-4 text-[12px] ${mt}`}>{i.location}</td>
-                    <td className={`px-6 py-4 text-[12px] font-semibold ${ht}`}>{i.coursesOffered.length} Courses</td>
-                    <td className={`px-6 py-4 text-[12px] font-bold ${ht}`}>{i.activeBatches}</td>
-                    <td className={`px-6 py-4 text-[13px] font-bold text-emerald-400`}>{i.totalCandidatesTrained.toLocaleString()}</td>
-                    <td className={`px-6 py-4 text-[12px] font-medium ${ht}`}>⭐ {i.rating}</td>
-                    <td className="px-6 py-4">
-                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        {i.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs ${mt}`}>
-            <span>Showing {filteredInstitutes.length} training academies</span>
-            <span>Comparative operational throughput (PRD §2.10)</span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Institute Throughput Bar */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Institute Throughput — Candidates Trained
+                </h3>
+                <p className={`text-xs mt-0.5 ${mt}`}>
+                  Top institutes by total candidates successfully trained
+                </p>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={INSTITUTE_THROUGHPUT_DATA}
+                    layout="vertical"
+                    margin={{ top: 5, right: 20, left: 10, bottom: 5 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={
+                        dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                      }
+                      horizontal={false}
+                    />
+                    <XAxis
+                      type="number"
+                      tick={{
+                        fontSize: 10,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      type="category"
+                      dataKey="name"
+                      tick={{
+                        fontSize: 9,
+                        fill: dk ? "rgba(255,255,255,0.7)" : "#334155",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                      width={100}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                      formatter={(
+                        val: unknown,
+                        _: unknown,
+                        item: Record<string, unknown>,
+                      ) => [
+                        `${val} Trained (${(item as Record<string, Record<string, unknown>>).payload.batches} batches, ⭐${(item as Record<string, Record<string, unknown>>).payload.rating})`,
+                        (item as Record<string, Record<string, unknown>>)
+                          .payload.name,
+                      ]}
+                    />
+                    <Bar dataKey="trained" radius={[0, 6, 6, 0]}>
+                      {INSTITUTE_THROUGHPUT_DATA.map((d, i) => (
+                        <Cell key={i} fill={d.color} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Monthly Candidate Intake Line Chart */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Monthly Candidate Intake Trend
+                </h3>
+                <p className={`text-xs mt-0.5 ${mt}`}>
+                  Platform-wide candidates entering training per month
+                </p>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={INSTITUTE_MONTHLY_DATA}
+                    margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+                  >
+                    <defs>
+                      <linearGradient
+                        id="instituteGrad"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="5%"
+                          stopColor="#34d399"
+                          stopOpacity={0.3}
+                        />
+                        <stop
+                          offset="95%"
+                          stopColor="#34d399"
+                          stopOpacity={0}
+                        />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={
+                        dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                      }
+                    />
+                    <XAxis
+                      dataKey="month"
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Line
+                      type="monotone"
+                      dataKey="candidates"
+                      name="Candidates"
+                      stroke="#34d399"
+                      strokeWidth={2.5}
+                      dot={{ fill: "#34d399", r: 4 }}
+                      activeDot={{ r: 6 }}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -747,58 +1675,134 @@ export default function MasterReportsPage() {
           TAB 5: Course Reports (PRD 2.11)
           ───────────────────────────────────────────────────────────────────── */}
       {activeTab === "courses" && (
-        <div className={`border ${card} overflow-hidden`}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${thCls}`}>
-                  <th className="text-left px-6 py-3.5">Course Code & Title</th>
-                  <th className="text-left px-6 py-3.5">Category</th>
-                  <th className="text-left px-6 py-3.5">Duration</th>
-                  <th className="text-left px-6 py-3.5">Enrolled Seafarers</th>
-                  <th className="text-left px-6 py-3.5">Accredited Institutes (PRD §2.11)</th>
-                  <th className="text-left px-6 py-3.5">Completion Rate</th>
-                  <th className="text-left px-6 py-3.5">Catalog Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filteredCourses.map(c => (
-                  <tr key={c.id} className={`${rowHover} transition-colors border-b`}>
-                    <td className="px-6 py-4">
-                      <p className={`font-semibold text-[13px] ${ht}`}>{c.title}</p>
-                      <p className={`text-[10px] font-mono ${mt}`}>{c.code}</p>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] ${ht}`}>{c.category}</td>
-                    <td className={`px-6 py-4 text-[12px] ${mt}`}>{c.duration}</td>
-                    <td className={`px-6 py-4 text-[13px] font-bold ${ht}`}>{c.enrolledCount}</td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[11px] font-medium ${mt}`}>
-                        {c.associatedInstituteIds.length} Institutes
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-16 h-2 rounded-full bg-white/10 overflow-hidden">
-                          <div className="h-full bg-emerald-400" style={{ width: `${Math.min(100, Math.round((c.rating / 5) * 100))}%` }} />
-                        </div>
-                        <span className="text-xs font-semibold">{Math.round((c.rating / 5) * 100)}%</span>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`text-[11px] font-semibold ${
-                        c.status === "Active" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-500 dark:text-slate-400"
-                      }`}>
-                        {c.status}
-                      </span>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs ${mt}`}>
-            <span>Showing {filteredCourses.length} courses</span>
-            <span>Multi-institute course activity (PRD §2.11)</span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Category Enrollment Pie */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Course Category Enrollment Share
+                </h3>
+                <p className={`text-xs mt-0.5 ${mt}`}>
+                  Total enrollments distributed across maritime training
+                  categories
+                </p>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={COURSE_CATEGORY_DATA}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={90}
+                      paddingAngle={4}
+                      dataKey="value"
+                    >
+                      {COURSE_CATEGORY_DATA.map((entry, index) => (
+                        <Cell key={index} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                      formatter={(
+                        val: unknown,
+                        _: unknown,
+                        item: Record<string, unknown>,
+                      ) => [
+                        `${val} Enrolled`,
+                        (item as Record<string, Record<string, unknown>>)
+                          .payload.name,
+                      ]}
+                    />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Completion vs Pass Rate Grouped Bar */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Course Completion & Pass Rates
+                </h3>
+                <p className={`text-xs mt-0.5 ${mt}`}>
+                  Completion rate vs pass rate per course code
+                </p>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={COURSE_COMPLETION_DATA}
+                    margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={
+                        dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                      }
+                    />
+                    <XAxis
+                      dataKey="name"
+                      tick={{
+                        fontSize: 9,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      domain={[70, 100]}
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                      unit="%"
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                    />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: "11px" }}
+                    />
+                    <Bar
+                      dataKey="completion"
+                      name="Completion %"
+                      fill="#38bdf8"
+                      radius={[4, 4, 0, 0]}
+                    />
+                    <Bar
+                      dataKey="passRate"
+                      name="Pass Rate %"
+                      fill="#34d399"
+                      radius={[4, 4, 0, 0]}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -807,45 +1811,130 @@ export default function MasterReportsPage() {
           TAB 6: Admin Reports (PRD 2.12)
           ───────────────────────────────────────────────────────────────────── */}
       {activeTab === "admins" && (
-        <div className={`border ${card} overflow-hidden`}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${thCls}`}>
-                  <th className="text-left px-6 py-3.5">Admin ID & Name</th>
-                  <th className="text-left px-6 py-3.5">Administrative Role (PRD §2.12)</th>
-                  <th className="text-left px-6 py-3.5">Organization / Association</th>
-                  <th className="text-left px-6 py-3.5">Status</th>
-                  <th className="text-left px-6 py-3.5">Last Active</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {filteredAdmins.map(a => (
-                  <tr key={a.id} className={`${rowHover} transition-colors border-b`}>
-                    <td className="px-6 py-4">
-                      <p className={`font-semibold text-[13px] ${ht}`}>{a.name}</p>
-                      <p className={`text-[10px] font-mono ${mt}`}>{a.id}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-[11px] font-semibold text-black dark:text-white">
-                        {a.role}
-                      </span>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] ${ht}`}>{a.company}</td>
-                    <td className="px-6 py-4">
-                      <span className="text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-                        {a.status}
-                      </span>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] ${mt}`}>{a.lastActive}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs ${mt}`}>
-            <span>Showing {filteredAdmins.length} administrative users</span>
-            <span>Seafarers are strictly excluded from Admin Management reports (PRD §2.12)</span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Admin Role Distribution Radial */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Admin Role Distribution
+                </h3>
+                <p className={`text-xs mt-0.5 ${mt}`}>
+                  Breakdown of administrators by assigned role hierarchy
+                </p>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <RadialBarChart
+                    cx="50%"
+                    cy="50%"
+                    innerRadius="20%"
+                    outerRadius="90%"
+                    data={ADMIN_ROLE_DATA}
+                    startAngle={180}
+                    endAngle={0}
+                  >
+                    <RadialBar
+                      dataKey="value"
+                      label={{
+                        position: "insideStart",
+                        fill: dk ? "#fff" : "#1e293b",
+                        fontSize: 10,
+                      }}
+                    />
+                    <Legend
+                      iconType="circle"
+                      iconSize={8}
+                      wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                      formatter={(
+                        val: unknown,
+                        _: unknown,
+                        item: Record<string, unknown>,
+                      ) => [
+                        `${val} Admin(s)`,
+                        (item as Record<string, Record<string, unknown>>)
+                          .payload.name,
+                      ]}
+                    />
+                  </RadialBarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Admin Weekly Login Activity */}
+            <div className={`border ${card} p-6 space-y-4`}>
+              <div>
+                <h3 className={`text-base font-bold ${ht}`}>
+                  Admin Weekly Login Activity
+                </h3>
+                <p className={`text-xs mt-0.5 ${mt}`}>
+                  Platform login sessions by admins across the current week
+                </p>
+              </div>
+              <div className="h-64">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={ADMIN_ACTIVITY_DATA}
+                    margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+                  >
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={
+                        dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                      }
+                    />
+                    <XAxis
+                      dataKey="day"
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <YAxis
+                      tick={{
+                        fontSize: 11,
+                        fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                      }}
+                      axisLine={false}
+                      tickLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: dk ? "#0f2035" : "#ffffff",
+                        borderColor: dk ? "rgba(255,255,255,0.1)" : "#e2e8f0",
+                        borderRadius: "12px",
+                        color: dk ? "#ffffff" : "#1e293b",
+                        fontSize: "12px",
+                      }}
+                      formatter={(val: unknown) => [
+                        `${val} Logins`,
+                        "Sessions",
+                      ]}
+                    />
+                    <Bar
+                      dataKey="logins"
+                      name="Login Sessions"
+                      radius={[4, 4, 0, 0]}
+                    >
+                      {ADMIN_ACTIVITY_DATA.map((_, i) => (
+                        <Cell key={i} fill={i === 3 ? "#818cf8" : "#38bdf8"} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
           </div>
         </div>
       )}
@@ -853,59 +1942,201 @@ export default function MasterReportsPage() {
       {/* ─────────────────────────────────────────────────────────────────────
           TAB 7: Course Progress Reports
           ───────────────────────────────────────────────────────────────────── */}
-      {activeTab === "progress" && (
-        <div className={`border ${card} overflow-hidden`}>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${thCls}`}>
-                  <th className="text-left px-6 py-3.5">Seafarer Trainee</th>
-                  <th className="text-left px-6 py-3.5">Course Title</th>
-                  <th className="text-left px-6 py-3.5">Conducting Institute</th>
-                  <th className="text-left px-6 py-3.5">Course Progress</th>
-                  <th className="text-left px-6 py-3.5">Start Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-white/5">
-                {allEnrollmentProgress.map(e => (
-                  <tr key={e.id} className={`${rowHover} transition-colors border-b`}>
-                    <td className="px-6 py-4">
-                      <p className={`font-semibold text-[13px] ${ht}`}>{e.seafarerName}</p>
-                      <p className={`text-[10px] font-mono ${mt}`}>{e.seafarerRank} · ID: {e.seafarerId}</p>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] font-medium ${ht}`}>{e.courseTitle}</td>
-                    <td className={`px-6 py-4 text-[12px] ${mt}`}>{e.instituteName}</td>
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-24 h-2 rounded-full bg-white/10 overflow-hidden">
-                          <div
-                            className={`h-full ${e.progressPercent === 100 ? "bg-teal-400" : e.status === "On Hold" ? "bg-amber-400" : "bg-sky-400"}`}
-                            style={{ width: `${e.progressPercent}%` }}
-                          />
-                        </div>
-                        <span className="text-xs font-bold w-9">{e.progressPercent}%</span>
-                        <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full border ${
-                          e.status === "Completed" ? "bg-teal-500/10 text-teal-400 border-teal-500/20" :
-                          e.status === "Ongoing" ? "bg-indigo-500/10 text-indigo-400 border-indigo-500/20" :
-                          "bg-amber-500/10 text-amber-400 border-amber-500/20"
-                        }`}>
-                          {e.status}
-                        </span>
-                      </div>
-                    </td>
-                    <td className={`px-6 py-4 text-[12px] ${mt}`}>{e.startDate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs ${mt}`}>
-            <span>Showing {allEnrollmentProgress.length} active course enrollments</span>
-            <span>Streamlined candidate progress tracking</span>
-          </div>
-        </div>
-      )}
+      {activeTab === "progress" &&
+        (() => {
+          const progressStatusCounts = ["Completed", "Ongoing", "On Hold"].map(
+            (st, i) => ({
+              ...PROGRESS_STATUS_DATA[i],
+              value: allEnrollmentProgress.filter((e) => e.status === st)
+                .length,
+            }),
+          );
+          return (
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Progress Status Pie */}
+                <div className={`border ${card} p-6 space-y-4`}>
+                  <div>
+                    <h3 className={`text-base font-bold ${ht}`}>
+                      Enrollment Progress Status
+                    </h3>
+                    <p className={`text-xs mt-0.5 ${mt}`}>
+                      Current status split across all active course enrollments
+                    </p>
+                  </div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={progressStatusCounts}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={60}
+                          outerRadius={95}
+                          paddingAngle={3}
+                          dataKey="value"
+                        >
+                          {progressStatusCounts.map((entry, index) => (
+                            <Cell key={index} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: dk ? "#0f2035" : "#ffffff",
+                            borderColor: dk
+                              ? "rgba(255,255,255,0.1)"
+                              : "#e2e8f0",
+                            borderRadius: "12px",
+                            color: dk ? "#ffffff" : "#1e293b",
+                            fontSize: "12px",
+                          }}
+                          formatter={(
+                            val: unknown,
+                            _: unknown,
+                            item: Record<string, unknown>,
+                          ) => [
+                            `${val} Enrollments`,
+                            (item as Record<string, Record<string, unknown>>)
+                              .payload.name,
+                          ]}
+                        />
+                        <Legend
+                          iconType="circle"
+                          iconSize={8}
+                          wrapperStyle={{ fontSize: "11px", paddingTop: "8px" }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
 
+                {/* Monthly Progress Area Chart */}
+                <div className={`border ${card} p-6 space-y-4`}>
+                  <div>
+                    <h3 className={`text-base font-bold ${ht}`}>
+                      Monthly Course Progress Trend
+                    </h3>
+                    <p className={`text-xs mt-0.5 ${mt}`}>
+                      Completions, ongoing training, and on-hold counts over
+                      time
+                    </p>
+                  </div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <AreaChart
+                        data={PROGRESS_MONTHLY_DATA}
+                        margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+                      >
+                        <defs>
+                          <linearGradient
+                            id="completionGrad"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="#34d399"
+                              stopOpacity={0.35}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="#34d399"
+                              stopOpacity={0}
+                            />
+                          </linearGradient>
+                          <linearGradient
+                            id="ongoingGrad"
+                            x1="0"
+                            y1="0"
+                            x2="0"
+                            y2="1"
+                          >
+                            <stop
+                              offset="5%"
+                              stopColor="#818cf8"
+                              stopOpacity={0.25}
+                            />
+                            <stop
+                              offset="95%"
+                              stopColor="#818cf8"
+                              stopOpacity={0}
+                            />
+                          </linearGradient>
+                        </defs>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke={
+                            dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
+                          }
+                        />
+                        <XAxis
+                          dataKey="month"
+                          tick={{
+                            fontSize: 11,
+                            fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                          }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <YAxis
+                          tick={{
+                            fontSize: 11,
+                            fill: dk ? "rgba(255,255,255,0.4)" : "#64748b",
+                          }}
+                          axisLine={false}
+                          tickLine={false}
+                        />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: dk ? "#0f2035" : "#ffffff",
+                            borderColor: dk
+                              ? "rgba(255,255,255,0.1)"
+                              : "#e2e8f0",
+                            borderRadius: "12px",
+                            color: dk ? "#ffffff" : "#1e293b",
+                            fontSize: "12px",
+                          }}
+                        />
+                        <Legend
+                          iconType="circle"
+                          iconSize={8}
+                          wrapperStyle={{ fontSize: "11px" }}
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="completions"
+                          name="Completed"
+                          stroke="#34d399"
+                          strokeWidth={2.5}
+                          fill="url(#completionGrad)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="ongoing"
+                          name="Ongoing"
+                          stroke="#818cf8"
+                          strokeWidth={2}
+                          fill="url(#ongoingGrad)"
+                        />
+                        <Area
+                          type="monotone"
+                          dataKey="onHold"
+                          name="On Hold"
+                          stroke="#fbbf24"
+                          strokeWidth={1.5}
+                          fill="none"
+                          strokeDasharray="4 3"
+                        />
+                      </AreaChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
     </div>
   );
 }
