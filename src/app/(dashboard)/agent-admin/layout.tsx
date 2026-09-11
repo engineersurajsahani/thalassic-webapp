@@ -12,11 +12,7 @@ export default function AgentAdminLayout({
 }) {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = true;
 
   const themeClasses = mounted && !isDark ? "bg-[#FAFAFA] text-[#111827]" : "bg-[#050a14] text-white";
   const isDarkActive = mounted ? isDark : true;

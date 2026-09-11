@@ -28,7 +28,7 @@ import {
 export default function SubmitSettlementPage() {
   const router = useRouter();
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = true;
   useEffect(() => setMounted(true), []);
   const isDark = mounted ? theme === "dark" : true;
 

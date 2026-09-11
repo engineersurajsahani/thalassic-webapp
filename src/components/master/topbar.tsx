@@ -9,6 +9,14 @@ import {
   Bell, Sun, Moon, ChevronRight,
   BookOpen, AlertCircle, Check, Users
 } from "lucide-react";
+import GlobalStatusDropdown from "@/components/master/GlobalStatusDropdown";
+
+interface TopbarNotification {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+}
 
 const pageNames: Record<string, string> = {
   "/master/dashboard": "Dashboard",
@@ -37,25 +45,30 @@ export default function MasterTopbar() {
   const isDark = theme === "dark";
   const pathname = usePathname();
 
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<TopbarNotification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
   const currentPage = pageNames[pathname] || "Dashboard";
   const isHome = pathname === "/master/dashboard";
 
-  const fetchNotifications = async () => {
-    try {
-      const list = await notificationService.getNotifications();
-      setNotifications(list);
-    } catch (err) {
-      console.error("Failed to load notifications: ", err);
-    }
-  };
-
   useEffect(() => {
+    let mounted = true;
+    const fetchNotifications = async () => {
+      try {
+        const list = await notificationService.getNotifications();
+        if (mounted) {
+          setNotifications(list as TopbarNotification[]);
+        }
+      } catch (err) {
+        console.error("Failed to load notifications: ", err);
+      }
+    };
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      mounted = false;
+      clearInterval(interval);
+    };
   }, []);
 
   const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
@@ -89,7 +102,7 @@ export default function MasterTopbar() {
         {isHome ? (
           <>
             <p className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>{getFormattedDate()}</p>
-            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}>{getGreeting()}, Admin</p>
+            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}>{getGreeting()}, Master Admin</p>
           </>
         ) : (
           <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
@@ -101,7 +114,9 @@ export default function MasterTopbar() {
       </div>
 
       {/* Right */}
-      <div className="flex items-center gap-1.5 shrink-0">
+      <div className="flex items-center gap-2 shrink-0">
+        <GlobalStatusDropdown />
+
         <button onClick={toggleTheme} aria-label="Toggle theme"
           className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isDark ? "text-yellow-300 hover:bg-white/8" : "text-slate-500 hover:bg-slate-100"}`}>
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -200,7 +215,7 @@ export default function MasterTopbar() {
 
         <button aria-label="Profile" className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-[#3D5EF6] flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
-            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "MA"}
+            {user?.name ? user.name.split(" ").map((n: string) => n[0]).join("") : "MA"}
           </div>
           <div className="hidden sm:flex flex-col items-start leading-tight">
             <span className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}>{user?.name || "Master Admin"}</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { Mail, Check, LogIn } from "lucide-react";
 import AuthInput from "./AuthInput";
@@ -18,13 +18,15 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export default function LoginForm() {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+const emptySubscribe = () => () => {};
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+export default function LoginForm() {
+  const mounted = useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+  const { theme } = useTheme();
 
   const isDark = mounted ? theme === "dark" : true;
   const { login } = useAuth();
@@ -33,28 +35,53 @@ export default function LoginForm() {
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors: formErrors },
     setError,
+    clearErrors,
   } = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     mode: "onSubmit",
   });
 
+  const fillDemoCredentials = (email: string, password = "admin123") => {
+    setValue("email", email, { shouldValidate: true, shouldDirty: true });
+    setValue("password", password, { shouldValidate: true, shouldDirty: true });
+    clearErrors();
+    toast.success(`Autofilled credentials for ${email}`);
+  };
+
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
-      const user = await login(data);
-      const role = user.role?.toLowerCase();
-      if (role === "seafarer" || role === "seafarer") {
-        router.push("/seafarer/dashboard");
-      } else if (role === "company_admin" || role === "company-admin") {
-        router.push("/company-admin/dashboard");
-      } else if (role === "agent_admin" || role === "agent-admin") {
-        router.push("/agent-admin/dashboard");
+      const cleanData = {
+        email: (data.email || "").trim(),
+        password: (data.password || "").trim(),
+      };
+      const user = await login(cleanData);
+      const role = (user.role || "").toLowerCase().replace('_', '-');
+      const redirectUrl = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("redirect") : null;
+
+      let targetPath = "/master/dashboard";
+      if (role === "seafarer") {
+        targetPath = "/seafarer/dashboard";
+      } else if (role === "company-admin") {
+        targetPath = "/company-admin/dashboard";
+      } else if (role === "agent-admin") {
+        targetPath = "/agent-admin/dashboard";
       } else if (role === "agent") {
-        router.push("/agent/dashboard");
+        targetPath = "/agent/dashboard";
       } else {
-        router.push("/master/dashboard");
+        targetPath = "/master/dashboard";
       }
+
+      if (redirectUrl && redirectUrl.startsWith("/") && !redirectUrl.startsWith("//")) {
+        const roleFolder = role === "master" ? "/master" : `/${role}`;
+        if (redirectUrl.startsWith(roleFolder)) {
+          targetPath = redirectUrl;
+        }
+      }
+
+      router.push(targetPath);
       toast.success("Login successful! Redirecting...");
     } catch (err: any) {
       const message = err.message || "Invalid email or password";
@@ -110,8 +137,56 @@ export default function LoginForm() {
         Login
       </button>
 
+      {/* Quick Demo Credentials Helper */}
+      <div className={`p-3 rounded-xl border ${isDark ? "bg-[#161f30]/70 border-gray-800" : "bg-gray-50 border-gray-200"}`}>
+        <div className="flex items-center justify-between mb-2">
+          <span className={`text-xs font-semibold ${isDark ? "text-gray-300" : "text-gray-700"}`}>
+            Quick Demo Logins (Click to Autofill):
+          </span>
+          <span className="text-[10px] text-gray-400">Pass: admin123</span>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          <button
+            type="button"
+            onClick={() => fillDemoCredentials("master@gmail.com", "admin123")}
+            className={`px-2 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer text-center truncate ${
+              isDark 
+                ? "bg-blue-950/40 border-blue-800/50 text-blue-400 hover:bg-blue-900/60 hover:text-white" 
+                : "bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100"
+            }`}
+            title="master@gmail.com"
+          >
+            👑 Master
+          </button>
+          <button
+            type="button"
+            onClick={() => fillDemoCredentials("admin@thalassic.in", "admin123")}
+            className={`px-2 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer text-center truncate ${
+              isDark 
+                ? "bg-purple-950/40 border-purple-800/50 text-purple-400 hover:bg-purple-900/60 hover:text-white" 
+                : "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
+            }`}
+            title="admin@thalassic.in"
+          >
+            🏢 Agent Admin
+          </button>
+          <button
+            type="button"
+            onClick={() => fillDemoCredentials("agent@thalassic.in", "admin123")}
+            className={`px-2 py-1.5 text-xs font-medium rounded-lg border transition-all cursor-pointer text-center truncate ${
+              isDark 
+                ? "bg-emerald-950/40 border-emerald-800/50 text-emerald-400 hover:bg-emerald-900/60 hover:text-white" 
+                : "bg-emerald-50 border-emerald-200 text-emerald-700 hover:bg-emerald-100"
+            }`}
+            title="agent@thalassic.in"
+          >
+            🤝 Partner
+          </button>
+        </div>
+      </div>
+
       <p className={`text-center text-sm mt-6 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
-        Don't have an account?{" "}
+        Don&apos;t have an account?{" "}
         <Link href="/register" className={`font-semibold transition-colors duration-200 ${isDark ? "text-[#3D5EF6] hover:text-[#2E4FE0]" : "text-[#3D5EF6] hover:text-[#2E4FE0]"}`}>
           Sign Up
         </Link>
