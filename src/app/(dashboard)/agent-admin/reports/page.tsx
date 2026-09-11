@@ -115,11 +115,11 @@ export default function Reports() {
   }
 
   const defaultPerformance = [
-    { agentName: "Apex Maritime Solutions", seafarers: 32, courses: 32, region: "Mumbai" },
-    { agentName: "Blue Ocean Crewing Ltd", seafarers: 25, courses: 25, region: "Kochi" },
-    { agentName: "Nautical Placement Services", seafarers: 20, courses: 20, region: "Chennai" },
-    { agentName: "SeaFarer Operations India", seafarers: 14, courses: 14, region: "Kolkata" },
-    { agentName: "Pacific Marine Manning", seafarers: 7, courses: 7, region: "Goa" }
+    { agentName: "Apex Maritime Solutions", seafarers: 32, courses: 32, region: "Mumbai", totalSales: "₹8,00,000", settledAmount: "₹6,40,000", pendingBalance: "₹1,60,000", earnings: "₹96,000" },
+    { agentName: "Blue Ocean Crewing Ltd", seafarers: 25, courses: 25, region: "Kochi", totalSales: "₹6,25,000", settledAmount: "₹5,00,000", pendingBalance: "₹1,25,000", earnings: "₹75,000" },
+    { agentName: "Nautical Placement Services", seafarers: 20, courses: 20, region: "Chennai", totalSales: "₹5,00,000", settledAmount: "₹4,00,000", pendingBalance: "₹1,00,000", earnings: "₹60,000" },
+    { agentName: "SeaFarer Operations India", seafarers: 14, courses: 14, region: "Kolkata", totalSales: "₹3,50,000", settledAmount: "₹2,80,000", pendingBalance: "₹70,000", earnings: "₹42,000" },
+    { agentName: "Pacific Marine Manning", seafarers: 7, courses: 7, region: "Goa", totalSales: "₹1,75,000", settledAmount: "₹1,40,000", pendingBalance: "₹35,000", earnings: "₹21,000" }
   ];
 
   const defaultRegionStats = [
@@ -400,6 +400,54 @@ export default function Reports() {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Agent Performance Table */}
+      <div className={card}>
+        <div className={`flex items-center gap-2 border-b pb-3 mb-4 ${isDark ? "border-white/5" : "border-slate-100"}`}>
+          <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
+          <h3 className="text-sm font-bold">Placement Agent Performance Ledger</h3>
+        </div>
+
+        {performance.length === 0 ? (
+          <div className="text-center py-10">
+            <p className={`text-xs ${mt}`}>No agent reports data matching your filters.</p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs border-collapse">
+              <thead>
+                <tr className={`border-b ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}>
+                  <th className="py-3 px-2">Agent Name</th>
+                  <th className="py-3 px-2">Region</th>
+                  <th className="py-3 px-2 text-center">Total Seafarers</th>
+                  <th className="py-3 px-2 text-center">Courses Booked</th>
+                  <th className="py-3 px-2 text-right">Attributed Sales</th>
+                  <th className="py-3 px-2 text-right">Settled Amount</th>
+                  <th className="py-3 px-2 text-right">Pending Balance</th>
+                  <th className="py-3 px-2 text-right">Agent Earnings</th>
+                </tr>
+              </thead>
+              <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
+                {performance.map((p: any, idx: number) => (
+                  <tr key={idx} className={`transition-all ${isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}`}>
+                    <td className="py-3.5 px-2 font-bold flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#3D5EF6] shrink-0" />
+                      {p.agentName}
+                    </td>
+                    <td className={`py-3.5 px-2 font-medium ${mt}`}>{p.region || "—"}</td>
+                    <td className="py-3.5 px-2 text-center font-bold text-[#3D5EF6]">{p.seafarers ?? 0}</td>
+                    <td className="py-3.5 px-2 text-center font-bold text-[#10B981]">{p.courses ?? 0}</td>
+                    <td className={`py-3.5 px-2 text-right font-bold ${ht}`}>{p.totalSales || "₹0"}</td>
+                    <td className="py-3.5 px-2 text-right font-bold text-emerald-500">{p.settledAmount || "₹0"}</td>
+                    <td className="py-3.5 px-2 text-right font-bold text-amber-500">{p.pendingBalance || "₹0"}</td>
+                    <td className={`py-3.5 px-2 text-right font-bold ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>{p.earnings || "₹0"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </div>
   );
