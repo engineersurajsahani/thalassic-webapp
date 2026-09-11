@@ -22,9 +22,8 @@ const menuItems = [
 ];
 
 export default function AgentAdminSidebar() {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const { logout, user } = useAuth();
-  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
   const pathname = usePathname();

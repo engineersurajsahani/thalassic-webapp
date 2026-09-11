@@ -71,9 +71,8 @@ const CustomAgentAxisTick = (props: any) => {
 };
 
 export default function Reports() {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const isDark = theme === "dark";
-  const mounted = true;
 
   const [loading, setLoading] = useState(true);
   const [reportsData, setReportsData] = useState<any>(null);
@@ -185,10 +184,17 @@ export default function Reports() {
   const totalCoursesSum = performance.reduce((acc: number, p: any) => acc + Number(p.courses ?? p.conversions ?? 0), 0);
   const calculatedConversionRate = totalSeafarersSum > 0 ? `${((totalCoursesSum / totalSeafarersSum) * 100).toFixed(1)}%` : "0.0%";
 
-  const rawRegionStats = reportsData?.regionStats?.length > 0 ? reportsData.regionStats : defaultRegionStats;
-  const regionStats = rawRegionStats.filter((r: any) => {
+  const filteredRegionStats = rawRegionStats.filter((r: any) => {
     return selectedRegionFilter === "all" || r.name.toLowerCase() === selectedRegionFilter.toLowerCase();
   });
+  const tooltipStyle = {
+    backgroundColor: isDark ? "#111827" : "#ffffff",
+    borderColor: isDark ? "#1F2937" : "#E5E7EB",
+    color: isDark ? "#FAFAFA" : "#111827",
+  };
+  const handleExport = (type: string) => {
+    alert(`Exporting ${type} report...`);
+  };
   const CHART_COLORS = ["#3D5EF6", "#2E4FE0", "#6366f1", "#14b8a6", "#3B82F6"];
 
   return (

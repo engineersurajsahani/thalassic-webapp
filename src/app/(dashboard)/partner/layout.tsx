@@ -11,10 +11,9 @@ export default function PartnerLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const isDark = theme === "dark";
   const pathname = usePathname();
-  const mounted = true;
 
   const isOnboarding = pathname === "/partner/onboarding" || pathname === "/agent/onboarding";
 

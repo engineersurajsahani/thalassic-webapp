@@ -38,8 +38,7 @@ const ROLES: RoleOption[] = [
 ];
 
 export default function RegisterForm() {
-  const { theme } = useTheme();
-  const mounted = true;
+  const { theme, mounted } = useTheme();
 
   const { register } = useAuth();
   const router = useRouter();

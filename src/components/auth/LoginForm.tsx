@@ -18,15 +18,8 @@ const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-const emptySubscribe = () => () => {};
-
 export default function LoginForm() {
-  const mounted = useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
 
   const isDark = mounted ? theme === "dark" : true;
   const { login } = useAuth();

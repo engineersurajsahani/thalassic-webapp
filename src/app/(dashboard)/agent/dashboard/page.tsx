@@ -11,9 +11,8 @@ import {
 } from "lucide-react";
 
 export default function AgentDashboard() {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const { user } = useAuth();
-  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
 

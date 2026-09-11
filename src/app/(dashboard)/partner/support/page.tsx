@@ -18,9 +18,7 @@ import {
 import { toast } from "react-hot-toast";
 
 export default function PartnerSupportPage() {
-  const { theme } = useTheme();
-  const mounted = true;
-  useEffect(() => setMounted(true), []);
+  const { theme, mounted } = useTheme();
   const isDark = mounted ? theme === "dark" : true;
 
   const [tickets, setTickets] = useState<any[]>([]);

@@ -31,10 +31,9 @@ function getFormattedDate() {
 }
 
 export default function AgentAdminTopbar() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, mounted } = useTheme();
   const { user } = useAuth();
   const pathname = usePathname();
-  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
 

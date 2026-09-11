@@ -14,9 +14,8 @@ if (typeof window !== "undefined") {
 }
 
 export default function Navbar() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, mounted } = useTheme();
   const pathname = usePathname();
-  const mounted = true;
 
   const isDark = mounted ? (theme === "dark") : true;
   const isAuthPage = pathname === "/login" || pathname === "/register";

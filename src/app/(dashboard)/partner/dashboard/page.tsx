@@ -21,9 +21,7 @@ import {
 } from "lucide-react";
 
 export default function PartnerDashboard() {
-  const { theme } = useTheme();
-  const mounted = true;
-  useEffect(() => setMounted(true), []);
+  const { theme, mounted } = useTheme();
   const isDark = mounted ? theme === "dark" : true;
 
   const [dashboardData, setDashboardData] = useState<any>(null);

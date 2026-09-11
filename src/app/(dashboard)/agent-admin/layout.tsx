@@ -10,9 +10,8 @@ export default function AgentAdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const isDark = theme === "dark";
-  const mounted = true;
 
   const themeClasses = mounted && !isDark ? "bg-[#FAFAFA] text-[#111827]" : "bg-[#050a14] text-white";
   const isDarkActive = mounted ? isDark : true;
