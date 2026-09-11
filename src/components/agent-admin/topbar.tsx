@@ -34,11 +34,7 @@ export default function AgentAdminTopbar() {
   const { theme, toggleTheme } = useTheme();
   const { user } = useAuth();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
 

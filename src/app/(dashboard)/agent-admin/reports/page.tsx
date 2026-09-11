@@ -3,9 +3,9 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { agentAdminService } from "@/services/agent-admin.service";
-import { BarChart3, RefreshCw, Sparkles, TrendingUp, Users, ArrowUpRight, DollarSign } from "lucide-react";
+import { BarChart3, RefreshCw, Sparkles, Users } from "lucide-react";
 import {
-  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend,
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip,
   PieChart, Pie, Cell
 } from "recharts";
 
@@ -73,7 +73,7 @@ const CustomAgentAxisTick = (props: any) => {
 export default function Reports() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const [mounted, setMounted] = useState(false);
+  const mounted = true;
 
   const [loading, setLoading] = useState(true);
   const [reportsData, setReportsData] = useState<any>(null);
@@ -84,67 +84,19 @@ export default function Reports() {
   const [startDateFilter, setStartDateFilter] = useState("");
   const [endDateFilter, setEndDateFilter] = useState("");
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  
 
-  const handleExport = (format: string) => {
-    if (format === "Excel") {
-      const headers = ["Agent Name", "Total Seafarers", "Courses Booked", "Total Revenue", "Settled Amount", "Pending Balance", "Commission Earned"];
-      const rows = performance.map((p: any) => [
-        `"${p.agentName || ""}"`,
-        p.seafarers ?? p.leads ?? 0,
-        p.courses ?? p.conversions ?? 0,
-        `"${p.totalSales || "₹0"}"`,
-        `"${p.settledAmount || "₹0"}"`,
-        `"${p.pendingBalance || "₹0"}"`,
-        `"${p.earnings || "₹0"}"`
-      ]);
-
-      const csvContent = "\uFEFF" + [headers.join(","), ...rows.map((e: string[]) => e.join(","))].join("\n");
-      const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.setAttribute("href", url);
-      link.setAttribute("download", `manning_agent_reports_${new Date().toISOString().substring(0, 10)}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    } else if (format === "PDF") {
-      const style = document.createElement("style");
-      style.innerHTML = `
-        @media print {
-          aside, header, .no-print, button {
-            display: none !important;
-          }
-          main, body, html {
-            margin: 0 !important;
-            padding: 0 !important;
-            background: white !important;
-            color: black !important;
-            overflow: visible !important;
-          }
-        }
-      `;
-      document.head.appendChild(style);
-      window.print();
-      document.head.removeChild(style);
-    }
-  };
-
-  const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
-    isDark
-      ? "bg-[#111827] text-white"
-      : "bg-white text-[#111827]"
+  const card = `rounded-[16px] p-6 border-0 card-elevated transition-all duration-300 ${
+    isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
   }`;
   const labelText = isDark ? "text-white/50" : "text-[#6B7280]";
   const ht = isDark ? "text-white/95" : "text-[#111827]";
   const mt = isDark ? "text-white/35" : "text-[#9CA3AF]";
-  const borderB = isDark ? "border-white/5" : "border-slate-100";
 
-  const fetchReports = async () => {
+  const fetchReports = async (monthVal?: string) => {
     try {
-      const data = await agentAdminService.getReports();
+      const monthToFetch = monthVal !== undefined ? monthVal : selectedMonthFilter;
+      const data = await agentAdminService.getReports(monthToFetch);
       setReportsData(data);
     } catch (err) {
       console.error("Failed to load reports data:", err);
@@ -165,7 +117,6 @@ export default function Reports() {
     );
   }
 
-  // Aligned with the actual Manning Agents in /agent-admin/agents
   const defaultPerformance = [
     { agentName: "Kishan Manning Agency", seafarers: 42, courses: 38, leads: 42, conversions: 38, totalSales: "₹10,50,000", settledAmount: "₹8,40,000", pendingBalance: "₹2,10,000", earnings: "₹1,26,000" },
     { agentName: "Oceanic Seamen Agency", seafarers: 35, courses: 30, leads: 35, conversions: 30, totalSales: "₹8,75,000", settledAmount: "₹7,00,000", pendingBalance: "₹1,75,000", earnings: "₹1,05,000" },
@@ -175,17 +126,45 @@ export default function Reports() {
   ];
 
   const defaultRegionStats = [
-    { name: "Mumbai", value: 48 },
-    { name: "Kochi", value: 36 },
+    { name: "Mumbai",  value: 48 },
+    { name: "Kochi",   value: 36 },
     { name: "Chennai", value: 28 },
     { name: "Kolkata", value: 18 },
-    { name: "Goa", value: 12 }
+    { name: "Goa",     value: 12 },
   ];
 
-  const rawPerformance = reportsData?.agentPerformance?.length > 0 ? reportsData.agentPerformance : defaultPerformance;
+  const basePerformance = reportsData?.agentPerformance?.length > 0 ? reportsData.agentPerformance : defaultPerformance;
+  const rawPerformance = basePerformance.map((p: any) => ({
+    ...p,
+    seafarers: Number(p.seafarers ?? p.conversions ?? p.leads ?? 0),
+    courses: Number(p.courses ?? p.conversions ?? 0),
+    region: p.region || (p.agentName?.includes("Kochi") || p.agentName?.includes("Oceanic") ? "Kochi" : p.agentName?.includes("Nautical") || p.agentName?.includes("Chennai") ? "Chennai" : p.agentName?.includes("SeaFarer") || p.agentName?.includes("Kolkata") ? "Kolkata" : "Mumbai"),
+  }));
+  const rawRegionStats = reportsData?.regionStats?.length > 0 ? reportsData.regionStats : defaultRegionStats;
+
+  // Available months formatting helper
+  const monthList: string[] = reportsData?.availableMonths?.length > 0
+    ? reportsData.availableMonths
+    : ["2026-09", "2026-08", "2026-07", "2026-06", "2026-05", "2026-04", "2026-03", "2026-02", "2026-01"];
+
+  const monthOptions = monthList.map((m: string) => {
+    const [year, month] = m.split("-");
+    const dateObj = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const label = dateObj.toLocaleString("en-US", { month: "long", year: "numeric" });
+    return { value: m, label };
+  });
+
+  // Get unique regions for the filter
+  const availableRegions = Array.from(new Set([
+    ...rawRegionStats.map((r: any) => r.name),
+    ...rawPerformance.map((p: any) => p.region).filter(Boolean),
+  ])).sort();
+
+  // Apply filters
   const performance = rawPerformance.filter((p: any) => {
-    const matchesAgent = selectedAgentFilter === "all" || p.agentName === selectedAgentFilter;
-    return matchesAgent;
+    const matchesAgent  = selectedAgentFilter === "all" || p.agentName === selectedAgentFilter;
+    const matchesRegion = selectedRegionFilter === "all" || p.region === selectedRegionFilter;
+    return matchesAgent && matchesRegion;
   });
 
   const chartPerformance = performance.map((p: any) => {
@@ -218,10 +197,10 @@ export default function Reports() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>Operational Analytics</h1>
-          <p className={`text-xs mt-1.5 ${mt}`}>Performance statistics, conversion rates, and revenue reports.</p>
+          <p className={`text-xs mt-1.5 ${mt}`}>Performance statistics and revenue reports by agent and region.</p>
         </div>
-        <button 
-          onClick={fetchReports}
+        <button
+          onClick={() => fetchReports()}
           className={`p-2.5 rounded-xl border flex items-center justify-center cursor-pointer transition ${isDark ? "border-white/10 hover:bg-white/5 text-white/50" : "border-slate-200 hover:bg-slate-50 text-slate-500 shadow-sm"}`}
         >
           <RefreshCw className="w-4 h-4" />
@@ -313,36 +292,29 @@ export default function Reports() {
         </div>
       </div>
 
-      {/* Dynamic Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        
-        {/* Total Seafarers card */}
+      {/* Summary Cards — 2 cards only (Conversion Rate removed) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Total Registered Seafarers</span>
             <Users className="w-4 h-4 text-[#3D5EF6]" />
           </div>
           <p className={`text-3xl font-bold mt-4 ${ht}`}>{totalSeafarersSum}</p>
+          {selectedRegionFilter !== "all" && (
+            <p className={`text-[10px] mt-1 ${mt}`}>Filtered by region: {selectedRegionFilter}</p>
+          )}
         </div>
 
-        {/* Courses Booked card */}
         <div className={card}>
           <div className="flex items-center justify-between">
             <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Courses Booked</span>
-            <Sparkles className="w-4 h-4 text-[#3D5EF6]" />
+            <Sparkles className="w-4 h-4 text-[#10B981]" />
           </div>
-          <p className={`text-3xl font-bold mt-4 text-emerald-500`}>{totalCoursesSum}</p>
+          <p className="text-3xl font-bold mt-4 text-[#10B981]">{totalCoursesSum}</p>
+          {selectedAgentFilter !== "all" && (
+            <p className={`text-[10px] mt-1 ${mt}`}>Filtered by agent: {selectedAgentFilter}</p>
+          )}
         </div>
-
-        {/* Conversion rate card */}
-        <div className={card}>
-          <div className="flex items-center justify-between">
-            <span className={`text-[11px] font-semibold tracking-wider uppercase ${labelText}`}>Conversion Rate</span>
-            <TrendingUp className="w-4 h-4 text-[#3D5EF6]" />
-          </div>
-          <p className={`text-3xl font-bold mt-4 text-[#3D5EF6]`}>{calculatedConversionRate}</p>
-        </div>
-
       </div>
 
       {/* Charts Grid */}
@@ -368,7 +340,8 @@ export default function Reports() {
               ))}
             </select>
           </div>
-          <div className="h-72 w-full text-xs">
+          {/* Prominent, large chart height */}
+          <div className="h-80 w-full text-xs">
             {mounted && (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={chartPerformance} margin={{ top: 10, right: 10, left: -20, bottom: 45 }}>
@@ -381,7 +354,6 @@ export default function Reports() {
                       color: isDark ? "#FAFAFA" : "#111827" 
                     }} 
                   />
-                  <Bar dataKey="seafarers" name="Total Seafarers" fill="#3D5EF6" barSize={32} radius={[6, 6, 0, 0]} isAnimationActive={false} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -392,153 +364,114 @@ export default function Reports() {
         <div className={`lg:col-span-5 ${card}`}>
           <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
             <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
-            <h3 className="text-sm font-bold">Region-Wise Seafarers (by City)</h3>
+            <h3 className="text-sm font-bold">
+              Region-Wise Seafarers
+              {selectedRegionFilter !== "all" && (
+                <span className="ml-2 text-[10px] font-semibold text-[#3D5EF6] bg-[#3D5EF6]/10 px-2 py-0.5 rounded">
+                  {selectedRegionFilter}
+                </span>
+              )}
+            </h3>
           </div>
-          <div className="h-72 w-full text-xs flex flex-col sm:flex-row items-center justify-center">
-            {regionStats.length === 0 ? (
-              <p className={`text-xs ${mt}`}>No regional data available</p>
-            ) : (
-              <>
-                <div className="w-full sm:w-1/2 h-full relative flex items-center justify-center">
-                  {mounted && (
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={regionStats}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={55}
-                          outerRadius={75}
-                          paddingAngle={4}
-                          dataKey="value"
-                          isAnimationActive={false}
-                        >
-                          {regionStats.map((entry: any, index: number) => (
-                            <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
-                          ))}
-                        </Pie>
-                        <Tooltip 
-                          contentStyle={{ 
-                            backgroundColor: isDark ? "#111827" : "#ffffff", 
-                            borderColor: isDark ? "#1F2937" : "#E5E7EB",
-                            color: isDark ? "#FAFAFA" : "#111827" 
-                          }} 
-                        />
-                        <text x="50%" y="47%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-800 dark:fill-white font-black text-2xl">
-                          {regionStats.reduce((sum: number, item: any) => sum + item.value, 0)}
-                        </text>
-                        <text x="50%" y="60%" textAnchor="middle" dominantBaseline="middle" className="fill-slate-400 dark:fill-slate-500 font-black text-[9px] uppercase tracking-wider">
-                          Seafarers
-                        </text>
-                      </PieChart>
-                    </ResponsiveContainer>
-                  )}
-                </div>
-                <div className="w-full sm:w-1/2 space-y-3 mt-4 sm:mt-0 px-4" style={{ maxHeight: "288px", overflowY: "auto" }}>
-                  {(() => {
-                    const totalRegionLeads = regionStats.reduce((sum: number, item: any) => sum + item.value, 0);
-                    return regionStats.map((entry: any, index: number) => {
-                      const percentage = totalRegionLeads > 0 ? Math.round((entry.value / totalRegionLeads) * 100) : 0;
-                      return (
-                        <div 
-                          key={entry.name} 
-                          className={`p-3 rounded-2xl border flex items-center justify-between transition-all duration-300 hover:scale-[1.02] ${
-                            isDark ? "bg-white/[0.03] border-white/5 hover:bg-white/[0.06]" : "bg-slate-50 border-slate-200/60 hover:bg-slate-100/50"
-                          }`}
-                        >
-                          <div className="flex items-center gap-2.5">
-                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
-                            <div>
-                              <span className="font-bold text-xs block leading-tight">{entry.name}</span>
-                              <div className="w-16 h-1 bg-slate-200 dark:bg-slate-800 rounded-full mt-1.5 overflow-hidden">
-                                <div 
-                                  className="h-full rounded-full" 
-                                  style={{ 
-                                    width: `${percentage}%`, 
-                                    backgroundColor: CHART_COLORS[index % CHART_COLORS.length] 
-                                  }} 
-                                />
-                              </div>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <span className="font-extrabold text-xs block">{entry.value} seafarers</span>
-                            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold block mt-0.5">{percentage}%</span>
-                          </div>
+
+          {filteredRegionStats.length === 0 ? (
+            <p className={`text-xs py-12 text-center ${mt}`}>No regional data for selected filter.</p>
+          ) : (
+            <div className="flex flex-col items-center gap-4">
+              {/* Compact donut */}
+              <div className="w-full h-48 shrink-0">
+                {mounted && (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={filteredRegionStats}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={45}
+                        outerRadius={70}
+                        paddingAngle={4}
+                        dataKey="value"
+                        isAnimationActive={false}
+                      >
+                        {filteredRegionStats.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip contentStyle={tooltipStyle} />
+                      <text x="50%" y="44%" textAnchor="middle" dominantBaseline="middle" fill={isDark ? "#fff" : "#111827"} fontSize="16" fontWeight="800">
+                        {filteredRegionStats.reduce((sum: number, item: any) => sum + item.value, 0)}
+                      </text>
+                      <text x="50%" y="62%" textAnchor="middle" dominantBaseline="middle" fill="#94a3b8" fontSize="8" fontWeight="700" letterSpacing="1">
+                        SEAFARERS
+                      </text>
+                    </PieChart>
+                  </ResponsiveContainer>
+                )}
+              </div>
+
+              {/* Legend grid */}
+              <div className="w-full grid grid-cols-2 gap-2 text-xs pt-2 border-t border-slate-100 dark:border-white/5">
+                {(() => {
+                  const total = filteredRegionStats.reduce((sum: number, item: any) => sum + item.value, 0);
+                  return filteredRegionStats.map((entry: any, index: number) => {
+                    const pct = total > 0 ? Math.round((entry.value / total) * 100) : 0;
+                    return (
+                      <div key={entry.name} className="flex items-center justify-between gap-1 text-[11px]">
+                        <div className="flex items-center gap-1.5 min-w-0">
+                          <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: CHART_COLORS[index % CHART_COLORS.length] }} />
+                          <span className={`font-semibold truncate ${ht}`}>{entry.name}</span>
                         </div>
-                      );
-                    });
-                  })()}
-                </div>
-              </>
-            )}
-          </div>
+                        <span className={`font-bold shrink-0 ${ht}`}>{entry.value} ({pct}%)</span>
+                      </div>
+                    );
+                  });
+                })()}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Agent Performance List Table */}
+      {/* Agent Performance Table */}
       <div className={card}>
-        <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
+        <div className={`flex items-center gap-2 border-b pb-3 mb-4 ${isDark ? "border-white/5" : "border-slate-100"}`}>
           <BarChart3 className="w-4 h-4 text-[#3D5EF6]" />
           <h3 className="text-sm font-bold">Placement Agent Performance Ledger</h3>
         </div>
 
         {performance.length === 0 ? (
           <div className="text-center py-10">
-            <p className={`text-xs ${mt}`}>No agent reports data available.</p>
+            <p className={`text-xs ${mt}`}>No agent reports data matching your filters.</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className={`border-b pb-3 ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}>
-                  <th className="py-3.5 px-2">Agent Name</th>
-                  <th className="py-3.5 px-2 text-center">Total Seafarers</th>
-                  <th className="py-3.5 px-2 text-center">Courses Booked</th>
-                  <th className="py-3.5 px-2 text-right">Attributed Sales</th>
-                  <th className="py-3.5 px-2 text-right">Settled Amount</th>
-                  <th className="py-3.5 px-2 text-right">Pending Balance</th>
-                  <th className="py-3.5 px-2 text-right">Agent Earnings</th>
+                <tr className={`border-b ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}>
+                  <th className="py-3 px-2">Agent Name</th>
+                  <th className="py-3 px-2">Region</th>
+                  <th className="py-3 px-2 text-center">Total Seafarers</th>
+                  <th className="py-3 px-2 text-center">Courses Booked</th>
+                  <th className="py-3 px-2 text-right">Attributed Sales</th>
+                  <th className="py-3 px-2 text-right">Settled Amount</th>
+                  <th className="py-3 px-2 text-right">Pending Balance</th>
+                  <th className="py-3 px-2 text-right">Agent Earnings</th>
                 </tr>
               </thead>
               <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
                 {performance.map((p: any, idx: number) => (
-                  <tr key={idx} className="hover:bg-white/[0.01] transition-all">
-                    {/* Agent Name */}
-                    <td className="py-4 px-2 font-bold flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#3D5EF6]" />
+                  <tr key={idx} className={`transition-all ${isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50"}`}>
+                    <td className="py-3.5 px-2 font-bold flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#3D5EF6] shrink-0" />
                       {p.agentName}
                     </td>
-
-                    {/* Total Seafarers */}
-                    <td className="py-4 px-2 text-center font-bold text-[#3D5EF6]">
-                      {p.seafarers ?? p.leads ?? 0}
-                    </td>
-
-                    {/* Courses Booked */}
-                    <td className="py-4 px-2 text-center font-bold text-teal-500">
-                      {p.courses ?? p.conversions ?? 0}
-                    </td>
-
-                    {/* Attributed Sales */}
-                    <td className="py-4 px-2 text-right font-bold">
-                      {p.totalSales}
-                    </td>
-
-                    {/* Settled Amount */}
-                    <td className="py-4 px-2 text-right font-bold text-emerald-500">
-                      {p.settledAmount || "₹0"}
-                    </td>
-
-                    {/* Pending Balance */}
-                    <td className="py-4 px-2 text-right font-bold text-amber-500">
-                      {p.pendingBalance || "₹0"}
-                    </td>
-
-                    {/* Earnings */}
-                    <td className="py-4 px-2 text-right font-bold text-emerald-600 dark:text-emerald-400">
-                      {p.earnings}
-                    </td>
+                    <td className={`py-3.5 px-2 font-medium ${mt}`}>{p.region || "—"}</td>
+                    <td className="py-3.5 px-2 text-center font-bold text-[#3D5EF6]">{p.seafarers ?? 0}</td>
+                    <td className="py-3.5 px-2 text-center font-bold text-[#10B981]">{p.courses ?? 0}</td>
+                    <td className={`py-3.5 px-2 text-right font-bold ${ht}`}>{p.totalSales}</td>
+                    <td className="py-3.5 px-2 text-right font-bold text-emerald-500">{p.settledAmount || "₹0"}</td>
+                    <td className="py-3.5 px-2 text-right font-bold text-amber-500">{p.pendingBalance || "₹0"}</td>
+                    <td className={`py-3.5 px-2 text-right font-bold ${isDark ? "text-emerald-400" : "text-emerald-600"}`}>{p.earnings}</td>
                   </tr>
                 ))}
               </tbody>

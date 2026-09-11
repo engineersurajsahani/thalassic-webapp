@@ -25,6 +25,14 @@ const PUBLIC_ROUTES = [
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // Immediately redirect any misspelled /seafearer routes to /seafarer
+  if (pathname.startsWith('/seafearer')) {
+    const correctedPath = pathname.replace(/^\/seafearer/, '/seafarer');
+    const url = new URL(correctedPath, request.url);
+    url.search = request.nextUrl.search;
+    return NextResponse.redirect(url);
+  }
+
   // Check if the route is protected
   const isProtectedRoute = PROTECTED_ROUTES.some(route =>
     pathname.startsWith(route)
@@ -104,6 +112,7 @@ export const config = {
     '/agent/:path*',
     '/company-admin/:path*',
     '/seafarer/:path*',
+    '/seafearer/:path*',
     '/login',
     '/register',
     '/reset-password',

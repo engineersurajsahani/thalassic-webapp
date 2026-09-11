@@ -62,7 +62,7 @@ export default function ProfilePage() {
           <div className="w-24 h-24 rounded-2xl bg-sky-500 flex items-center justify-center text-white text-3xl font-black uppercase shadow-lg">
             {profileData.name.split(" ").map((n: string) => n[0]).join("").substring(0, 2)}
           </div>
-          <span className={`text-[10px] font-bold uppercase px-3 py-1 rounded-full ${isDark ? "bg-sky-500/20 text-sky-400" : "bg-sky-50 text-sky-600"}`}>
+          <span className="text-[11px] font-bold uppercase text-sky-600 dark:text-sky-400">
             {user?.role?.replace("_", " ") || "COMPANY ADMIN"}
           </span>
         </div>

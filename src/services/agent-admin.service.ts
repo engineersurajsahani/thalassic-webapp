@@ -165,7 +165,7 @@ export const agentAdminService = {
     }
   },
 
-  async getReports() {
+  async getReports(month?: string) {
     const fallbackReports = {
       conversionSummary: {
         totalLeads: 142,
@@ -224,7 +224,9 @@ export const agentAdminService = {
     };
 
     try {
-      const response = await api.get("/agent-admin/reports");
+      const response = await api.get("/agent-admin/reports", {
+        params: month && month !== "all" ? { month } : {},
+      });
       if (
         response.data &&
         Array.isArray(response.data.agentPerformance) &&

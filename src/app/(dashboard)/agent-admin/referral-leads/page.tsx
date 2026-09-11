@@ -10,11 +10,7 @@ import {
 
 export default function ReferralsTracker() {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
 

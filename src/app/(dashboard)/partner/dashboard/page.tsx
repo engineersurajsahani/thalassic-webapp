@@ -22,7 +22,7 @@ import {
 
 export default function PartnerDashboard() {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
+  const mounted = true;
   useEffect(() => setMounted(true), []);
   const isDark = mounted ? theme === "dark" : true;
 

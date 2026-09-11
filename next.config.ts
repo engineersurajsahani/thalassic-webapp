@@ -54,17 +54,28 @@ const nextConfig: NextConfig = {
       {
         source: '/seafearer/:path*',
         destination: '/seafarer/:path*',
-        permanent: true,
+        permanent: false,
       },
     ];
   },
   // ISSUE-005: Content Security Policy headers (production only to prevent blocking Turbopack / React dev tools)
   async headers() {
-    if (process.env.NODE_ENV !== 'production') {
-      return [];
-    }
+    const isDev = process.env.NODE_ENV !== "production";
+    const scriptSrc = isDev
+      ? "'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com"
+      : "'self' 'unsafe-inline' https://fonts.googleapis.com";
 
-    const csp = "default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:4000 https://thalassic-api.onrender.com https://*.onrender.com https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self';";
+    const cspHeader = [
+      "default-src 'self'",
+      `script-src ${scriptSrc}`,
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com",
+      "font-src 'self' https://fonts.gstatic.com",
+      "img-src 'self' data: https: blob:",
+      "connect-src 'self' http://localhost:4000 https://thalassic-api.onrender.com https://*.onrender.com https://*.supabase.co",
+      "frame-ancestors 'none'",
+      "base-uri 'self'",
+      "form-action 'self'",
+    ].join("; ");
 
     return [
       {
@@ -72,7 +83,7 @@ const nextConfig: NextConfig = {
         headers: [
           {
             key: "Content-Security-Policy",
-            value: csp,
+            value: cspHeader,
           },
           // ISSUE-069: Additional security headers (also set in backend)
           {

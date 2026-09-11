@@ -13,10 +13,7 @@ import {
 
 export default function OnboardingPage() {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = true;
   const isDark = mounted ? theme === "dark" : true;
   const router = useRouter();
 
