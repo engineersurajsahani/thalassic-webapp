@@ -30,7 +30,6 @@ export interface MockCourse {
   rating: number;
   enrolledCount: number;
   associatedInstituteIds: string[]; // M:N relationship (PRD 1.10)
-  description?: string;
 }
 
 export interface MockPartnerCoursePricing {
@@ -132,23 +131,39 @@ export interface MockPaymentRecord {
   paymentMethod: string;
 }
 
+export interface MockSettlementPurchase {
+  invoiceNumber: string;
+  seafarerName: string;
+  courseTitle: string;
+  hariOmPayable: number;
+  pendingAmount: number;
+  date: string;
+}
+
+export interface MockSettlementInstallment {
+  label: string;
+  date: string;
+  amount: number;
+  bankUtr: string;
+  status: "PAID" | "PENDING";
+}
+
 export interface MockPartnerSettlement {
-  id: string;
+  id: string;                          // STL-XXXXXX
   partnerId: string;
   partnerName: string;
   totalPayable: number;
-  totalReceived: number;
+  totalReceived: number;               // amount settled
   pendingAmount: number;
-  settlementStatus: "Settled" | "Partially Settled" | "Pending";
+  settlementStatus: "Completed" | "Partially Settled" | "Pending" | "Under Verification";
   settlementDate: string;
-  settlementReference: string; // UTR or Bank Ref #
+  settlementReference: string;         // UTR or Bank Ref
+  paymentMethod: string;
+  remittanceMode: string;
   relatedPurchasesCount: number;
-  purchases: {
-    seafarerName: string;
-    courseTitle: string;
-    amount: number;
-    date: string;
-  }[];
+  installments: MockSettlementInstallment[];
+  purchases: MockSettlementPurchase[];
+  bankProofFile?: string;
 }
 
 export interface MockInstituteFinance {
@@ -877,69 +892,263 @@ export const MOCK_PAYMENTS: MockPaymentRecord[] = [
 
 export const MOCK_PARTNER_SETTLEMENTS: MockPartnerSettlement[] = [
   {
-    id: "SET-2026-001",
+    id: "STL-652496",
     partnerId: "PRT-001",
-    partnerName: "Ocean Maritime Recruitment",
-    totalPayable: 720000,
-    totalReceived: 610000,
-    pendingAmount: 110000,
-    settlementStatus: "Partially Settled",
-    settlementDate: "28 Aug 2026",
-    settlementReference: "UTR-HDFC-9918237190",
-    relatedPurchasesCount: 142,
-    purchases: [
-      { seafarerName: "Vikram Malhotra", courseTitle: "Advanced Fire Fighting (AFF)", amount: 6500, date: "04 Mar 2024" },
-      { seafarerName: "Vikram Malhotra", courseTitle: "STCW Basic Safety Training", amount: 4600, date: "01 Sep 2026" },
-      { seafarerName: "K. R. Varma", courseTitle: "Ship Navigation & Radar Simulation", amount: 6100, date: "15 Aug 2026" },
-      { seafarerName: "Arjun Nair", courseTitle: "STCW Basic Safety Training", amount: 4600, date: "20 Aug 2026" },
+    partnerName: "Kishan Manning Agency",
+    totalPayable: 10500,
+    totalReceived: 10500,
+    pendingAmount: 0,
+    settlementStatus: "Completed",
+    settlementDate: "10 Sept 2026",
+    settlementReference: "123456789",
+    paymentMethod: "Bank Transfer (NEFT/RTGS)",
+    remittanceMode: "Partial Remittance (100% Settled)",
+    relatedPurchasesCount: 1,
+    installments: [
+      { label: "1st Installment", date: "10 Sept 2026", amount: 5004, bankUtr: "12345678",  status: "PAID" },
+      { label: "2nd Installment", date: "10 Sept 2026", amount: 5496, bankUtr: "123456789", status: "PAID" },
     ],
+    purchases: [
+      {
+        invoiceNumber: "HAC-2026-8F4B79",
+        seafarerName: "Amitabh Sharma",
+        courseTitle: "Refresher PST",
+        hariOmPayable: 10500,
+        pendingAmount: 0,
+        date: "10 Sept 2026",
+      },
+    ],
+    bankProofFile: "Bank_Statement_12345678.pdf",
   },
   {
-    id: "SET-2026-002",
+    id: "STL-517384",
+    partnerId: "PRT-001",
+    partnerName: "Kishan Manning Agency",
+    totalPayable: 10500,
+    totalReceived: 10500,
+    pendingAmount: 0,
+    settlementStatus: "Completed",
+    settlementDate: "10 Sept 2026",
+    settlementReference: "12345678",
+    paymentMethod: "Bank Transfer (NEFT/RTGS)",
+    remittanceMode: "Full Remittance (100% Settled)",
+    relatedPurchasesCount: 1,
+    installments: [
+      { label: "1st Installment", date: "10 Sept 2026", amount: 10500, bankUtr: "12345678", status: "PAID" },
+    ],
+    purchases: [
+      {
+        invoiceNumber: "HAC-2026-3A9C12",
+        seafarerName: "Rakesh Verma",
+        courseTitle: "STCW Basic Safety Training",
+        hariOmPayable: 10500,
+        pendingAmount: 0,
+        date: "10 Sept 2026",
+      },
+    ],
+    bankProofFile: "Bank_Statement_12345678.pdf",
+  },
+  {
+    id: "STL-928543",
+    partnerId: "PRT-001",
+    partnerName: "Kishan Manning Agency",
+    totalPayable: 10500,
+    totalReceived: 10500,
+    pendingAmount: 0,
+    settlementStatus: "Completed",
+    settlementDate: "10 Sept 2026",
+    settlementReference: "123456789",
+    paymentMethod: "Bank Transfer (NEFT/RTGS)",
+    remittanceMode: "Full Remittance (100% Settled)",
+    relatedPurchasesCount: 1,
+    installments: [
+      { label: "1st Installment", date: "10 Sept 2026", amount: 10500, bankUtr: "123456789", status: "PAID" },
+    ],
+    purchases: [
+      {
+        invoiceNumber: "HAC-2026-7D2E45",
+        seafarerName: "Sunil Pawar",
+        courseTitle: "Advanced Fire Fighting (AFF)",
+        hariOmPayable: 10500,
+        pendingAmount: 0,
+        date: "10 Sept 2026",
+      },
+    ],
+    bankProofFile: "Bank_Statement_123456789.pdf",
+  },
+  {
+    id: "STL-829741",
+    partnerId: "PRT-001",
+    partnerName: "Kishan Manning Agency",
+    totalPayable: 31500,
+    totalReceived: 31500,
+    pendingAmount: 0,
+    settlementStatus: "Completed",
+    settlementDate: "10 Sept 2026",
+    settlementReference: "987654321",
+    paymentMethod: "Bank Transfer (NEFT/RTGS)",
+    remittanceMode: "Partial Remittance (100% Settled)",
+    relatedPurchasesCount: 3,
+    installments: [
+      { label: "1st Installment", date: "10 Sept 2026", amount: 15750, bankUtr: "987654321", status: "PAID" },
+      { label: "2nd Installment", date: "10 Sept 2026", amount: 15750, bankUtr: "987654322", status: "PAID" },
+    ],
+    purchases: [
+      {
+        invoiceNumber: "HAC-2026-1B3F89",
+        seafarerName: "Pradeep Nair",
+        courseTitle: "Medical First Aid at Sea (MFA)",
+        hariOmPayable: 10500,
+        pendingAmount: 0,
+        date: "10 Sept 2026",
+      },
+      {
+        invoiceNumber: "HAC-2026-2C4G90",
+        seafarerName: "Manoj Kumar",
+        courseTitle: "Ship Security Awareness",
+        hariOmPayable: 10500,
+        pendingAmount: 0,
+        date: "10 Sept 2026",
+      },
+      {
+        invoiceNumber: "HAC-2026-5E7H23",
+        seafarerName: "Deepak Singh",
+        courseTitle: "Proficiency in Survival Craft",
+        hariOmPayable: 10500,
+        pendingAmount: 0,
+        date: "10 Sept 2026",
+      },
+    ],
+    bankProofFile: "Bank_Statement_987654321.pdf",
+  },
+  {
+    id: "STL-341892",
     partnerId: "PRT-002",
     partnerName: "SeaStar Global Manning",
-    totalPayable: 450000,
-    totalReceived: 390000,
-    pendingAmount: 60000,
+    totalPayable: 45000,
+    totalReceived: 22500,
+    pendingAmount: 22500,
     settlementStatus: "Partially Settled",
-    settlementDate: "15 Aug 2026",
+    settlementDate: "08 Sept 2026",
     settlementReference: "UTR-ICIC-4820194812",
-    relatedPurchasesCount: 89,
-    purchases: [
-      { seafarerName: "Suresh Pillai", courseTitle: "Engine Room Resource Management & Simulator", amount: 7400, date: "18 Jan 2024" },
-      { seafarerName: "R. Mukherjee", courseTitle: "STCW Basic Safety Training", amount: 4700, date: "10 Aug 2026" },
+    paymentMethod: "Bank Transfer (NEFT/RTGS)",
+    remittanceMode: "Partial Remittance (50% Settled)",
+    relatedPurchasesCount: 4,
+    installments: [
+      { label: "1st Installment", date: "08 Sept 2026", amount: 22500, bankUtr: "ICIC4820194812", status: "PAID" },
+      { label: "2nd Installment", date: "25 Sept 2026", amount: 22500, bankUtr: "—",              status: "PENDING" },
     ],
+    purchases: [
+      {
+        invoiceNumber: "HAC-2026-9A1B34",
+        seafarerName: "Suresh Pillai",
+        courseTitle: "Engine Room Resource Management",
+        hariOmPayable: 12000,
+        pendingAmount: 6000,
+        date: "05 Sept 2026",
+      },
+      {
+        invoiceNumber: "HAC-2026-4D8C56",
+        seafarerName: "R. Mukherjee",
+        courseTitle: "STCW Basic Safety Training",
+        hariOmPayable: 10500,
+        pendingAmount: 5250,
+        date: "06 Sept 2026",
+      },
+      {
+        invoiceNumber: "HAC-2026-6F2D78",
+        seafarerName: "Arun Yadav",
+        courseTitle: "Ship Navigation & Radar",
+        hariOmPayable: 11250,
+        pendingAmount: 5625,
+        date: "07 Sept 2026",
+      },
+      {
+        invoiceNumber: "HAC-2026-8H5E90",
+        seafarerName: "Vikram Tiwari",
+        courseTitle: "Advanced Fire Fighting (AFF)",
+        hariOmPayable: 11250,
+        pendingAmount: 5625,
+        date: "07 Sept 2026",
+      },
+    ],
+    bankProofFile: "Bank_Statement_ICIC4820194812.pdf",
   },
   {
-    id: "SET-2026-003",
+    id: "STL-103657",
     partnerId: "PRT-003",
     partnerName: "Pacific Nautical Agency",
-    totalPayable: 510000,
-    totalReceived: 510000,
-    pendingAmount: 0,
-    settlementStatus: "Settled",
-    settlementDate: "02 Sep 2026",
+    totalPayable: 21000,
+    totalReceived: 0,
+    pendingAmount: 21000,
+    settlementStatus: "Under Verification",
+    settlementDate: "09 Sept 2026",
     settlementReference: "UTR-SBI-1092837482",
-    relatedPurchasesCount: 97,
-    purchases: [
-      { seafarerName: "G. Venkatesh", courseTitle: "Medical First Aid at Sea (MFA)", amount: 4100, date: "25 Aug 2026" },
-      { seafarerName: "M. Balaji", courseTitle: "Advanced Fire Fighting (AFF)", amount: 6600, date: "28 Aug 2026" },
+    paymentMethod: "Bank Transfer (NEFT/RTGS)",
+    remittanceMode: "Full Remittance (Pending Verification)",
+    relatedPurchasesCount: 2,
+    installments: [
+      { label: "1st Installment", date: "09 Sept 2026", amount: 21000, bankUtr: "SBI1092837482", status: "PENDING" },
     ],
+    purchases: [
+      {
+        invoiceNumber: "HAC-2026-2G3K10",
+        seafarerName: "G. Venkatesh",
+        courseTitle: "Medical First Aid at Sea (MFA)",
+        hariOmPayable: 10500,
+        pendingAmount: 10500,
+        date: "09 Sept 2026",
+      },
+      {
+        invoiceNumber: "HAC-2026-7H4L22",
+        seafarerName: "M. Balaji",
+        courseTitle: "Advanced Fire Fighting (AFF)",
+        hariOmPayable: 10500,
+        pendingAmount: 10500,
+        date: "09 Sept 2026",
+      },
+    ],
+    bankProofFile: "Bank_Statement_SBI1092837482.pdf",
   },
   {
-    id: "SET-2026-004",
+    id: "STL-784230",
     partnerId: "PRT-004",
     partnerName: "Nautical Horizon Agencies",
-    totalPayable: 130000,
-    totalReceived: 95000,
-    pendingAmount: 35000,
+    totalPayable: 31500,
+    totalReceived: 0,
+    pendingAmount: 31500,
     settlementStatus: "Pending",
-    settlementDate: "10 Jul 2026",
-    settlementReference: "UTR-AXIS-8291093481",
-    relatedPurchasesCount: 25,
+    settlementDate: "—",
+    settlementReference: "—",
+    paymentMethod: "—",
+    remittanceMode: "Awaiting Payment",
+    relatedPurchasesCount: 3,
+    installments: [],
     purchases: [
-      { seafarerName: "Naveen Fernandes", courseTitle: "Medical First Aid at Sea (MFA)", amount: 4100, date: "15 Oct 2023" },
-      { seafarerName: "Peter D'Souza", courseTitle: "STCW Basic Safety Training", amount: 4800, date: "02 Jul 2026" },
+      {
+        invoiceNumber: "HAC-2026-3I5M34",
+        seafarerName: "Naveen Fernandes",
+        courseTitle: "Medical First Aid at Sea (MFA)",
+        hariOmPayable: 10500,
+        pendingAmount: 10500,
+        date: "01 Sept 2026",
+      },
+      {
+        invoiceNumber: "HAC-2026-5J6N46",
+        seafarerName: "Peter D'Souza",
+        courseTitle: "STCW Basic Safety Training",
+        hariOmPayable: 10500,
+        pendingAmount: 10500,
+        date: "03 Sept 2026",
+      },
+      {
+        invoiceNumber: "HAC-2026-8K7O58",
+        seafarerName: "Rajan Mathew",
+        courseTitle: "Ship Security Awareness",
+        hariOmPayable: 10500,
+        pendingAmount: 10500,
+        date: "05 Sept 2026",
+      },
     ],
   },
 ];
