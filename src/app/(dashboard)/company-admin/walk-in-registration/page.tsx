@@ -33,9 +33,9 @@ const AVATAR_COLORS = ["bg-indigo-500","bg-sky-500","bg-emerald-500","bg-amber-5
 function initials(name: string) { return name.split(" ").map(n => n[0]).join("").slice(0, 2); }
 
 const statusMeta: Record<string, { cls: [string,string]; icon: React.ReactNode }> = {
-  Active:  { cls: ["bg-emerald-100 text-emerald-700","bg-emerald-500/15 text-emerald-400"], icon: <CheckCircle2 className="w-3 h-3" /> },
-  Pending: { cls: ["bg-amber-100 text-amber-700",   "bg-amber-500/15 text-amber-400"],     icon: <Clock className="w-3 h-3" />        },
-  Dropped: { cls: ["bg-red-100 text-red-700",        "bg-red-500/15 text-red-400"],          icon: <AlertCircle className="w-3 h-3" />  },
+  Active:  { cls: ["text-emerald-700","text-emerald-400"], icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+  Pending: { cls: ["text-amber-700",   "text-amber-400"],     icon: <Clock className="w-3.5 h-3.5" />        },
+  Dropped: { cls: ["text-red-700",        "text-red-400"],          icon: <AlertCircle className="w-3.5 h-3.5" />  },
 };
 
 // ─── Form State ───────────────────────────────────────────────────────────────
@@ -130,7 +130,7 @@ export default function WalkInRegistrationPage() {
       {/* Page header */}
       <div>
         <h1 className={`text-xl font-bold ${ht}`}>Walk-in Registration Log</h1>
-        <p className={`text-sm mt-0.5 ${mt}`}>Quickly add seafarers who visit in person</p>
+        <p className={`text-sm mt-0.5 ${mt}`}>Quickly add walk-in seafarers</p>
       </div>
 
       {/* Stats strip */}
@@ -346,7 +346,7 @@ export default function WalkInRegistrationPage() {
                       </td>
                       <td className={`px-5 py-3.5 text-[12px] ${dk ? "text-white/55" : "text-slate-500"}`}>{r.rank}</td>
                       <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full ${dk ? meta.cls[1] : meta.cls[0]}`}>
+                        <span className={`inline-flex items-center gap-1 text-[11px] font-semibold ${dk ? meta.cls[1] : meta.cls[0]}`}>
                           {meta.icon}{r.status}
                         </span>
                       </td>

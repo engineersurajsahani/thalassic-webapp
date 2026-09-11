@@ -19,10 +19,7 @@ const AuthInput = forwardRef<HTMLInputElement, AuthInputProps>(({
   ...props
 }, ref) => {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
   const inputId = id || `auth-input-${label.toLowerCase().replace(/\s+/g, "-")}`;

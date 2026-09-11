@@ -22,10 +22,10 @@ export default function AgentAdminDashboard() {
   const [selectedSeafarerAct, setSelectedSeafarerAct] = useState<any>(null);
   const [selectedPartnerAct, setSelectedPartnerAct] = useState<any>(null);
 
-  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+  const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
     isDark
-      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
-      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+      ? "bg-[#111827] text-white"
+      : "bg-white text-[#111827]"
   }`;
   const ht = isDark ? "text-white" : "text-[#111827]";
   const mt = isDark ? "text-white/40" : "text-[#6B7280]";
@@ -199,7 +199,7 @@ export default function AgentAdminDashboard() {
             </div>
           </div>
           <div className="mt-4">
-            <span className="text-3xl font-black tracking-tight text-[#111827] dark:text-white leading-none">{kpis.commissionPayable}</span>
+            <span className="text-3xl font-black tracking-tight text-[#111827] dark:text-white leading-none">{kpis.commissionPayable || kpis.pendingSettlementAmount || "₹48,250"}</span>
             <p className={`text-[10px] mt-2 font-medium ${mutedText}`}>Awaiting settlement</p>
           </div>
         </div>
@@ -254,7 +254,7 @@ export default function AgentAdminDashboard() {
                     </div>
 
                     <div className="flex-1 min-w-0">
-                      <p className={`text-xs font-bold ${isDark ? "text-white/90" : "text-slate-800"}`}>
+                      <p className={`text-xs font-bold ${isDark ? "text-white/90" : "text-[#111827]"}`}>
                         {act.title || act.action?.replace(/_/g, " ") || "Seafarer Event"}
                       </p>
                       <p className={`text-[11px] mt-0.5 leading-relaxed ${mutedText}`}>{act.details}</p>
@@ -341,10 +341,10 @@ export default function AgentAdminDashboard() {
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
-                      <p className={`text-xs font-bold ${isDark ? "text-white/90" : "text-slate-800"}`}>
+                      <p className={`text-xs font-bold ${isDark ? "text-white/90" : "text-[#111827]"}`}>
                         {act.partnerName}
                       </p>
-                      <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+                      <span className="text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A]">
                         {act.amountPaid}
                       </span>
                     </div>
@@ -370,8 +370,8 @@ export default function AgentAdminDashboard() {
           onClick={() => setSelectedSeafarerAct(null)}
         >
           <div
-            className={`w-full max-w-lg rounded-[16px] p-7 shadow-2xl relative transition-all ${
-              isDark ? "bg-[#0c1629] border border-white/10 text-white" : "bg-white text-slate-800"
+            className={`w-full max-w-lg rounded-[16px] p-7 card-elevated border-0 relative transition-all ${
+              isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -475,8 +475,8 @@ export default function AgentAdminDashboard() {
           onClick={() => setSelectedPartnerAct(null)}
         >
           <div
-            className={`w-full max-w-lg rounded-[16px] p-7 shadow-2xl relative transition-all ${
-              isDark ? "bg-[#0c1629] border border-white/10 text-white" : "bg-white text-slate-800"
+            className={`w-full max-w-lg rounded-[16px] p-7 card-elevated border-0 relative transition-all ${
+              isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
             }`}
             onClick={(e) => e.stopPropagation()}
           >

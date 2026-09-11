@@ -138,51 +138,53 @@ export default function CreatePurchasePage() {
     }
   };
 
-  const cardBg = isDark
-    ? "bg-[#09162c]/80 border-white/5 shadow-xl"
-    : "bg-white border-slate-200/80 shadow-md";
+  const cardBg = `rounded-[16px] border-0 ${
+    isDark
+      ? "bg-[#0B0F19] shadow-[0_4px_20px_rgba(0,0,0,0.3)] text-white"
+      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] text-[#111827]"
+  }`;
 
   if (completedPurchase) {
     return (
       <div className="max-w-2xl mx-auto py-10 animate-fadeIn">
-        <div className={`p-8 rounded-3xl border text-center ${cardBg}`}>
-          <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center mx-auto mb-4 border border-emerald-500/20">
+        <div className={`p-8 rounded-[16px] border-0 text-center ${cardBg}`}>
+          <div className="w-16 h-16 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400 flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 className="w-8 h-8" />
           </div>
-          <h2 className="text-2xl font-extrabold text-white">Purchase Completed</h2>
-          <p className={`text-xs mt-1.5 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-            Physical course purchase confirmed and physical training enrollment automatically created.
+          <h2 className="text-2xl font-extrabold text-[#111827] dark:text-white">Purchase Completed</h2>
+          <p className={`text-xs mt-1.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
+            Course purchase confirmed and training enrollment automatically created.
           </p>
 
-          <div className={`my-6 p-5 rounded-2xl border text-left space-y-2.5 text-xs ${isDark ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
+          <div className={`my-6 p-5 rounded-[16px] border-0 text-left space-y-2.5 text-xs ${isDark ? "bg-[#111827]" : "bg-[#FAFAFA]"}`}>
             <div className="flex justify-between">
-              <span className="text-slate-400">Purchase ID:</span>
-              <span className="font-mono font-bold text-cyan-400">{completedPurchase.id}</span>
+              <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Purchase ID:</span>
+              <span className="font-mono font-bold text-[#111827] dark:text-white">{completedPurchase.id}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Seafarer Master:</span>
-              <span className="font-bold text-white">{completedPurchase.seafarerName}</span>
+              <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Seafarer Master:</span>
+              <span className="font-bold text-[#111827] dark:text-white">{completedPurchase.seafarerName}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-slate-400">Physical Course:</span>
-              <span className="font-semibold text-slate-200">{completedPurchase.courseName}</span>
+              <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Course:</span>
+              <span className="font-semibold text-[#111827] dark:text-white">{completedPurchase.courseName}</span>
             </div>
-            <div className="flex justify-between items-center pt-2 border-t border-white/5">
-              <span className="text-slate-400 font-semibold">Hari Om Payable Amount:</span>
-              <span className="font-extrabold text-base text-cyan-300">
+            <div className={`flex justify-between items-center pt-2 border-t ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
+              <span className={`font-semibold ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Hari Om Payable Amount:</span>
+              <span className="font-extrabold text-base text-[#111827] dark:text-white">
                 ₹{Number(completedPurchase.payableAmount).toLocaleString("en-IN")}
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-400">Settlement Status:</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Settlement Status:</span>
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309] dark:bg-amber-500/15 dark:text-amber-400">
                 Pending Settlement
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="text-slate-400">Enrollment Status:</span>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                Physical Training Enrolled
+              <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Enrollment Status:</span>
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
+                Course Enrolled
               </span>
             </div>
           </div>
@@ -190,21 +192,23 @@ export default function CreatePurchasePage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link
               href={`/partner/purchases/${completedPurchase.id}`}
-              className="w-full sm:w-auto px-6 py-3 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-all shadow-lg shadow-cyan-500/20"
+              className="w-full sm:w-auto px-6 py-3 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shadow-sm"
             >
               View Purchase Details
             </Link>
             <Link
               href="/partner/settlements/create"
-              className="w-full sm:w-auto px-5 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white shadow-lg shadow-emerald-500/20 transition-all flex items-center justify-center gap-1.5"
+              className={`w-full sm:w-auto px-5 py-3 rounded-full text-xs font-semibold transition-colors duration-200 flex items-center justify-center gap-1.5 ${
+                isDark ? "bg-[#1F2937] hover:bg-[#374151] text-gray-200" : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
+              }`}
             >
               <CreditCard className="w-3.5 h-3.5" />
               Submit Settlement Now
             </Link>
             <Link
               href="/partner/purchases"
-              className={`w-full sm:w-auto px-4 py-3 rounded-xl text-xs font-semibold border transition-all ${
-                isDark ? "bg-white/5 hover:bg-white/10 border-white/10 text-slate-300" : "bg-slate-100 hover:bg-slate-200 text-slate-700"
+              className={`w-full sm:w-auto px-5 py-3 rounded-full text-xs font-semibold transition-colors duration-200 ${
+                isDark ? "bg-[#111827] hover:bg-white/10 text-gray-300" : "bg-[#F3F4F6] hover:bg-[#EEF1FE] text-[#6B7280] hover:text-[#3D5EF6]"
               }`}
             >
               Purchase Ledger
@@ -216,29 +220,22 @@ export default function CreatePurchasePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-fadeIn pb-12">
+    <div className="max-w-4xl space-y-8 animate-fadeIn pb-12">
       {/* Header */}
       <div>
         <Link
           href="/partner/purchases"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-400 hover:text-cyan-400 transition-colors mb-2"
+          className={`inline-flex items-center gap-1.5 text-xs font-semibold transition-colors duration-200 mb-2 ${
+            isDark ? "text-gray-400 hover:text-white" : "text-[#6B7280] hover:text-[#3D5EF6]"
+          }`}
         >
           <ArrowLeft className="w-3.5 h-3.5" /> Back to Purchases
         </Link>
-        <div className="flex items-center gap-2">
-          <span
-            className={`text-[10px] font-bold uppercase tracking-widest px-3 py-0.5 rounded-full ${
-              isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-blue-600 border border-blue-200"
-            }`}
-          >
-            Physical Course Purchase Wizard
-          </span>
-        </div>
-        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-1.5">
+        <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-1.5 text-[#111827] dark:text-white">
           New Course Purchase
         </h1>
-        <p className={`text-xs md:text-sm mt-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-          Purchase a physical training course for a seafarer. The Hari Om payable amount is automatically calculated and non-editable.
+        <p className={`text-xs md:text-sm mt-1 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
+          Purchase a training course for a seafarer. The Hari Om payable amount is automatically calculated and non-editable.
         </p>
       </div>
 
@@ -247,12 +244,14 @@ export default function CreatePurchasePage() {
         <button
           type="button"
           onClick={() => setCurrentStep(1)}
-          className={`p-3 rounded-2xl border text-left transition-all ${
+          className={`p-3 rounded-[16px] border-0 text-left transition-colors duration-200 ${
             currentStep === 1
-              ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
+              ? "bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 dark:text-[#3D5EF6]"
               : selectedSeafarer
-              ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
-              : "bg-white/[0.02] border-white/5 text-slate-500"
+              ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
+              : isDark
+              ? "bg-[#111827] text-gray-500"
+              : "bg-[#F3F4F6] text-[#9CA3AF]"
           }`}
         >
           <p className="text-[10px] font-bold uppercase tracking-wider">Step 1</p>
@@ -265,12 +264,14 @@ export default function CreatePurchasePage() {
           type="button"
           disabled={!selectedSeafarer}
           onClick={() => selectedSeafarer && setCurrentStep(2)}
-          className={`p-3 rounded-2xl border text-left transition-all disabled:opacity-40 ${
+          className={`p-3 rounded-[16px] border-0 text-left transition-colors duration-200 disabled:opacity-40 ${
             currentStep === 2
-              ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
+              ? "bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 dark:text-[#3D5EF6]"
               : selectedCourse
-              ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-400"
-              : "bg-white/[0.02] border-white/5 text-slate-500"
+              ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
+              : isDark
+              ? "bg-[#111827] text-gray-500"
+              : "bg-[#F3F4F6] text-[#9CA3AF]"
           }`}
         >
           <p className="text-[10px] font-bold uppercase tracking-wider">Step 2</p>
@@ -283,10 +284,12 @@ export default function CreatePurchasePage() {
           type="button"
           disabled={!selectedSeafarer || !selectedCourse}
           onClick={() => selectedSeafarer && selectedCourse && setCurrentStep(3)}
-          className={`p-3 rounded-2xl border text-left transition-all disabled:opacity-40 ${
+          className={`p-3 rounded-[16px] border-0 text-left transition-colors duration-200 disabled:opacity-40 ${
             currentStep === 3
-              ? "bg-cyan-500/10 border-cyan-500/30 text-cyan-400"
-              : "bg-white/[0.02] border-white/5 text-slate-500"
+              ? "bg-[#EEF1FE] text-[#3D5EF6] dark:bg-[#3D5EF6]/15 dark:text-[#3D5EF6]"
+              : isDark
+              ? "bg-[#111827] text-gray-500"
+              : "bg-[#F3F4F6] text-[#9CA3AF]"
           }`}
         >
           <p className="text-[10px] font-bold uppercase tracking-wider">Step 3</p>
@@ -295,7 +298,7 @@ export default function CreatePurchasePage() {
       </div>
 
       {error && (
-        <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center gap-3 text-xs">
+        <div className="p-4 rounded-[16px] bg-[#FEE2E2] border-0 text-[#DC2626] dark:bg-red-500/15 dark:text-red-400 flex items-center gap-3 text-xs">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <span>{error}</span>
         </div>
@@ -303,17 +306,17 @@ export default function CreatePurchasePage() {
 
       {/* STEP 1: Select or Search Seafarer */}
       {currentStep === 1 && (
-        <div className={`p-6 md:p-8 rounded-3xl border space-y-6 ${cardBg}`}>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b border-white/5">
+        <div className={`p-6 md:p-8 rounded-[16px] border-0 space-y-6 ${cardBg}`}>
+          <div className={`flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-4 border-b ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <div>
-              <h2 className="text-sm font-bold text-white">Step 1: Identify Seafarer Master</h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <h2 className="text-sm font-bold text-[#111827] dark:text-white">Step 1: Identify Seafarer Master</h2>
+              <p className={`text-xs mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                 Search candidate identity or select from the directory
               </p>
             </div>
             <Link
               href="/partner/seafarers/create"
-              className="text-xs font-bold text-cyan-400 hover:text-cyan-300 flex items-center gap-1"
+              className="text-xs font-bold text-[#3D5EF6] hover:text-[#2E4FE0] transition-colors duration-200 flex items-center gap-1"
             >
               + Create New Seafarer Master
             </Link>
@@ -322,21 +325,21 @@ export default function CreatePurchasePage() {
           {/* Search box */}
           <form onSubmit={handleSearchSeafarer} className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${isDark ? "text-gray-500" : "text-[#9CA3AF]"}`} />
               <input
                 type="text"
                 value={seafarerQuery}
                 onChange={(e) => setQueryAndSearch(e.target.value)}
                 placeholder="Search by INDoS, Passport, CDC, Email, or Name..."
-                className={`w-full pl-10 pr-4 py-2.5 rounded-xl text-xs font-medium outline-none transition-all ${
-                  isDark ? "bg-white/5 border border-white/10 text-white focus:border-cyan-500/50" : "bg-slate-50 border border-slate-200 text-slate-900 focus:border-blue-500"
+                className={`w-full pl-10 pr-4 py-2.5 rounded-full text-xs font-medium outline-none transition-colors duration-200 ${
+                  isDark ? "bg-[#111827] border-0 text-white focus:ring-1 focus:ring-[#3D5EF6]" : "bg-[#FAFAFA] border-0 text-[#111827] placeholder:text-[#9CA3AF] focus:ring-1 focus:ring-[#3D5EF6]"
                 }`}
               />
             </div>
             <button
               type="submit"
               disabled={seafarerLoading}
-              className="px-4 py-2.5 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 transition-all shrink-0"
+              className="px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white transition-colors duration-200 shrink-0"
             >
               {seafarerLoading ? "Searching..." : "Search"}
             </button>
@@ -345,9 +348,9 @@ export default function CreatePurchasePage() {
           {/* List of matching Seafarers */}
           <div className="space-y-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar">
             {seafarerResults.length === 0 ? (
-              <div className="p-8 text-center border border-dashed rounded-2xl border-white/10 text-slate-400 text-xs">
+              <div className={`p-8 text-center border-0 rounded-[16px] text-xs ${isDark ? "bg-[#111827] text-gray-400" : "bg-[#FAFAFA] text-[#6B7280]"}`}>
                 No matching Seafarer Master records. Try another query or{" "}
-                <Link href="/partner/seafarers/create" className="text-cyan-400 font-bold hover:underline">
+                <Link href="/partner/seafarers/create" className="text-[#3D5EF6] font-bold hover:underline">
                   create a new Seafarer Master
                 </Link>
                 .
@@ -362,26 +365,26 @@ export default function CreatePurchasePage() {
                       setSelectedSeafarer(s);
                       setCurrentStep(2);
                     }}
-                    className={`p-4 rounded-2xl border cursor-pointer transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
+                    className={`p-4 rounded-[16px] border-0 cursor-pointer transition-all duration-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                       isSelected
-                        ? "bg-cyan-500/15 border-cyan-500/40 shadow-md shadow-cyan-500/10"
+                        ? "bg-[#EEF1FE] dark:bg-[#3D5EF6]/15"
                         : isDark
-                        ? "bg-white/[0.02] border-white/5 hover:bg-white/5"
-                        : "bg-slate-50 border-slate-200 hover:bg-slate-100"
+                        ? "bg-[#111827] hover:bg-white/5"
+                        : "bg-[#FAFAFA] hover:bg-[#EEF1FE]/40"
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-black text-xs uppercase shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-[#3D5EF6] text-white flex items-center justify-center font-black text-xs uppercase shrink-0">
                         {s.name ? s.name[0] : "S"}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <p className="font-bold text-white text-xs">{s.name}</p>
-                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-cyan-500/10 text-cyan-400">
+                          <p className="font-bold text-[#111827] dark:text-white text-xs">{s.name}</p>
+                          <span className={`text-[10px] font-mono px-2 py-0.5 rounded-full ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
                             INDoS: {s.indosNum || "N/A"}
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-400 mt-0.5">
+                        <p className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                           {s.email} • {s.phone} • Passport: {s.passportNum || "N/A"}
                         </p>
                       </div>
@@ -389,10 +392,12 @@ export default function CreatePurchasePage() {
 
                     <button
                       type="button"
-                      className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                      className={`px-4 py-1.5 rounded-full text-xs font-bold transition-colors duration-200 shrink-0 ${
                         isSelected
-                          ? "bg-cyan-500 text-slate-950"
-                          : "bg-white/10 hover:bg-white/15 text-white"
+                          ? "bg-[#3D5EF6] text-white"
+                          : isDark
+                          ? "bg-[#1F2937] hover:bg-[#374151] text-gray-200"
+                          : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
                       }`}
                     >
                       {isSelected ? "Selected ✓" : "Select Candidate"}
@@ -405,20 +410,20 @@ export default function CreatePurchasePage() {
         </div>
       )}
 
-      {/* STEP 2: Select Physical Course */}
+      {/* STEP 2: Select Course */}
       {currentStep === 2 && (
-        <div className={`p-6 md:p-8 rounded-3xl border space-y-6 ${cardBg}`}>
-          <div className="flex justify-between items-center pb-4 border-b border-white/5">
+        <div className={`p-6 md:p-8 rounded-[16px] border-0 space-y-6 ${cardBg}`}>
+          <div className={`flex justify-between items-center pb-4 border-b ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <div>
-              <h2 className="text-sm font-bold text-white">Step 2: Select Physical Course</h2>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Enrolling candidate: <span className="font-bold text-cyan-400">{selectedSeafarer?.name}</span>
+              <h2 className="text-sm font-bold text-[#111827] dark:text-white">Step 2: Select Course</h2>
+              <p className={`text-xs mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
+                Enrolling candidate: <span className="font-bold text-[#3D5EF6]">{selectedSeafarer?.name}</span>
               </p>
             </div>
             <button
               type="button"
               onClick={() => setCurrentStep(1)}
-              className="text-xs font-semibold text-slate-400 hover:text-white"
+              className={`text-xs font-semibold transition-colors duration-200 ${isDark ? "text-gray-400 hover:text-white" : "text-[#6B7280] hover:text-[#3D5EF6]"}`}
             >
               Change Candidate
             </button>
@@ -431,37 +436,34 @@ export default function CreatePurchasePage() {
                 <div
                   key={course.id}
                   onClick={() => handleSelectCourse(course)}
-                  className={`p-5 rounded-2xl border cursor-pointer transition-all flex flex-col justify-between ${
+                  className={`p-5 rounded-[16px] border-0 cursor-pointer transition-all duration-200 flex flex-col justify-between ${
                     isSelected
-                      ? "bg-cyan-500/15 border-cyan-500/40 shadow-lg shadow-cyan-500/15"
+                      ? "bg-[#EEF1FE] dark:bg-[#3D5EF6]/15"
                       : isDark
-                      ? "bg-white/[0.02] border-white/5 hover:bg-white/5 hover:border-white/10"
-                      : "bg-slate-50 border-slate-200 hover:bg-slate-100"
+                      ? "bg-[#111827] hover:bg-white/5"
+                      : "bg-[#FAFAFA] hover:bg-[#EEF1FE]/40"
                   }`}
                 >
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                      <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
                         {course.code}
                       </span>
-                      <span className="text-[10px] font-semibold text-slate-400">
-                        ⏱ {course.duration}
-                      </span>
                     </div>
-                    <h3 className="font-extrabold text-white text-sm mt-2">{course.name}</h3>
-                    <p className="text-[11px] text-slate-400 mt-1 line-clamp-2">
+                    <h3 className="font-extrabold text-[#111827] dark:text-white text-sm mt-2">{course.name}</h3>
+                    <p className={`text-[11px] mt-1 line-clamp-2 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                       {course.description}
                     </p>
                   </div>
 
-                  <div className="mt-4 pt-3 border-t border-white/5 flex items-center justify-between">
+                  <div className={`mt-4 pt-3 border-t flex items-center justify-between ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
                     <div>
-                      <p className="text-[10px] text-slate-400 uppercase font-semibold">Configured Hari Om Payable</p>
-                      <p className="text-sm font-extrabold text-cyan-300">
+                      <p className={`text-[10px] uppercase font-semibold ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Configured Hari Om Payable</p>
+                      <p className="text-sm font-extrabold text-[#111827] dark:text-white">
                         ₹{Number(course.payableAmount).toLocaleString("en-IN")}
                       </p>
                     </div>
-                    <span className="text-xs font-bold text-cyan-400 flex items-center gap-1">
+                    <span className="text-xs font-bold text-[#3D5EF6] flex items-center gap-1">
                       Select <ArrowRight className="w-3.5 h-3.5" />
                     </span>
                   </div>
@@ -474,106 +476,98 @@ export default function CreatePurchasePage() {
 
       {/* STEP 3: Pricing Verification & Confirmation */}
       {currentStep === 3 && pricing && (
-        <div className={`p-6 md:p-8 rounded-3xl border space-y-6 ${cardBg}`}>
-          <div className="flex justify-between items-center pb-4 border-b border-white/5">
+        <div className={`p-6 md:p-8 rounded-[16px] border-0 space-y-6 ${cardBg}`}>
+          <div className={`flex justify-between items-center pb-4 border-b ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <div>
-              <h2 className="text-sm font-bold text-white">Step 3: Review & Confirm Purchase</h2>
-              <p className="text-xs text-slate-400 mt-0.5">
+              <h2 className="text-sm font-bold text-[#111827] dark:text-white">Step 3: Review & Confirm Purchase</h2>
+              <p className={`text-xs mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                 Verify Seafarer details, course selection, and configured Hari Om payable amount.
               </p>
             </div>
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className="text-xs font-semibold text-slate-400 hover:text-white"
+              className={`text-xs font-semibold transition-colors duration-200 ${isDark ? "text-gray-400 hover:text-white" : "text-[#6B7280] hover:text-[#3D5EF6]"}`}
             >
               Change Course
             </button>
           </div>
 
           {/* Candidate Card */}
-          <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 mb-2">
+          <div className={`p-4 rounded-[16px] border-0 ${isDark ? "bg-[#111827]" : "bg-[#FAFAFA]"}`}>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">
               👤 Selected Seafarer Master
             </p>
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
               <div>
-                <p className="font-bold text-white text-sm">{selectedSeafarer?.name}</p>
-                <p className="text-slate-400 text-[11px] mt-0.5">
+                <p className="font-bold text-[#111827] dark:text-white text-sm">{selectedSeafarer?.name}</p>
+                <p className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                   {selectedSeafarer?.email} • {selectedSeafarer?.phone}
                 </p>
               </div>
               <div className="flex items-center gap-3 font-mono text-[11px]">
-                <span className="text-cyan-300">INDoS: {selectedSeafarer?.indosNum || "N/A"}</span>
-                <span className="text-slate-300">Passport: {selectedSeafarer?.passportNum || "N/A"}</span>
+                <span className={isDark ? "text-gray-300" : "text-[#111827]"}>INDoS: {selectedSeafarer?.indosNum || "N/A"}</span>
+                <span className={isDark ? "text-gray-400" : "text-[#6B7280]"}>Passport: {selectedSeafarer?.passportNum || "N/A"}</span>
               </div>
             </div>
           </div>
 
           {/* Course Card */}
-          <div className={`p-4 rounded-2xl border ${isDark ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-cyan-400 mb-2">
-              ⚓ Selected Physical Training Course
+          <div className={`p-4 rounded-[16px] border-0 ${isDark ? "bg-[#111827]" : "bg-[#FAFAFA]"}`}>
+            <p className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">
+              ⚓ Selected Course
             </p>
             <div className="flex justify-between items-center text-xs">
               <div>
-                <p className="font-bold text-white text-sm">{selectedCourse?.name}</p>
-                <p className="text-slate-400 text-[11px] mt-0.5">
-                  Duration: {selectedCourse?.duration} • Training Type: Physical / In-Person
+                <p className="font-bold text-[#111827] dark:text-white text-sm">{selectedCourse?.name}</p>
+                <p className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
+                  Duration: {selectedCourse?.duration} • STCW Certified
                 </p>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                In-Person Class
+              <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400">
+                DG Approved
               </span>
             </div>
           </div>
 
           {/* READ-ONLY Hari Om Payable Amount Display */}
-          <div className="p-5 rounded-2xl bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-transparent border border-cyan-500/20 space-y-3">
+          <div className={`p-5 rounded-[16px] border-0 space-y-3 ${isDark ? "bg-[#111827]" : "bg-[#EEF1FE]/60"}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Lock className="w-4 h-4 text-cyan-400" />
-                <span className="text-xs font-bold uppercase tracking-wider text-cyan-300">
+                <Lock className="w-4 h-4 text-[#3D5EF6]" />
+                <span className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6]">
                   Configured Hari Om Payable Amount (Read-Only)
                 </span>
               </div>
-              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-300">
+              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${isDark ? "bg-[#3D5EF6]/20 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
                 Partner Pricing
               </span>
             </div>
 
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-2">
               <div>
-                <p className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+                <p className="text-2xl sm:text-3xl font-black text-[#111827] dark:text-white tracking-tight">
                   ₹{Number(pricing.payableAmount).toLocaleString("en-IN")}
                 </p>
-                <p className="text-[11px] text-slate-400 mt-0.5">
+                <p className={`text-[11px] mt-0.5 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                   Amount owed to Hari Om for this course enrollment. Settle via Partner Settlement ledger.
                 </p>
               </div>
-              <div className="text-right text-[11px] text-slate-400">
-                <p>Zero Commission Model</p>
-                <p className="text-slate-500 text-[10px]">No selling price / profit tracked</p>
+              <div className={`text-right text-[11px] ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
+                <p className="font-medium text-[#111827] dark:text-white">Zero Commission Model</p>
+                <p className={`text-[10px] ${isDark ? "text-gray-500" : "text-[#9CA3AF]"}`}>No selling price / profit tracked</p>
               </div>
             </div>
           </div>
 
-          {/* Acknowledgment checkbox */}
-          <div className="p-4 rounded-xl bg-white/[0.02] border border-white/5 text-xs text-slate-400 leading-relaxed">
-            <p className="font-semibold text-slate-300">
-              📌 Physical Course Purchase Agreement:
-            </p>
-            <p className="mt-1">
-              By confirming, you verify that you have collected payment directly from the seafarer outside Hari Om. An official physical course enrollment will be issued immediately, and ₹{Number(pricing.payableAmount).toLocaleString("en-IN")} will be logged in your outstanding settlement balance.
-            </p>
-          </div>
-
           {/* Action Buttons */}
-          <div className="flex items-center justify-between pt-4 border-t border-white/5">
+          <div className={`flex items-center justify-between pt-4 border-t ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <button
               type="button"
               onClick={() => setCurrentStep(2)}
-              className="px-4 py-2.5 rounded-xl text-xs font-semibold border border-white/10 hover:bg-white/5 text-slate-300"
+              className={`px-5 py-2.5 rounded-full text-xs font-semibold transition-colors duration-200 ${
+                isDark ? "bg-[#1F2937] hover:bg-[#374151] text-gray-300" : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
+              }`}
             >
               Back
             </button>
@@ -582,7 +576,7 @@ export default function CreatePurchasePage() {
               type="button"
               disabled={submitting}
               onClick={handleConfirmPurchase}
-              className="px-6 py-3 rounded-xl text-xs font-bold bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white shadow-lg shadow-cyan-500/25 flex items-center gap-2 disabled:opacity-50"
+              className="px-6 py-3 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors duration-200 flex items-center gap-2 disabled:opacity-50"
             >
               <ShoppingCart className="w-4 h-4" />
               {submitting ? "Processing Enrollment..." : "Confirm & Create Purchase"}

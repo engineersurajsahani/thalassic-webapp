@@ -14,18 +14,18 @@ const STATUSES = ["all", "Paid", "Pending", "Failed"];
 
 function InvoiceTypeBadge({ type }: { type: string }) {
   if (type === "HOC")
-    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-sky-500/10 text-sky-400 border-sky-500/20">HOC</span>;
+    return <span className="text-[11px] font-bold text-black dark:text-white">HOC</span>;
   if (type === "HAC")
-    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-purple-500/10 text-purple-400 border-purple-500/20">HAC</span>;
-  return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-slate-500/10 text-slate-400 border-slate-500/20">{type}</span>;
+    return <span className="text-[11px] font-bold text-black dark:text-white">HAC</span>;
+  return <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{type}</span>;
 }
 
 function StatusBadge({ status }: { status: string }) {
   const s = (status || "").toLowerCase();
-  if (s === "paid")    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">Paid</span>;
-  if (s === "pending") return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-amber-500/10 text-amber-400 border-amber-500/20">Pending</span>;
-  if (s === "failed")  return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-rose-500/10 text-rose-400 border-rose-500/20">Failed</span>;
-  return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-slate-500/10 text-slate-400 border-slate-500/20">{status}</span>;
+  if (s === "paid")    return <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">Paid</span>;
+  if (s === "pending") return <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">Pending</span>;
+  if (s === "failed")  return <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400">Failed</span>;
+  return <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{status}</span>;
 }
 
 function generateInvoicePdfHtml(data: any): string {
@@ -258,7 +258,7 @@ function InvoicesContent() {
                 </td></tr>
               ) : invoices.map((inv) => (
                 <tr key={inv.id} className={`border-b ${row} transition-colors`}>
-                  <td className={`px-4 py-3 font-mono text-[11px] font-semibold ${isDark ? "text-sky-400" : "text-sky-600"}`}>{inv.invoice_number}</td>
+                  <td className={`px-4 py-3 font-mono text-[11px] font-semibold ${isDark ? "text-white" : "text-black"}`}>{inv.invoice_number}</td>
                   <td className="px-4 py-3"><InvoiceTypeBadge type={inv.invoice_type} /></td>
                   <td className={`px-4 py-3 ${subtext}`}>{fmtDate(inv.created_at)}</td>
                   <td className={`px-4 py-3 font-medium ${text}`}>{inv.customer_name}</td>
@@ -300,7 +300,7 @@ function InvoicesContent() {
             <div className={`px-5 py-4 border-b flex items-center justify-between ${isDark ? "border-white/8" : "border-slate-100"}`}>
               <div>
                 <h2 className={`text-sm font-bold ${text}`}>Invoice Details</h2>
-                <p className={`text-[11px] font-mono mt-0.5 ${isDark ? "text-sky-400" : "text-sky-600"}`}>{selected.invoice_number}</p>
+                <p className={`text-[11px] font-mono mt-0.5 ${isDark ? "text-white" : "text-black"}`}>{selected.invoice_number}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button onClick={() => handleDownloadPdf(selected)}

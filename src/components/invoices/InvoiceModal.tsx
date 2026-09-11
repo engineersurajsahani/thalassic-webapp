@@ -24,11 +24,11 @@ interface InvoiceModalProps {
 
 const StatusBadge = ({ status }: { status: string }) => {
   const map: Record<string, { bg: string; text: string }> = {
-    Paid: { bg: "#d1fae5", text: "#065f46" },
-    Processing: { bg: "#fef3c7", text: "#92400e" },
-    Cancelled: { bg: "#fee2e2", text: "#991b1b" },
+    Paid: { bg: "#DCFCE7", text: "#16A34A" },
+    Processing: { bg: "#FEF3C7", text: "#B45309" },
+    Cancelled: { bg: "#FEE2E2", text: "#DC2626" },
   };
-  const s = map[status] || { bg: "#e0e7ff", text: "#3730a3" };
+  const s = map[status] || { bg: "#EEF1FE", text: "#3D5EF6" };
   return (
     <span style={{ backgroundColor: s.bg, color: s.text }} className="text-xs font-bold px-2 py-1 rounded-full">
       {status}
@@ -53,7 +53,7 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
           <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
           <style>
             * { box-sizing: border-box; margin: 0; padding: 0; }
-            body { font-family: 'Inter', sans-serif; font-size: 13px; color: #1e293b; background: #fff; }
+            body { font-family: 'Inter', sans-serif; font-size: 13px; color: #111827; background: #fff; }
             .inv-root { max-width: 780px; margin: 0 auto; padding: 40px; }
             @media print { body { -webkit-print-color-adjust: exact; } }
           </style>
@@ -74,18 +74,18 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col overflow-hidden">
+      <div className="bg-white rounded-[16px] card-elevated border-0 shadow-2xl w-full max-w-3xl max-h-[95vh] flex flex-col overflow-hidden">
         {/* Modal Header Actions */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-          <div className="flex items-center gap-2 text-slate-800 font-semibold">
-            <Receipt className="w-5 h-5 text-blue-600" />
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E5E7EB]">
+          <div className="flex items-center gap-2 text-[#111827] font-semibold">
+            <Receipt className="w-5 h-5 text-[#3D5EF6]" />
             <span>Invoice: {invoice.invoice_number}</span>
             <StatusBadge status={invoice.status} />
           </div>
           <div className="flex gap-2">
             <button
               onClick={handlePrint}
-              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-[10px] bg-[#3D5EF6] text-white hover:bg-[#2E4FE0] transition-colors"
             >
               <Printer className="w-4 h-4" />
               Print / Download
@@ -103,9 +103,9 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
         <div className="overflow-y-auto flex-1 p-6">
           <div ref={printRef} style={{ fontFamily: "'Inter', sans-serif", color: "#1e293b", fontSize: "13px" }}>
             {/* Company Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", paddingBottom: "20px", borderBottom: "2px solid #1e40af" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", paddingBottom: "20px", borderBottom: "2px solid #3D5EF6" }}>
               <div>
-                <div style={{ fontSize: "20px", fontWeight: "800", color: "#1e40af", letterSpacing: "-0.5px" }}>HARI OM THALASSIC</div>
+                <div style={{ fontSize: "20px", fontWeight: "800", color: "#3D5EF6", letterSpacing: "-0.5px" }}>HARI OM THALASSIC</div>
                 <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>Maritime Training Institute</div>
                 <div style={{ fontSize: "11px", color: "#64748b", marginTop: "8px", lineHeight: "1.6" }}>
                   {company.address}
@@ -118,8 +118,8 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ background: isHac ? "#eff6ff" : "#f0fdf4", border: `1px solid ${isHac ? "#bfdbfe" : "#bbf7d0"}`, borderRadius: "8px", padding: "12px 16px" }}>
-                  <div style={{ fontSize: "20px", fontWeight: "800", color: isHac ? "#1d4ed8" : "#15803d" }}>{invoice.invoice_number}</div>
+                <div style={{ background: isHac ? "#EEF1FE" : "#DCFCE7", border: `1px solid ${isHac ? "#C7D2FE" : "#BBF7D0"}`, borderRadius: "8px", padding: "12px 16px" }}>
+                  <div style={{ fontSize: "20px", fontWeight: "800", color: isHac ? "#3D5EF6" : "#16A34A" }}>{invoice.invoice_number}</div>
                   <div style={{ fontSize: "11px", marginTop: "2px", color: "#64748b" }}>Invoice Type: {invoice.invoice_type}</div>
                   <div style={{ fontSize: "11px", color: "#64748b" }}>Invoice Status: <strong>{invoice.status}</strong></div>
                   <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>Invoice Date: {fmtDate(invoice.created_at)}</div>
@@ -142,12 +142,13 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
 
               {/* Course Details */}
               <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Course Details</div>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Course & Institute Details</div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                   <div><span style={{ color: "#64748b", fontSize: "11px" }}>Course:</span> <strong style={{ fontSize: "12px" }}>{invoice.course_name}</strong></div>
+                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Institute:</span> <strong style={{ fontSize: "12px", color: "#3D5EF6" }}>{invoice.institute_name || "Hari Om Maritime Institute, Mumbai"}</strong></div>
                   <div><span style={{ color: "#64748b", fontSize: "11px" }}>Course Fee:</span> <span style={{ fontSize: "12px" }}>{fmt(invoice.course_fee)}</span></div>
                   {Number(invoice.discount) > 0 && (
-                    <div><span style={{ color: "#64748b", fontSize: "11px" }}>Discount:</span> <span style={{ fontSize: "12px", color: "#16a34a" }}>-{fmt(invoice.discount)}</span></div>
+                    <div><span style={{ color: "#64748b", fontSize: "11px" }}>Discount:</span> <span style={{ fontSize: "12px", color: "#16A34A" }}>-{fmt(invoice.discount)}</span></div>
                   )}
                 </div>
               </div>
@@ -155,13 +156,13 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
 
             {/* Payment Details */}
             <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px", marginBottom: "20px" }}>
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Payment Details</div>
+              <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Payment & Settlement Details</div>
               <div style={{ display: "grid", gridTemplateColumns: invoice.agent_name ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr", gap: "12px" }}>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Gateway:</span><br/><strong>{invoice.payment_gateway}</strong></div>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Method:</span><br/><strong>{invoice.payment_method}</strong></div>
                 <div><span style={{ color: "#64748b", fontSize: "11px" }}>Transaction ID:</span><br/><strong style={{ wordBreak: "break-all" }}>{invoice.transaction_id}</strong></div>
                 {invoice.agent_name && (
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Agent Name:</span><br/><strong>{invoice.agent_name}</strong></div>
+                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Partner / Agent:</span><br/><strong>{invoice.agent_name}</strong></div>
                 )}
               </div>
             </div>
@@ -169,7 +170,7 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
             {/* Amount Summary */}
             <div style={{ marginBottom: "20px" }}>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
-                <div style={{ width: "260px" }}>
+                <div style={{ width: "320px" }}>
                   <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e2e8f0", fontSize: "12px" }}>
                     <span style={{ color: "#64748b" }}>Course Fee</span>
                     <span>{fmt(invoice.course_fee)}</span>
@@ -177,13 +178,24 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
                   {Number(invoice.discount) > 0 && (
                     <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e2e8f0", fontSize: "12px" }}>
                       <span style={{ color: "#64748b" }}>Discount</span>
-                      <span style={{ color: "#16a34a" }}>- {fmt(invoice.discount)}</span>
+                      <span style={{ color: "#16A34A" }}>- {fmt(invoice.discount)}</span>
                     </div>
                   )}
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderTop: "2px solid #1e40af", fontSize: "14px", fontWeight: "700", color: "#1e40af", marginTop: "4px" }}>
-                    <span>Total Amount</span>
-                    <span>{fmt(invoice.final_amount)}</span>
+                  {isHac && (
+                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e2e8f0", fontSize: "12px" }}>
+                      <span style={{ color: "#3D5EF6", fontWeight: "600" }}>Hari Om Payable Amount</span>
+                      <strong style={{ color: "#3D5EF6" }}>{fmt(invoice.hariom_payable_amount || invoice.final_amount)}</strong>
+                    </div>
+                  )}
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderTop: "2px solid #3D5EF6", fontSize: "14px", fontWeight: "700", color: "#3D5EF6", marginTop: "4px" }}>
+                    <span>Recorded Hari Om Revenue</span>
+                    <span>{fmt(invoice.hariom_payable_amount || invoice.final_amount)}</span>
                   </div>
+                  {isHac && (
+                    <div style={{ fontSize: "10px", color: "#64748b", fontStyle: "italic", marginTop: "4px", textAlign: "right" }}>
+                      * Partner selling price is independent & excluded from Hari Om revenue calculation (PRD 6.6 & 6.8).
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -200,7 +212,7 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
 
             {/* Footer */}
             <div style={{ textAlign: "center", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e2e8f0", fontSize: "11px", color: "#94a3b8" }}>
-              This is a computer-generated tax invoice and requires no physical signature.
+              This is an immutable computer-generated tax invoice (PRD Section 6.5) and requires no physical signature.
             </div>
           </div>
         </div>

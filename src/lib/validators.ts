@@ -27,10 +27,17 @@ export const seafarerProfileSchema = z.object({
   dob: z.string().optional(),
   birthPlace: z.string().optional(),
   fatherName: z.string().optional(),
-  passportNum: z.string().max(12).optional(),
-  indosNum: z.string().max(15).optional(),
-  cdcNum: z.string().max(15).optional(),
+  passportNum: z.string().max(9, 'Passport number must be at most 9 characters').optional(),
+  indosNum: z.string().max(8, 'INDoS number must be at most 8 characters').optional(),
+  cdcNum: z.string().max(12, 'CDC number must be at most 12 characters').optional(),
   education: z.string().optional(),
+});
+
+export const settlementBatchSchema = z.object({
+  referenceNumber: z.string().min(4, 'UTR / Reference is required').max(22, 'Bank UTR must be at most 22 characters'),
+  paymentMethod: z.string(),
+  paymentDate: z.string(),
+  remarks: z.string().max(250).optional(),
 });
 
 export const courseBookingSchema = z.object({
