@@ -71,7 +71,7 @@ export default function SettlementsHistoryPage() {
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Link
             href="/partner/financials"
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-full text-xs font-semibold transition-colors ${
+            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold transition-colors ${
               isDark
                 ? "bg-[#1F2937] hover:bg-[#374151] text-gray-200"
                 : "bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
@@ -82,7 +82,7 @@ export default function SettlementsHistoryPage() {
           </Link>
           <Link
             href="/partner/settlements/create"
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors shrink-0"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors shrink-0"
           >
             <CreditCard className="w-4 h-4" />
             Submit Settlement
@@ -99,7 +99,7 @@ export default function SettlementsHistoryPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by Settlement # or UTR reference..."
-            className={`w-full pl-10 pr-4 py-2.5 rounded-full text-xs font-medium outline-none transition-colors ${
+            className={`w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium outline-none transition-colors ${
               isDark
                 ? "bg-[#111827] border-0 text-white placeholder:text-gray-500 focus:ring-1 focus:ring-[#3D5EF6]"
                 : "bg-[#FAFAFA] border-0 text-[#111827] placeholder:text-[#9CA3AF] focus:ring-1 focus:ring-[#3D5EF6]"
@@ -112,7 +112,7 @@ export default function SettlementsHistoryPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className={`px-3.5 py-2.5 rounded-full text-xs font-semibold outline-none transition-colors ${
+            className={`px-3.5 py-2.5 rounded-lg text-xs font-semibold outline-none transition-colors ${
               isDark ? "bg-[#111827] border-0 text-gray-200" : "bg-[#FAFAFA] border-0 text-[#111827]"
             }`}
           >
@@ -151,6 +151,7 @@ export default function SettlementsHistoryPage() {
                   <th className="py-3.5 px-4 font-semibold">Payment Method</th>
                   <th className="py-3.5 px-4 font-semibold text-right">Settlement Amount</th>
                   <th className="py-3.5 px-4 font-semibold">Submission Date</th>
+                  <th className="py-3.5 px-4 font-semibold text-center">Pending Due Date</th>
                   <th className="py-3.5 px-4 font-semibold text-center">Status</th>
                   <th className="py-3.5 px-4 font-semibold text-right">Action</th>
                 </tr>
@@ -165,6 +166,11 @@ export default function SettlementsHistoryPage() {
                   const totalAmt = Number(s.total_amount || s.totalAmount || s.amount || 0);
                   const paidAmt = Number(s.paid_amount || s.paidAmount || s.netAmount || totalAmt);
                   const remAmt = Number(s.remaining_amount || s.remainingAmount || 0);
+
+                  const rawDueDate = s.expected_due_date || s.expectedDueDate || s.dueDate || s.due_date;
+                  const formattedDueDate = rawDueDate
+                    ? new Date(rawDueDate).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" })
+                    : new Date(new Date(s.created_at || s.submissionDate || Date.now()).getTime() + 14 * 86400000).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" });
 
                   return (
                     <tr key={s.id} className={isDark ? "hover:bg-white/[0.02]" : "hover:bg-[#EEF1FE]/30 transition-colors"}>
@@ -190,9 +196,19 @@ export default function SettlementsHistoryPage() {
                       <td className={`py-3.5 px-4 ${isDark ? "text-gray-400" : "text-[#6B7280] font-medium"}`}>
                         {new Date(s.created_at || s.submissionDate).toLocaleDateString("en-IN")}
                       </td>
+                      <td className="py-3.5 px-4 text-center whitespace-nowrap">
+                        {isPartial && remAmt > 0 ? (
+                          <span className="inline-flex items-center gap-1 font-mono font-bold text-[11px] px-2.5 py-1 rounded-lg bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20">
+                            <Clock className="w-3 h-3 shrink-0" />
+                            {formattedDueDate}
+                          </span>
+                        ) : (
+                          <span className={`text-xs ${isDark ? "text-gray-500" : "text-slate-400"}`}>—</span>
+                        )}
+                      </td>
                       <td className="py-3.5 px-4 text-center">
                         <span
-                          className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${
+                          className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-lg ${
                             isPaid
                               ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
                               : isPartial

@@ -42,7 +42,15 @@ export default function AgentInvoicesPage() {
     }
   }, [search, statusFilter, startDate, endDate]);
 
-  useEffect(() => { fetchInvoices(); }, [fetchInvoices]);
+  useEffect(() => {
+    fetchInvoices();
+    window.addEventListener("focus", fetchInvoices);
+    window.addEventListener("storage", fetchInvoices);
+    return () => {
+      window.removeEventListener("focus", fetchInvoices);
+      window.removeEventListener("storage", fetchInvoices);
+    };
+  }, [fetchInvoices]);
 
   const openPdf = async (inv: any) => {
     setSelectedInvoice(inv);

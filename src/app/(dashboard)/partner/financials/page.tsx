@@ -46,7 +46,7 @@ export default function FinancialSummaryPage() {
 
   if (loading) {
     return (
-      <div className="space-y-6 max-w-5xl mx-auto animate-pulse">
+      <div className="space-y-6 mx-auto animate-pulse">
         <div className="h-8 w-48 rounded-full bg-slate-200 dark:bg-white/5" />
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="h-32 rounded-[16px] bg-slate-200 dark:bg-white/5" />
@@ -70,7 +70,7 @@ export default function FinancialSummaryPage() {
   const accentText = "text-[#3D5EF6] font-extrabold";
 
   return (
-    <div className="space-y-8 animate-fadeIn pb-12 max-w-5xl">
+    <div className="space-y-8 animate-fadeIn pb-12">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
@@ -85,7 +85,7 @@ export default function FinancialSummaryPage() {
         {outstandingAmount > 0 && (
           <Link
             href="/partner/settlements/create"
-            className="flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors shrink-0 cursor-pointer"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors shrink-0 cursor-pointer"
           >
             <CreditCard className="w-4 h-4" />
             Settle Outstanding Balance
@@ -246,7 +246,7 @@ export default function FinancialSummaryPage() {
                       </td>
                       <td className="py-3.5 px-4 text-center">
                         <span
-                          className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-full ${
+                          className={`text-[10px] font-bold uppercase px-2.5 py-0.5 rounded-lg ${
                             isPaid
                               ? "bg-[#DCFCE7] text-[#16A34A] dark:bg-emerald-500/15 dark:text-emerald-400"
                               : isPartial

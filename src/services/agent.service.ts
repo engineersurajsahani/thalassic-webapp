@@ -94,6 +94,10 @@ export interface Purchase {
   settlementStatus: string;
   trainingType: string;
   purchaseSource: string;
+  proofUrl?: string;
+  proofFileName?: string;
+  settlementProofUrl?: string;
+  settlementProofFileName?: string;
 }
 
 export interface Settlement {
@@ -113,6 +117,10 @@ export interface Settlement {
   remarks?: string;
   creditDays?: number;
   invoiceUrl?: string;
+  proofUrl?: string;
+  proofFileName?: string;
+  proof_file_url?: string;
+  proof_file_name?: string;
 }
 
 export interface Financial {
@@ -266,6 +274,14 @@ export const agentService = {
   async createPurchase(purchaseData: {
     seafarerId: string;
     courseId: string;
+    seafarerName?: string;
+    seafarerEmail?: string;
+    seafarerPhone?: string;
+    indosNumber?: string;
+    passportNumber?: string;
+    courseName?: string;
+    courseCode?: string;
+    payableAmount?: number;
   }): Promise<Purchase> {
     const response = await api.post("/partner/purchases", purchaseData);
     return response.data;
@@ -298,6 +314,9 @@ export const agentService = {
     remainingAmount?: number;
     expectedDueDate?: string;
     totalAmount?: number;
+    proofUrl?: string;
+    proofFileName?: string;
+    allocations?: any[];
   }): Promise<Settlement> {
     const response = await api.post("/partner/settlements", settlementData);
     return response.data;
