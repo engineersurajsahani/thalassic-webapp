@@ -391,7 +391,7 @@ export default function AgentManagement() {
           </div>
 
           {/* Sub-Navigation Tabs */}
-          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-white/10">
+          <div className={`flex items-center gap-3 mt-6 pt-4 border-t ${isDark ? "border-white/10" : "border-slate-200"}`}>
             <button
               onClick={() => setActiveAgentTab("details")}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
