@@ -2,19 +2,19 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, BookOpen, Users, BarChart3,
-  Settings, LogOut, Anchor, ChevronRight, CheckSquare,
+  Settings, LogOut, ChevronRight, CheckSquare,
   Building2, Handshake, GraduationCap, Wallet,
 } from "lucide-react";
 
 const menuItems = [
   { label: "Dashboard",           href: "/master/dashboard",        icon: LayoutDashboard },
   { label: "Course Management",   href: "/master/courses",          icon: BookOpen        },
-  { label: "Pricing Approvals",   href: "/master/pricing-approvals",icon: CheckSquare     },
   { label: "Seafarer Management", href: "/master/seafarers",        icon: Users           },
   { label: "Admin Management",    href: "/master/company-admins",   icon: Building2       },
   { label: "Partner Management",  href: "/master/agent-admins",     icon: Handshake       },
@@ -37,30 +37,37 @@ export default function MasterSidebar() {
   const sidebarBg   = isDark ? "bg-[#0B0F19] border-r border-[#1F2937]" : "bg-[#FFFFFF] border-r border-[#E5E7EB]";
   const brandBorder = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
   const logoText    = isDark ? "text-white" : "text-[#111827]";
-  const logoSub     = isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]";
+  const logoSub     = isDark ? "text-white" : "text-black";
   const navLabel    = isDark ? "text-gray-400" : "text-[#6B7280]";
   const activeLink  = isDark ? "bg-[#3D5EF6] text-white" : "bg-[#3D5EF6] text-white";
   const activeIcon  = "text-white";
   const activeChev  = "text-white/80";
-  const inactiveLink= isDark ? "text-gray-300 hover:bg-[#1F2937] hover:text-white transition-colors duration-200" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-[#3D5EF6] transition-colors duration-200";
+  const inactiveLink= isDark ? "text-gray-300 hover:bg-[#1F2937] hover:text-white transition-colors duration-200" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-black transition-colors duration-200";
   const inactiveIcon= isDark ? "text-gray-400 group-hover:text-white" : "text-[#6B7280] group-hover:text-[#3D5EF6]";
   const footBorder  = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
   const userName    = isDark ? "text-white" : "text-[#111827]";
-  const userEmail   = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const userEmail   = isDark ? "text-gray-400" : "text-black";
   const signOutBtn  = isDark ? "text-gray-400 hover:bg-[#DC2626]/10 hover:text-[#DC2626] transition-colors duration-200" : "text-[#6B7280] hover:bg-red-50 hover:text-[#DC2626] transition-colors duration-200";
 
   return (
     <aside className={`w-60 h-screen flex flex-col shrink-0 ${sidebarBg}`}>
 
-      {/* Brand */}
-      <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
-        <div className="w-8 h-8 rounded-md bg-[#3D5EF6] flex items-center justify-center shrink-0">
-          <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
-        </div>
-        <div className="leading-tight">
-          <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>
-          <p className={`text-[11px] font-medium tracking-wider uppercase ${logoSub}`}>Master Portal</p>
-        </div>
+      <div className={`px-5 py-5 flex items-center gap-2.5 border-b ${brandBorder}`}>
+        <Image
+          src="/logo.jpeg"
+          alt="Hari Om Thalassic"
+          width={34}
+          height={34}
+          className="w-[34px] h-[34px] rounded-full object-contain shrink-0 border border-slate-200 dark:border-white/10 shadow-xs"
+          priority
+        />
+        <span
+          className={`font-bold tracking-tight text-[15px] whitespace-nowrap ${
+            isDark ? "text-slate-100" : "text-slate-900"
+          }`}
+        >
+          Hari Om Thalassic
+        </span>
       </div>
 
       {/* Nav label */}

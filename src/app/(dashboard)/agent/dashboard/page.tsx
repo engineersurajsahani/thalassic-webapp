@@ -11,13 +11,8 @@ import {
 } from "lucide-react";
 
 export default function AgentDashboard() {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const { user } = useAuth();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const isDark = mounted ? theme === "dark" : true;
 
@@ -37,10 +32,10 @@ export default function AgentDashboard() {
   useEffect(() => {
     async function loadData() {
       try {
-        const data = await agentService.getDashboard();
-        setStats((data as any).stats);
-        setActivities((data as any).recentActivities);
-        setReferralCode((data as any).referralCode || "PENDING");
+        const data: any = await agentService.getDashboard();
+        setStats(data?.stats || data || {});
+        setActivities(Array.isArray(data?.recentActivities) ? data.recentActivities : Array.isArray(data?.activities) ? data.activities : []);
+        setReferralCode(data?.referralCode || "PENDING");
       } catch (err) {
         console.error("Failed to load dashboard data:", err);
       } finally {
@@ -55,24 +50,26 @@ export default function AgentDashboard() {
       <div className="space-y-8 animate-pulse">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className={`h-28 rounded-2xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
+            <div key={i} className={`h-28 rounded-[16px] ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className={`lg:col-span-2 h-72 rounded-3xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
-          <div className={`h-72 rounded-3xl ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
+          <div className={`lg:col-span-2 h-72 rounded-[16px] ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
+          <div className={`h-72 rounded-[16px] ${isDark ? "bg-[#09162c]" : "bg-slate-100"}`} />
         </div>
       </div>
     );
   }
 
   const kpis = [
-    { label: "Total Referral Leads", value: stats?.totalLeads || 0, icon: Users, desc: "Total crew registrants", gradient: "from-blue-500/10 to-cyan-500/10", iconBg: "bg-cyan-500/10", iconText: "text-cyan-500" },
-    { label: "Active Referral Leads", value: stats?.activeLeads || 0, icon: Clock, desc: "Leads within 45-day validity", gradient: "from-amber-500/10 to-yellow-500/10", iconBg: "bg-amber-500/10", iconText: "text-amber-500" },
-    { label: "Total Course Purchases", value: stats?.totalPurchases || 0, icon: ClipboardList, desc: "Successful checkouts", gradient: "from-indigo-500/10 to-purple-500/10", iconBg: "bg-indigo-500/10", iconText: "text-indigo-500" },
-    { label: "Total Earnings", value: `₹${stats?.totalEarned?.toLocaleString() || 0}`, icon: DollarSign, desc: "Commissions earned to date", gradient: "from-cyan-500/10 to-blue-500/10", iconBg: "bg-cyan-500/10", iconText: "text-cyan-500" },
-    { label: "Pending Payout", value: `₹${stats?.pendingCommission?.toLocaleString() || 0}`, icon: Clock, desc: "Awaiting admin clearance", gradient: "from-rose-500/10 to-red-500/10", iconBg: "bg-rose-500/10", iconText: "text-rose-500" },
+    { label: "Total Referral Leads", value: stats?.totalLeads || 0, icon: Users, desc: "Total crew registrants" },
+    { label: "Active Referral Leads", value: stats?.activeLeads || 0, icon: Clock, desc: "Leads within 45-day validity" },
+    { label: "Total Course Purchases", value: stats?.totalPurchases || 0, icon: ClipboardList, desc: "Successful checkouts" },
+    { label: "Total Earnings", value: `₹${stats?.totalEarned?.toLocaleString() || 0}`, icon: DollarSign, desc: "Commissions earned to date" },
+    { label: "Pending Payout", value: `₹${stats?.pendingCommission?.toLocaleString() || 0}`, icon: Clock, desc: "Awaiting admin clearance" },
   ];
+
+  const safeActivities = Array.isArray(activities) ? activities : [];
 
   return (
     <div className="space-y-8 animate-fadeIn pb-10">
@@ -81,19 +78,15 @@ export default function AgentDashboard() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex flex-wrap items-center gap-2">
-            <span className={`text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full ${
-              isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"
-            }`}>
-              ⚓ Partner Workspace
-            </span>
+
             <button
               onClick={handleCopyCode}
               title="Click to copy Referral Code"
-              className="text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 flex items-center gap-1.5 transition-colors duration-200 cursor-pointer outline-none"
+              className="text-[10px] font-black uppercase tracking-widest px-3.5 py-1 rounded-full bg-[#EEF1FE] hover:bg-[#EEF1FE]/80 text-[#3D5EF6] border border-[#3D5EF6]/20 flex items-center gap-1.5 transition-colors duration-200 cursor-pointer outline-none"
             >
               Referral Code: <span className="font-mono text-[#3D5EF6] font-extrabold">{referralCode}</span>
               {copied ? (
-                <Check className="w-3.5 h-3.5 text-emerald-400 animate-in zoom-in duration-200" />
+                <Check className="w-3.5 h-3.5 text-[#16A34A] animate-in zoom-in duration-200" />
               ) : (
                 <Copy className="w-3.5 h-3.5 opacity-60 hover:opacity-100" />
               )}
@@ -116,12 +109,12 @@ export default function AgentDashboard() {
           return (
             <div
               key={idx}
-              className={`rounded-2xl p-5 border flex flex-col justify-between transition-colors duration-200 relative overflow-hidden group ${
+              className={`rounded-[16px] border-0 p-5 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] flex flex-col justify-between transition-colors duration-200 relative overflow-hidden group ${
                 isLastOdd ? "md:col-span-2 lg:col-span-1" : ""
               } ${
                 isDark 
-                  ? "bg-[#111827] border-[#1F2937] text-white" 
-                  : "bg-white border-[#E5E7EB] text-[#111827]"
+                  ? "bg-[#0B0F19] text-white" 
+                  : "bg-white text-[#111827]"
               }`}
             >
               <div className="flex justify-between items-start relative z-10">
@@ -131,7 +124,7 @@ export default function AgentDashboard() {
                   </span>
                   <p className="text-2xl font-black tracking-tight">{kpi.value}</p>
                 </div>
-                <div className={`p-2.5 rounded-2xl ${kpi.iconBg} ${kpi.iconText}`}>
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"}`}>
                   <Icon className="w-5 h-5" />
                 </div>
               </div>
@@ -147,8 +140,8 @@ export default function AgentDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Recent Activity */}
-        <section className={`lg:col-span-2 rounded-3xl border p-6 md:p-8 relative overflow-hidden flex flex-col justify-between ${
-          isDark ? "bg-[#111827] border-[#1F2937] text-white" : "bg-white border-[#E5E7EB] text-[#111827]"
+        <section className={`lg:col-span-2 rounded-[16px] border-0 p-6 md:p-8 relative overflow-hidden flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] ${
+          isDark ? "bg-[#0B0F19] text-white" : "bg-white text-[#111827]"
         }`}>
           <div>
             <div className={`flex items-center justify-between border-b pb-4 mb-5 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
@@ -158,19 +151,19 @@ export default function AgentDashboard() {
               </div>
             </div>
 
-            {activities.length === 0 ? (
+            {safeActivities.length === 0 ? (
               <div className="text-center py-16 text-[#6B7280]">
                 <p className="text-sm font-bold">No recent activities</p>
                 <p className="text-xs mt-1">Activities will log here once leads register or buy courses.</p>
               </div>
             ) : (
               <div className="space-y-5">
-                {activities.map((act) => (
+                {safeActivities.map((act) => (
                   <div key={act.id} className={`flex gap-4 border-b pb-4 last:border-0 last:pb-0 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-xs font-black ${
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 text-xs font-black ${
                       act.type === "lead"
                         ? isDark ? "bg-[#3D5EF6]/15 text-[#3D5EF6]" : "bg-[#EEF1FE] text-[#3D5EF6]"
-                        : "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                        : isDark ? "bg-[#DCFCE7]/20 text-[#16A34A]" : "bg-[#DCFCE7] text-[#16A34A]"
                     }`}>
                       {act.type === "lead" ? "LD" : "CM"}
                     </div>
@@ -189,8 +182,8 @@ export default function AgentDashboard() {
         </section>
 
         {/* Quick Operations */}
-        <section className={`rounded-3xl border p-6 md:p-8 flex flex-col justify-between ${
-          isDark ? "bg-[#111827] border-[#1F2937] text-white" : "bg-white border-[#E5E7EB] text-[#111827]"
+        <section className={`rounded-[16px] border-0 p-6 md:p-8 flex flex-col justify-between shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] ${
+          isDark ? "bg-[#0B0F19] text-white" : "bg-white text-[#111827]"
         }`}>
           <div className="space-y-6">
             <h3 className={`text-lg font-black tracking-tight border-b pb-4 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
@@ -207,10 +200,10 @@ export default function AgentDashboard() {
                 <Link
                   key={i}
                   href={opt.href}
-                  className={`group flex items-center justify-between p-3.5 rounded-2xl border transition-colors duration-200 ${
+                  className={`group flex items-center justify-between p-3.5 rounded-[16px] transition-colors duration-200 ${
                     isDark
-                      ? "bg-[#0B0F19] border-[#1F2937] text-white hover:border-[#3D5EF6]"
-                      : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] hover:border-[#3D5EF6] hover:bg-[#EEF1FE]"
+                      ? "bg-[#111827] text-white hover:bg-white/5"
+                      : "bg-[#FAFAFA] text-[#111827] hover:bg-[#EEF1FE]"
                   }`}
                 >
                   <div>

@@ -139,7 +139,7 @@ export default function AboutUsPage() {
 
             {/* Tagline */}
             <p className="text-base md:text-xl font-bold italic text-cyan-400 mb-4">
-              "Assistance at Sea, Support on Land."
+              &quot;Assistance at Sea, Support on Land.&quot;
             </p>
 
             {/* Description line */}
@@ -278,7 +278,7 @@ export default function AboutUsPage() {
             <div className="text-center md:text-left mb-12">
               <span className={`text-[10px] font-black uppercase tracking-[0.25em] mb-3 inline-block ${
                 isDark ? "text-cyan-400" : "text-cyan-600"
-              }`}>// Why It Matters</span>
+              }`}>{"// "}Why It Matters</span>
               <h2 className="text-2xl md:text-3xl font-black tracking-tight mb-2">The Industry Challenge</h2>
               <div className="w-12 h-1 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full" />
               <p className={`mt-4 text-sm font-light max-w-2xl leading-relaxed ${
@@ -332,7 +332,7 @@ export default function AboutUsPage() {
               <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border inline-block ${
                 isDark ? "bg-cyan-500/5 border-cyan-500/10 text-cyan-300" : "bg-cyan-50 border-cyan-200 text-cyan-655"
               }`}>
-                // Our Value Proposition
+                {"// "}Our Value Proposition
               </span>
               <h2 className="text-3xl md:text-4xl font-black tracking-tight leading-tight">
                 Dedicated Partner for Corporate MNCs
@@ -1143,7 +1143,7 @@ export default function AboutUsPage() {
               <span className={`text-xs font-black uppercase tracking-widest px-3 py-1 rounded-full border inline-block ${
                 isDark ? "bg-cyan-500/5 border-cyan-500/10 text-cyan-300" : "bg-cyan-50 border-cyan-200 text-cyan-655"
               }`}>
-                // Fleet Partnerships
+                {"// "}Fleet Partnerships
               </span>
               <h2 className="text-3xl font-black tracking-tight leading-tight">
                 Empowering Top Maritime MNCs

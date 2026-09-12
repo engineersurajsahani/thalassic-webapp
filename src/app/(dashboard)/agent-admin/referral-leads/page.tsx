@@ -9,12 +9,7 @@ import {
 } from "lucide-react";
 
 export default function ReferralsTracker() {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { theme, mounted } = useTheme();
 
   const isDark = mounted ? theme === "dark" : true;
 
@@ -34,14 +29,14 @@ export default function ReferralsTracker() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchPurchases, setSearchPurchases] = useState("");
 
-  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+  const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
     isDark
-      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
-      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+      ? "bg-[#111827] text-white"
+      : "bg-white text-[#111827]"
   }`;
-  const labelText = isDark ? "text-white/50" : "text-slate-500";
-  const ht = isDark ? "text-white/80" : "text-slate-800";
-  const mt = isDark ? "text-white/35" : "text-slate-400";
+  const labelText = isDark ? "text-white/50" : "text-[#6B7280]";
+  const ht = isDark ? "text-white/80" : "text-[#111827]";
+  const mt = isDark ? "text-white/35" : "text-[#9CA3AF]";
   const borderB = isDark ? "border-white/5" : "border-slate-100";
 
   const loadData = async () => {
@@ -168,7 +163,7 @@ export default function ReferralsTracker() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className={`px-3 py-2.5 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-[#0d1f35] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"}`}
+                className={`px-3 py-2.5 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-[#E5E7EB] text-[#111827] shadow-sm"}`}
               >
                 <option value="all">All Statuses</option>
                 <option value="new">New Leads</option>
@@ -417,7 +412,7 @@ export default function ReferralsTracker() {
                               <div key={agent.agentId} className={`p-4 rounded-2xl border flex flex-col justify-between ${
                                 isEarliest 
                                   ? (isDark ? "bg-[#3D5EF6]/5 border-[#3D5EF6]/20 text-white" : "bg-[#EEF1FE] border-slate-300 text-slate-900") 
-                                  : (isDark ? "bg-[#0b182d]/80 border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-900")
+                                  : (isDark ? "bg-white/5 border-white/10 text-white" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827]")
                               }`}>
                                 <div className="space-y-2">
                                   <div className="flex justify-between items-start gap-2">
@@ -478,7 +473,7 @@ export default function ReferralsTracker() {
                             onChange={(e) => setRemarksMap({ ...remarksMap, [conflict.purchaseId]: e.target.value })}
                             rows={2}
                             className={`w-full px-3 py-2 text-xs rounded-xl border outline-none mt-1.5 ${
-                              isDark ? "bg-[#0b182d] border-slate-800 text-white placeholder-slate-650" : "bg-slate-50 border-slate-200 text-slate-900 placeholder-slate-400"
+                              isDark ? "bg-white/5 border-white/10 text-white placeholder-white/30" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] placeholder-[#9CA3AF]"
                             }`}
                           />
                         </div>
@@ -494,8 +489,8 @@ export default function ReferralsTracker() {
       {/* Referral Lead Details Modal */}
       {selectedLead && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className={`w-full max-w-lg p-6 rounded-lg relative animate-in zoom-in-95 duration-200 ${
-            isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
+          <div className={`w-full max-w-lg p-6 rounded-[16px] card-elevated border-0 relative animate-in zoom-in-95 duration-200 ${
+            isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
           }`}>
             <button
               onClick={() => setSelectedLead(null)}
@@ -559,7 +554,7 @@ export default function ReferralsTracker() {
               </div>
               <div className="pt-2">
                 <span className={`${labelText} block mb-1.5`}>Dispute / Remarks</span>
-                <div className={`p-4 rounded-xl leading-relaxed text-xs break-words ${isDark ? "bg-[#0b182d] text-white/80 border border-white/5" : "bg-slate-50 text-slate-700 border border-slate-200"}`}>
+                <div className={`p-4 rounded-xl leading-relaxed text-xs break-words ${isDark ? "bg-white/5 text-white/80 border border-white/5" : "bg-[#FAFAFA] text-[#111827] border border-[#E5E7EB]"}`}>
                   {selectedLead.remarks || "No remarks provided"}
                 </div>
               </div>

@@ -53,12 +53,18 @@ export default function InstituteFinancePage() {
   const [filterStatus, setFilterStatus] = useState("All");
 
   const card = `rounded-2xl overflow-hidden ${dk ? "bg-[#0d1f35] border border-white/[0.06]" : "bg-white border border-slate-200 shadow-sm"}`;
-  const ht = dk ? "text-white/80" : "text-slate-800";
-  const mt = dk ? "text-white/35" : "text-slate-400";
+  const ht = dk ? "text-white" : "text-[#000000]";
+  const mt = dk ? "text-white/60" : "text-[#000000]/70";
   const divider = dk ? "divide-white/[0.05]" : "divide-slate-100";
   const inputBg = dk
-    ? "bg-white/5 border-white/10 text-white/70 placeholder:text-white/25 focus:border-sky-500/50"
-    : "bg-slate-50 border-slate-200 text-slate-700 placeholder:text-slate-400 focus:border-sky-400";
+    ? "bg-white/5 border-white/10 text-white placeholder:text-white/40 focus:border-sky-500/50"
+    : "bg-slate-50 border-slate-200 text-[#000000] placeholder:text-slate-500 focus:border-sky-400";
+  const chipAct = dk
+    ? "bg-sky-500/20 text-sky-400 border border-sky-500/40"
+    : "bg-sky-50 text-sky-600 border border-sky-200 font-bold";
+  const chipIn = dk
+    ? "text-white/40 hover:text-white/80 font-medium"
+    : "text-slate-500 hover:text-slate-800 font-medium";
 
   const statusCls = (s: string) => {
     if (s === "Paid")
@@ -79,8 +85,6 @@ export default function InstituteFinancePage() {
     return <AlertCircle className="w-3 h-3" />;
   };
 
-  // ── Group payments by instituteId × course ────────────────────────────────
-  // Each group is a UNIQUE (instituteId + course) combination
   const instituteGroups = useMemo(() => {
     // First group by instituteId
     const byInstitute: Record<
@@ -109,9 +113,9 @@ export default function InstituteFinancePage() {
           instituteId: p.instituteId,
           instituteName: p.instituteName,
           courseRows: [],
-          totalAmount: 0,
           amountReceived: 0,
           pendingAmount: 0,
+          totalAmount: 0,
         };
       }
 
@@ -133,15 +137,23 @@ export default function InstituteFinancePage() {
         };
         inst.courseRows.push(courseRow);
       }
-      courseRow.seafarerIds.add(p.seafarerId);
-      courseRow.totalAmount += p.amount;
-      courseRow.payments.push(p);
-      if (p.status === "Paid") courseRow.amountReceived += p.amount;
-      else courseRow.pendingAmount += p.amount;
+
+      cRow.seafarerIds.add(p.seafarerId || p.seafarerName);
+      cRow.totalAmount += p.amount;
+      if (p.status === "Paid") cRow.amountReceived += p.amount;
+      else cRow.pendingAmount += p.amount;
     });
 
     return Object.values(byInstitute);
   }, []);
+
+  const stats = useMemo(() => {
+    const totalInst = instituteGroups.length;
+    const totalRev = instituteGroups.reduce((s, g) => s + g.totalAmount, 0);
+    const totalRec = instituteGroups.reduce((s, g) => s + g.amountReceived, 0);
+    const totalPend = instituteGroups.reduce((s, g) => s + g.pendingAmount, 0);
+    return { totalInst, totalRev, totalRec, totalPend };
+  }, [instituteGroups]);
 
   const overallStatus = (received: number, pending: number) => {
     if (pending === 0) return "Paid";
@@ -149,7 +161,6 @@ export default function InstituteFinancePage() {
     return "Partial";
   };
 
-  // ── Filters ────────────────────────────────────────────────────────────────
   const filtered = useMemo(() => {
     const q = query.toLowerCase();
     return instituteGroups.filter((g) => {
@@ -172,7 +183,6 @@ export default function InstituteFinancePage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div>
         <h1 className={`text-xl font-bold ${ht}`}>Company Finance</h1>
         <p className={`text-sm mt-0.5 ${mt}`}>
@@ -180,10 +190,8 @@ export default function InstituteFinancePage() {
         </p>
       </div>
 
-      {/* Internal Navigation Tabs */}
       <FinanceTabs />
 
-      {/* Summary strip */}
       <div className={card}>
         <div
           className={`grid grid-cols-2 xl:grid-cols-4 divide-x divide-y xl:divide-y-0 ${dk ? "divide-white/[0.05]" : "divide-slate-100"}`}
@@ -233,7 +241,6 @@ export default function InstituteFinancePage() {
         </div>
       </div>
 
-      {/* Institute Revenue Bar Chart — Req #9 */}
       <div className={`${card} p-6`}>
         <h2 className={`text-sm font-bold mb-5 ${ht}`}>Revenue by Institute</h2>
         {instituteGroups.length === 0 ? (

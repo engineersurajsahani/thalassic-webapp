@@ -17,15 +17,15 @@ export default function Profile() {
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
+  const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
     isDark
-      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
-      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
+      ? "bg-[#111827] text-white"
+      : "bg-white text-[#111827]"
   }`;
-  const inputBg = isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/20" : "bg-slate-50 border-slate-200 text-slate-700 placeholder:text-slate-400";
-  const labelText = isDark ? "text-white/50" : "text-slate-500";
-  const ht = isDark ? "text-white/95" : "text-slate-800";
-  const mt = isDark ? "text-white/35" : "text-slate-400";
+  const inputBg = isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/20" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF]";
+  const labelText = isDark ? "text-white/50" : "text-[#6B7280]";
+  const ht = isDark ? "text-white/95" : "text-[#111827]";
+  const mt = isDark ? "text-white/35" : "text-[#9CA3AF]";
 
   const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -103,8 +103,8 @@ export default function Profile() {
             <h3 className="text-sm font-bold">Change Password</h3>
           </div>
 
-          {error && <p className="text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">{error}</p>}
-          {success && <p className="text-xs text-emerald-500 bg-emerald-500/10 p-2 rounded-lg flex items-center gap-1"><Check className="w-4 h-4" /> Password updated successfully!</p>}
+          {error && <p className="text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">{error}</p>}
+          {success && <p className="text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold flex items-center gap-1"><Check className="w-4 h-4" /> Password updated successfully!</p>}
 
           <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-sm">
             <div className="space-y-1">

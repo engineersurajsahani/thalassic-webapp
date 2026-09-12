@@ -9,7 +9,7 @@ import { Bell, Sun, Moon, Search, ChevronRight } from "lucide-react";
 
 const pageNames: Record<string, string> = {
   "/partner/dashboard": "Dashboard",
-  "/partner/seafarers": "Seafarer Master",
+  "/partner/seafarers": "Seafarer Management",
   "/partner/seafarers/search": "Search Seafarer",
   "/partner/seafarers/create": "Create Seafarer Master",
   "/partner/purchases": "Purchase History",
@@ -46,14 +46,9 @@ function getFormattedDate() {
 }
 
 export default function AgentTopbar() {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggleTheme, mounted } = useTheme();
   const { user } = useAuth();
   const pathname = usePathname();
-  const [mounted, setMounted] = useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const isDark = mounted ? theme === "dark" : true;
 
@@ -108,7 +103,7 @@ export default function AgentTopbar() {
           <Link
             href="/partner/notifications"
             className={`relative w-8 h-8 flex items-center justify-center rounded-lg transition-colors duration-200 cursor-pointer ${
-              isDark ? "text-white/40 hover:bg-white/8 hover:text-white/70" : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+              isDark ? "text-gray-400 hover:bg-[#1F2937] hover:text-white" : "text-[#6B7280] hover:bg-[#EEF1FE] hover:text-[#3D5EF6]"
             }`}
             aria-label="Notifications"
           >
@@ -116,10 +111,10 @@ export default function AgentTopbar() {
           </Link>
         </div>
 
-        <div className={`w-px h-5 mx-1 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+        <div className={`w-px h-5 mx-1 ${isDark ? "bg-[#374151]" : "bg-[#E5E7EB]"}`} />
 
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0 shadow-sm shadow-cyan-500/20">
+          <div className="w-8 h-8 rounded-full bg-[#3D5EF6] flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
             {user?.name
               ? user.name
                   .trim()
@@ -130,10 +125,10 @@ export default function AgentTopbar() {
               : "AP"}
           </div>
           <div className="hidden sm:flex flex-col items-start leading-tight">
-            <span className={`text-xs font-semibold ${isDark ? "text-white/85" : "text-slate-800"}`}>
+            <span className={`text-xs font-semibold ${isDark ? "text-white" : "text-[#111827]"}`}>
               {user?.name || "Authorized Partner"}
             </span>
-            <span className={`text-[10px] font-medium ${isDark ? "text-cyan-400/80" : "text-blue-600"}`}>
+            <span className="text-[10px] font-medium text-[#3D5EF6]">
               Partner Portal
             </span>
           </div>

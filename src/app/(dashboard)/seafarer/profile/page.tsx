@@ -694,7 +694,7 @@ function ProfileContent() {
 
             {seaServiceList.length === 0 ? (
               <div className="text-center py-12 text-xs text-gray-500">
-                No logged vessels. Click "Log Vessel Sign" to record sea service.
+                No logged vessels. Click &quot;Log Vessel Sign&quot; to record sea service.
               </div>
             ) : (
               <div className="space-y-4">
