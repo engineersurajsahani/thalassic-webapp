@@ -67,10 +67,17 @@ export default function InstituteFinancePage() {
     : "text-slate-500 hover:text-slate-800 font-medium";
 
   const statusCls = (s: string) => {
-    if (s === "Paid") return dk ? "text-emerald-400" : "text-emerald-700";
-    if (s === "Pending") return dk ? "text-amber-400" : "text-amber-700";
-    if (s === "Partial") return dk ? "text-blue-400" : "text-blue-700";
-    return dk ? "text-red-400" : "text-red-700";
+    if (s === "Paid")
+      return dk
+        ? "bg-emerald-500/15 text-emerald-400"
+        : "bg-emerald-100 text-emerald-700";
+    if (s === "Pending")
+      return dk
+        ? "bg-amber-500/15 text-amber-400"
+        : "bg-amber-100 text-amber-700";
+    if (s === "Partial")
+      return dk ? "bg-blue-500/15 text-blue-400" : "bg-blue-100 text-blue-700";
+    return dk ? "bg-red-500/15 text-red-400" : "bg-red-100 text-red-700";
   };
   const statusIcon = (s: string) => {
     if (s === "Paid") return <CheckCircle2 className="w-3 h-3" />;
@@ -79,6 +86,7 @@ export default function InstituteFinancePage() {
   };
 
   const instituteGroups = useMemo(() => {
+    // First group by instituteId
     const byInstitute: Record<
       string,
       {
@@ -90,15 +98,16 @@ export default function InstituteFinancePage() {
           totalAmount: number;
           amountReceived: number;
           pendingAmount: number;
-          status: string;
+          payments: typeof mockPayments;
         }[];
+        totalAmount: number;
         amountReceived: number;
         pendingAmount: number;
-        totalAmount: number;
       }
     > = {};
 
     mockPayments.forEach((p) => {
+      // Institute group
       if (!byInstitute[p.instituteId]) {
         byInstitute[p.instituteId] = {
           instituteId: p.instituteId,
@@ -115,17 +124,18 @@ export default function InstituteFinancePage() {
       if (p.status === "Paid") inst.amountReceived += p.amount;
       else inst.pendingAmount += p.amount;
 
-      let cRow = inst.courseRows.find((r) => r.course === p.course);
-      if (!cRow) {
-        cRow = {
+      // Course row within this institute
+      let courseRow = inst.courseRows.find((c) => c.course === p.course);
+      if (!courseRow) {
+        courseRow = {
           course: p.course,
           seafarerIds: new Set(),
           totalAmount: 0,
           amountReceived: 0,
           pendingAmount: 0,
-          status: p.status,
+          payments: [],
         };
-        inst.courseRows.push(cRow);
+        inst.courseRows.push(courseRow);
       }
 
       cRow.seafarerIds.add(p.seafarerId || p.seafarerName);
@@ -152,25 +162,31 @@ export default function InstituteFinancePage() {
   };
 
   const filtered = useMemo(() => {
+    const q = query.toLowerCase();
     return instituteGroups.filter((g) => {
-      const q = query.toLowerCase();
-      const matchSearch =
-        !q ||
+      const matchQ =
         g.instituteName.toLowerCase().includes(q) ||
         g.courseRows.some((c) => c.course.toLowerCase().includes(q));
-      const st = overallStatus(g.amountReceived, g.pendingAmount);
-      const matchStat = filterStatus === "All" || st === filterStatus;
-      return matchSearch && matchStat;
+      const status = overallStatus(g.amountReceived, g.pendingAmount);
+      const matchS =
+        filterStatus === "All" ||
+        filterStatus === status ||
+        (filterStatus === "Partial" && status === "Partial");
+      return matchQ && matchS;
     });
   }, [instituteGroups, query, filterStatus]);
+
+  const chipAct = "bg-sky-500 text-white";
+  const chipIn = dk
+    ? "bg-white/5 text-white/40 hover:text-white/60"
+    : "bg-slate-100 text-slate-500 hover:text-slate-700";
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className={`text-xl font-bold ${ht}`}>Institute Financials</h1>
+        <h1 className={`text-xl font-bold ${ht}`}>Company Finance</h1>
         <p className={`text-sm mt-0.5 ${mt}`}>
-          Financial breakdown, course collections, and outstanding dues grouped
-          by institute
+          Course payment records grouped by Training Institute
         </p>
       </div>
 
@@ -178,48 +194,48 @@ export default function InstituteFinancePage() {
 
       <div className={card}>
         <div
-          className={`grid grid-cols-2 xl:grid-cols-4 divide-x divide-y xl:divide-y-0 ${divider}`}
+          className={`grid grid-cols-2 xl:grid-cols-4 divide-x divide-y xl:divide-y-0 ${dk ? "divide-white/[0.05]" : "divide-slate-100"}`}
         >
           {[
+            { label: "Institutes", val: instituteGroups.length, cls: ht },
             {
-              label: "Active Institutes",
-              value: String(stats.totalInst),
-              icon: Building,
-              bg: dk ? "bg-indigo-500/15" : "bg-indigo-50",
-              color: "#6366f1",
-            },
-            {
-              label: "Total Billed",
-              value: `₹${(stats.totalRev / 1000).toFixed(0)}K`,
-              icon: Building,
-              bg: dk ? "bg-sky-500/15" : "bg-sky-50",
-              color: "#0ea5e9",
+              label: "Total Revenue",
+              val:
+                "₹" +
+                (mockPayments.reduce((s, p) => s + p.amount, 0) / 1000).toFixed(
+                  1,
+                ) +
+                "K",
+              cls: dk ? "text-indigo-400" : "text-indigo-600",
             },
             {
               label: "Amount Received",
-              value: `₹${(stats.totalRec / 1000).toFixed(0)}K`,
-              icon: CheckCircle2,
-              bg: dk ? "bg-emerald-500/15" : "bg-emerald-50",
-              color: "#10b981",
+              val:
+                "₹" +
+                (
+                  mockPayments
+                    .filter((p) => p.status === "Paid")
+                    .reduce((s, p) => s + p.amount, 0) / 1000
+                ).toFixed(1) +
+                "K",
+              cls: dk ? "text-emerald-400" : "text-emerald-600",
             },
             {
-              label: "Pending Collection",
-              value: `₹${(stats.totalPend / 1000).toFixed(0)}K`,
-              icon: Clock,
-              bg: dk ? "bg-amber-500/15" : "bg-amber-50",
-              color: "#f59e0b",
+              label: "Pending Amount",
+              val:
+                "₹" +
+                (
+                  mockPayments
+                    .filter((p) => p.status !== "Paid")
+                    .reduce((s, p) => s + p.amount, 0) / 1000
+                ).toFixed(1) +
+                "K",
+              cls: dk ? "text-amber-400" : "text-amber-600",
             },
           ].map((s) => (
-            <div key={s.label} className="p-5 flex items-center gap-4">
-              <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${s.bg}`}
-              >
-                <s.icon className="w-5 h-5" style={{ color: s.color }} />
-              </div>
-              <div>
-                <p className={`text-2xl font-bold ${ht}`}>{s.value}</p>
-                <p className={`text-[11px] mt-0.5 ${mt}`}>{s.label}</p>
-              </div>
+            <div key={s.label} className="px-6 py-4 text-center">
+              <p className={`text-2xl font-bold ${s.cls}`}>{s.val}</p>
+              <p className={`text-[11px] mt-0.5 ${mt}`}>{s.label}</p>
             </div>
           ))}
         </div>
@@ -227,126 +243,105 @@ export default function InstituteFinancePage() {
 
       <div className={`${card} p-6`}>
         <h2 className={`text-sm font-bold mb-5 ${ht}`}>Revenue by Institute</h2>
-        <div className="h-72">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart
-              data={instituteGroups.map((g) => ({
-                name:
-                  g.instituteName.length > 15
-                    ? g.instituteName.slice(0, 12) + "..."
-                    : g.instituteName,
-                fullName: g.instituteName,
-                Received: g.amountReceived,
-                Pending: g.pendingAmount,
-              }))}
-              barGap={6}
-              margin={{ top: 10, right: 10, left: 0, bottom: 25 }}
-            >
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke={dk ? "rgba(255,255,255,0.06)" : "#e2e8f0"}
-                vertical={false}
-              />
-              <XAxis
-                dataKey="name"
-                tick={(props: {
-                  x?: number;
-                  y?: number;
-                  payload?: { value?: string };
-                }) => {
-                  const { x = 0, y = 0, payload } = props;
-                  const words = String(payload?.value || "").split(" ");
-                  const line1 = words
-                    .slice(0, Math.ceil(words.length / 2))
-                    .join(" ");
-                  const line2 = words
-                    .slice(Math.ceil(words.length / 2))
-                    .join(" ");
-                  const textColor = dk ? "#f1f5f9" : "#000000";
-                  return (
-                    <g transform={`translate(${x},${y})`}>
-                      <text
-                        x={0}
-                        y={10}
-                        dy={0}
-                        textAnchor="middle"
-                        fill={textColor}
-                        fontSize={10}
-                        fontWeight={600}
-                      >
-                        {line1}
-                      </text>
-                      {line2 && (
-                        <text
-                          x={0}
-                          y={10}
-                          dy={12}
-                          textAnchor="middle"
-                          fill={textColor}
-                          fontSize={10}
-                          fontWeight={600}
-                        >
-                          {line2}
-                        </text>
-                      )}
-                    </g>
-                  );
-                }}
-                axisLine={{ stroke: dk ? "rgba(255,255,255,0.1)" : "#cbd5e1" }}
-                tickLine={false}
-                interval={0}
-                height={50}
-              />
-              <YAxis
-                tick={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  fill: dk ? "#cbd5e1" : "#000000",
-                }}
-                axisLine={false}
-                tickLine={false}
-                tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`}
-              />
-              <Tooltip
-                formatter={(val: unknown, name: unknown) => [
-                  `₹${Number(val).toLocaleString("en-IN")}`,
-                  String(name),
-                ]}
-                labelFormatter={(_label, payload) => {
-                  if (
-                    payload &&
-                    payload.length > 0 &&
-                    payload[0].payload?.fullName
-                  ) {
-                    return payload[0].payload.fullName;
-                  }
-                  return String(_label);
-                }}
-                contentStyle={{
-                  backgroundColor: dk ? "#0c1a2e" : "#ffffff",
-                  borderColor: dk ? "rgba(255,255,255,0.1)" : "#cbd5e1",
-                  borderRadius: "12px",
-                  color: dk ? "#ffffff" : "#000000",
-                  fontSize: 12,
-                  fontWeight: 600,
-                  boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)",
-                }}
-              />
-              <Legend
-                iconType="square"
-                iconSize={10}
-                wrapperStyle={{
-                  fontSize: 11,
-                  fontWeight: 600,
-                  color: dk ? "#ffffff" : "#000000",
-                  paddingTop: 12,
-                }}
-              />
-              <Bar dataKey="Received" fill="#10b981" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="Pending" fill="#f59e0b" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
+        {instituteGroups.length === 0 ? (
+          <p className={`text-sm ${mt} text-center py-8`}>No data available</p>
+        ) : (
+          <div className="h-72">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={instituteGroups.map((g) => {
+                  // Clean readable short display name for horizontal axis
+                  const shortName = g.instituteName
+                    .replace("Maritime Training Institute", "MTI")
+                    .replace("Training Institute", "Inst.")
+                    .replace("Maritime Center", "Maritime");
+                  const displayName =
+                    shortName.length > 22
+                      ? shortName.slice(0, 20) + "…"
+                      : shortName;
+
+                  return {
+                    name: displayName,
+                    fullName: g.instituteName,
+                    Received: g.amountReceived,
+                    Pending: g.pendingAmount,
+                  };
+                })}
+                barGap={6}
+                barCategoryGap="25%"
+                margin={{ top: 10, right: 10, left: 0, bottom: 25 }}
+              >
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke={dk ? "rgba(255,255,255,0.06)" : "#e2e8f0"}
+                  vertical={false}
+                />
+                <XAxis
+                  dataKey="name"
+                  tick={{
+                    fontSize: 11,
+                    fontWeight: "600",
+                    fill: dk ? "#f1f5f9" : "#1e293b",
+                  }}
+                  axisLine={{
+                    stroke: dk ? "rgba(255,255,255,0.1)" : "#cbd5e1",
+                  }}
+                  tickLine={false}
+                  interval={0}
+                  angle={0}
+                  textAnchor="middle"
+                  dy={10}
+                />
+                <YAxis
+                  tick={{
+                    fontSize: 11,
+                    fontWeight: "500",
+                    fill: dk ? "#cbd5e1" : "#475569",
+                  }}
+                  axisLine={false}
+                  tickLine={false}
+                  tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`}
+                />
+                <Tooltip
+                  formatter={(val: number | string, name: number | string) => [
+                    `₹${Number(val).toLocaleString("en-IN")}`,
+                    String(name),
+                  ]}
+                  labelFormatter={(_label, payload) => {
+                    if (
+                      payload &&
+                      payload.length > 0 &&
+                      payload[0].payload?.fullName
+                    ) {
+                      return payload[0].payload.fullName;
+                    }
+                    return _label;
+                  }}
+                  contentStyle={{
+                    backgroundColor: dk ? "#0c1a2e" : "#ffffff",
+                    borderColor: dk ? "rgba(255,255,255,0.1)" : "#cbd5e1",
+                    borderRadius: "12px",
+                    color: dk ? "#ffffff" : "#0f172a",
+                    fontSize: 12,
+                    fontWeight: 600,
+                    boxShadow: "0 10px 25px -5px rgba(0, 0, 0, 0.2)",
+                  }}
+                />
+                <Legend
+                  iconType="square"
+                  iconSize={10}
+                  wrapperStyle={{
+                    fontSize: 11,
+                    fontWeight: 500,
+                    paddingTop: 12,
+                  }}
+                />
+                <Bar dataKey="Received" fill="#10b981" radius={[4, 4, 0, 0]} />
+                <Bar dataKey="Pending" fill="#f59e0b" radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        )}
       </div>
 
       {/* Filters */}
@@ -437,7 +432,7 @@ export default function InstituteFinancePage() {
                     <p className={`text-[10px] ${mt}`}>Pending</p>
                   </div>
                   <span
-                    className={`hidden sm:inline-flex items-center gap-1 text-[11px] font-semibold ${statusCls(status)}`}
+                    className={`hidden sm:inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-1 rounded-full ${statusCls(status)}`}
                   >
                     {statusIcon(status === "Partial" ? "Pending" : status)}
                     {status}
@@ -519,7 +514,7 @@ export default function InstituteFinancePage() {
                             </td>
                             <td className="px-5 py-3">
                               <span
-                                className={`inline-flex items-center gap-1 text-[11px] font-semibold ${statusCls(rowStatus)}`}
+                                className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${statusCls(rowStatus)}`}
                               >
                                 {statusIcon(
                                   rowStatus === "Partial"
