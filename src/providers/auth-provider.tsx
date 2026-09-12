@@ -33,7 +33,7 @@ interface User {
     country?: string;
     zipCode?: string;
     profilePicture?: string;
-    seaService?: any[];
+    seaService?: Record<string, unknown>[];
   };
 }
 
@@ -41,13 +41,13 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: any) => Promise<any>;
-  register: (userDetails: any) => Promise<any>;
+  login: (credentials: Record<string, unknown>) => Promise<User>;
+  register: (userDetails: Record<string, unknown>) => Promise<User>;
   logout: () => Promise<void>;
-  updateProfile: (details: any) => Promise<void>;
+  updateProfile: (details: Record<string, unknown>) => Promise<void>;
   uploadProfilePhoto: (file: File) => Promise<string>;
-  updateSecurity: (securityDetails: any) => Promise<void>;
-  addSeaService: (record: any) => Promise<any>;
+  updateSecurity: (securityDetails: Record<string, unknown>) => Promise<void>;
+  addSeaService: (record: Record<string, unknown>) => Promise<unknown>;
   deleteSeaService: (recordId: string) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -69,11 +69,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (!token.includes(".")) {
           return JSON.parse(atob(token));
         }
-      } catch (_) {}
+      } catch {
+        // Not a base64 encoded JSON token
+      }
 
       // Only call seafarer profile endpoint for seafarer roles
       const role = getCookie("user_role") || "";
-      const roleNorm = role?.toLowerCase().replace('_', '-');
+      const roleNorm = role?.toLowerCase().replace("_", "-");
       if (roleNorm === "seafarer") {
         const response = await api.get("/users/profile").catch(() => null);
         if (response && response.data && response.data.id) {
@@ -81,11 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
       }
       const authRes = await api.get("/auth/profile").catch(async () => {
-        const token = getCookie("auth_token");
-        if (token) {
-          const localRes = await axios.get("/api/auth/profile", {
-            headers: { Authorization: `Bearer ${token}` }
-          }).catch(() => null);
+        const currentToken = getCookie("auth_token");
+        if (currentToken) {
+          const localRes = await axios
+            .get("/api/auth/profile", {
+              headers: { Authorization: `Bearer ${currentToken}` },
+            })
+            .catch(() => null);
           return localRes;
         }
         return null;
@@ -106,31 +110,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const bootstrapSession = async () => {
-      // ISSUE-016: Use shared resolveAuthToken() from axios instead of duplicating route logic
       const token = getCookie("auth_token");
-      let currentRole = "";
-
-      if (token && typeof window !== "undefined") {
-        const pathname = window.location.pathname;
-        if (pathname.startsWith("/agent-admin")) {
-          currentRole = "agent-admin";
-        } else if (pathname.startsWith("/agent")) {
-          currentRole = "agent";
-        } else if (pathname.startsWith("/company-admin")) {
-          currentRole = "company-admin";
-        } else if (pathname.startsWith("/master")) {
-          currentRole = "master";
-        } else if (pathname.startsWith("/seafarer")) {
-          currentRole = "seafarer";
-        }
-      }
 
       if (token) {
         const profileUser = await fetchProfile();
         if (profileUser) {
           setUser(profileUser);
 
-          // ISSUE-017: Only set ONE cookie for onboarding status (not role-specific duplicates)
+          // ISSUE-017: Only set ONE cookie for onboarding status
           if (profileUser.onboardingStatus) {
             setCookie("onboarding_status", profileUser.onboardingStatus);
           } else {
@@ -150,44 +137,95 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     bootstrapSession();
   }, [router]);
 
-  const login = async (credentials: any) => {
+  const login = async (credentials: Record<string, unknown>) => {
     setIsLoading(true);
     try {
-      const email = (credentials.email || "").trim().toLowerCase();
-      const cleanPassword = (credentials.password || "").trim();
+      const email = String(credentials.email || "")
+        .trim()
+        .toLowerCase();
+      const cleanPassword = String(credentials.password || "").trim();
       let reqEmail = email;
-      if (email === "agentadmin@thalassic.in" || email === "agentadmin") reqEmail = "admin@thalassic.in";
-      if (email === "partner@thalassic.in" || email === "partner") reqEmail = "agent@thalassic.in";
+      if (email === "agentadmin@thalassic.in" || email === "agentadmin")
+        reqEmail = "admin@thalassic.in";
+      if (email === "partner@thalassic.in" || email === "partner")
+        reqEmail = "agent@thalassic.in";
 
-      let responseData: any = null;
+      let responseData: { token: string; user: User } | null = null;
 
       try {
-        const response = await api.post("/auth/login", { ...credentials, email: reqEmail, password: cleanPassword });
+        const response = await api.post("/auth/login", {
+          ...credentials,
+          email: reqEmail,
+          password: cleanPassword,
+        });
         responseData = response.data;
-      } catch (apiErr: any) {
+      } catch (apiErr: unknown) {
         // Fallback for demo credentials if remote backend fails, cold-starts, or returns 400
-        const DEMO_FALLBACKS: Record<string, { role: string; name: string; phone: string }> = {
-          "master@gmail.com":          { role: "MASTER",        name: "Master Admin",   phone: "+91 90000 00000" },
-          "admin@thalassic.in":        { role: "AGENT_ADMIN",   name: "Agent Admin",    phone: "+91 88888 77777" },
-          "agentadmin@thalassic.in":   { role: "AGENT_ADMIN",   name: "Agent Admin",    phone: "+91 88888 77777" },
-          "agent@thalassic.in":        { role: "AGENT",         name: "Agent User",     phone: "+91 99999 88888" },
-          "partner@thalassic.in":      { role: "AGENT",         name: "Partner User",   phone: "+91 99999 88888" },
-          "seafarer@test.com":         { role: "SEAFARER",      name: "Test Seafarer",  phone: "+91 98765 43210" },
-          "companyadmin@thalassic.in": { role: "COMPANY_ADMIN", name: "Company Admin",  phone: "+91 77777 66666" },
-          "raj@example.com":           { role: "SEAFARER",      name: "Raj Kumar",      phone: "+91 98201 12345" },
-          "priya@example.com":         { role: "SEAFARER",      name: "Priya Singh",    phone: "+91 97112 34567" },
-          "amit@example.com":          { role: "SEAFARER",      name: "Amit Patel",     phone: "+91 98989 89898" },
+        const DEMO_FALLBACKS: Record<
+          string,
+          { role: string; name: string; phone: string }
+        > = {
+          "master@gmail.com": {
+            role: "MASTER",
+            name: "Master Admin",
+            phone: "+91 90000 00000",
+          },
+          "admin@thalassic.in": {
+            role: "AGENT_ADMIN",
+            name: "Agent Admin",
+            phone: "+91 88888 77777",
+          },
+          "agentadmin@thalassic.in": {
+            role: "AGENT_ADMIN",
+            name: "Agent Admin",
+            phone: "+91 88888 77777",
+          },
+          "agent@thalassic.in": {
+            role: "AGENT",
+            name: "Agent User",
+            phone: "+91 99999 88888",
+          },
+          "partner@thalassic.in": {
+            role: "AGENT",
+            name: "Partner User",
+            phone: "+91 99999 88888",
+          },
+          "seafarer@test.com": {
+            role: "SEAFARER",
+            name: "Test Seafarer",
+            phone: "+91 98765 43210",
+          },
+          "companyadmin@thalassic.in": {
+            role: "COMPANY_ADMIN",
+            name: "Company Admin",
+            phone: "+91 77777 66666",
+          },
+          "raj@example.com": {
+            role: "SEAFARER",
+            name: "Raj Kumar",
+            phone: "+91 98201 12345",
+          },
+          "priya@example.com": {
+            role: "SEAFARER",
+            name: "Priya Singh",
+            phone: "+91 97112 34567",
+          },
+          "amit@example.com": {
+            role: "SEAFARER",
+            name: "Amit Patel",
+            phone: "+91 98989 89898",
+          },
         };
 
         const matched = DEMO_FALLBACKS[email] || DEMO_FALLBACKS[reqEmail];
-        const isDemoPassword = 
-          cleanPassword.toLowerCase() === "admin123" || 
-          cleanPassword === "password123" || 
+        const isDemoPassword =
+          cleanPassword.toLowerCase() === "admin123" ||
+          cleanPassword === "password123" ||
           cleanPassword === "master123" ||
           cleanPassword.length >= 6;
 
         if (matched && isDemoPassword) {
-          const user = {
+          const demoUser: User = {
             id: `usr-${Date.now()}`,
             email: email,
             name: matched.name,
@@ -195,11 +233,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             phone: matched.phone,
             onboardingStatus: "Active",
           };
-          const token = btoa(JSON.stringify(user));
-          responseData = { token, user };
+          const token = btoa(JSON.stringify(demoUser));
+          responseData = { token, user: demoUser };
         } else {
           throw apiErr;
         }
+      }
+
+      if (!responseData) {
+        throw new Error("Login failed");
       }
 
       const { token, user: loggedUser } = responseData;
@@ -214,19 +256,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(loggedUser);
       return loggedUser;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || err.message || "Invalid email or password");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message ||
+          errorObj.message ||
+          "Invalid email or password",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (userDetails: any) => {
+  const register = async (userDetails: Record<string, unknown>) => {
     setIsLoading(true);
     try {
       const response = await api.post("/auth/register", userDetails);
       const { token, user: registeredUser } = response.data;
-      const roleSuffix = registeredUser.role.toLowerCase().replace('_', '-');
 
       // ISSUE-017: Only set ONE auth_token cookie (not multiple role-specific copies)
       setCookie("auth_token", token);
@@ -242,8 +291,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(finalUser);
       return finalUser;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Registration failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Registration failed",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -256,22 +311,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error("Logout API call warning: ", err);
     } finally {
-      // ISSUE-017: Clean up only the core cookies
-      deleteCookie("auth_token");
-      deleteCookie("user_role");
-      deleteCookie("onboarding_status");
+      // Clean up all auth and session cookies
+      const cookieKeys = [
+        "auth_token",
+        "token",
+        "user_role",
+        "role",
+        "onboarding_status",
+        "onboarding_status_agent",
+        "onboarding_status_seafarer",
+        "onboarding_status_master",
+        "onboarding_status_company",
+      ];
+      cookieKeys.forEach((key) => deleteCookie(key));
+
+      // Clear local and session storage
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem("token");
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("user_role");
+          sessionStorage.clear();
+        } catch {
+          // Ignore storage access errors
+        }
+      }
+
       setUser(null);
       setIsLoading(false);
-      router.push("/login");
+
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      } else {
+        router.push("/login");
+      }
     }
   };
 
-  const updateProfile = async (details: any) => {
+  const updateProfile = async (details: Record<string, unknown>) => {
     try {
       await api.put("/users/profile", details);
       await refreshProfile();
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Profile update failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Profile update failed",
+      );
     }
   };
 
@@ -284,26 +373,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       await refreshProfile();
       return res.data.profilePicture;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Profile photo upload failed. Please try again.");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message ||
+          "Profile photo upload failed. Please try again.",
+      );
     }
   };
 
-  const updateSecurity = async (securityDetails: any) => {
+  const updateSecurity = async (securityDetails: Record<string, unknown>) => {
     try {
       await api.put("/users/security", securityDetails);
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Security update failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Security update failed",
+      );
     }
   };
 
-  const addSeaService = async (record: any) => {
+  const addSeaService = async (record: Record<string, unknown>) => {
     try {
       const response = await api.post("/users/sea-service", record);
       await refreshProfile();
       return response.data;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Sea service insert failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Sea service insert failed",
+      );
     }
   };
 
@@ -311,8 +419,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await api.delete(`/users/sea-service/${recordId}`);
       await refreshProfile();
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Sea service delete failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Sea service delete failed",
+      );
     }
   };
 
