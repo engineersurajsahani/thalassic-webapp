@@ -138,22 +138,14 @@ export default function InstituteFinancePage() {
         inst.courseRows.push(courseRow);
       }
 
-      cRow.seafarerIds.add(p.seafarerId || p.seafarerName);
-      cRow.totalAmount += p.amount;
-      if (p.status === "Paid") cRow.amountReceived += p.amount;
-      else cRow.pendingAmount += p.amount;
+      courseRow.seafarerIds.add(p.seafarerId || p.seafarerName);
+      courseRow.totalAmount += p.amount;
+      if (p.status === "Paid") courseRow.amountReceived += p.amount;
+      else courseRow.pendingAmount += p.amount;
     });
 
     return Object.values(byInstitute);
   }, []);
-
-  const stats = useMemo(() => {
-    const totalInst = instituteGroups.length;
-    const totalRev = instituteGroups.reduce((s, g) => s + g.totalAmount, 0);
-    const totalRec = instituteGroups.reduce((s, g) => s + g.amountReceived, 0);
-    const totalPend = instituteGroups.reduce((s, g) => s + g.pendingAmount, 0);
-    return { totalInst, totalRev, totalRec, totalPend };
-  }, [instituteGroups]);
 
   const overallStatus = (received: number, pending: number) => {
     if (pending === 0) return "Paid";
@@ -175,11 +167,6 @@ export default function InstituteFinancePage() {
       return matchQ && matchS;
     });
   }, [instituteGroups, query, filterStatus]);
-
-  const chipAct = "bg-sky-500 text-white";
-  const chipIn = dk
-    ? "bg-white/5 text-white/40 hover:text-white/60"
-    : "bg-slate-100 text-slate-500 hover:text-slate-700";
 
   return (
     <div className="space-y-6">
@@ -303,8 +290,9 @@ export default function InstituteFinancePage() {
                   tickFormatter={(v) => `₹${(v / 1000).toFixed(0)}K`}
                 />
                 <Tooltip
-                  formatter={(val: number | string, name: number | string) => [
-                    `₹${Number(val).toLocaleString("en-IN")}`,
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  formatter={(val: any, name: any) => [
+                    `₹${Number(val ?? 0).toLocaleString("en-IN")}`,
                     String(name),
                   ]}
                   labelFormatter={(_label, payload) => {
