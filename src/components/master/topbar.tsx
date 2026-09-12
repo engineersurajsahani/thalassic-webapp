@@ -53,12 +53,13 @@ interface Notification {
 
 export default function MasterTopbar() {
   const { theme, toggleTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const isDark = theme === "dark";
   const pathname = usePathname();
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   const currentPage = pageNames[pathname] || "Dashboard";
   const isHome = pathname === "/master/dashboard";
@@ -269,38 +270,108 @@ export default function MasterTopbar() {
           className={`w-px h-5 mx-1 ${isDark ? "bg-white/10" : "bg-slate-200"}`}
         />
 
-        <button aria-label="Profile" className="flex items-center gap-2.5">
-          <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden border ${
-              isDark
-                ? "bg-[#0a1525] border-white/10"
-                : "bg-white border-slate-200"
-            }`}
+        <div className="relative">
+          <button
+            onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+            aria-label="Profile"
+            className="flex items-center gap-2.5 cursor-pointer"
           >
-            <Image
-              src="/logo/hariom_logo.png"
-              alt="Hari Om Thalassic"
-              width={32}
-              height={32}
-              className="object-contain w-6 h-6"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
-            />
-          </div>
-          <div className="hidden sm:flex flex-col items-start leading-tight">
-            <span
-              className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden border ${
+                isDark
+                  ? "bg-[#0a1525] border-white/10"
+                  : "bg-white border-slate-200"
+              }`}
             >
-              {user?.name || "Master Admin"}
-            </span>
-            <span
-              className={`text-[10px] ${isDark ? "text-white/30" : "text-slate-400"}`}
-            >
-              Super Admin
-            </span>
-          </div>
-        </button>
+              <Image
+                src="/logo/hariom_logo.png"
+                alt="Hari Om Thalassic"
+                width={32}
+                height={32}
+                className="object-contain w-6 h-6"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </div>
+            <div className="hidden sm:flex flex-col items-start leading-tight">
+              <span
+                className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}
+              >
+                {user?.name || "Master Admin"}
+              </span>
+              <span
+                className={`text-[10px] ${isDark ? "text-white/30" : "text-slate-400"}`}
+              >
+                Super Admin
+              </span>
+            </div>
+          </button>
+
+          {showProfileDropdown && (
+            <>
+              <div
+                className="fixed inset-0 z-30"
+                onClick={() => setShowProfileDropdown(false)}
+              />
+              <div
+                className={`absolute right-0 mt-2 w-48 border rounded-xl shadow-xl z-35 p-1.5 overflow-hidden animate-fadeIn ${
+                  isDark
+                    ? "bg-[#0c1a2e] border-white/5 text-white"
+                    : "bg-white border-slate-200 text-slate-900"
+                }`}
+              >
+                <div className="px-3 py-2 border-b border-solid border-slate-100 dark:border-white/5 mb-1.5 text-left">
+                  <p className="text-[9px] opacity-40 font-bold uppercase tracking-wider">
+                    Authorized Role
+                  </p>
+                  <p className="text-xs font-bold truncate mt-0.5 text-slate-700 dark:text-white">
+                    {user?.name || "Master Admin"}
+                  </p>
+                  <p className="text-[9px] opacity-55 truncate mt-0.5">
+                    {user?.email || "admin@thalassic.in"}
+                  </p>
+                </div>
+                <div className="space-y-0.5 text-left">
+                  <a
+                    href="/master/dashboard"
+                    onClick={() => setShowProfileDropdown(false)}
+                    className={`block w-full px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      isDark
+                        ? "hover:bg-white/5 text-slate-300"
+                        : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    Dashboard
+                  </a>
+                  <a
+                    href="/master/settings"
+                    onClick={() => setShowProfileDropdown(false)}
+                    className={`block w-full px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      isDark
+                        ? "hover:bg-white/5 text-slate-300"
+                        : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    Platform Settings
+                  </a>
+                  <div
+                    className={`h-px my-1.5 ${isDark ? "bg-white/5" : "bg-slate-100"}`}
+                  />
+                  <button
+                    onClick={() => {
+                      setShowProfileDropdown(false);
+                      logout();
+                    }}
+                    className="w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer text-red-500 hover:bg-red-500/10"
+                  >
+                    Sign Out Account
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );
