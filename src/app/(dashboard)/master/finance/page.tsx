@@ -60,15 +60,27 @@ export default function FinanceOverviewPage() {
     : "border-b border-slate-100 text-slate-400";
 
   // Aggregated figures (PRD 2.2)
-  const totalRevenueYear = 3455000;
-  const revenueCurrentMonth = 388000;
-  const totalReceived = 3250000;
-  const receivedFromPartners = 1605000;
-  const pendingFromPartners = 205000;
+  const totalRevenueYear = MOCK_PAYMENTS.reduce(
+    (acc, p) => acc + (p.amountPayable || 0),
+    0,
+  );
+  const revenueCurrentMonth = MOCK_PAYMENTS.reduce(
+    (acc, p) => acc + (p.amountPayable || 0),
+    0,
+  );
+  const totalReceived = MOCK_PAYMENTS.filter(
+    (p) => p.paymentStatus === "Received",
+  ).reduce((acc, p) => acc + (p.amountPayable || 0), 0);
+  const receivedFromPartners = MOCK_PAYMENTS.filter(
+    (p) => p.purchaseType === "Partner" && p.paymentStatus === "Received",
+  ).reduce((acc, p) => acc + (p.amountPayable || 0), 0);
+  const pendingFromPartners = MOCK_PAYMENTS.filter(
+    (p) => p.purchaseType === "Partner" && p.paymentStatus === "Pending",
+  ).reduce((acc, p) => acc + (p.amountPayable || 0), 0);
   const totalPaymentsCount = MOCK_PAYMENTS.length;
   const pendingPaymentsAmount = MOCK_PAYMENTS.filter(
     (p) => p.paymentStatus === "Pending",
-  ).reduce((acc, p) => acc + p.amountPayable, 0);
+  ).reduce((acc, p) => acc + (p.amountPayable || 0), 0);
 
   const ttStyle = {
     backgroundColor: dk ? "#0a1525" : "#ffffff",
