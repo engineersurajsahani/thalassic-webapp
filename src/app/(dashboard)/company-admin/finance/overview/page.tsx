@@ -303,11 +303,8 @@ export default function FinanceOverviewPage() {
                   />
                   <XAxis
                     dataKey="name"
-                    tick={(props: {
-                      x?: number;
-                      y?: number;
-                      payload?: { value?: string };
-                    }) => {
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    tick={(props: any) => {
                       const { x = 0, y = 0, payload } = props;
                       const words = String(payload?.value || "").split(" ");
                       const line1 = words

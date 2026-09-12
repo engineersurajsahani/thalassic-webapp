@@ -558,8 +558,12 @@ export default function MasterReportsPage() {
         s.status.toLowerCase() === statusFilter.toLowerCase();
       return matchQ && matchSource && matchStatus;
     }).sort((a, b) => {
-      const vA = String((a as Record<string, unknown>)[sortField] ?? a.name);
-      const vB = String((b as Record<string, unknown>)[sortField] ?? b.name);
+      const vA = String(
+        (a as unknown as Record<string, unknown>)[sortField] ?? a.name,
+      );
+      const vB = String(
+        (b as unknown as Record<string, unknown>)[sortField] ?? b.name,
+      );
       return sortOrder === "asc" ? vA.localeCompare(vB) : vB.localeCompare(vA);
     });
   }, [search, sourceFilter, statusFilter, sortField, sortOrder]);
@@ -1140,13 +1144,10 @@ export default function MasterReportsPage() {
                         color: dk ? "#ffffff" : "#1e293b",
                         fontSize: "12px",
                       }}
-                      formatter={(
-                        val: unknown,
-                        name: unknown,
-                        item: Record<string, unknown>,
-                      ) => [
-                        `${val} Enrolled (₹${(item.payload.revenue / 100000).toFixed(1)}L)`,
-                        item.payload.name,
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(val: any, _name: any, item: any) => [
+                        `${val} Enrolled (₹${(item?.payload?.revenue / 100000).toFixed(1)}L)`,
+                        item?.payload?.name,
                       ]}
                     />
                     <Bar dataKey="enrolled" radius={[0, 6, 6, 0]}>
@@ -1228,14 +1229,10 @@ export default function MasterReportsPage() {
                             color: dk ? "#ffffff" : "#1e293b",
                             fontSize: "12px",
                           }}
-                          formatter={(
-                            val: unknown,
-                            _: unknown,
-                            item: Record<string, unknown>,
-                          ) => [
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          formatter={(val: any, _: any, item: any) => [
                             `${val} Seafarers`,
-                            (item as Record<string, Record<string, unknown>>)
-                              .payload.name,
+                            item?.payload?.name,
                           ]}
                         />
                         <Legend
@@ -1566,14 +1563,10 @@ export default function MasterReportsPage() {
                         color: dk ? "#ffffff" : "#1e293b",
                         fontSize: "12px",
                       }}
-                      formatter={(
-                        val: unknown,
-                        _: unknown,
-                        item: Record<string, unknown>,
-                      ) => [
-                        `${val} Trained (${(item as Record<string, Record<string, unknown>>).payload.batches} batches, ⭐${(item as Record<string, Record<string, unknown>>).payload.rating})`,
-                        (item as Record<string, Record<string, unknown>>)
-                          .payload.name,
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(val: any, _: any, item: any) => [
+                        `${val} Trained (${item?.payload?.batches} batches, ⭐${item?.payload?.rating})`,
+                        item?.payload?.name,
                       ]}
                     />
                     <Bar dataKey="trained" radius={[0, 6, 6, 0]}>
@@ -1712,14 +1705,10 @@ export default function MasterReportsPage() {
                         color: dk ? "#ffffff" : "#1e293b",
                         fontSize: "12px",
                       }}
-                      formatter={(
-                        val: unknown,
-                        _: unknown,
-                        item: Record<string, unknown>,
-                      ) => [
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(val: any, _: any, item: any) => [
                         `${val} Enrolled`,
-                        (item as Record<string, Record<string, unknown>>)
-                          .payload.name,
+                        item?.payload?.name,
                       ]}
                     />
                     <Legend
@@ -1855,14 +1844,10 @@ export default function MasterReportsPage() {
                         color: dk ? "#ffffff" : "#1e293b",
                         fontSize: "12px",
                       }}
-                      formatter={(
-                        val: unknown,
-                        _: unknown,
-                        item: Record<string, unknown>,
-                      ) => [
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      formatter={(val: any, _: any, item: any) => [
                         `${val} Admin(s)`,
-                        (item as Record<string, Record<string, unknown>>)
-                          .payload.name,
+                        item?.payload?.name,
                       ]}
                     />
                   </RadialBarChart>
@@ -1990,14 +1975,10 @@ export default function MasterReportsPage() {
                             color: dk ? "#ffffff" : "#1e293b",
                             fontSize: "12px",
                           }}
-                          formatter={(
-                            val: unknown,
-                            _: unknown,
-                            item: Record<string, unknown>,
-                          ) => [
+                          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                          formatter={(val: any, _: any, item: any) => [
                             `${val} Enrollments`,
-                            (item as Record<string, Record<string, unknown>>)
-                              .payload.name,
+                            item?.payload?.name,
                           ]}
                         />
                         <Legend
