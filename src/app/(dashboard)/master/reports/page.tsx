@@ -59,280 +59,95 @@ import {
 } from "@/data/master-portal-mock";
 
 // Overall Performance Data (1.01.1 Benchmark)
-const OVERALL_PERFORMANCE_DATA = [
-  {
-    month: "Jan",
-    index: 0.96,
-    enrollments: 140,
-    completions: 128,
-    passRate: 91,
-  },
-  {
-    month: "Feb",
-    index: 0.98,
-    enrollments: 165,
-    completions: 152,
-    passRate: 92,
-  },
-  {
-    month: "Mar",
-    index: 1.01,
-    enrollments: 190,
-    completions: 180,
-    passRate: 95,
-  },
-  {
-    month: "Apr",
-    index: 1.02,
-    enrollments: 210,
-    completions: 202,
-    passRate: 96,
-  },
-  {
-    month: "May",
-    index: 1.01,
-    enrollments: 205,
-    completions: 195,
-    passRate: 95,
-  },
-  {
-    month: "Jun",
-    index: 1.03,
-    enrollments: 230,
-    completions: 220,
-    passRate: 96,
-  },
-  {
-    month: "Jul",
-    index: 1.04,
-    enrollments: 250,
-    completions: 242,
-    passRate: 97,
-  },
-  {
-    month: "Aug",
-    index: 1.06,
-    enrollments: 280,
-    completions: 271,
-    passRate: 97,
-  },
-  {
-    month: "Sep",
-    index: 1.08,
-    enrollments: 310,
-    completions: 298,
-    passRate: 98,
-  },
-];
+const OVERALL_PERFORMANCE_DATA: Array<{
+  month: string;
+  index: number;
+  enrollments: number;
+  completions: number;
+  passRate: number;
+}> = [];
 
 // Courses Sold More Data
-const COURSES_SOLD_DATA = [
-  {
-    name: "STCW Basic Safety (BST)",
-    shortName: "STCW-BST",
-    enrolled: 412,
-    revenue: 2060000,
-    category: "Safety",
-    color: "#38bdf8",
-  },
-  {
-    name: "Advanced Fire Fighting (AFF)",
-    shortName: "STCW-AFF",
-    enrolled: 289,
-    revenue: 2080800,
-    category: "Safety",
-    color: "#818cf8",
-  },
-  {
-    name: "Ship Nav & Radar Simulation",
-    shortName: "NAV-RADAR",
-    enrolled: 194,
-    revenue: 1319200,
-    category: "Technical",
-    color: "#a78bfa",
-  },
-  {
-    name: "Maritime Law & PSC Compliance",
-    shortName: "LAW-MAR",
-    enrolled: 137,
-    revenue: 438400,
-    category: "Compliance",
-    color: "#34d399",
-  },
-  {
-    name: "GMDSS General Operator (GOC)",
-    shortName: "GMDSS-GOC",
-    enrolled: 115,
-    revenue: 1322500,
-    category: "Radio",
-    color: "#fbbf24",
-  },
-  {
-    name: "Tanker Cargo Handling Safety",
-    shortName: "OPS-TANK",
-    enrolled: 98,
-    revenue: 921200,
-    category: "Operations",
-    color: "#f472b6",
-  },
-  {
-    name: "Engine Room Resource Mgmt",
-    shortName: "ENG-SIM",
-    enrolled: 86,
-    revenue: 670800,
-    category: "Technical",
-    color: "#f87171",
-  },
-];
+const COURSES_SOLD_DATA: Array<{
+  name: string;
+  shortName: string;
+  enrolled: number;
+  revenue: number;
+  category: string;
+  color: string;
+}> = [];
 
 // ── Seafarer tab chart data ──────────────────────────────────────────────────
-const SEAFARER_STATUS_DATA = [
-  { name: "Active", value: 0, color: "#34d399" },
-  { name: "Ongoing", value: 0, color: "#818cf8" },
-  { name: "On Hold", value: 0, color: "#fbbf24" },
-  { name: "Completed", value: 0, color: "#38bdf8" },
-  { name: "Inactive", value: 0, color: "#f87171" },
-];
+const SEAFARER_STATUS_DATA: Array<{
+  name: string;
+  value: number;
+  color: string;
+}> = [];
 
-const SEAFARER_MONTHLY_DATA = [
-  { month: "Jan", company: 22, partner: 18, direct: 8 },
-  { month: "Feb", company: 28, partner: 22, direct: 11 },
-  { month: "Mar", company: 34, partner: 29, direct: 15 },
-  { month: "Apr", company: 38, partner: 32, direct: 18 },
-  { month: "May", company: 42, partner: 35, direct: 20 },
-  { month: "Jun", company: 50, partner: 41, direct: 24 },
-  { month: "Jul", company: 58, partner: 47, direct: 28 },
-  { month: "Aug", company: 65, partner: 53, direct: 31 },
-  { month: "Sep", company: 72, partner: 60, direct: 35 },
-];
+const SEAFARER_MONTHLY_DATA: Array<{
+  month: string;
+  company: number;
+  partner: number;
+  direct: number;
+}> = [];
 
 // ── Partner tab chart data ───────────────────────────────────────────────────
-const PARTNER_PERF_DATA = [
-  { name: "Ocean Maritime", seafarers: 148, purchases: 312, color: "#38bdf8" },
-  { name: "SeaStar Crewing", seafarers: 121, purchases: 265, color: "#818cf8" },
-  { name: "Pacific Nautical", seafarers: 96, purchases: 188, color: "#a78bfa" },
-  { name: "BlueLine Mgmt", seafarers: 73, purchases: 141, color: "#34d399" },
-  { name: "Triton Crew", seafarers: 58, purchases: 99, color: "#fbbf24" },
-];
+const PARTNER_PERF_DATA: Array<{
+  name: string;
+  seafarers: number;
+  purchases: number;
+  color: string;
+}> = [];
 
-const PARTNER_TREND_DATA = [
-  { month: "Jan", active: 4, inactive: 1 },
-  { month: "Feb", active: 5, inactive: 1 },
-  { month: "Mar", active: 5, inactive: 2 },
-  { month: "Apr", active: 6, inactive: 2 },
-  { month: "May", active: 6, inactive: 1 },
-  { month: "Jun", active: 7, inactive: 1 },
-  { month: "Jul", active: 7, inactive: 2 },
-  { month: "Aug", active: 8, inactive: 1 },
-  { month: "Sep", active: 8, inactive: 2 },
-];
+const PARTNER_TREND_DATA: Array<{
+  month: string;
+  active: number;
+  inactive: number;
+}> = [];
 
 // ── Institute tab chart data ─────────────────────────────────────────────────
-const INSTITUTE_THROUGHPUT_DATA = [
-  {
-    name: "HIMT Chennai",
-    trained: 1420,
-    batches: 12,
-    rating: 4.8,
-    color: "#38bdf8",
-  },
-  {
-    name: "Anglo-East Acad.",
-    trained: 1180,
-    batches: 10,
-    rating: 4.7,
-    color: "#818cf8",
-  },
-  {
-    name: "AMET Univ.",
-    trained: 980,
-    batches: 9,
-    rating: 4.6,
-    color: "#a78bfa",
-  },
-  {
-    name: "MERI Mumbai",
-    trained: 860,
-    batches: 8,
-    rating: 4.5,
-    color: "#34d399",
-  },
-  {
-    name: "NIST Vizag",
-    trained: 720,
-    batches: 7,
-    rating: 4.4,
-    color: "#fbbf24",
-  },
-];
+const INSTITUTE_THROUGHPUT_DATA: Array<{
+  name: string;
+  trained: number;
+  batches: number;
+  rating: number;
+  color: string;
+}> = [];
 
-const INSTITUTE_MONTHLY_DATA = [
-  { month: "Jan", candidates: 110 },
-  { month: "Feb", candidates: 138 },
-  { month: "Mar", candidates: 162 },
-  { month: "Apr", candidates: 189 },
-  { month: "May", candidates: 204 },
-  { month: "Jun", candidates: 228 },
-  { month: "Jul", candidates: 251 },
-  { month: "Aug", candidates: 275 },
-  { month: "Sep", candidates: 310 },
-];
+const INSTITUTE_MONTHLY_DATA: Array<{ month: string; candidates: number }> = [];
 
 // ── Course tab chart data ────────────────────────────────────────────────────
-const COURSE_CATEGORY_DATA = [
-  { name: "Safety", value: 701, color: "#38bdf8" },
-  { name: "Technical", value: 280, color: "#818cf8" },
-  { name: "Compliance", value: 137, color: "#34d399" },
-  { name: "Radio", value: 115, color: "#fbbf24" },
-  { name: "Operations", value: 98, color: "#f472b6" },
-];
+const COURSE_CATEGORY_DATA: Array<{
+  name: string;
+  value: number;
+  color: string;
+}> = [];
 
-const COURSE_COMPLETION_DATA = [
-  { name: "STCW-BST", completion: 94, passRate: 91 },
-  { name: "STCW-AFF", completion: 91, passRate: 89 },
-  { name: "NAV-RADAR", completion: 88, passRate: 85 },
-  { name: "LAW-MAR", completion: 96, passRate: 94 },
-  { name: "GMDSS-GOC", completion: 87, passRate: 84 },
-  { name: "OPS-TANK", completion: 90, passRate: 88 },
-  { name: "ENG-SIM", completion: 85, passRate: 82 },
-];
+const COURSE_COMPLETION_DATA: Array<{
+  name: string;
+  completion: number;
+  passRate: number;
+}> = [];
 
 // ── Admin tab chart data ─────────────────────────────────────────────────────
-const ADMIN_ROLE_DATA = [
-  { name: "Master Super Admin", value: 1, fill: "#818cf8" },
-  { name: "Master Admin", value: 1, fill: "#38bdf8" },
-  { name: "Company Admin", value: 2, fill: "#34d399" },
-  { name: "Partner Admin", value: 3, fill: "#fbbf24" },
-];
+const ADMIN_ROLE_DATA: Array<{ name: string; value: number; fill: string }> =
+  [];
 
-const ADMIN_ACTIVITY_DATA = [
-  { day: "Mon", logins: 12 },
-  { day: "Tue", logins: 18 },
-  { day: "Wed", logins: 15 },
-  { day: "Thu", logins: 21 },
-  { day: "Fri", logins: 17 },
-  { day: "Sat", logins: 8 },
-  { day: "Sun", logins: 5 },
-];
+const ADMIN_ACTIVITY_DATA: Array<{ day: string; logins: number }> = [];
 
 // ── Progress tab chart data ──────────────────────────────────────────────────
-const PROGRESS_STATUS_DATA = [
-  { name: "Completed", value: 0, color: "#34d399" },
-  { name: "Ongoing", value: 0, color: "#818cf8" },
-  { name: "On Hold", value: 0, color: "#fbbf24" },
-];
+const PROGRESS_STATUS_DATA: Array<{
+  name: string;
+  value: number;
+  color: string;
+}> = [];
 
-const PROGRESS_MONTHLY_DATA = [
-  { month: "Jan", completions: 82, ongoing: 48, onHold: 12 },
-  { month: "Feb", completions: 95, ongoing: 56, onHold: 14 },
-  { month: "Mar", completions: 112, ongoing: 63, onHold: 15 },
-  { month: "Apr", completions: 128, ongoing: 72, onHold: 16 },
-  { month: "May", completions: 135, ongoing: 78, onHold: 17 },
-  { month: "Jun", completions: 149, ongoing: 84, onHold: 18 },
-  { month: "Jul", completions: 168, ongoing: 91, onHold: 19 },
-  { month: "Aug", completions: 187, ongoing: 98, onHold: 20 },
-  { month: "Sep", completions: 208, ongoing: 105, onHold: 21 },
-];
+const PROGRESS_MONTHLY_DATA: Array<{
+  month: string;
+  completions: number;
+  ongoing: number;
+  onHold: number;
+}> = [];
 
 // Secondary report categories (PRD 2.7)
 type ReportTab =
@@ -355,65 +170,15 @@ const REPORT_TABS: { id: ReportTab; label: string; icon: React.ElementType }[] =
     { id: "progress", label: "Course Progress Reports", icon: ClipboardList },
   ];
 
-// Admin mock records for 2.12
-const ADMIN_RECORDS = [
-  {
-    id: "ADM-01",
-    name: "Suraj Sahani",
-    role: "Master Super Admin",
-    company: "Hari Om Corporate",
-    status: "Active",
-    lastActive: "10 mins ago",
-  },
-  {
-    id: "ADM-02",
-    name: "Kirthish Shetty",
-    role: "Master Admin",
-    company: "Hari Om Corporate",
-    status: "Active",
-    lastActive: "Just now",
-  },
-  {
-    id: "ADM-03",
-    name: "Capt. M. Rao",
-    role: "Company Admin",
-    company: "ABC Shipping Ltd",
-    status: "Active",
-    lastActive: "2 hours ago",
-  },
-  {
-    id: "ADM-04",
-    name: "Rajeshwar Sen",
-    role: "Company Admin",
-    company: "Anglo-Eastern Group",
-    status: "Active",
-    lastActive: "1 day ago",
-  },
-  {
-    id: "ADM-05",
-    name: "Capt. Rajiv Mehta",
-    role: "Partner Admin",
-    company: "Ocean Maritime Services",
-    status: "Active",
-    lastActive: "15 mins ago",
-  },
-  {
-    id: "ADM-06",
-    name: "Ms. Ananya Roy",
-    role: "Partner Admin",
-    company: "SeaStar Crewing",
-    status: "Active",
-    lastActive: "3 hours ago",
-  },
-  {
-    id: "ADM-07",
-    name: "T. Sundar",
-    role: "Partner Admin",
-    company: "Pacific Nautical",
-    status: "Inactive",
-    lastActive: "2 weeks ago",
-  },
-];
+// Admin records
+const ADMIN_RECORDS: Array<{
+  id: string;
+  name: string;
+  role: string;
+  company: string;
+  status: string;
+  lastActive: string;
+}> = [];
 
 export default function MasterReportsPage() {
   const { theme } = useTheme();
