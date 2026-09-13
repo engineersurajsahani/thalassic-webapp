@@ -105,13 +105,13 @@ export default function PartnerCoursePricingPage() {
 
   // UI Tokens
   const bgCard = isDark
-    ? "bg-[#111827] border-0 card-elevated"
-    : "bg-white border-0 card-elevated";
-  const ht = isDark ? "text-white/90" : "text-[#111827]";
-  const mt = isDark ? "text-white/40" : "text-[#9CA3AF]";
+    ? "bg-[#0c1629] border-0 shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)]"
+    : "bg-white border-0 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)]";
+  const ht = isDark ? "text-white/90" : "text-slate-800";
+  const mt = isDark ? "text-white/40" : "text-slate-500";
   const inputCls = isDark
     ? "bg-white/5 border-white/10 text-white placeholder:text-white/20 focus:border-[#3D5EF6]"
-    : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#3D5EF6]";
+    : "bg-slate-50 border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-[#3D5EF6]";
 
   return (
     <div className="space-y-6">
@@ -127,7 +127,7 @@ export default function PartnerCoursePricingPage() {
             </h1>
           </div>
           <p className={`text-xs mt-1.5 ${mt}`}>
-            View applicable courses and manage your proposed Hari Om payable amounts.
+            View applicable courses and manage your proposed Hari Om payable amounts (PRD Section 4.5 & 4.6).
           </p>
         </div>
 
@@ -256,15 +256,15 @@ export default function PartnerCoursePricingPage() {
 
                     {/* Status Badge (PRD 4.7) */}
                     {isPending ? (
-                      <span className="flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#FEF3C7] text-[#B45309]">
-                        <Clock className="w-3 h-3 text-[#B45309]" /> Pending Approval
+                      <span className="flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/10 text-amber-500 dark:text-amber-400 border border-amber-500/20">
+                        <Clock className="w-3 h-3 text-amber-500 dark:text-amber-400" /> Pending Approval
                       </span>
                     ) : isRejected ? (
-                      <span className="flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#FEE2E2] text-[#DC2626]">
+                      <span className="flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-red-500/10 text-red-500">
                         <AlertCircle className="w-3 h-3" /> Proposal Rejected
                       </span>
                     ) : (
-                      <span className="flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-[#DCFCE7] text-[#16A34A]">
+                      <span className="flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500">
                         <CheckCircle2 className="w-3 h-3" /> Active (In Use)
                       </span>
                     )}
@@ -356,8 +356,8 @@ export default function PartnerCoursePricingPage() {
           onClick={() => setSelectedCourse(null)}
         >
           <div
-            className={`w-full max-w-lg rounded-[16px] p-7 card-elevated border-0 relative ${
-              isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
+            className={`w-full max-w-lg rounded-[16px] p-7 shadow-2xl relative ${
+              isDark ? "bg-[#0b172a] border border-white/10 text-white" : "bg-white text-slate-800"
             }`}
             onClick={(e) => e.stopPropagation()}
           >

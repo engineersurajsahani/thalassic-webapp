@@ -345,7 +345,7 @@ export default function CourseCatalogPage() {
                   <BookOpen className="w-12 h-12 text-slate-500 mx-auto mb-4" />
                   <h3 className="text-lg font-black mb-2">No Courses Found</h3>
                   <p className="text-xs text-slate-400 max-w-sm mx-auto mb-6">
-                    We couldn&apos;t find any courses matching your search query or filter combination.
+                    We couldn't find any courses matching your search query or filter combination.
                   </p>
                   <button
                     onClick={handleClearFilters}

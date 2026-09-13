@@ -17,16 +17,13 @@ import {
   Award,
   Calendar,
 } from "lucide-react";
-import dynamic from "next/dynamic";
-import ChartSkeleton from "@/components/ui/ChartSkeleton";
-
-const DocumentVerificationChart = dynamic(
-  () => import("@/components/company-admin/DocumentVerificationChart"),
-  {
-    ssr: false,
-    loading: () => <ChartSkeleton height="160px" />,
-  },
-);
+import {
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+} from "recharts";
 
 export default function DashboardPage() {
   const { theme } = useTheme();
@@ -36,30 +33,18 @@ export default function DashboardPage() {
   const totalSeafarers = mockSeafarers.length;
   const activeCourses = mockSeafarers.reduce(
     (acc, sf) =>
-      acc +
-      sf.courses.filter(
-        (c) => c.status === "Completed" || c.status === "In Progress",
-      ).length,
-    0,
+      acc + sf.courses.filter((c) => c.status === "Completed" || c.status === "In Progress").length,
+    0
   );
   const pendingDocs = mockSeafarers.reduce(
-    (acc, sf) =>
-      acc + sf.documents.filter((d) => d.status === "Pending").length,
-    0,
+    (acc, sf) => acc + sf.documents.filter((d) => d.status === "Pending").length,
+    0
   );
-  const activeApplications = mockSeafarers.filter(
-    (sf) => sf.status === "Pending",
-  ).length;
+  const activeApplications = mockSeafarers.filter((sf) => sf.status === "Pending").length;
 
   // Dynamic Upcoming Expiries List
   const upcomingExpiries = useMemo(() => {
-    const list: Array<{
-      seafarerName: string;
-      rank: string;
-      docName: string;
-      expiryDate: string;
-      daysLeft: number;
-    }> = [];
+    const list: Array<{ seafarerName: string; rank: string; docName: string; expiryDate: string; daysLeft: number }> = [];
     const today = new Date();
     mockSeafarers.forEach((sf) => {
       sf.documents.forEach((d) => {
@@ -93,13 +78,7 @@ export default function DashboardPage() {
 
   // Dynamic Latest Course Completions
   const latestCompletions = useMemo(() => {
-    const completions: Array<{
-      seafarerName: string;
-      rank: string;
-      courseName: string;
-      code: string;
-      date: string;
-    }> = [];
+    const completions: Array<{ seafarerName: string; rank: string; courseName: string; code: string; date: string }> = [];
     mockSeafarers.forEach((sf) => {
       sf.courses.forEach((c) => {
         if (c.status === "Completed") {
@@ -124,7 +103,7 @@ export default function DashboardPage() {
       });
       return acc;
     },
-    { Approved: 0, Pending: 0, Rejected: 0, Expiring: 0 },
+    { Approved: 0, Pending: 0, Rejected: 0, Expiring: 0 }
   );
 
   const documentStatusData = Object.keys(docStatusCounts).map((key) => ({
@@ -138,9 +117,7 @@ export default function DashboardPage() {
     : ["#0284c7", "#d97706", "#e11d48", "#059669"]; // sky-600, amber-600, rose-600, emerald-600
 
   const cardClasses = `p-5 rounded-xl border transition-all duration-200 hover:shadow-sm ${
-    isDark
-      ? "bg-[#0c1a2e] border-white/5 text-white"
-      : "bg-white border-slate-200 text-slate-800"
+    isDark ? "bg-[#0c1a2e] border-white/5 text-white" : "bg-white border-slate-200 text-slate-800"
   }`;
 
   return (
@@ -148,16 +125,11 @@ export default function DashboardPage() {
       {/* Welcome Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1
-            className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}
-          >
+          <h1 className={`text-xl font-bold tracking-tight ${isDark ? "text-white" : "text-slate-800"}`}>
             Company Dashboard
           </h1>
-          <p
-            className={`text-[11px] mt-0.5 ${isDark ? "text-white/40" : "text-slate-500"}`}
-          >
-            Monitor your shipping crew&apos;s certifications, courses, and
-            compliance status.
+          <p className={`text-[11px] mt-0.5 ${isDark ? "text-white/40" : "text-slate-500"}`}>
+            Monitor your shipping crew's certifications, courses, and compliance status.
           </p>
         </div>
       </div>
@@ -188,25 +160,44 @@ export default function DashboardPage() {
 
       {/* Main Content Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
         {/* Column 1: Verification & Notices */}
         <div className="space-y-6">
           {/* Document Status Pie Chart */}
           <div className={cardClasses}>
-            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-4">
-              Document Verification Status
-            </h3>
-            <DocumentVerificationChart
-              data={documentStatusData}
-              colors={COLORS}
-              isDark={isDark}
-            />
+            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-4">Document Verification Status</h3>
+            <div className="h-40 w-full flex items-center justify-center">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={documentStatusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={45}
+                    outerRadius={60}
+                    paddingAngle={4}
+                    dataKey="value"
+                  >
+                    {documentStatusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: isDark ? "#0c1a2e" : "#ffffff",
+                      borderColor: isDark ? "rgba(255,255,255,0.1)" : "#cbd5e1",
+                      color: isDark ? "#fff" : "#000",
+                      fontSize: 11,
+                      borderRadius: 8,
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
             {/* Legend */}
             <div className="grid grid-cols-2 gap-2 mt-4 text-[10px]">
               {documentStatusData.map((item, index) => (
-                <div
-                  key={item.name}
-                  className="flex items-center gap-1.5 justify-start"
-                >
+                <div key={item.name} className="flex items-center gap-1.5 justify-start">
                   <span
                     className="w-2 h-2 rounded-sm shrink-0"
                     style={{ backgroundColor: COLORS[index % COLORS.length] }}
@@ -221,9 +212,7 @@ export default function DashboardPage() {
 
           {/* Urgent Notices Panel */}
           <div className={cardClasses}>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-red-500 mb-3">
-              Urgent Safety Notices
-            </h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-red-500 mb-3">Urgent Safety Notices</h3>
             <div className="space-y-3">
               {mockNotifications
                 .filter((n) => n.type === "warning" || n.type === "danger")
@@ -240,9 +229,7 @@ export default function DashboardPage() {
                     <AlertTriangle className="w-4 h-4 shrink-0 text-red-500 mt-0.5" />
                     <div className="min-w-0 flex-1">
                       <p className="font-semibold">{n.message}</p>
-                      <span className="text-[9px] opacity-50 block mt-1">
-                        {n.timestamp}
-                      </span>
+                      <span className="text-[9px] opacity-50 block mt-1">{n.timestamp}</span>
                     </div>
                   </div>
                 ))}
@@ -254,9 +241,7 @@ export default function DashboardPage() {
         <div className="space-y-6">
           {/* Recent Registrations list */}
           <div className={cardClasses}>
-            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-3">
-              Recent Registrations
-            </h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-3">Recent Registrations</h3>
             <div className="space-y-3">
               {recentRegistrations.map((sf) => (
                 <div
@@ -265,16 +250,11 @@ export default function DashboardPage() {
                 >
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-7 h-7 rounded-full bg-sky-500/10 text-sky-400 flex items-center justify-center text-[10px] font-black uppercase shrink-0">
-                      {sf.name
-                        .split(" ")
-                        .map((n) => n[0])
-                        .join("")}
+                      {sf.name.split(" ").map((n) => n[0]).join("")}
                     </div>
                     <div className="min-w-0">
                       <p className="text-xs font-bold truncate">{sf.name}</p>
-                      <p className="text-[10px] opacity-50 truncate">
-                        {sf.rank} • {sf.dept}
-                      </p>
+                      <p className="text-[10px] opacity-50 truncate">{sf.rank} • {sf.dept}</p>
                     </div>
                   </div>
                   <StatusBadge status={sf.status} />
@@ -285,9 +265,7 @@ export default function DashboardPage() {
 
           {/* Upcoming Document Expiries */}
           <div className={cardClasses}>
-            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-3">
-              Upcoming Expiries
-            </h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-3">Upcoming Expiries</h3>
             <div className="space-y-3">
               {upcomingExpiries.length === 0 ? (
                 <div className="text-center py-6 text-[10px] text-slate-400">
@@ -300,18 +278,12 @@ export default function DashboardPage() {
                     className="p-2.5 rounded-lg border border-slate-100 dark:border-white/3 space-y-1.5 text-[11px] leading-relaxed"
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <strong className="truncate font-bold leading-none">
-                        {exp.seafarerName}
-                      </strong>
-                      <span className="text-[10px] opacity-50 shrink-0 font-medium">
-                        {exp.rank}
-                      </span>
+                      <strong className="truncate font-bold leading-none">{exp.seafarerName}</strong>
+                      <span className="text-[10px] opacity-50 shrink-0 font-medium">{exp.rank}</span>
                     </div>
                     <div className="flex justify-between items-center text-[10px] opacity-70">
                       <span className="truncate pr-2">{exp.docName}</span>
-                      <span className="text-red-400 font-bold shrink-0">
-                        In {exp.daysLeft}d
-                      </span>
+                      <span className="text-red-400 font-bold shrink-0">In {exp.daysLeft}d</span>
                     </div>
                   </div>
                 ))
@@ -324,9 +296,7 @@ export default function DashboardPage() {
         <div className="space-y-6">
           {/* Latest Course Completions */}
           <div className={cardClasses}>
-            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-3">
-              Latest Course Completions
-            </h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider opacity-60 mb-3">Latest Course Completions</h3>
             <div className="space-y-3">
               {latestCompletions.map((comp, idx) => (
                 <div
@@ -337,12 +307,9 @@ export default function DashboardPage() {
                     <Award className="w-4 h-4" />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs font-bold leading-tight truncate">
-                      {comp.courseName}
-                    </p>
+                    <p className="text-xs font-bold leading-tight truncate">{comp.courseName}</p>
                     <p className="text-[10px] opacity-60 mt-1 truncate">
-                      Completed by: <strong>{comp.seafarerName}</strong> (
-                      {comp.rank})
+                      Completed by: <strong>{comp.seafarerName}</strong> ({comp.rank})
                     </p>
                     <p className="text-[9px] opacity-40 mt-1.5 flex items-center gap-1">
                       <Calendar className="w-3 h-3" /> Expires: {comp.date}
@@ -353,6 +320,7 @@ export default function DashboardPage() {
             </div>
           </div>
         </div>
+
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 type Theme = "light" | "dark";
 
@@ -13,18 +13,22 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [mounted, setMounted] = useState(false);
+  // Always start with "dark" — identical on server AND client initial render.
+  // This eliminates the hydration mismatch entirely.
   const [theme, setTheme] = useState<Theme>("dark");
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    // Now that we're on the client after hydration, read the real preference.
     const savedTheme = localStorage.getItem("theme") as Theme;
     if (savedTheme === "light" || savedTheme === "dark") {
       setTheme(savedTheme);
       document.documentElement.classList.toggle("dark", savedTheme === "dark");
     } else {
+      // No saved preference — keep dark default
       document.documentElement.classList.add("dark");
     }
+    setMounted(true);
   }, []);
 
   const toggleTheme = () => {
@@ -48,5 +52,4 @@ export function useTheme() {
   }
   return context;
 }
-
 

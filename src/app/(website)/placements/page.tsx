@@ -64,7 +64,7 @@ export default function PlacementsPage() {
                 ? "bg-blue-950/40 text-blue-300 border-blue-500/10"
                 : "bg-blue-50 text-blue-600 border-blue-200"
               }`}>
-              {"// "}Work In Progress
+              // Work In Progress
             </span>
 
             <h1 className={`mt-6 text-4xl sm:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r ${isDark ? "from-white via-slate-100 to-slate-350" : "from-slate-900 via-blue-950 to-slate-800"
@@ -74,7 +74,7 @@ export default function PlacementsPage() {
 
             <p className={`mt-6 max-w-2xl mx-auto text-sm leading-relaxed font-light ${isDark ? "text-slate-400" : "text-slate-650"
               }`}>
-              We&apos;re building a dedicated placement portal where maritime professionals can connect with leading shipping companies, explore opportunities, and apply for verified jobs.
+              We're building a dedicated placement portal where maritime professionals can connect with leading shipping companies, explore opportunities, and apply for verified jobs.
             </p>
           </ScrollReveal>
         </div>

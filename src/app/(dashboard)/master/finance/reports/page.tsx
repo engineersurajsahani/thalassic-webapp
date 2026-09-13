@@ -92,7 +92,7 @@ export default function ReportsPage() {
             onClick={() => setActiveTab(tab.id)}
             className={`px-4 py-2 text-xs font-medium rounded-t-lg transition-all border-b-2 ${
               activeTab === tab.id 
-                ? isDark ? 'border-sky-500 text-white' : 'border-sky-500 text-black' 
+                ? 'border-sky-500 text-sky-500' 
                 : 'border-transparent text-slate-500 hover:text-slate-400'
             }`}
           >
@@ -119,7 +119,7 @@ export default function ReportsPage() {
                 </div>
                 <div className={`p-4 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
                   <p className={`text-[10px] font-semibold uppercase tracking-wider ${subtext}`}>This Month</p>
-                  <p className={`text-2xl font-bold mt-1 ${text}`}>{revenueData.summary.monthly}</p>
+                  <p className={`text-2xl font-bold mt-1 text-sky-500`}>{revenueData.summary.monthly}</p>
                 </div>
                 <div className={`p-4 rounded-xl border ${isDark ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-100'}`}>
                   <p className={`text-[10px] font-semibold uppercase tracking-wider ${subtext}`}>Today</p>

@@ -282,7 +282,7 @@ export default function SupportPage() {
             <CloudLightning className="w-10 h-10 text-slate-500 mb-3" />
             <h4 className="text-sm font-bold text-slate-400">No Tickets Yet</h4>
             <p className="text-xs text-slate-500 mt-1 max-w-[300px] leading-relaxed">
-              You have no support requests. Click &quot;Raise New Support Ticket&quot; above to get help.
+              You have no support requests. Click "Raise New Support Ticket" above to get help.
             </p>
           </div>
         ) : (

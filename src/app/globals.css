@@ -6,90 +6,44 @@
   --color-primary: #3D5EF6;
   --color-primary-hover: #2E4FE0;
   --color-primary-light: #EEF1FE;
-  --color-bg: #FAFAFA;
+  --color-bg: #F7F8FA;
   --color-surface: #FFFFFF;
   --color-border: #E5E7EB;
   --color-text-primary: #111827;
   --color-text-secondary: #6B7280;
-  --color-text-muted: #9CA3AF;
-  --color-success-bg: #DCFCE7;
-  --color-success-text: #16A34A;
-  --color-warning-bg: #FEF3C7;
-  --color-warning-text: #B45309;
-  --color-danger-bg: #FEE2E2;
-  --color-danger-text: #DC2626;
-
-  /* Aliases */
   --color-success: #16A34A;
-  --color-warning: #B45309;
+  --color-warning: #D97706;
   --color-danger: #DC2626;
 
   --radius-card: 16px;
   --radius-btn: 9999px;
   --radius-badge: 9999px;
-
-  --color-theme-text-accent: var(--theme-text-accent);
 }
 
 :root {
   --color-primary: #3D5EF6;
   --color-primary-hover: #2E4FE0;
   --color-primary-light: #EEF1FE;
-  --color-bg: #FAFAFA;
+  --color-bg: #F7F8FA;
   --color-surface: #FFFFFF;
   --color-border: #E5E7EB;
   --color-text-primary: #111827;
   --color-text-secondary: #6B7280;
-  --color-text-muted: #9CA3AF;
-  --color-success-bg: #DCFCE7;
-  --color-success-text: #16A34A;
-  --color-warning-bg: #FEF3C7;
-  --color-warning-text: #B45309;
-  --color-danger-bg: #FEE2E2;
-  --color-danger-text: #DC2626;
-
   --color-success: #16A34A;
-  --color-warning: #B45309;
+  --color-warning: #D97706;
   --color-danger: #DC2626;
 
   --radius-card: 16px;
   --radius-btn: 9999px;
   --radius-badge: 9999px;
 
-  /* Layout Spacing Tokens */
-  --spacing-layout: 24px;
-  --spacing-sidebar: 16px;
-  --spacing-topbar: 24px;
-  --topbar-height: 64px;
-
-  --background: #FAFAFA;
+  --background: #F7F8FA;
   --foreground: #111827;
-
-  --theme-text-accent: #000000;
 }
 
-:root.dark, .dark {
-  --color-bg: #0B0F19;
-  --color-surface: #111827;
-  --color-border: #1F2937;
-  --color-text-primary: #F9FAFB;
-  --color-text-secondary: #9CA3AF;
-  --color-text-muted: #6B7280;
-  --color-primary-light: rgba(61, 94, 246, 0.15);
-  --color-success-bg: rgba(22, 163, 74, 0.2);
-  --color-success-text: #4ADE80;
-  --color-warning-bg: rgba(180, 83, 9, 0.25);
-  --color-warning-text: #FBBF24;
-  --color-danger-bg: rgba(220, 38, 38, 0.2);
-  --color-danger-text: #F87171;
-
+:root.dark {
   --background: #0B0F19;
   --foreground: #F9FAFB;
-  --theme-text-accent: #FFFFFF;
-}
-
-.text-theme-accent {
-  color: var(--theme-text-accent);
 }
 
 body {
@@ -121,13 +75,6 @@ body {
 
 .shadow-elevation:hover {
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-}
-
-.portal-card {
-  background: var(--color-surface, #FFFFFF);
-  border-radius: 16px;
-  border: none !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06), 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* Hide scrollbar utility */

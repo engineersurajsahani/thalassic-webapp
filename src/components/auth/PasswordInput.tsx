@@ -20,7 +20,12 @@ const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(({
   onChange,
   ...props
 }, ref) => {
-  const { theme, mounted } = useTheme();
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isDark = mounted ? theme === "dark" : true;
 
