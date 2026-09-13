@@ -10,6 +10,7 @@ const PROTECTED_ROUTES = [
   '/master',
   '/agent-admin',
   '/agent',
+  '/partner',
   '/company-admin',
   '/seafarer',
 ];
@@ -59,7 +60,8 @@ export function middleware(request: NextRequest) {
       'MASTER': '/master/dashboard',
       'SEAFARER': '/seafarer/dashboard',
       'AGENT_ADMIN': '/agent-admin/dashboard',
-      'AGENT': '/agent/dashboard',
+      'AGENT': '/partner/dashboard',
+      'PARTNER': '/partner/dashboard',
       'COMPANY_ADMIN': '/company-admin/dashboard',
     };
 
@@ -73,7 +75,7 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith('/company-admin') && userRole !== 'COMPANY_ADMIN' && userRole !== 'MASTER') {
       return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
     }
-    if (pathname.startsWith('/agent') && !pathname.startsWith('/agent-admin') && userRole !== 'AGENT' && userRole !== 'MASTER') {
+    if ((pathname.startsWith('/agent') || pathname.startsWith('/partner')) && !pathname.startsWith('/agent-admin') && userRole !== 'AGENT' && userRole !== 'PARTNER' && userRole !== 'MASTER') {
       return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
     }
     if (pathname.startsWith('/seafarer') && userRole !== 'SEAFARER' && userRole !== 'MASTER') {
@@ -88,7 +90,8 @@ export function middleware(request: NextRequest) {
         'MASTER': '/master/dashboard',
         'SEAFARER': '/seafarer/dashboard',
         'AGENT_ADMIN': '/agent-admin/dashboard',
-        'AGENT': '/agent/dashboard',
+        'AGENT': '/partner/dashboard',
+        'PARTNER': '/partner/dashboard',
         'COMPANY_ADMIN': '/company-admin/dashboard',
       };
 
