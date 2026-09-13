@@ -10,9 +10,14 @@ export default function CompanyAdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { theme, mounted } = useTheme();
+  const { theme } = useTheme();
   const isDark = theme === "dark";
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   if (!mounted) return null;
 

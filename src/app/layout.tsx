@@ -1,18 +1,12 @@
 import type { Metadata } from "next";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { AuthProvider } from "@/providers/auth-provider";
-import { StatusProvider } from "@/providers/status-provider";
 import { Toaster } from "react-hot-toast";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Hari Om Thalassic",
   description: "Maritime Career & Partner Portal",
-  icons: {
-    icon: [{ url: "/logo/hariom_logo.png" }, { url: "/logo.png" }],
-    apple: "/logo/hariom_logo.png",
-    shortcut: "/logo/hariom_logo.png",
-  },
 };
 
 // ISSUE-005: Content Security Policy headers should be configured in next.config.ts
@@ -22,12 +16,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const isDev = process.env.NODE_ENV !== "production";
-  const scriptSrc = isDev
-    ? "'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com"
-    : "'self' 'unsafe-inline' https://fonts.googleapis.com";
-  const cspContent = `default-src 'self'; script-src ${scriptSrc}; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:4000 https://thalassic-api.onrender.com https://*.onrender.com https://*.supabase.co;`;
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -52,15 +40,16 @@ export default function RootLayout({
           }}
         />
         {/* ISSUE-005: CSP meta tag as fallback (primary CSP should be in next.config.ts) */}
-        <meta httpEquiv="Content-Security-Policy" content={cspContent} />
+        <meta
+          httpEquiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' 'unsafe-inline' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:4000 https://thalassic-api.onrender.com https://*.onrender.com https://*.supabase.co; frame-ancestors 'none';"
+        />
       </head>
       <body className="antialiased font-sans">
         <ThemeProvider>
           <AuthProvider>
-            <StatusProvider>
-              <Toaster />
-              {children}
-            </StatusProvider>
+            <Toaster />
+            {children}
           </AuthProvider>
         </ThemeProvider>
       </body>

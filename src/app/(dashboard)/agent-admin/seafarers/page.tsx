@@ -1,21 +1,14 @@
 "use client";
 
-import React from "react";
-import AccessRestricted from "@/components/common/AccessRestricted";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export default function SeafarersPage() {
-  return (
-    <AccessRestricted
-      featureName="Other Partners' Seafarers"
-      restrictedItems={[
-        "Other Partners' Seafarer Records & Applications",
-        "Global Seafarer Directory",
-        "Master Portal Functions",
-        "Company Admin Functions",
-        "Master-level Reports",
-        "Audit Logs & Referral Tracker",
-        "Commission Information",
-      ]}
-    />
-  );
+export default function ReferredSeafarersRedirect() {
+  const router = useRouter();
+
+  useEffect(() => {
+    router.replace("/agent-admin/referral-leads");
+  }, [router]);
+
+  return null;
 }

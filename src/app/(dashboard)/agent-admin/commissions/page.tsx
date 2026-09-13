@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 
 const STATUS_COLORS: Record<string, { bg: string; text: string; dot: string }> = {
-  Pending: { bg: "bg-[#FEF3C7]", text: "text-[#B45309]", dot: "bg-[#B45309]" },
-  Approved: { bg: "bg-[#DCFCE7]", text: "text-[#16A34A]", dot: "bg-[#16A34A]" },
-  Rejected: { bg: "bg-[#FEE2E2]", text: "text-[#DC2626]", dot: "bg-[#DC2626]" },
-  Settled: { bg: "bg-[#DCFCE7]", text: "text-[#16A34A]", dot: "bg-[#16A34A]" },
-  Paid: { bg: "bg-[#DCFCE7]", text: "text-[#16A34A]", dot: "bg-[#16A34A]" },
-  "Under Review": { bg: "bg-[#EEF1FE]", text: "text-[#3D5EF6]", dot: "bg-[#3D5EF6]" },
-  Cancelled: { bg: "bg-[#FEE2E2]", text: "text-[#DC2626]", dot: "bg-[#DC2626]" },
+  Pending: { bg: "bg-slate-100 dark:bg-white/5", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400" },
+  Approved: { bg: "bg-emerald-100 dark:bg-emerald-900/30", text: "text-emerald-700 dark:text-emerald-400", dot: "bg-emerald-400" },
+  Rejected: { bg: "bg-red-100 dark:bg-red-900/30", text: "text-red-700 dark:text-red-400", dot: "bg-red-400" },
+  Settled: { bg: "bg-blue-100 dark:bg-blue-900/30", text: "text-blue-700 dark:text-blue-400", dot: "bg-blue-400" },
+  Paid: { bg: "bg-purple-100 dark:bg-purple-900/30", text: "text-purple-700 dark:text-purple-400", dot: "bg-purple-400" },
+  "Under Review": { bg: "bg-slate-100 dark:bg-white/5", text: "text-slate-600 dark:text-slate-400", dot: "bg-slate-400" },
+  Cancelled: { bg: "bg-slate-100 dark:bg-slate-800/60", text: "text-slate-500 dark:text-slate-400", dot: "bg-slate-400" },
 };
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
@@ -64,7 +64,7 @@ function StatusSelectDropdown({
         className={`appearance-none inline-flex items-center gap-1.5 px-2.5 py-1 pr-6 rounded-full text-[10px] font-bold cursor-pointer outline-none transition border border-transparent hover:border-current ${s.bg} ${s.text}`}
       >
         {options.map(opt => (
-          <option key={opt} value={opt} className={isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}>
+          <option key={opt} value={opt} className={isDark ? "bg-[#0d1f35] text-white" : "bg-white text-slate-800"}>
             {opt}
           </option>
         ))}
@@ -97,16 +97,16 @@ function SourceBadge({ source }: { source: string }) {
 export default function Commissions() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
-  const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
+  const card = `rounded-[16px] p-7 border-0 transition-all duration-300 hover:-translate-y-0.5 ${
     isDark
-      ? "bg-[#111827] text-white"
-      : "bg-white text-[#111827]"
+      ? "bg-[#0c1629] shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_8px_28px_rgba(0,0,0,0.4)] text-white"
+      : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] text-[#111827]"
   }`;
-  const ht = isDark ? "text-white/90" : "text-[#111827]";
-  const mt = isDark ? "text-white/40" : "text-[#9CA3AF]";
-  const inputCls = `bg-transparent outline-none w-full text-xs ${isDark ? "text-white" : "text-[#111827]"}`;
-  const inputWrap = `flex items-center gap-2 px-3 py-2.5 rounded-[10px] border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-[#E5E7EB] text-[#6B7280] shadow-sm"}`;
-  const selectCls = `px-3 py-2.5 rounded-[10px] border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-[#E5E7EB] text-[#111827] shadow-sm"}`;
+  const ht = isDark ? "text-white/90" : "text-slate-800";
+  const mt = isDark ? "text-white/40" : "text-slate-400";
+  const inputCls = `bg-transparent outline-none w-full text-xs ${isDark ? "text-white" : "text-slate-800"}`;
+  const inputWrap = `flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-slate-200 text-slate-600 shadow-sm"}`;
+  const selectCls = `px-3 py-2.5 rounded-xl border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-[#0d1f35] border-white/10 text-white" : "bg-white border-slate-200 text-slate-700 shadow-sm"}`;
 
   const [loading, setLoading] = useState(true);
   const [commissions, setCommissions] = useState<any[]>([]);
@@ -499,7 +499,7 @@ export default function Commissions() {
       {/* Status Change Modal */}
       {showStatusModal && selectedComm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className={`rounded-[16px] card-elevated border-0 w-full max-w-md shadow-2xl ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+          <div className={`rounded-lg w-full max-w-md shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
             <div className="p-6">
               <h3 className={`text-lg font-bold mb-1 ${ht}`}>
                 {newStatus === "Approved" ? "Approve Commission" : "Reject Commission"}
@@ -543,7 +543,7 @@ export default function Commissions() {
       {/* Status History Modal */}
       {showHistoryModal && historyComm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className={`rounded-[16px] card-elevated border-0 w-full max-w-lg shadow-2xl ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+          <div className={`rounded-lg w-full max-w-lg shadow-2xl ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
             <div className="p-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className={`text-lg font-bold ${ht}`}>Status History</h3>
@@ -584,7 +584,7 @@ export default function Commissions() {
       {/* Settlement Batch Modal */}
       {showSettleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className={`rounded-[16px] card-elevated border-0 w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+          <div className={`rounded-lg w-full max-w-2xl shadow-2xl max-h-[85vh] flex flex-col ${isDark ? "bg-[#0d1f35] border border-white/10" : "bg-white"}`}>
             <div className="p-6 border-b border-white/[0.06] dark:border-white/10 border-slate-100">
               <h3 className={`text-lg font-bold ${ht}`}>Create Settlement Batch</h3>
               <p className={`text-xs mt-1 ${mt}`}>Select approved commissions to include in this settlement batch. Only commissions with Approved status can be settled.</p>
@@ -631,12 +631,12 @@ export default function Commissions() {
       {/* Commission Details Modal */}
       {selectedCommDetails && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className={`w-full max-w-lg p-6 rounded-[16px] card-elevated border-0 relative animate-in zoom-in-95 duration-200 ${
-            isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
+          <div className={`w-full max-w-lg p-6 rounded-lg relative animate-in zoom-in-95 duration-200 ${
+            isDark ? "bg-[#0d1f35] border border-white/10 text-white" : "bg-white text-slate-800 shadow-xl border border-slate-100"
           }`}>
             <button
               onClick={() => setSelectedCommDetails(null)}
-              className={`absolute top-4 right-4 p-1.5 rounded-full transition ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-[#6B7280] hover:text-[#111827]"}`}
+              className={`absolute top-4 right-4 p-1.5 rounded-full transition ${isDark ? "hover:bg-white/5 text-white/40 hover:text-white" : "hover:bg-slate-100 text-slate-400 hover:text-slate-700"}`}
             >
               <X className="w-4 h-4" />
             </button>
@@ -649,7 +649,7 @@ export default function Commissions() {
             <div className="space-y-4 text-xs">
               <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
                 <span className={mt}>Invoice Number</span>
-                <span className="col-span-2 font-mono font-bold text-[#3D5EF6]">{selectedCommDetails.invoiceNumber}</span>
+                <span className="col-span-2 font-mono font-bold text-blue-500">{selectedCommDetails.invoiceNumber}</span>
               </div>
               <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
                 <span className={mt}>Seafarer Name</span>
@@ -665,11 +665,11 @@ export default function Commissions() {
               </div>
               <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
                 <span className={mt}>Commission Rate</span>
-                <span className="col-span-2 font-bold text-[#3D5EF6]">{selectedCommDetails.commissionRate}</span>
+                <span className="col-span-2 font-bold text-blue-500">{selectedCommDetails.commissionRate}</span>
               </div>
               <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
                 <span className={mt}>Commission Amount</span>
-                <span className="col-span-2 font-bold text-[#16A34A]">{selectedCommDetails.commissionAmount}</span>
+                <span className="col-span-2 font-bold text-emerald-600 dark:text-emerald-400">{selectedCommDetails.commissionAmount}</span>
               </div>
               <div className="grid grid-cols-3 gap-2 py-2 border-b border-white/5">
                 <span className={mt}>Commission Source</span>
@@ -697,7 +697,7 @@ export default function Commissions() {
               {selectedCommDetails.rejection_reason && (
                 <div className="pt-2">
                   <span className={`${mt} block mb-1.5`}>Rejection / Cancellation Remarks</span>
-                  <div className={`p-4 rounded-xl leading-relaxed text-xs break-words ${isDark ? "bg-white/5 text-white/80 border border-white/5" : "bg-[#FAFAFA] text-[#111827] border border-[#E5E7EB]"}`}>
+                  <div className={`p-4 rounded-xl leading-relaxed text-xs break-words ${isDark ? "bg-[#0b182d] text-white/80 border border-white/5" : "bg-slate-50 text-slate-700 border border-slate-200"}`}>
                     {selectedCommDetails.rejection_reason}
                   </div>
                 </div>

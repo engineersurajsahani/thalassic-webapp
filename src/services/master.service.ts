@@ -23,7 +23,7 @@ export const masterService = {
     return response.data;
   },
 
-  async updateCourse(id: string, dto: Record<string, unknown>) {
+  async updateCourse(id: string, dto: any) {
     const response = await api.patch(`/master/courses/${id}`, dto);
     return response.data;
   },
@@ -43,7 +43,7 @@ export const masterService = {
     return response.data;
   },
 
-  async createUser(dto: Record<string, unknown>) {
+  async createUser(dto: any) {
     const response = await api.post("/master/users", dto);
     return response.data;
   },
@@ -58,7 +58,7 @@ export const masterService = {
     return response.data;
   },
 
-  async updateSettings(dto: Record<string, unknown>) {
+  async updateSettings(dto: any) {
     const response = await api.patch("/master/settings", dto);
     return response.data;
   },
@@ -68,17 +68,8 @@ export const masterService = {
     return response.data;
   },
 
-  async updateAdminProfile(dto: {
-    name?: string;
-    email?: string;
-    password?: string;
-  }) {
+  async updateAdminProfile(dto: any) {
     const response = await api.patch("/master/profile", dto);
-    return response.data;
-  },
-
-  async changePassword(dto: { currentPassword?: string; newPassword: string }) {
-    const response = await api.post("/master/settings/change-password", dto);
     return response.data;
   },
 };

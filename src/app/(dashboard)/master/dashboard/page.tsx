@@ -1,311 +1,141 @@
 "use client";
-
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { useRouter } from "next/navigation";
-import {
-  Users,
-  BookOpen,
-  ArrowUpRight,
-  AlertCircle,
-  Building2,
-  Handshake,
-  Wallet,
-  Receipt,
-  Clock,
-  BarChart3,
-  Zap,
-  GraduationCap,
-  RotateCw,
-  Inbox,
-} from "lucide-react";
-import {
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  LineChart,
-  Line,
-} from "recharts";
-import { masterService } from "@/services/master.service";
+import { Users, TrendingUp, TrendingDown, MoreHorizontal, ShieldCheck, Anchor, GraduationCap, Globe, BookOpen, ArrowUpRight, Info, X, AlertCircle, CheckCircle2, Building2, UserCog, Handshake, GitMerge, Wallet, Receipt, Clock, IndianRupee, BarChart3, Plus, BarChart2, FileText, Zap } from "lucide-react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 
-interface DashboardData {
-  seafarersCount: number;
-  coursesCount: number;
-  totalBookings: number;
-  totalRevenue: string;
-  ledger?: Array<{
-    participant: string;
-    course: string;
-    revenue: string;
-    status: string;
-  }>;
+const RD: Record<string,{month:string;revenue:number}[]> = {
+  "2025":[{month:"Jan",revenue:180000},{month:"Feb",revenue:210000},{month:"Mar",revenue:195000},{month:"Apr",revenue:240000},{month:"May",revenue:220000},{month:"Jun",revenue:280000},{month:"Jul",revenue:310000},{month:"Aug",revenue:295000},{month:"Sep",revenue:340000},{month:"Oct",revenue:320000}],
+  "2024":[{month:"Jan",revenue:140000},{month:"Feb",revenue:165000},{month:"Mar",revenue:155000},{month:"Apr",revenue:190000},{month:"May",revenue:175000},{month:"Jun",revenue:210000},{month:"Jul",revenue:240000},{month:"Aug",revenue:225000},{month:"Sep",revenue:265000},{month:"Oct",revenue:250000}],
+  "2023":[{month:"Jan",revenue:100000},{month:"Feb",revenue:120000},{month:"Mar",revenue:110000},{month:"Apr",revenue:145000},{month:"May",revenue:130000},{month:"Jun",revenue:160000},{month:"Jul",revenue:185000},{month:"Aug",revenue:170000},{month:"Sep",revenue:200000},{month:"Oct",revenue:190000}],
+};
+const ET=[{month:"Feb",e:320,c:210},{month:"Mar",e:410,c:290},{month:"Apr",e:380,c:260},{month:"May",e:510,c:380},{month:"Jun",e:490,c:340},{month:"Jul",e:620,c:440},{month:"Aug",e:700,c:520},{month:"Sep",e:660,c:490},{month:"Oct",e:810,c:600}];
+const OD=[{id:"INV-1042",name:"Raj Kumar",course:"STCW Basic Safety",amount:"5000",due:"Jul 20",status:"Overdue"},{id:"INV-1039",name:"Priya Singh",course:"Basic Safety Training",amount:"3500",due:"Jul 22",status:"Due Soon"},{id:"INV-1035",name:"Deepa Nair",course:"Advanced Fire Fighting",amount:"7200",due:"Jul 25",status:"Due Soon"},{id:"INV-1031",name:"Karan Mehta",course:"Ship Navigation",amount:"6800",due:"Jul 28",status:"Pending"},{id:"INV-1028",name:"Suresh Verma",course:"Tanker Cargo Ops",amount:"9400",due:"Jul 30",status:"Pending"}];
+const PD=[{id:"TXN-9921",name:"Amit Patel",course:"STCW Basic Safety",amount:"5000",date:"Jul 14",method:"UPI"},{id:"TXN-9920",name:"Vikram Das",course:"Ship Navigation",amount:"6800",date:"Jul 13",method:"Card"},{id:"TXN-9919",name:"Sunita Rajan",course:"Medical First Aid",amount:"4500",date:"Jul 12",method:"Net Banking"},{id:"TXN-9918",name:"Rohit Sharma",course:"Tanker Cargo Ops",amount:"9400",date:"Jul 11",method:"UPI"},{id:"TXN-9917",name:"Meena Iyer",course:"Maritime Law",amount:"3200",date:"Jul 10",method:"Card"}];
+const DIV=[{name:"Safety Training",icon:ShieldCheck,color:"#6366f1",count:412},{name:"Navigation",icon:Anchor,color:"#10b981",count:289},{name:"Technical Ops",icon:GraduationCap,color:"#f59e0b",count:194},{name:"Maritime Law",icon:Globe,color:"#ef4444",count:137},{name:"Deck Operations",icon:BookOpen,color:"#8b5cf6",count:98}];
+const REG=[{id:"SEA-4821",name:"Raj Kumar",rank:"Chief Officer",date:"Today, 9:14 AM",status:"Active"},{id:"SEA-4820",name:"Priya Singh",rank:"Deck Cadet",date:"Today, 7:02 AM",status:"Pending"},{id:"SEA-4819",name:"Amit Patel",rank:"Second Engineer",date:"Yesterday",status:"Active"},{id:"SEA-4818",name:"Suresh Verma",rank:"AB Seaman",date:"Yesterday",status:"Active"},{id:"SEA-4817",name:"Deepa Nair",rank:"Bosun",date:"2 days ago",status:"Inactive"}];
+const PUR=[{user:"Raj Kumar",course:"STCW Basic Safety",amount:"5000",date:"Today",method:"UPI"},{user:"Priya Singh",course:"Basic Safety Training",amount:"3500",date:"Today",method:"Card"},{user:"Amit Patel",course:"Advanced Fire Fighting",amount:"7200",date:"Yesterday",method:"Net Banking"},{user:"Karan Mehta",course:"Ship Navigation",amount:"6800",date:"Yesterday",method:"UPI"},{user:"Suresh Verma",course:"Tanker Cargo Ops",amount:"9400",date:"2 days ago",method:"Card"}];
+const SL:Record<string,string>={Active:"bg-emerald-100 text-emerald-700",Pending:"bg-amber-100 text-amber-700",Inactive:"bg-slate-100 text-slate-500",Overdue:"bg-red-100 text-red-700","Due Soon":"bg-orange-100 text-orange-700"};
+const SD:Record<string,string>={Active:"bg-emerald-500/10 text-emerald-400",Pending:"bg-amber-500/10 text-amber-400",Inactive:"bg-white/5 text-white/30",Overdue:"bg-red-500/10 text-red-400","Due Soon":"bg-orange-500/10 text-orange-400"};
+const AB=["bg-indigo-500","bg-sky-500","bg-amber-500","bg-emerald-500","bg-violet-500"];
+const YC:Record<string,string>={"2025":"#6366f1","2024":"#10b981","2023":"#f59e0b"};
+const fmt=(n:number)=>`\u20B9${n.toLocaleString("en-IN")}`;
+
+const ACTIVITIES = [
+  { icon: Users,       color: "#0ea5e9", bg: "bg-sky-500/15",     label: "Seafarer Master Record Updated", name: "Raj Kumar (SEA-4821)",  time: "2 min ago"   },
+  { icon: Receipt,     color: "#10b981", bg: "bg-emerald-500/15", label: "Partner Payment Received",       name: "₹1,45,000 · Ocean Maritime",time: "18 min ago"  },
+  { icon: GraduationCap,color:"#8b5cf6", bg: "bg-violet-500/15",  label: "Institute Batch Completed",      name: "Anglo-Eastern Academy",    time: "45 min ago"  },
+  { icon: BookOpen,    color: "#6366f1", bg: "bg-indigo-500/15",  label: "Course Enrollment",              name: "Ship Navigation · 14 Enrolled", time: "1 hr ago"    },
+  { icon: Building2,   color: "#0ea5e9", bg: "bg-sky-500/15",     label: "Company Seafarer Added",         name: "ABC Shipping · Priya Singh",time: "3 hr ago"    },
+  { icon: Receipt,     color: "#f43f5e", bg: "bg-rose-500/15",    label: "Partner Invoice Generated",      name: "INV-1049 · XYZ Marine",    time: "5 hr ago"    },
+  { icon: Wallet,      color: "#f97316", bg: "bg-orange-500/15",  label: "Monthly Settlement Finalized",   name: "₹3,88,400 · September Cycle",time: "Yesterday"   },
+];
+
+function DonutRing({v,t,color,label,dk}:{v:number;t:number;color:string;label:string;dk:boolean}){
+  const r=34,ci=2*Math.PI*r,da=(v/t)*ci;
+  return(<div className="flex flex-col items-center gap-2"><div className="relative w-[88px] h-[88px]"><svg viewBox="0 0 88 88" className="w-full h-full -rotate-90"><circle cx="44" cy="44" r={r} fill="none" stroke={dk?"rgba(255,255,255,0.06)":"#f1f5f9"} strokeWidth="9"/><circle cx="44" cy="44" r={r} fill="none" stroke={color} strokeWidth="9" strokeDasharray={`${da} ${ci}`} strokeLinecap="round"/></svg><span className="absolute inset-0 flex items-center justify-center text-xl font-bold" style={{color}}>{v}</span></div><p className={`text-[11px] font-semibold text-center ${dk?"text-white/40":"text-slate-500"}`}>{label}</p></div>);
 }
 
-const DEFAULT_DASHBOARD: DashboardData = {
-  seafarersCount: 0,
-  coursesCount: 0,
-  totalBookings: 0,
-  totalRevenue: "₹0",
-  ledger: [],
-};
+function CH({title,dk,action}:{title:string;dk:boolean;action?:React.ReactNode}){
+  return(<div className={`flex items-center justify-between px-6 py-4 border-b ${dk?"border-white/5":"border-slate-100"}`}><p className={`text-sm font-semibold ${dk?"text-white/80":"text-slate-800"}`}>{title}</p>{action??<MoreHorizontal className={`w-4 h-4 ${dk?"text-white/20":"text-slate-300"}`}/>}</div>);
+}
 
-const YC: Record<string, string> = {
-  "2026": "#6366f1",
-  "2025": "#10b981",
-};
-
-function DonutRing({
-  v,
-  t,
-  color,
-  label,
-  dk,
-}: {
-  v: number;
-  t: number;
-  color: string;
-  label: string;
-  dk: boolean;
-}) {
-  const r = 34;
-  const ci = 2 * Math.PI * r;
-  const safeTotal = t > 0 ? t : 1;
-  const da = (v / safeTotal) * ci;
-  return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="relative w-[88px] h-[88px]">
-        <svg viewBox="0 0 88 88" className="w-full h-full -rotate-90">
-          <circle
-            cx="44"
-            cy="44"
-            r={r}
-            fill="none"
-            stroke={dk ? "rgba(255,255,255,0.06)" : "#f1f5f9"}
-            strokeWidth="9"
-          />
-          <circle
-            cx="44"
-            cy="44"
-            r={r}
-            fill="none"
-            stroke={color}
-            strokeWidth="9"
-            strokeDasharray={`${da} ${ci}`}
-            strokeLinecap="round"
-          />
-        </svg>
-        <span
-          className="absolute inset-0 flex items-center justify-center text-xl font-bold"
-          style={{ color }}
-        >
-          {v}
-        </span>
+function Modal({type,dk,onClose}:{type:"outstanding"|"done";dk:boolean;onClose:()=>void}){
+  const rows=type==="outstanding"?OD:PD;
+  const bg=dk?"bg-[#0d1f35] border border-white/10":"bg-white border border-slate-200";
+  const ht=dk?"text-white/80":"text-slate-800";
+  const mt=dk?"text-white/35":"text-slate-400";
+  const dv=dk?"divide-white/5":"divide-slate-100";
+  const total=rows.reduce((s,r)=>s+Number(r.amount),0);
+  return(
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm"/>
+      <div className={`relative w-full max-w-lg rounded-2xl shadow-2xl ${bg} z-10`} onClick={e=>e.stopPropagation()}>
+        <div className={`flex items-center justify-between px-6 py-4 border-b ${dk?"border-white/8":"border-slate-100"}`}>
+          <p className={`text-sm font-semibold ${ht}`}>{type==="outstanding"?"Outstanding Payments":"Payments Received"}</p>
+          <button onClick={onClose} className={`p-1.5 rounded-lg ${dk?"hover:bg-white/8 text-white/40":"hover:bg-slate-100 text-slate-400"}`}><X className="w-4 h-4"/></button>
+        </div>
+        <div className={`divide-y ${dv} max-h-96 overflow-y-auto`}>
+          {rows.map((r:any,i:number)=>(
+            <div key={i} className="flex items-center justify-between px-6 py-3.5">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${AB[i%AB.length]}`}>{r.name.split(" ").map((n:string)=>n[0]).join("")}</div>
+                <div className="min-w-0">
+                  <p className={`text-[13px] font-medium truncate ${ht}`}>{r.name}</p>
+                  <p className={`text-[11px] truncate ${mt}`}>{r.course}</p>
+                  <p className={`text-[10px] font-mono ${mt} opacity-70`}>{r.id}</p>
+                </div>
+              </div>
+              <div className="text-right shrink-0 ml-3">
+                <p className={`text-[13px] font-bold ${type==="outstanding"?(dk?"text-red-400":"text-red-600"):(dk?"text-emerald-400":"text-emerald-600")}`}>{fmt(Number(r.amount))}</p>
+                <p className={`text-[10px] mt-0.5 ${mt}`}>{type==="outstanding"?`Due ${r.due}`:r.date}</p>
+                {type==="outstanding"&&<span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full mt-1 inline-block ${dk?SD[r.status]:SL[r.status]}`}>{r.status}</span>}
+                {type==="done"&&<p className={`text-[10px] ${mt}`}>{r.method}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className={`px-6 py-3 border-t ${dk?"border-white/8":"border-slate-100"}`}>
+          <p className={`text-xs font-medium ${mt}`}>{type==="outstanding"?"Total outstanding":"Total received"}: {fmt(total)}</p>
+        </div>
       </div>
-      <p
-        className={`text-[11px] font-semibold text-center ${
-          dk ? "text-white/40" : "text-slate-500"
-        }`}
-      >
-        {label}
-      </p>
+
     </div>
   );
 }
 
-function CH({
-  title,
-  dk,
-  action,
-}: {
-  title: string;
-  dk: boolean;
-  action?: React.ReactNode;
-}) {
-  return (
-    <div
-      className={`flex items-center justify-between px-6 py-4 border-b ${
-        dk ? "border-white/5" : "border-slate-100"
-      }`}
-    >
-      <p
-        className={`text-sm font-semibold ${dk ? "text-white/80" : "text-slate-800"}`}
-      >
-        {title}
-      </p>
-      {action}
-    </div>
-  );
-}
+export default function MasterDashboard(){
+  const {theme}=useTheme();
+  const router=useRouter();
+  const dk=theme==="dark";
+  const [er,setEr]=useState<"monthly"|"weekly">("monthly");
+  const [cy,setCy]=useState<string[]>(["2025"]);
+  const [modal,setModal]=useState<"outstanding"|"done"|null>(null);
+  const card=`rounded-2xl overflow-hidden ${dk?"bg-[#0d1f35] border border-white/[0.06]":"bg-white border border-slate-200 shadow-sm"}`;
+  const ht=dk?"text-white/80":"text-slate-800";
+  const mt=dk?"text-white/35":"text-slate-400";
+  const gl=dk?"#1a3352":"#e2e8f0";
+  const ax=dk?"#3d6080":"#94a3b8";
+  const dv=dk?"divide-white/[0.05]":"divide-slate-100";
+  const rh=dk?"hover:bg-white/[0.03]":"hover:bg-slate-50";
+  const chartData=RD["2025"].map((row,i)=>{const pt:any={month:row.month};cy.forEach(y=>{pt[y]=RD[y][i]?.revenue??0;});return pt;});
+  const toggleY=(y:string)=>setCy(prev=>prev.includes(y)?(prev.length>1?prev.filter(x=>x!==y):prev):[...prev,y]);
 
-export default function MasterDashboard() {
-  const { theme } = useTheme();
-  const router = useRouter();
-  const dk = theme === "dark";
-
-  const [dashboardData, setDashboardData] =
-    useState<DashboardData>(DEFAULT_DASHBOARD);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [partnerCount, setPartnerCount] = useState(0);
-
-  const card = `rounded-2xl overflow-hidden ${
-    dk
-      ? "bg-[#0d1f35] border border-white/[0.06]"
-      : "bg-white border border-slate-200 shadow-sm"
-  }`;
-  const ht = dk ? "text-white/80" : "text-slate-800";
-  const mt = dk ? "text-white/35" : "text-slate-400";
-  const gl = dk ? "#1a3352" : "#e2e8f0";
-  const ax = dk ? "#3d6080" : "#94a3b8";
-  const dv = dk ? "divide-white/[0.05]" : "divide-slate-100";
-  const rh = dk ? "hover:bg-white/[0.03]" : "hover:bg-slate-50";
-
-  const loadData = useCallback(async () => {
-    try {
-      const [dash, partners] = await Promise.allSettled([
-        masterService.getDashboard(),
-        masterService.getUsers("AGENT_ADMIN"),
-      ]);
-
-      if (dash.status === "fulfilled" && dash.value) {
-        setDashboardData(dash.value);
-      }
-      if (partners.status === "fulfilled" && Array.isArray(partners.value)) {
-        setPartnerCount(partners.value.length);
-      }
-    } catch (err) {
-      console.warn("Failed to fetch live master dashboard data:", err);
-    } finally {
-      setIsLoading(false);
-      setIsRefreshing(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      void loadData();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, [loadData]);
-
-  const handleRefresh = () => {
-    setIsRefreshing(true);
-    void loadData();
-  };
-
-  // Generate monthly chart trend from live data
-  const chartData = [
-    { month: "Jan", "2026": 0 },
-    { month: "Feb", "2026": 0 },
-    { month: "Mar", "2026": 0 },
-    { month: "Apr", "2026": 0 },
-    { month: "May", "2026": 0 },
-    { month: "Jun", "2026": 0 },
-    { month: "Jul", "2026": 0 },
-    { month: "Aug", "2026": 0 },
-    { month: "Sep", "2026": 0 },
-  ];
-
-  const ledgerList = dashboardData.ledger || [];
-
-  return (
+  return(
     <div className="space-y-5">
-      {/* Header / Refresh Bar */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className={`text-xs font-semibold uppercase tracking-wider ${mt}`}>
-            Operational & Financial Metrics
-          </p>
-          <span className={`text-[11px] ${mt}`}>
-            {isLoading
-              ? "Connecting to live backend..."
-              : "Live Platform Overview"}
-          </span>
-        </div>
-        <button
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
-            dk
-              ? "bg-white/5 hover:bg-white/10 text-white/80 border border-white/10"
-              : "bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200"
-          }`}
-        >
-          <RotateCw
-            className={`w-3.5 h-3.5 ${isRefreshing ? "animate-spin text-indigo-400" : ""}`}
-          />
-          {isRefreshing ? "Syncing..." : "Sync Live Data"}
-        </button>
-      </div>
 
-      {/* SECTION 1: FINANCIAL OVERVIEW */}
+      {/*  Section 1.3 Operational & Financial Metrics Grid  */}
       <div>
-        <p
-          className={`text-[11px] font-semibold uppercase tracking-wider mb-2.5 ${
-            dk ? "text-white/50" : "text-slate-500"
-          }`}
-        >
-          Financial Overview
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="flex items-center justify-between mb-3">
+          <p className={`text-xs font-semibold uppercase tracking-wider ${mt}`}>Operational & Financial Metrics</p>
+          <span className={`text-[11px] ${mt}`}>Live Platform Overview</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3">
           {[
-            {
-              label: "Total Revenue",
-              value: dashboardData.totalRevenue || "₹0",
-              sub: "All-time platform bookings",
-              Icon: Wallet,
-              ib: dk ? "bg-emerald-500/15" : "bg-emerald-50",
-              ic: "#10b981",
-            },
-            {
-              label: "Total Enrollments",
-              value: String(dashboardData.totalBookings || 0),
-              sub: "Course registrations",
-              Icon: BarChart3,
-              ib: dk ? "bg-indigo-500/15" : "bg-indigo-50",
-              ic: "#6366f1",
-            },
-            {
-              label: "Active Courses",
-              value: String(dashboardData.coursesCount || 0),
-              sub: "Published in catalog",
-              Icon: Receipt,
-              ib: dk ? "bg-green-500/15" : "bg-green-50",
-              ic: "#22c55e",
-            },
-            {
-              label: "Partner Agencies",
-              value: String(partnerCount || 0),
-              sub: "Authorized partners",
-              Icon: Clock,
-              ib: dk ? "bg-rose-500/15" : "bg-rose-50",
-              ic: "#f43f5e",
-            },
+            { label: "Total Seafarers",             value: "1,420",   sub: "Master records",        Icon: Users,         ib: dk?"bg-sky-500/15":"bg-sky-50",       ic: "#0ea5e9" },
+            { label: "Company Seafarers",           value: "890",     sub: "Direct / Company-side", Icon: Building2,     ib: dk?"bg-blue-500/15":"bg-blue-50",     ic: "#3b82f6" },
+            { label: "Partner Seafarers",           value: "530",     sub: "Partner-side network",  Icon: Handshake,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
+            { label: "Candidates on Hold",          value: "14",      sub: "Action required",       Icon: AlertCircle,   ib: dk?"bg-amber-500/15":"bg-amber-50",   ic: "#f59e0b" },
+            { label: "Total Partners",              value: "28",      sub: "Active partners",       Icon: UserCog,       ib: dk?"bg-violet-500/15":"bg-violet-50", ic: "#8b5cf6" },
+            { label: "Total Institutes",            value: "14",      sub: "Training academies",    Icon: GraduationCap, ib: dk?"bg-emerald-500/15":"bg-emerald-50",ic: "#10b981" },
+            { label: "Active Courses",              value: "42",      sub: "Live in catalog",       Icon: BookOpen,      ib: dk?"bg-cyan-500/15":"bg-cyan-50",     ic: "#06b6d4" },
+            { label: "Ongoing Courses",             value: "18",      sub: "Active batches",        Icon: Clock,         ib: dk?"bg-purple-500/15":"bg-purple-50", ic: "#a855f7" },
+            { label: "Completed Courses",           value: "124",     sub: "Archived batches",      Icon: CheckCircle2,  ib: dk?"bg-teal-500/15":"bg-teal-50",     ic: "#14b8a6" },
+            { label: "Total Revenue",               value: "₹28.4L",  sub: "All-time platform",     Icon: Wallet,        ib: dk?"bg-emerald-500/15":"bg-emerald-50",ic: "#10b981" },
+            { label: "Revenue (Current Month)",     value: "₹3.88L",  sub: "Current cycle",         Icon: BarChart3,     ib: dk?"bg-indigo-500/15":"bg-indigo-50", ic: "#6366f1" },
+            { label: "Received from Partners",      value: "₹14.2L",  sub: "Settled collections",   Icon: Receipt,       ib: dk?"bg-green-500/15":"bg-green-50",   ic: "#22c55e" },
+            { label: "Pending from Partners",       value: "₹2.60L",  sub: "Outstanding balance",   Icon: Clock,         ib: dk?"bg-rose-500/15":"bg-rose-50",     ic: "#f43f5e" },
           ].map((k) => (
-            <div
-              key={k.label}
-              className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}
-            >
+            <div key={k.label} className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}>
               <div className="flex items-center justify-between mb-2">
-                <span
-                  className={`text-[11px] font-semibold truncate ${ht} opacity-80`}
-                >
-                  {k.label}
-                </span>
-                <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}
-                >
+                <span className={`text-[11px] font-semibold truncate ${ht} opacity-80`}>{k.label}</span>
+                <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}>
                   <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
                 </div>
               </div>
               <div>
-                <p
-                  className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}
-                >
-                  {k.value}
-                </p>
+                <p className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}>{k.value}</p>
                 <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
               </div>
             </div>
@@ -313,295 +143,105 @@ export default function MasterDashboard() {
         </div>
       </div>
 
-      {/* SECTION 2: SEAFARER OVERVIEW */}
-      <div>
-        <p
-          className={`text-[11px] font-semibold uppercase tracking-wider mb-2.5 ${
-            dk ? "text-white/50" : "text-slate-500"
-          }`}
-        >
-          Seafarer & Platform Overview
-        </p>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-          {[
-            {
-              label: "Total Seafarers",
-              value: String(dashboardData.seafarersCount || 0),
-              sub: "Master records in database",
-              Icon: Users,
-              ib: dk ? "bg-sky-500/15" : "bg-sky-50",
-              ic: "#0ea5e9",
-            },
-            {
-              label: "Live Courses",
-              value: String(dashboardData.coursesCount || 0),
-              sub: "STCW & Maritime modules",
-              Icon: Building2,
-              ib: dk ? "bg-blue-500/15" : "bg-blue-50",
-              ic: "#3b82f6",
-            },
-            {
-              label: "Registered Partners",
-              value: String(partnerCount || 0),
-              sub: "Agency network",
-              Icon: Handshake,
-              ib: dk ? "bg-indigo-500/15" : "bg-indigo-50",
-              ic: "#6366f1",
-            },
-            {
-              label: "Pending Inquiries",
-              value: "0",
-              sub: "Real-time queue",
-              Icon: AlertCircle,
-              ib: dk ? "bg-amber-500/15" : "bg-amber-50",
-              ic: "#f59e0b",
-            },
-          ].map((k) => (
-            <div
-              key={k.label}
-              className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span
-                  className={`text-[11px] font-semibold truncate ${ht} opacity-80`}
-                >
-                  {k.label}
-                </span>
-                <div
-                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}
-                >
-                  <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
-                </div>
-              </div>
-              <div>
-                <p
-                  className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}
-                >
-                  {k.value}
-                </p>
-                <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* SECTION 3: CHARTS */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
         <div className={`${card} xl:col-span-2`}>
-          <CH
-            title="Platform Revenue Trend (2026)"
-            dk={dk}
-            action={
-              <span
-                className={`text-xs font-semibold ${dk ? "text-indigo-400" : "text-indigo-600"}`}
-              >
-                Live Supabase Feed
-              </span>
-            }
-          />
+          <CH title="Revenue Over Time" dk={dk} action={
+            <div className="flex items-center gap-2">
+              <span className={`text-[11px] ${mt}`}>Compare:</span>
+              {["2023","2024","2025"].map(y=>(
+                <button key={y} onClick={()=>toggleY(y)} className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border transition-all ${cy.includes(y)?"text-white border-transparent":dk?"border-white/10 text-white/30 hover:text-white/60":"border-slate-200 text-slate-400 hover:text-slate-600"}`} style={cy.includes(y)?{background:YC[y],borderColor:YC[y]}:{}}>{y}</button>
+              ))}
+            </div>
+          }/>
           <div className="px-5 pt-4 pb-3">
-            <ResponsiveContainer width="100%" height={230}>
-              <LineChart data={chartData}>
-                <CartesianGrid vertical={false} stroke={gl} />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 11, fill: ax }}
-                  axisLine={false}
-                  tickLine={false}
-                />
-                <YAxis
-                  tick={{ fontSize: 11, fill: ax }}
-                  axisLine={false}
-                  tickLine={false}
-                  width={46}
-                  tickFormatter={(v: number) => `₹${(v / 1000).toFixed(0)}K`}
-                />
-                <Tooltip
-                  formatter={(v: unknown) => [
-                    `₹${(Number(v) || 0).toLocaleString("en-IN")}`,
-                    "Revenue",
-                  ]}
-                  contentStyle={{
-                    fontSize: 12,
-                    borderRadius: 8,
-                    border: "1px solid #e2e8f0",
-                  }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="2026"
-                  stroke={YC["2026"]}
-                  strokeWidth={2}
-                  dot={false}
-                  activeDot={{ r: 4 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <div className="flex items-center gap-5 mb-3">{cy.map(y=>(<span key={y} className="flex items-center gap-1.5 text-[11px]" style={{color:dk?"#6b7f93":"#94a3b8"}}><span className="w-5 h-0.5 rounded-full inline-block" style={{background:YC[y]}}/>{y}</span>))}</div>
+            <ResponsiveContainer width="100%" height={230}><LineChart data={chartData}><CartesianGrid vertical={false} stroke={gl}/><XAxis dataKey="month" tick={{fontSize:11,fill:ax}} axisLine={false} tickLine={false}/><YAxis tick={{fontSize:11,fill:ax}} axisLine={false} tickLine={false} width={46} tickFormatter={(v:number)=>`${(v/1000).toFixed(0)}K`}/><Tooltip formatter={(v:any,name:any)=>[`\u20B9${(Number(v)/1000).toFixed(0)}K`,String(name||"")] as any} contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e8f0"}}/>{cy.map(y=><Line key={y} type="monotone" dataKey={y} stroke={YC[y]} strokeWidth={2} dot={false} activeDot={{r:4}}/>)}</LineChart></ResponsiveContainer>
           </div>
         </div>
-
         <div className={card}>
-          <CH title="Courses by Category" dk={dk} />
-          <div className="px-6 pt-5 pb-6">
-            <div className="grid grid-cols-2 gap-6">
-              <DonutRing
-                v={dashboardData.coursesCount || 0}
-                t={dashboardData.coursesCount || 1}
-                color="#8b5cf6"
-                label="Safety & Tech"
-                dk={dk}
-              />
-              <DonutRing
-                v={0}
-                t={1}
-                color="#ef4444"
-                label="Navigation"
-                dk={dk}
-              />
-              <DonutRing
-                v={0}
-                t={1}
-                color="#f59e0b"
-                label="Technical"
-                dk={dk}
-              />
-              <DonutRing
-                v={0}
-                t={1}
-                color="#10b981"
-                label="Compliance"
-                dk={dk}
-              />
+          <CH title="Courses by Category" dk={dk}/>
+          <div className="px-6 pt-5 pb-6"><div className="grid grid-cols-2 gap-6"><DonutRing v={117} t={200} color="#8b5cf6" label="Safety" dk={dk}/><DonutRing v={86} t={160} color="#ef4444" label="Navigation" dk={dk}/><DonutRing v={70} t={140} color="#f59e0b" label="Technical" dk={dk}/><DonutRing v={38} t={80} color="#10b981" label="Compliance" dk={dk}/></div></div>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 xl:grid-cols-5 gap-5">
+        <div className={`${card} xl:col-span-3`}>
+          <CH title="Enrolments vs. Completions" dk={dk} action={
+            <div className={`flex rounded-lg overflow-hidden border text-[11px] font-medium ${dk?"border-white/10":"border-slate-200"}`}>
+              {(["monthly","weekly"] as const).map(r=>(<button key={r} onClick={()=>setEr(r)} className={`px-3 py-1 transition-colors capitalize ${er===r?"bg-indigo-500 text-white":dk?"text-white/35 hover:text-white/60":"text-slate-400 hover:text-slate-600"}`}>{r}</button>))}
             </div>
+          }/>
+          <div className="px-5 pt-4 pb-3">
+            <div className="flex items-center gap-5 mb-3">{[["#6366f1","Enrolments"],["#34d399","Completions"]].map(([c,l])=>(<span key={l} className="flex items-center gap-1.5 text-[11px]" style={{color:dk?"#6b7f93":"#94a3b8"}}><span className="w-2.5 h-2.5 rounded-sm inline-block" style={{background:c}}/>{l}</span>))}</div>
+            <ResponsiveContainer width="100%" height={210}><BarChart data={ET} barSize={11} barGap={4} barCategoryGap="30%"><CartesianGrid vertical={false} stroke={gl}/><XAxis dataKey="month" tick={{fontSize:11,fill:ax}} axisLine={false} tickLine={false}/><YAxis tick={{fontSize:11,fill:ax}} axisLine={false} tickLine={false} width={34}/><Tooltip cursor={{fill:dk?"rgba(255,255,255,0.03)":"rgba(0,0,0,0.03)"}} contentStyle={{fontSize:12,borderRadius:8,border:"1px solid #e2e8f0"}}/><Bar dataKey="e" name="Enrolments" fill="#6366f1" radius={[3,3,0,0]}/><Bar dataKey="c" name="Completions" fill="#34d399" radius={[3,3,0,0]}/></BarChart></ResponsiveContainer>
+          </div>
+        </div>
+        <div className={`${card} xl:col-span-2`}>
+          <CH title="Enrolments by Division" dk={dk}/>
+          <div className="px-2 py-2">
+            <div className={`grid grid-cols-[1fr_auto] px-4 pb-2 mb-1 border-b text-[10px] font-semibold uppercase tracking-wider ${dk?"border-white/5 text-white/20":"border-slate-100 text-slate-400"}`}><span>Division</span><span>Enrolled</span></div>
+            <div className={`divide-y ${dv}`}>{DIV.map(d=>{const Icon=d.icon;const max=DIV[0].count;return(<div key={d.name} className={`grid grid-cols-[1fr_auto] items-center px-4 py-3 gap-3 ${rh} transition-colors`}><div className="flex items-center gap-3 min-w-0"><div className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0" style={{background:`${d.color}18`}}><Icon className="w-3.5 h-3.5" style={{color:d.color}}/></div><div className="min-w-0"><p className={`text-[13px] font-medium truncate ${dk?"text-white/70":"text-slate-700"}`}>{d.name}</p><div className={`mt-1.5 h-1 rounded-full overflow-hidden w-16 ${dk?"bg-white/8":"bg-slate-100"}`}><div className="h-full rounded-full" style={{width:`${(d.count/max)*100}%`,background:d.color}}/></div></div></div><span className="text-sm font-bold tabular-nums" style={{color:d.color}}>{d.count}</span></div>);})}</div>
           </div>
         </div>
       </div>
-
-      {/* SECTION 4: RECENT ENROLLMENTS & LIVE ACTIVITY */}
       <div className="grid grid-cols-1 xl:grid-cols-5 gap-5">
         <div className={`${card} xl:col-span-3`}>
-          <CH
-            title="Live Course Enrollments"
-            dk={dk}
-            action={
-              <button
-                onClick={() => router.push("/master/courses")}
-                className={`flex items-center gap-1 text-xs font-medium cursor-pointer ${
-                  dk
-                    ? "text-white hover:text-white/80"
-                    : "text-black hover:text-slate-700"
-                }`}
-              >
-                Course Catalog <ArrowUpRight className="w-3 h-3" />
-              </button>
-            }
-          />
-          <div className="overflow-x-auto">
-            {ledgerList.length === 0 ? (
-              <div className="text-center py-12 px-4">
-                <Inbox className={`w-8 h-8 mx-auto mb-2 opacity-30 ${ht}`} />
-                <p className={`text-xs font-semibold ${ht}`}>
-                  No enrollments recorded yet
-                </p>
-                <p className={`text-[11px] mt-1 ${mt}`}>
-                  New course registrations will appear here in real time.
-                </p>
-              </div>
-            ) : (
-              <table className="w-full text-sm">
-                <thead>
-                  <tr
-                    className={
-                      dk
-                        ? "border-b border-white/5"
-                        : "border-b border-slate-100"
-                    }
-                  >
-                    {["Participant", "Course", "Revenue", "Status"].map((h) => (
-                      <th
-                        key={h}
-                        className={`text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider ${mt}`}
-                      >
-                        {h}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className={`divide-y ${dv}`}>
-                  {ledgerList.map((item, i) => (
-                    <tr key={i} className={`${rh} transition-colors`}>
-                      <td className="px-5 py-3 font-medium text-[13px]">
-                        {item.participant}
-                      </td>
-                      <td className={`px-5 py-3 text-[12px] ${mt}`}>
-                        {item.course}
-                      </td>
-                      <td className="px-5 py-3 font-bold text-[13px] text-emerald-500">
-                        {item.revenue}
-                      </td>
-                      <td className="px-5 py-3">
-                        <span className="text-[11px] font-semibold text-emerald-400">
-                          {item.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
+          <CH title="Recent Registrations" dk={dk} action={<button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>View all <ArrowUpRight className="w-3 h-3"/></button>}/>
+          <div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className={dk?"border-b border-white/5":"border-b border-slate-100"}>{["Name","Rank","Registered","Status"].map(h=>(<th key={h} className={`text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider ${mt}`}>{h}</th>))}</tr></thead><tbody className={`divide-y ${dv}`}>{REG.map((r,i)=>(<tr key={r.id} className={`${rh} transition-colors`}><td className="px-5 py-3"><div className="flex items-center gap-2.5"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 ${AB[i%AB.length]}`}>{r.name.split(" ").map(n=>n[0]).join("")}</div><div><p className={`text-[13px] font-medium ${ht}`}>{r.name}</p><p className={`text-[10px] font-mono ${mt}`}>{r.id}</p></div></div></td><td className={`px-5 py-3 text-[12px] ${dk?"text-white/55":"text-slate-500"}`}>{r.rank}</td><td className={`px-5 py-3 text-[12px] ${mt}`}>{r.date}</td><td className="px-5 py-3"><span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full ${dk?SD[r.status]:SL[r.status]}`}>{r.status}</span></td></tr>))}</tbody></table></div>
         </div>
+        <div className={`${card} xl:col-span-2`}>
+          <CH title="Recent Purchases" dk={dk} action={<button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>View all <ArrowUpRight className="w-3 h-3"/></button>}/>
+          <div className={`divide-y ${dv}`}>{PUR.map((p,i)=>(<div key={i} className={`flex items-start justify-between px-5 py-3.5 ${rh} transition-colors`}><div className="flex items-start gap-2.5 min-w-0"><div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold text-white shrink-0 mt-0.5 ${AB[i%AB.length]}`}>{p.user.split(" ").map(n=>n[0]).join("")}</div><div className="min-w-0"><p className={`text-[13px] font-medium truncate ${ht}`}>{p.course}</p><p className={`text-[11px] mt-0.5 ${mt}`}>{p.user} · {p.date}</p><p className={`text-[10px] mt-0.5 ${mt} opacity-60`}>{p.method}</p></div></div><span className={`text-[13px] font-bold shrink-0 ml-2 ${dk?"text-emerald-400":"text-emerald-600"}`}>{fmt(Number(p.amount))}</span></div>))}</div>
+        </div>
+      </div>
+
+      {/*  Quick Actions + Recent Activities  */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
 
         {/* Quick Actions */}
-        <div className={`${card} xl:col-span-2`}>
-          <CH
-            title="Management Shortcuts"
-            dk={dk}
-            action={
-              <Zap
-                className={`w-4 h-4 ${dk ? "text-amber-400" : "text-amber-500"}`}
-              />
-            }
-          />
+        <div className={card}>
+          <CH title="Quick Actions" dk={dk} action={<Zap className={`w-4 h-4 ${dk?"text-amber-400":"text-amber-500"}`}/>}/>
           <div className="p-4 grid grid-cols-2 gap-3">
             {[
-              {
-                label: "Seafarer Directory",
-                Icon: Users,
-                color: "bg-sky-500 hover:bg-sky-600",
-                href: "/master/seafarers",
-              },
-              {
-                label: "Partner Management",
-                Icon: Handshake,
-                color: "bg-violet-500 hover:bg-violet-600",
-                href: "/master/agent-admins",
-              },
-              {
-                label: "Institutes List",
-                Icon: GraduationCap,
-                color: "bg-emerald-500 hover:bg-emerald-600",
-                href: "/master/institutes",
-              },
-              {
-                label: "Course Catalog",
-                Icon: BookOpen,
-                color: "bg-indigo-500 hover:bg-indigo-600",
-                href: "/master/courses",
-              },
-            ].map((q) => (
-              <button
-                key={q.label}
-                onClick={() => router.push(q.href)}
-                className={`flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl text-white text-[12px] font-semibold text-center transition-all active:scale-95 shadow-md cursor-pointer ${q.color}`}
-              >
-                <q.Icon className="w-5 h-5" />
+              { label:"Seafarer Directory", Icon:Users,         color:"bg-sky-500 hover:bg-sky-600",       href:"/master/seafarers"     },
+              { label:"Partner Management", Icon:Handshake,     color:"bg-violet-500 hover:bg-violet-600", href:"/master/agent-admins"  },
+              { label:"Institutes List",    Icon:GraduationCap, color:"bg-emerald-500 hover:bg-emerald-600",href:"/master/institutes"   },
+              { label:"Course Catalog",     Icon:BookOpen,      color:"bg-indigo-500 hover:bg-indigo-600", href:"/master/courses"      },
+            ].map(q=>(
+              <button key={q.label} onClick={()=>router.push(q.href)}
+                className={`flex flex-col items-center justify-center gap-2.5 p-4 rounded-xl text-white text-[12px] font-semibold text-center transition-all active:scale-95 shadow-md ${q.color}`}>
+                <q.Icon className="w-5 h-5"/>
                 {q.label}
               </button>
             ))}
           </div>
         </div>
+
+        {/* Recent Activities */}
+        <div className={`${card} xl:col-span-2`}>
+          <CH title="Recent Activities" dk={dk} action={
+            <button className={`flex items-center gap-1 text-xs font-medium ${dk?"text-indigo-400 hover:text-indigo-300":"text-indigo-600 hover:text-indigo-700"}`}>
+              View all <ArrowUpRight className="w-3 h-3"/>
+            </button>
+          }/>
+          <div className={`divide-y ${dv}`}>
+            {ACTIVITIES.map((a,i)=>{
+              const Icon=a.icon;
+              return(
+                <div key={i} className={`flex items-center gap-4 px-6 py-3.5 ${rh} transition-colors`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${a.bg}`}>
+                    <Icon className="w-4 h-4" style={{color:a.color}}/>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`text-[13px] font-semibold ${ht}`}>{a.label}</p>
+                    <p className={`text-[11px] mt-0.5 ${mt}`}>{a.name}</p>
+                  </div>
+                  <span className={`text-[11px] shrink-0 ${mt}`}>{a.time}</span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
       </div>
     </div>
   );

@@ -64,22 +64,22 @@ export default function CompanyAdminSidebar({ isOpen, onClose }: SidebarProps) {
     <div className="flex flex-col h-full">
       {/* Brand Header */}
       <div className={`px-5 py-5 flex items-center justify-between border-b ${brandBorder}`}>
-        <Link href="/company-admin/dashboard" className="flex items-center gap-2.5 min-w-0 group/logo">
-          <Image
-            src="/logo.jpeg"
-            alt="Hari Om Thalassic"
-            width={34}
-            height={34}
-            className="w-[34px] h-[34px] rounded-full object-contain shrink-0 border border-slate-200 dark:border-white/10 shadow-xs"
-            priority
-          />
-          <span
-            className={`font-bold tracking-tight text-[15px] whitespace-nowrap ${
-              isDark ? "text-slate-100" : "text-slate-900"
-            }`}
-          >
-            Hari Om Thalassic
-          </span>
+        <Link href="/company-admin/dashboard" className="flex items-center gap-3 group/logo">
+          <div className="w-8 h-8 rounded-full overflow-hidden shrink-0">
+            <Image
+              src="/logo/hariom_logo.png"
+              alt="Hari Om logo"
+              width={32}
+              height={32}
+              className="w-full h-full object-contain"
+            />
+          </div>
+          <div className="leading-tight">
+            <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>
+            <p className={`text-[11px] font-medium tracking-wider uppercase ${logoSub}`}>
+              Company Portal
+            </p>
+          </div>
         </Link>
         {/* Mobile Close Button */}
         <button

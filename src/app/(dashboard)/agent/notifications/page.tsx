@@ -14,15 +14,15 @@ export default function NotificationsPage() {
   const [notifications, setNotifications] = useState<any[]>([]);
 
   // Styling helpers
-  const card = `rounded-[16px] p-6 md:p-8 border-0 shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] relative overflow-hidden ${
+  const card = `rounded-3xl p-6 md:p-8 border shadow-xl relative overflow-hidden backdrop-blur-xl ${
     isDark
-      ? "bg-[#0B0F19] dark:shadow-[0_4px_20px_rgba(0,0,0,0.3)] text-white"
-      : "bg-white text-[#111827]"
+      ? "bg-[#0d1f35]/80 border-white/[0.06] shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white"
+      : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900"
   }`;
-  const ht = isDark ? "text-white/95" : "text-[#111827]";
-  const mt = isDark ? "text-white/35" : "text-[#6B7280]";
-  const labelText = isDark ? "text-white/50" : "text-[#6B7280]";
-  const borderB = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const ht = isDark ? "text-white/95" : "text-slate-800";
+  const mt = isDark ? "text-white/35" : "text-slate-400";
+  const labelText = isDark ? "text-white/50" : "text-slate-500";
+  const borderB = isDark ? "border-white/5" : "border-slate-100";
 
   const fetchNotifications = async () => {
     try {
@@ -62,21 +62,21 @@ export default function NotificationsPage() {
   const getNotifIcon = (title: string) => {
     const cleanTitle = title.toLowerCase();
     if (cleanTitle.includes("verify") || cleanTitle.includes("approve")) {
-      return <CheckCircle2 className="w-4 h-4 text-[#16A34A]" />;
+      return <CheckCircle2 className="w-4 h-4 text-emerald-500" />;
     }
     if (cleanTitle.includes("reject") || cleanTitle.includes("expired")) {
-      return <AlertTriangle className="w-4 h-4 text-[#DC2626]" />;
+      return <AlertTriangle className="w-4 h-4 text-red-500" />;
     }
     if (cleanTitle.includes("commission") || cleanTitle.includes("payout")) {
-      return <Info className="w-4 h-4 text-[#3D5EF6]" />;
+      return <Info className={`w-4 h-4 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />;
     }
-    return <Bell className="w-4 h-4 text-[#9CA3AF]" />;
+    return <Bell className={`w-4 h-4 ${isDark ? "text-slate-400" : "text-slate-500"}`} />;
   };
 
   if (loading) {
     return (
       <div className="flex h-[60vh] items-center justify-center">
-        <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin" />
+        <div className="w-8 h-8 border-4 border-cyan-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -91,7 +91,7 @@ export default function NotificationsPage() {
         </div>
         <button
           onClick={fetchNotifications}
-          className={`p-2.5 rounded-full border flex items-center justify-center cursor-pointer transition-colors duration-200 ${isDark ? "border-[#1F2937] hover:bg-white/5 text-white/50" : "border-[#E5E7EB] hover:bg-[#EEF1FE] hover:text-[#3D5EF6] text-[#6B7280] shadow-sm"}`}
+          className={`p-2.5 rounded-xl border flex items-center justify-center cursor-pointer transition ${isDark ? "border-white/10 hover:bg-white/5 text-white/50" : "border-slate-200 hover:bg-slate-50 text-slate-500 shadow-sm"}`}
         >
           <RefreshCw className="w-4 h-4" />
         </button>
@@ -99,14 +99,14 @@ export default function NotificationsPage() {
 
       <div className={card}>
         <div className={`flex items-center gap-2 border-b pb-4 mb-6 ${borderB}`}>
-          <Bell className="w-4 h-4 text-[#3D5EF6]" />
+          <Bell className={`w-4 h-4 ${isDark ? "text-cyan-400" : "text-blue-600"}`} />
           <h3 className="text-sm font-bold">Inbox Messages</h3>
         </div>
 
         {notifications.length === 0 ? (
           <div className="text-center py-12 space-y-3">
-            <div className="w-12 h-12 rounded-full bg-[#EEF1FE] dark:bg-[#3D5EF6]/10 flex items-center justify-center mx-auto">
-              <Bell className="w-6 h-6 text-[#3D5EF6]" />
+            <div className="w-12 h-12 rounded-full bg-slate-500/10 flex items-center justify-center mx-auto">
+              <Bell className="w-6 h-6 text-slate-400" />
             </div>
             <p className={`text-xs ${mt}`}>All caught up! You have no active notifications.</p>
           </div>
@@ -115,19 +115,19 @@ export default function NotificationsPage() {
             {notifications.map((notif) => (
               <div
                 key={notif.id}
-                className={`p-4 rounded-[16px] border transition-colors duration-200 flex items-start gap-4 justify-between ${
+                className={`p-4 rounded-2xl border transition-all flex items-start gap-4 justify-between ${
                   notif.isRead
                     ? isDark
-                      ? "bg-[#0B0F19]/50 border-[#1F2937] opacity-60"
-                      : "bg-[#FAFAFA] border-[#E5E7EB] opacity-70"
+                      ? "bg-slate-950/20 border-slate-900/60 opacity-60"
+                      : "bg-slate-50/50 border-slate-200 opacity-70"
                     : isDark
-                    ? "bg-[#0B0F19] border-[#3D5EF6]/30 shadow-sm"
-                    : "bg-white border-[#3D5EF6]/20 shadow-sm"
+                    ? "bg-[#0b182d] border-cyan-500/10 shadow-[0_2px_8px_rgba(6,182,212,0.05)]"
+                    : "bg-white border-slate-200 shadow-sm"
                 }`}
               >
                 <div className="flex gap-3">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                    isDark ? "bg-[#111827]" : "bg-[#F3F4F6]"
+                  <div className={`p-2 rounded-xl shrink-0 mt-0.5 ${
+                    isDark ? "bg-slate-900" : "bg-slate-100"
                   }`}>
                     {getNotifIcon(notif.title)}
                   </div>
@@ -135,15 +135,15 @@ export default function NotificationsPage() {
                     <div className="flex items-center gap-2">
                       <p className="text-xs font-bold">{notif.title}</p>
                       {!notif.isRead && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#3D5EF6] animate-ping" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-cyan-500 animate-ping" />
                       )}
                     </div>
                     <p className={`text-[11px] mt-1.5 leading-relaxed ${
-                      isDark ? "text-slate-300" : "text-[#6B7280]"
+                      isDark ? "text-slate-300" : "text-slate-600"
                     }`}>
                       {notif.message}
                     </p>
-                    <p className={`text-[9px] mt-2 font-semibold ${isDark ? "text-white/40" : "text-[#9CA3AF]"}`}>
+                    <p className={`text-[9px] mt-2 font-semibold ${isDark ? "text-slate-600" : "text-slate-400"}`}>
                       {new Date(notif.createdAt).toLocaleDateString("en-IN", {
                         day: "numeric",
                         month: "short",
@@ -160,8 +160,8 @@ export default function NotificationsPage() {
                   {!notif.isRead && (
                     <button
                       onClick={() => handleMarkAsRead(notif.id)}
-                      className={`p-1.5 rounded-full border transition-colors duration-200 cursor-pointer ${
-                        isDark ? "border-[#1F2937] hover:bg-white/5 text-slate-400 hover:text-white" : "border-[#E5E7EB] hover:bg-[#EEF1FE] text-[#6B7280] hover:text-[#3D5EF6]"
+                      className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                        isDark ? "border-slate-800 hover:bg-white/5 text-slate-400 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-600"
                       }`}
                       title="Mark as read"
                     >
@@ -170,8 +170,8 @@ export default function NotificationsPage() {
                   )}
                   <button
                     onClick={() => handleDelete(notif.id)}
-                    className={`p-1.5 rounded-full border transition-colors duration-200 cursor-pointer ${
-                      isDark ? "border-[#1F2937] hover:bg-white/5 text-slate-400 hover:text-[#DC2626]" : "border-[#E5E7EB] hover:bg-[#FEE2E2] text-[#6B7280] hover:text-[#DC2626]"
+                    className={`p-1.5 rounded-lg border transition cursor-pointer ${
+                      isDark ? "border-slate-800 hover:bg-white/5 text-slate-400 hover:text-red-400" : "border-slate-200 hover:bg-slate-50 text-slate-600 hover:text-red-600"
                     }`}
                     title="Delete"
                   >

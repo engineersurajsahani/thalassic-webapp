@@ -13,14 +13,14 @@ const STATUSES = ["all", "Pending", "Approved", "Paid", "Settled", "Rejected", "
 function CommissionStatusBadge({ status }: { status: string }) {
   const s = (status || "").toLowerCase();
   if (s === "paid" || s === "settled")
-    return <span className="text-[11px] font-bold text-emerald-600 dark:text-emerald-400">{status}</span>;
+    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-emerald-500/10 text-emerald-400 border-emerald-500/20">{status}</span>;
   if (s === "approved")
-    return <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400">Approved</span>;
+    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-sky-500/10 text-sky-400 border-sky-500/20">Approved</span>;
   if (s === "pending" || s === "under review")
-    return <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400">{status}</span>;
+    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-amber-500/10 text-amber-400 border-amber-500/20">{status}</span>;
   if (s === "rejected")
-    return <span className="text-[11px] font-bold text-rose-600 dark:text-rose-400">Rejected</span>;
-  return <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">{status}</span>;
+    return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-rose-500/10 text-rose-400 border-rose-500/20">Rejected</span>;
+  return <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold border bg-slate-500/10 text-slate-400 border-slate-500/20">{status}</span>;
 }
 
 export default function CommissionsPage() {

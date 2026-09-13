@@ -474,7 +474,12 @@ function Hero() {
 
 // --- MAIN WRAPPER PAGE ---
 export default function HomePage() {
-  const { theme, mounted } = useTheme();
+  const { theme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const isDark = mounted ? (theme === "dark") : true;
   const stripRef = useRef<HTMLDivElement>(null);

@@ -6,7 +6,7 @@ import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import { mockNotifications } from "./mockData";
 import { 
-  Bell, Sun, Moon, ChevronRight,
+  Bell, Sun, Moon, Search, ChevronRight,
   AlertTriangle, Info, CheckCircle2, Check, Menu
 } from "lucide-react";
 
@@ -100,6 +100,19 @@ export default function CompanyAdminTopbar({ onMenuClick }: TopbarProps) {
             </div>
           )}
         </div>
+      </div>
+
+      {/* Search Input Bar (Hidden on mobile for clean spacing) */}
+      <div className="hidden sm:block flex-1 max-w-xs md:max-w-sm">
+        <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-all focus-within:ring-2 focus-within:ring-sky-500/20 focus-within:border-sky-500 ${isDark ? "bg-white/5 border-white/10 text-white/60 placeholder:text-white/25" : "bg-slate-50 border-slate-200 text-slate-650"}`}>
+          <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
+          <input
+            type="text"
+            placeholder="Search seafarers, documents..."
+            className={`bg-transparent outline-none w-full text-[12px] ${isDark ? "placeholder:text-white/25" : "placeholder:text-slate-400"}`}
+          />
+          <kbd className={`hidden md:inline-flex text-[9px] px-1.5 py-0.5 rounded font-mono ${isDark ? "bg-white/8 text-white/25" : "bg-slate-200 text-slate-400"}`}>⌘K</kbd>
+        </label>
       </div>
 
       {/* Right Toolbar */}
