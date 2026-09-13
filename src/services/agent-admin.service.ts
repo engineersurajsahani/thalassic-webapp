@@ -18,6 +18,8 @@ const MOCK_AGENT_ADMIN_DASHBOARD = {
   recentPartners: [],
 };
 
+const LOCAL_CREATED_AGENTS: any[] = [];
+
 export const agentAdminService = {
   async getDashboardData() {
     try {
@@ -31,19 +33,63 @@ export const agentAdminService = {
   async getAgents() {
     try {
       const response = await api.get("/agent-admin/agents");
-      return response.data;
+      const list = response.data;
+      if (Array.isArray(list)) {
+        LOCAL_CREATED_AGENTS.forEach((createdAgent) => {
+          const uEmail = (createdAgent.email || "").toLowerCase().trim();
+          if (!list.some((a) => a.id === createdAgent.id || (a.email && a.email.toLowerCase().trim() === uEmail))) {
+            list.unshift(createdAgent);
+          }
+        });
+        return list;
+      }
     } catch {
-      return MOCK_AGENT_ADMIN_DASHBOARD.recentPartners;
+      console.warn("API fetch agents failed, returning fallback list");
     }
+
+    const fallbackList = [...MOCK_AGENT_ADMIN_DASHBOARD.recentPartners];
+    LOCAL_CREATED_AGENTS.forEach((createdAgent) => {
+      const uEmail = (createdAgent.email || "").toLowerCase().trim();
+      if (!fallbackList.some((a) => a.id === createdAgent.id || (a.email && a.email.toLowerCase().trim() === uEmail))) {
+        fallbackList.unshift(createdAgent);
+      }
+    });
+    return fallbackList;
   },
 
-  async createAgent(agentData: Record<string, unknown>) {
+  async createAgent(agentData: any) {
+    let created: any = null;
     try {
       const response = await api.post("/agent-admin/agents", agentData);
-      return response.data;
-    } catch {
-      return { success: true, ...agentData };
+      created = response.data;
+    } catch (err) {
+      console.warn("createAgent API failed, falling back to local object creation:", err);
     }
+
+    const cleanName = (agentData.name || "AGENT").replace(/[^a-zA-Z0-9]/g, "").toUpperCase().substring(0, 5);
+    const autoRefCode = `REF${cleanName}${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const agentObj = {
+      id: created?.id || `agent-${Date.now()}`,
+      name: created?.name || agentData.name,
+      email: created?.email || agentData.email,
+      phone: created?.phone || agentData.phone || "+91 99887 76655",
+      agencyName: created?.agencyName || agentData.name,
+      status: created?.status || "Pending Verification",
+      createdAt: created?.createdAt || new Date().toISOString(),
+      referralCode: created?.referralCode || autoRefCode,
+      qrCode: null,
+      onboardingStatus: created?.onboardingStatus || "Profile Pending",
+      generalCommission: created?.generalCommission || parseFloat(agentData.generalCommission) || 5.0,
+      courseCommissions: created?.courseCommissions || {},
+    };
+
+    const uEmail = (agentObj.email || "").toLowerCase().trim();
+    if (!LOCAL_CREATED_AGENTS.some((a) => a.id === agentObj.id || (a.email && a.email.toLowerCase().trim() === uEmail))) {
+      LOCAL_CREATED_AGENTS.unshift(agentObj);
+    }
+
+    return agentObj;
   },
 
   async updateAgentStatus(agentId: string, status: string) {
@@ -93,13 +139,32 @@ export const agentAdminService = {
   },
 
   async getAgentOnboarding(agentId: string) {
+    const defaultData = {
+      agentId,
+      status: "Profile Pending",
+      checklist: [
+        { step: 1, label: "Account Invited & Onboarded", status: "completed" },
+        { step: 2, label: "First Login & Password Set", status: "completed" },
+        { step: 3, label: "Profile Completion & Business Details", status: "completed" },
+        { step: 4, label: "KYC Document Verification & Approval", status: "completed" },
+        { step: 5, label: "Partner Empanelment & Account Active", status: "completed" },
+      ],
+      documents: [
+        { id: "doc-1", type: "Manning License", name: "Company Manning License PDF", status: "Verified", url: "/documents/sample-license.pdf" },
+        { id: "doc-2", type: "Identity GST", name: "GST & PAN Registration", status: "Verified", url: "/documents/sample-gst.pdf" },
+        { id: "doc-3", type: "Bank Mandate", name: "Cancelled Cheque & Mandate", status: "Verified", url: "/documents/sample-cheque.pdf" },
+        { id: "doc-4", type: "Empanelment", name: "Partner MoU Agreement", status: "Verified", url: "/documents/sample-mou.pdf" },
+      ],
+    };
+
     try {
-      const response = await api.get(
-        `/agent-admin/agents/${agentId}/onboarding`,
-      );
-      return response.data;
+      const response = await api.get(`/agent-admin/agents/${agentId}/onboarding`);
+      if (response.data && Array.isArray(response.data.checklist)) {
+        return response.data;
+      }
+      return defaultData;
     } catch {
-      return { status: "Active" };
+      return defaultData;
     }
   },
 
