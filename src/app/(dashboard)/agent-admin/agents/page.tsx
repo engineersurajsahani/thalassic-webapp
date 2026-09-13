@@ -106,7 +106,7 @@ export default function AgentManagement() {
     setCreateSuccess(false);
 
     try {
-      await agentAdminService.createAgent({
+      const createdAgent = await agentAdminService.createAgent({
         name: newName,
         email: newEmail,
         password: newPassword,
@@ -115,16 +115,24 @@ export default function AgentManagement() {
       });
 
       setCreateSuccess(true);
+      if (createdAgent) {
+        setAgents((prev) => [
+          createdAgent,
+          ...prev.filter((a) => a.id !== createdAgent.id && a.email?.toLowerCase().trim() !== createdAgent.email?.toLowerCase().trim()),
+        ]);
+      }
       setNewName("");
       setNewEmail("");
       setNewPassword("");
       setNewPhone("");
       setNewGenComm("5.0");
-      fetchAgents();
+      
       setTimeout(() => {
         setShowCreateModal(false);
         setCreateSuccess(false);
-      }, 1500);
+      }, 1200);
+
+      fetchAgents();
     } catch (err: any) {
       setCreateError(err.message || "Failed to create agent account.");
     }
@@ -312,13 +320,16 @@ export default function AgentManagement() {
     const matchesSearch = 
       agent.name?.toLowerCase().includes(search.toLowerCase()) ||
       agent.email?.toLowerCase().includes(search.toLowerCase()) ||
-      (agent.referralCode && agent.referralCode.toLowerCase().includes(search.toLowerCase()));
+      (agent.agencyName && agent.agencyName.toLowerCase().includes(search.toLowerCase()));
+
+    const status = agent.status || "Active";
+    const onboardingStatus = agent.onboardingStatus || "Profile Pending";
 
     const matchesStatus = 
       statusFilter === "all" ||
-      (statusFilter === "active" && agent.status === "Active") ||
-      (statusFilter === "deactivated" && agent.status === "Deactivated") ||
-      (statusFilter === "onboarding" && ["Invited", "Profile Pending", "Referral Pending"].includes(agent.onboardingStatus));
+      (statusFilter === "active" && (status === "Active" || status === "Pending Audit" || status === "Pending Verification")) ||
+      (statusFilter === "deactivated" && status === "Deactivated") ||
+      (statusFilter === "onboarding" && ["Invited", "Profile Pending", "KYC Pending", "Pending Verification", "Pending Audit"].includes(onboardingStatus));
 
     return matchesSearch && matchesStatus;
   });
@@ -467,8 +478,14 @@ export default function AgentManagement() {
                     <Building className="w-4.5 h-4.5 text-[#3D5EF6]" />
                     <h2 className="text-sm font-bold">Agency & Business Profile</h2>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                    Active Partner
+                  <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                    selectedAgentForPricing.status === "Active"
+                      ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                      : selectedAgentForPricing.status === "Deactivated"
+                      ? "bg-red-500/10 text-red-500 border-red-500/20"
+                      : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                  }`}>
+                    {selectedAgentForPricing.status || "Pending Verification"}
                   </span>
                 </div>
 
@@ -495,7 +512,15 @@ export default function AgentManagement() {
                   </div>
                   <div className="flex justify-between py-1.5">
                     <span className={labelText}>Onboarding Progress</span>
-                    <span className="font-bold text-emerald-500 dark:text-emerald-400">{selectedAgentForPricing.onboardingStatus || "Active"}</span>
+                    <span className={`font-bold ${
+                      selectedAgentForPricing.onboardingStatus === "Active"
+                        ? "text-emerald-500 dark:text-emerald-400"
+                        : selectedAgentForPricing.onboardingStatus === "Inactive"
+                        ? "text-red-500 dark:text-red-400"
+                        : "text-amber-500 dark:text-amber-400"
+                    }`}>
+                      {selectedAgentForPricing.onboardingStatus || "Profile Pending"}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -955,9 +980,13 @@ export default function AgentManagement() {
                     {/* Status */}
                     <td className="py-4 px-2">
                       <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        agent.status === "Active" ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
+                        agent.status === "Active"
+                          ? "bg-emerald-500/10 text-emerald-500"
+                          : agent.status === "Deactivated"
+                          ? "bg-red-500/10 text-red-500"
+                          : "bg-red-500/10 text-red-500"
                       }`}>
-                        {agent.status}
+                        {agent.status || "Pending Verification"}
                       </span>
                     </td>
 
@@ -1223,15 +1252,15 @@ export default function AgentManagement() {
             
             <div className="mb-6">
               <p className={`text-xs font-bold ${isDark ? "text-white/80" : "text-slate-800"}`}>{selectedAgent?.name}</p>
-              <p className={`text-[10px] ${labelText}`}>Status: {onboardingChecklist.status}</p>
+              <p className={`text-[10px] ${labelText}`}>Status: {onboardingChecklist?.status || selectedAgent?.onboardingStatus || "Profile Pending"}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Checklist Column */}
               <div className="space-y-4">
                 <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">Checklist Steps</h4>
-                {onboardingChecklist.checklist.map((step: any) => (
-                  <div key={step.step} className="flex items-start gap-3">
+                {(onboardingChecklist?.checklist || []).map((step: any) => (
+                  <div key={step.step || step.label} className="flex items-start gap-3">
                     <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
                       step.status === 'completed'
                         ? "bg-emerald-500/10 text-emerald-500"
