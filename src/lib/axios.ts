@@ -22,13 +22,7 @@ const getApiUrl = () => {
 // ISSUE-016, ISSUE-017: Single canonical token resolution
 function resolveAuthToken(): string | null {
   if (typeof window === 'undefined') return null;
-  return (
-    getCookie('auth_token') ||
-    getCookie('token') ||
-    localStorage.getItem('token') ||
-    localStorage.getItem('auth_token') ||
-    'mock-agent-token'
-  );
+  return getCookie('auth_token') || getCookie('token');
 }
 
 // Determine base API URL
@@ -82,9 +76,6 @@ export function deleteCookie(name: string) {
 // ISSUE-016: Uses shared resolveAuthToken() function instead of duplicating route logic
 api.interceptors.request.use(
   (config) => {
-    if (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
-      config.baseURL = 'http://localhost:4000/api/v1';
-    }
     const token = resolveAuthToken();
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;

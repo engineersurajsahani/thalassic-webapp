@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import toast from "react-hot-toast";
 import { useTheme } from "@/providers/theme-provider";
@@ -14,18 +14,22 @@ import {
   Eye,
   EyeOff,
   User,
+  Camera,
 } from "lucide-react";
+
+const PROFILE_PIC_KEY = "master_portal_profile_pic";
 
 export default function SettingsPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [success, setSuccess] = useState(false);
   const [showNew, setShowNew] = useState(false);
   const [showConf, setShowConf] = useState(false);
-  const [logoError, setLogoError] = useState(false);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "master_ceo",
@@ -45,6 +49,10 @@ export default function SettingsPage() {
     : "bg-slate-50 border-slate-200 text-slate-700 placeholder:text-slate-400 focus:border-indigo-500";
 
   useEffect(() => {
+    // Load saved profile pic from localStorage
+    const saved = localStorage.getItem(PROFILE_PIC_KEY);
+    if (saved) setProfilePic(saved);
+
     let mounted = true;
     Promise.all([
       masterService.getSettings().catch(() => null),
@@ -61,10 +69,29 @@ export default function SettingsPage() {
       .finally(() => {
         if (mounted) setLoading(false);
       });
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
+
+  const handlePicChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      setProfilePic(dataUrl);
+      localStorage.setItem(PROFILE_PIC_KEY, dataUrl);
+      // Dispatch storage event so topbar picks it up in the same tab
+      window.dispatchEvent(new StorageEvent("storage", { key: PROFILE_PIC_KEY, newValue: dataUrl }));
+      toast.success("Profile picture updated!");
+    };
+    reader.readAsDataURL(file);
+    // Reset input so same file can be re-selected
+    e.target.value = "";
+  };
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,7 +100,6 @@ export default function SettingsPage() {
       toast.error("Passwords do not match");
       return;
     }
-
     if (form.newPassword && form.newPassword.length < 6) {
       toast.error("Password must be at least 6 characters");
       return;
@@ -83,23 +109,10 @@ export default function SettingsPage() {
     setSuccess(false);
 
     try {
-      // 1. Update name + email
-      await masterService
-        .updateAdminProfile({
-          name: form.name,
-          email: form.email,
-        })
-        .catch(() => null);
-
-      // 2. Change password via dedicated endpoint if provided
+      await masterService.updateAdminProfile({ name: form.name, email: form.email }).catch(() => null);
       if (form.newPassword) {
-        await masterService
-          .changePassword({
-            newPassword: form.newPassword,
-          })
-          .catch(() => null);
+        await masterService.changePassword({ newPassword: form.newPassword }).catch(() => null);
       }
-
       setSuccess(true);
       toast.success("Profile updated successfully!");
       setForm((prev) => ({ ...prev, newPassword: "", confirmPassword: "" }));
@@ -126,12 +139,8 @@ export default function SettingsPage() {
       {/* ── Page Header ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className={`text-2xl font-black tracking-tight ${headText}`}>
-            Profile & Settings
-          </h1>
-          <p className={`text-xs mt-0.5 ${mutedText}`}>
-            Manage your master administrator credentials
-          </p>
+          <h1 className={`text-2xl font-black tracking-tight ${headText}`}>Profile & Settings</h1>
+          <p className={`text-xs mt-0.5 ${mutedText}`}>Manage your master administrator credentials</p>
         </div>
         <span className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
           <Shield className="w-3.5 h-3.5" /> Super Admin Role
@@ -141,63 +150,85 @@ export default function SettingsPage() {
       <form onSubmit={handleSave} className="space-y-5">
         {/* ── Profile Header Card ── */}
         <div className={`${bg} rounded-2xl p-6 flex items-center gap-5`}>
-          {/* Hari Om Thalassic Logo */}
-          <div
-            className={`w-20 h-20 rounded-2xl flex items-center justify-center shrink-0 overflow-hidden border ${
-              isDark
-                ? "bg-[#0a1525] border-white/10"
-                : "bg-white border-slate-200 shadow-sm"
-            }`}
-          >
-            {!logoError ? (
-              <Image
-                src="/logo/hariom_logo.png"
-                alt="Hari Om Thalassic Logo"
-                width={64}
-                height={64}
-                className="object-contain w-14 h-14"
-                onError={() => setLogoError(true)}
-              />
-            ) : (
-              <span className="text-2xl font-black text-indigo-400">HO</span>
-            )}
+
+          {/* Editable Avatar */}
+          <div className="relative shrink-0 group">
+            <div
+              className={`w-20 h-20 rounded-2xl flex items-center justify-center overflow-hidden border ${
+                isDark ? "bg-[#0a1525] border-white/10" : "bg-white border-slate-200 shadow-sm"
+              }`}
+            >
+              {profilePic ? (
+                <Image
+                  src={profilePic}
+                  alt="Profile Picture"
+                  width={80}
+                  height={80}
+                  className="object-cover w-full h-full"
+                />
+              ) : (
+                <Image
+                  src="/logo/hariom_logo.png"
+                  alt="Hari Om Thalassic Logo"
+                  width={64}
+                  height={64}
+                  className="object-contain w-14 h-14"
+                  onError={() => {}}
+                />
+              )}
+            </div>
+
+            {/* Camera overlay */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute inset-0 w-20 h-20 rounded-2xl flex items-center justify-center bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+              title="Change profile picture"
+            >
+              <Camera className="w-5 h-5 text-white" />
+            </button>
+
+            {/* Small edit badge */}
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="absolute -bottom-1.5 -right-1.5 w-6 h-6 rounded-full bg-indigo-600 hover:bg-indigo-500 border-2 border-[#0d1f35] flex items-center justify-center transition-colors cursor-pointer"
+              title="Edit profile picture"
+            >
+              <Camera className="w-3 h-3 text-white" />
+            </button>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={handlePicChange}
+            />
           </div>
 
           {/* Identity */}
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h2 className={`text-lg font-bold truncate ${headText}`}>
-                {form.name}
-              </h2>
+              <h2 className={`text-lg font-bold truncate ${headText}`}>{form.name}</h2>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-500/15 text-indigo-400 border border-indigo-500/30 shrink-0">
                 MASTER USER
               </span>
             </div>
-            <p className={`text-xs mt-0.5 truncate ${mutedText}`}>
-              {form.email}
-            </p>
-            <p className="text-[11px] mt-1 text-sky-400 font-mono">
-              Full Platform & Financial Authority
-            </p>
+            <p className={`text-xs mt-0.5 truncate ${mutedText}`}>{form.email}</p>
+            <p className="text-[11px] mt-1 text-sky-400 font-mono">Full Platform & Financial Authority</p>
           </div>
         </div>
 
         {/* ── Credentials Card ── */}
         <div className={`${bg} rounded-2xl p-6 space-y-5`}>
-          <div
-            className={`flex items-center gap-2.5 pb-3 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
-          >
+          <div className={`flex items-center gap-2.5 pb-3 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
             <User className="w-4 h-4 text-indigo-400" />
-            <h3 className={`text-sm font-bold ${headText}`}>
-              Account Credentials
-            </h3>
+            <h3 className={`text-sm font-bold ${headText}`}>Account Credentials</h3>
           </div>
 
-          {/* Username */}
           <div className="space-y-1.5">
-            <label
-              className={`text-[11px] font-semibold flex items-center gap-1.5 ${mutedText}`}
-            >
+            <label className={`text-[11px] font-semibold flex items-center gap-1.5 ${mutedText}`}>
               <User className="w-3.5 h-3.5" /> Username
             </label>
             <input
@@ -211,11 +242,8 @@ export default function SettingsPage() {
             />
           </div>
 
-          {/* Email */}
           <div className="space-y-1.5">
-            <label
-              className={`text-[11px] font-semibold flex items-center gap-1.5 ${mutedText}`}
-            >
+            <label className={`text-[11px] font-semibold flex items-center gap-1.5 ${mutedText}`}>
               <Mail className="w-3.5 h-3.5" /> Gmail / Email ID
             </label>
             <input
@@ -232,18 +260,13 @@ export default function SettingsPage() {
 
         {/* ── Password Card ── */}
         <div className={`${bg} rounded-2xl p-6 space-y-5`}>
-          <div
-            className={`flex items-center gap-2.5 pb-3 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
-          >
+          <div className={`flex items-center gap-2.5 pb-3 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
             <Lock className="w-4 h-4 text-amber-400" />
             <h3 className={`text-sm font-bold ${headText}`}>Change Password</h3>
           </div>
 
-          {/* New Password */}
           <div className="space-y-1.5">
-            <label
-              className={`text-[11px] font-semibold flex items-center gap-1.5 ${mutedText}`}
-            >
+            <label className={`text-[11px] font-semibold flex items-center gap-1.5 ${mutedText}`}>
               <Lock className="w-3.5 h-3.5" /> New Password
             </label>
             <div className="relative">
@@ -252,30 +275,17 @@ export default function SettingsPage() {
                 type={showNew ? "text" : "password"}
                 placeholder="Leave blank to keep current"
                 value={form.newPassword}
-                onChange={(e) =>
-                  setForm({ ...form, newPassword: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, newPassword: e.target.value })}
                 className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border text-xs font-medium outline-none transition-all ${inputBg}`}
               />
-              <button
-                type="button"
-                onClick={() => setShowNew((v) => !v)}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 ${mutedText} hover:opacity-80`}
-              >
-                {showNew ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
+              <button type="button" onClick={() => setShowNew((v) => !v)} className={`absolute right-3 top-1/2 -translate-y-1/2 ${mutedText} hover:opacity-80`}>
+                {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
           </div>
 
-          {/* Confirm Password */}
           <div className="space-y-1.5">
-            <label
-              className={`text-[11px] font-semibold flex items-center gap-1.5 ${mutedText}`}
-            >
+            <label className={`text-[11px] font-semibold flex items-center gap-1.5 ${mutedText}`}>
               <Lock className="w-3.5 h-3.5" /> Confirm New Password
             </label>
             <div className="relative">
@@ -284,47 +294,27 @@ export default function SettingsPage() {
                 type={showConf ? "text" : "password"}
                 placeholder="Re-enter new password"
                 value={form.confirmPassword}
-                onChange={(e) =>
-                  setForm({ ...form, confirmPassword: e.target.value })
-                }
+                onChange={(e) => setForm({ ...form, confirmPassword: e.target.value })}
                 className={`w-full px-3.5 py-2.5 pr-10 rounded-xl border text-xs font-medium outline-none transition-all ${
-                  form.confirmPassword &&
-                  form.newPassword !== form.confirmPassword
-                    ? isDark
-                      ? "border-red-500/50 bg-red-500/5"
-                      : "border-red-400 bg-red-50"
-                    : form.confirmPassword &&
-                        form.newPassword === form.confirmPassword
-                      ? isDark
-                        ? "border-emerald-500/50 bg-emerald-500/5"
-                        : "border-emerald-400 bg-emerald-50"
-                      : inputBg
+                  form.confirmPassword && form.newPassword !== form.confirmPassword
+                    ? isDark ? "border-red-500/50 bg-red-500/5" : "border-red-400 bg-red-50"
+                    : form.confirmPassword && form.newPassword === form.confirmPassword
+                    ? isDark ? "border-emerald-500/50 bg-emerald-500/5" : "border-emerald-400 bg-emerald-50"
+                    : inputBg
                 }`}
               />
-              <button
-                type="button"
-                onClick={() => setShowConf((v) => !v)}
-                className={`absolute right-3 top-1/2 -translate-y-1/2 ${mutedText} hover:opacity-80`}
-              >
-                {showConf ? (
-                  <EyeOff className="w-4 h-4" />
-                ) : (
-                  <Eye className="w-4 h-4" />
-                )}
+              <button type="button" onClick={() => setShowConf((v) => !v)} className={`absolute right-3 top-1/2 -translate-y-1/2 ${mutedText} hover:opacity-80`}>
+                {showConf ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
             </div>
-            {form.confirmPassword &&
-              form.newPassword !== form.confirmPassword && (
-                <p className="text-[10px] text-red-400 mt-1">
-                  Passwords do not match
-                </p>
-              )}
-            {form.confirmPassword &&
-              form.newPassword === form.confirmPassword && (
-                <p className="text-[10px] text-emerald-400 mt-1 flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Passwords match
-                </p>
-              )}
+            {form.confirmPassword && form.newPassword !== form.confirmPassword && (
+              <p className="text-[10px] text-red-400 mt-1">Passwords do not match</p>
+            )}
+            {form.confirmPassword && form.newPassword === form.confirmPassword && (
+              <p className="text-[10px] text-emerald-400 mt-1 flex items-center gap-1">
+                <Check className="w-3 h-3" /> Passwords match
+              </p>
+            )}
           </div>
         </div>
 
@@ -336,9 +326,7 @@ export default function SettingsPage() {
                 <Check className="w-4 h-4" /> Profile updated successfully!
               </span>
             ) : (
-              <span className={`text-xs ${mutedText}`}>
-                Changes apply immediately across all Master Portal sessions.
-              </span>
+              <span className={`text-xs ${mutedText}`}>Changes apply immediately across all Master Portal sessions.</span>
             )}
           </div>
           <button
@@ -355,3 +343,4 @@ export default function SettingsPage() {
     </div>
   );
 }
+

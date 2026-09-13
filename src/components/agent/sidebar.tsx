@@ -35,15 +35,15 @@ const menuItems = [
 ];
 
 export default function AgentSidebar() {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const { logout, user } = useAuth();
-  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
   const pathname = usePathname();
 
   const isActive = (href: string) => {
     if (pathname === href) return true;
+    if (href === "/partner/dashboard" && (pathname === "/partner/dashboard" || pathname === "/agent/dashboard")) return true;
     if (pathname.startsWith(href + "/") && href !== "/partner/seafarers" && href !== "/partner/purchases" && href !== "/partner/settlements") {
       return true;
     }

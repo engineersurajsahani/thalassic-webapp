@@ -33,57 +33,40 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/seafearer/sea-service-log',
-        destination: '/seafarer/profile?tab=sea-service',
+        destination: '/seafearer/profile?tab=sea-service',
         permanent: false,
       },
       {
         source: '/seafarer/sea-service-log',
-        destination: '/seafarer/profile?tab=sea-service',
+        destination: '/seafearer/profile?tab=sea-service',
         permanent: false,
       },
       {
         source: '/seafearer/vessel-sign-on-logs',
-        destination: '/seafarer/profile?tab=sea-service',
+        destination: '/seafearer/profile?tab=sea-service',
         permanent: false,
       },
       {
         source: '/seafarer/vessel-sign-on-logs',
-        destination: '/seafarer/profile?tab=sea-service',
+        destination: '/seafearer/profile?tab=sea-service',
         permanent: false,
       },
       {
-        source: '/seafearer/:path*',
-        destination: '/seafarer/:path*',
-        permanent: false,
+        source: '/seafarer/:path*',
+        destination: '/seafearer/:path*',
+        permanent: true,
       },
     ];
   },
-  // ISSUE-005: Content Security Policy headers (production only to prevent blocking Turbopack / React dev tools)
+  // ISSUE-005: Content Security Policy headers
   async headers() {
-    const isDev = process.env.NODE_ENV !== "production";
-    const scriptSrc = isDev
-      ? "'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com"
-      : "'self' 'unsafe-inline' https://fonts.googleapis.com";
-
-    const cspHeader = [
-      "default-src 'self'",
-      `script-src ${scriptSrc}`,
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com",
-      "font-src 'self' https://fonts.gstatic.com",
-      "img-src 'self' data: https: blob:",
-      "connect-src 'self' http://localhost:4000 https://thalassic-api.onrender.com https://*.onrender.com https://*.supabase.co",
-      "frame-ancestors 'none'",
-      "base-uri 'self'",
-      "form-action 'self'",
-    ].join("; ");
-
     return [
       {
         source: "/(.*)",
         headers: [
           {
             key: "Content-Security-Policy",
-            value: cspHeader,
+            value: "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://fonts.googleapis.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' http://localhost:4000 https://thalassic-api.onrender.com https://*.onrender.com https://*.supabase.co; frame-ancestors 'none'; base-uri 'self'; form-action 'self';",
           },
           // ISSUE-069: Additional security headers (also set in backend)
           {
@@ -107,10 +90,12 @@ const nextConfig: NextConfig = {
             value: "camera=(), microphone=(), geolocation=()",
           },
           // ISSUE-067: HSTS for HTTPS enforcement in production
-          {
-            key: "Strict-Transport-Security",
-            value: "max-age=31536000; includeSubDomains",
-          },
+          ...(process.env.NODE_ENV === 'production' ? [
+            {
+              key: "Strict-Transport-Security",
+              value: "max-age=31536000; includeSubDomains",
+            },
+          ] : []),
         ],
       },
     ];

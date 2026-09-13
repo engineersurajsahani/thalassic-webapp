@@ -7,52 +7,75 @@ import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
-  LayoutDashboard, Users, FileText, ClipboardList,
-  DollarSign, BarChart3, ShieldAlert, User, LogOut,
-  Anchor, ChevronRight, Receipt, Tag, CreditCard,
+  LayoutDashboard,
+  Users,
+  BarChart3,
+  User,
+  LogOut,
+  ChevronRight,
+  Receipt,
+  Tag,
+  CreditCard,
 } from "lucide-react";
 
 const menuItems = [
-  { label: "Dashboard",          href: "/agent-admin/dashboard",      icon: LayoutDashboard },
-  { label: "Agents",             href: "/agent-admin/agents",         icon: Users           },
-  { label: "Invoices",           href: "/agent-admin/invoices",        icon: Receipt         },
-  { label: "Settlements",        href: "/agent-admin/settlements",     icon: CreditCard      },
-  { label: "Reports",            href: "/agent-admin/reports",         icon: BarChart3       },
-  { label: "Profile",            href: "/agent-admin/profile",         icon: User            },
+  { label: "Dashboard", href: "/agent-admin/dashboard", icon: LayoutDashboard },
+  { label: "Partners & Agents", href: "/agent-admin/agents", icon: Users },
+  { label: "Course Pricing", href: "/agent-admin/pricing", icon: Tag },
+  { label: "Invoices", href: "/agent-admin/invoices", icon: Receipt },
+  { label: "Settlements", href: "/agent-admin/settlements", icon: CreditCard },
+  { label: "Reports", href: "/agent-admin/reports", icon: BarChart3 },
+  { label: "Profile", href: "/agent-admin/profile", icon: User },
 ];
 
 export default function AgentAdminSidebar() {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const { logout, user } = useAuth();
-  const mounted = true;
 
   const isDark = mounted ? theme === "dark" : true;
   const pathname = usePathname();
 
-  const isActive = (href: string) =>
-    pathname === href || pathname.startsWith(href + "/");
+  const isActive = (href: string) => {
+    if (href === "/agent-admin/dashboard") {
+      return (
+        pathname === "/agent-admin/dashboard" ||
+        pathname === "/partner-admin" ||
+        pathname === "/agent-admin"
+      );
+    }
+    return pathname === href || pathname.startsWith(href + "/");
+  };
 
   // ── theme tokens ──────────────────────────────────────────────────────────
-  const sidebarBg   = isDark ? "bg-[#0B0F19] border-r border-[#1F2937]" : "bg-[#FFFFFF] border-r border-[#E5E7EB]";
+  const sidebarBg = isDark
+    ? "bg-[#0B0F19] border-r border-[#1F2937]"
+    : "bg-[#FFFFFF] border-r border-[#E5E7EB]";
   const brandBorder = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
-  const logoText    = isDark ? "text-white" : "text-[#0F172A]";
-  const logoSub     = isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]";
-  const navLabel    = isDark ? "text-gray-400" : "text-[#475569]";
-  const activeLink  = "bg-[#3D5EF6] text-white shadow-sm font-semibold";
-  const activeIcon  = "text-white";
-  const activeChev  = "text-white/80";
-  const inactiveLink= isDark ? "text-[#E2E8F0] hover:bg-[#1F2937] hover:text-white font-semibold transition-colors duration-200" : "text-[#1E293B] hover:bg-[#EEF1FE] hover:text-[#2E4FE0] font-semibold transition-colors duration-200";
-  const inactiveIcon= isDark ? "text-[#94A3B8] group-hover:text-white" : "text-[#475569] group-hover:text-[#2E4FE0]";
-  const footBorder  = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
-  const userName    = isDark ? "text-white" : "text-[#0F172A]";
-  const userEmail   = isDark ? "text-gray-400" : "text-[#475569]";
-  const signOutBtn  = isDark ? "text-gray-300 hover:bg-[#DC2626]/10 hover:text-[#DC2626] font-semibold transition-colors duration-200" : "text-[#334155] hover:bg-red-50 hover:text-[#DC2626] font-semibold transition-colors duration-200";
+  const logoText = isDark ? "text-white" : "text-[#0F172A]";
+  const logoSub = isDark ? "text-[#3D5EF6]" : "text-[#3D5EF6]";
+  const navLabel = isDark ? "text-gray-400" : "text-[#475569]";
+  const activeLink = "bg-[#3D5EF6] text-white shadow-sm font-semibold";
+  const activeIcon = "text-white";
+  const activeChev = "text-white/80";
+  const inactiveLink = isDark
+    ? "text-[#E2E8F0] hover:bg-[#1F2937] hover:text-white font-semibold transition-colors duration-200"
+    : "text-[#1E293B] hover:bg-[#EEF1FE] hover:text-[#2E4FE0] font-semibold transition-colors duration-200";
+  const inactiveIcon = isDark
+    ? "text-[#94A3B8] group-hover:text-white"
+    : "text-[#475569] group-hover:text-[#2E4FE0]";
+  const footBorder = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const userName = isDark ? "text-white" : "text-[#0F172A]";
+  const userEmail = isDark ? "text-gray-400" : "text-[#475569]";
+  const signOutBtn = isDark
+    ? "text-gray-300 hover:bg-[#DC2626]/10 hover:text-[#DC2626] font-semibold transition-colors duration-200"
+    : "text-[#334155] hover:bg-red-50 hover:text-[#DC2626] font-semibold transition-colors duration-200";
 
   return (
     <aside className={`w-60 h-screen flex flex-col shrink-0 ${sidebarBg}`}>
-
       {/* Brand Logo */}
-      <div className={`px-5 py-4 flex items-center gap-3 border-b ${brandBorder} shrink-0`}>
+      <div
+        className={`px-5 py-4 flex items-center gap-3 border-b ${brandBorder} shrink-0`}
+      >
         <Image
           src="/logo.jpeg"
           alt="Hari Om Thalassic"
@@ -62,14 +85,22 @@ export default function AgentAdminSidebar() {
           priority
         />
         <div className="leading-tight">
-          <p className={`text-sm font-bold tracking-wide ${logoText}`}>Hari Om</p>
-          <p className={`text-[11px] font-semibold tracking-wider uppercase ${logoSub}`}>Partner Admin</p>
+          <p className={`text-sm font-bold tracking-wide ${logoText}`}>
+            Hari Om
+          </p>
+          <p
+            className={`text-[11px] font-semibold tracking-wider uppercase ${logoSub}`}
+          >
+            Partner Admin
+          </p>
         </div>
       </div>
 
       {/* Nav label */}
       <div className="px-5 pt-4 pb-2">
-        <p className={`text-[10px] font-semibold tracking-widest uppercase ${navLabel}`}>
+        <p
+          className={`text-[10px] font-semibold tracking-widest uppercase ${navLabel}`}
+        >
           Navigation
         </p>
       </div>
@@ -80,14 +111,20 @@ export default function AgentAdminSidebar() {
           const Icon = item.icon;
           const active = isActive(item.href);
           return (
-            <Link key={item.href} href={item.href}
+            <Link
+              key={item.href}
+              href={item.href}
               className={`group flex items-center justify-between px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${active ? activeLink : inactiveLink}`}
             >
               <div className="flex items-center gap-3">
-                <Icon className={`w-4 h-4 shrink-0 ${active ? activeIcon : inactiveIcon}`} />
+                <Icon
+                  className={`w-4 h-4 shrink-0 ${active ? activeIcon : inactiveIcon}`}
+                />
                 {item.label}
               </div>
-              {active && <ChevronRight className={`w-3.5 h-3.5 ${activeChev}`} />}
+              {active && (
+                <ChevronRight className={`w-3.5 h-3.5 ${activeChev}`} />
+              )}
             </Link>
           );
         })}
@@ -97,11 +134,20 @@ export default function AgentAdminSidebar() {
       <div className={`p-4 border-t ${footBorder} space-y-2`}>
         <div className="flex items-center gap-3 px-3 py-2.5 rounded-lg">
           <div className="w-7 h-7 rounded-full bg-[#3D5EF6] flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
-            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "PA"}
+            {user?.name
+              ? user.name
+                  .split(" ")
+                  .map((n: string) => n[0])
+                  .join("")
+              : "PA"}
           </div>
           <div className="flex-1 min-w-0">
-            <p className={`text-xs font-semibold truncate ${userName}`}>{user?.name || "Partner Admin"}</p>
-            <p className={`text-[11px] truncate ${userEmail}`}>{user?.email || "ops@thalassic.in"}</p>
+            <p className={`text-xs font-semibold truncate ${userName}`}>
+              {user?.name || "Partner Admin"}
+            </p>
+            <p className={`text-[11px] truncate ${userEmail}`}>
+              {user?.email || "ops@thalassic.in"}
+            </p>
           </div>
         </div>
         <button
@@ -112,7 +158,6 @@ export default function AgentAdminSidebar() {
           Sign out
         </button>
       </div>
-
     </aside>
   );
 }

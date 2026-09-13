@@ -2,12 +2,13 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import {
   LayoutDashboard, BookOpen, Users, BarChart3,
-  Settings, LogOut, Anchor, ChevronRight, CheckSquare,
+  Settings, LogOut, ChevronRight,
   Building2, Handshake, GraduationCap, Wallet, Banknote,
 } from "lucide-react";
 
@@ -54,8 +55,14 @@ export default function MasterSidebar() {
 
       {/* Brand */}
       <div className={`px-5 py-5 flex items-center gap-3 border-b ${brandBorder}`}>
-        <div className="w-8 h-8 rounded-md bg-[#3D5EF6] flex items-center justify-center shrink-0">
-          <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
+        <div className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 overflow-hidden border ${isDark ? "bg-[#0a1525] border-white/10" : "bg-white border-slate-200"}`}>
+          <Image
+            src="/logo/hariom_logo.png"
+            alt="Hari Om Thalassic"
+            width={32}
+            height={32}
+            className="object-contain w-7 h-7"
+          />
         </div>
         <div className="leading-tight">
           <p className={`text-sm font-semibold tracking-wide ${logoText}`}>Thalassic</p>

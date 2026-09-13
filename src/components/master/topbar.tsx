@@ -16,7 +16,10 @@ import {
   AlertCircle,
   Check,
   Users,
+  Anchor,
 } from "lucide-react";
+
+const PROFILE_PIC_KEY = "master_portal_profile_pic";
 
 const pageNames: Record<string, string> = {
   "/master/dashboard": "Dashboard",
@@ -59,6 +62,18 @@ export default function MasterTopbar() {
 
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [profilePic, setProfilePic] = useState<string | null>(null);
+
+  // Load profile pic from localStorage on mount and listen for updates
+  useEffect(() => {
+    const load = () => {
+      const saved = localStorage.getItem(PROFILE_PIC_KEY);
+      setProfilePic(saved);
+    };
+    load();
+    window.addEventListener("storage", load);
+    return () => window.removeEventListener("storage", load);
+  }, []);
 
   const currentPage = pageNames[pathname] || "Dashboard";
   const isHome = pathname === "/master/dashboard";
@@ -271,32 +286,27 @@ export default function MasterTopbar() {
 
         <button aria-label="Profile" className="flex items-center gap-2.5">
           <div
-            className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden border ${
-              isDark
-                ? "bg-[#0a1525] border-white/10"
-                : "bg-white border-slate-200"
+            className={`w-8 h-8 rounded-md flex items-center justify-center shrink-0 overflow-hidden ${
+              profilePic ? "" : "bg-[#3D5EF6]"
             }`}
           >
-            <Image
-              src="/logo/hariom_logo.png"
-              alt="Hari Om Thalassic"
-              width={32}
-              height={32}
-              className="object-contain w-6 h-6"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
-              }}
-            />
+            {profilePic ? (
+              <Image
+                src={profilePic}
+                alt="Profile"
+                width={32}
+                height={32}
+                className="object-cover w-full h-full rounded-md"
+              />
+            ) : (
+              <Anchor className="w-4 h-4 text-white" strokeWidth={2.5} />
+            )}
           </div>
           <div className="hidden sm:flex flex-col items-start leading-tight">
-            <span
-              className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}
-            >
+            <span className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}>
               {user?.name || "Master Admin"}
             </span>
-            <span
-              className={`text-[10px] ${isDark ? "text-white/30" : "text-slate-400"}`}
-            >
+            <span className={`text-[10px] ${isDark ? "text-white/30" : "text-slate-400"}`}>
               Super Admin
             </span>
           </div>

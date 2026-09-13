@@ -9,8 +9,7 @@ import {
 } from "lucide-react";
 
 export default function ReferralsTracker() {
-  const { theme } = useTheme();
-  const mounted = true;
+  const { theme, mounted } = useTheme();
 
   const isDark = mounted ? theme === "dark" : true;
 

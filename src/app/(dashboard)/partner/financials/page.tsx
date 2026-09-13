@@ -18,9 +18,7 @@ import {
 } from "lucide-react";
 
 export default function FinancialSummaryPage() {
-  const { theme } = useTheme();
-  const mounted = true;
-  useEffect(() => setMounted(true), []);
+  const { theme, mounted } = useTheme();
   const isDark = mounted ? theme === "dark" : true;
 
   const [financials, setFinancials] = useState<any>(null);

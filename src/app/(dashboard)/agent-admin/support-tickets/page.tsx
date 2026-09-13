@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 export default function SupportTickets() {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const isDark = theme === "dark";
 
   const [loading, setLoading] = useState(true);
@@ -34,8 +34,6 @@ export default function SupportTickets() {
   const inputWrap = `flex items-center gap-2 px-3 py-2.5 rounded-[10px] border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-[#E5E7EB] text-[#6B7280] shadow-sm"}`;
   const selectCls = `px-3 py-2.5 rounded-[10px] border text-xs font-semibold outline-none cursor-pointer ${isDark ? "bg-white/5 border-white/10 text-white" : "bg-white border-[#E5E7EB] text-[#111827] shadow-sm"}`;
 
-  const mounted = true;
-
   const fetchTickets = async () => {
     try {
       const res = await api.get("/agent-admin/tickets");
@@ -53,11 +51,8 @@ export default function SupportTickets() {
   };
 
   useEffect(() => {
-    setMounted(true);
     fetchTickets();
   }, []);
-
-  if (!mounted) return null;
 
   const handleSendReply = async (e: React.FormEvent) => {
     e.preventDefault();

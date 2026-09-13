@@ -28,9 +28,7 @@ import {
 export default function SettlementDetailsPage() {
   const params = useParams();
   const settlementId = params.id as string;
-  const { theme } = useTheme();
-  const mounted = true;
-  useEffect(() => setMounted(true), []);
+  const { theme, mounted } = useTheme();
   const isDark = mounted ? theme === "dark" : true;
 
   const [settlement, setSettlement] = useState<any>(null);

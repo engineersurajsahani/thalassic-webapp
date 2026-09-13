@@ -1,100 +1,86 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
-import { useGlobalStatus, STATUS_ICON_MAP } from "@/providers/status-provider";
 import {
   Handshake, Search, Plus, Mail, Phone, MapPin,
-  CheckCircle2, X, Check, Key,
-  Building2, BookOpen, Users, Wallet, FileText,
-  ChevronDown, ChevronLeft, ChevronRight,
+  CheckCircle2, Clock, XCircle, Eye,
+  X, Check, Key, Shield, Power, PowerOff,
+  Building2, BookOpen, Users, Wallet, FileText, ArrowUpRight,
+  Edit3, Save, Calendar, CalendarDays, ChevronDown,
 } from "lucide-react";
-import { MOCK_PARTNERS, MockPartner, MOCK_SEAFARERS, MOCK_PARTNER_SETTLEMENTS } from "@/data/master-portal-mock";
+import { MOCK_PARTNERS, MockPartner, MOCK_SEAFARERS } from "@/data/master-portal-mock";
 
-const AUDIT_LOG = [
-  { action: "Account Registered",    by: "Master Admin", date: "15 Jan 2024", detail: "Partner agency onboarded" },
-  { action: "RPSL License Verified", by: "Compliance Officer", date: "16 Jan 2024", detail: "DGS validation passed" },
-  { action: "Pricing Schedule Assigned", by: "Finance Admin", date: "20 Jan 2024", detail: "Standard Tier-A Hari Om pricing" },
-  { action: "Status → Active",      by: "Master Admin", date: "22 Jan 2024", detail: "Approved for seafarer enrollments" },
-  { action: "Settlement Reconciled", by: "Finance Admin", date: "28 Aug 2026", detail: "UTR-HDFC-9918237190 processed" },
-];
+const STATUS_CONFIG = {
+  active:   { label: "Active",   icon: CheckCircle2, cls: "bg-emerald-500/15 text-emerald-400" },
+  pending:  { label: "Pending",  icon: Clock,        cls: "bg-amber-500/15 text-amber-400"    },
+  inactive: { label: "Inactive", icon: XCircle,      cls: "bg-red-500/15 text-red-400"        },
+};
 
-type ModalType = "view" | "add" | "reset" | "login" | "permissions" | "audit" | null;
+import toast from "react-hot-toast";
+
+type ModalType = "view" | "add" | "reset" | null;
 
 export default function PartnerAdminsPage() {
   const { theme } = useTheme();
   const dk = theme === "dark";
-  const { getStatusesForModule, getStatus } = useGlobalStatus();
-  const partnerStatuses = getStatusesForModule("partner");
-
   const [partnerList, setPartnerList] = useState<MockPartner[]>(MOCK_PARTNERS);
   const [search, setSearch]           = useState("");
-  const [filter, setFilter]           = useState<string>("all");
+  const [filter, setFilter]           = useState("all");
   const [modal, setModal]             = useState<ModalType>(null);
   const [selected, setSelected]       = useState<MockPartner | null>(null);
   const [viewTab, setViewTab]         = useState<"profile" | "seafarers" | "courses" | "settlements">("profile");
-  const [saved, setSaved]             = useState(false);
-  const [resetDone, setResetDone]     = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [isEditingPricing, setIsEditingPricing] = useState(false);
+  const [pricingDraft, setPricingDraft] = useState<Record<string, { hariomPrice: number; suggestedSellingPrice: number; status: "Approved" | "Custom" }>>({});
+  const [settlementBreakdownView, setSettlementBreakdownView] = useState<"year" | "month">("month");
+  const [openDropdown, setOpenDropdown] = useState<string | null>(null);
 
   // New partner form (optional add modal)
   const [form, setForm] = useState({
     name: "", agencyName: "", rpslNumber: "", contactPerson: "",
     email: "", phone: "", location: "",
   });
-  const [showPurchases, setShowPurchases] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [resetDone, setResetDone] = useState(false);
 
   // theme tokens
   const ht       = dk ? "text-white"       : "text-slate-800";
-  const mt       = dk ? "text-slate-400"   : "text-black";
+  const mt       = dk ? "text-white/40"    : "text-slate-400";
   const card     = dk ? "bg-[#0f2035] border border-white/5 rounded-2xl" : "bg-white border border-slate-200 rounded-2xl shadow-sm";
-  const inputCls = dk ? "bg-white/5 border border-white/8 text-white placeholder:text-slate-400 focus:border-violet-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-black focus:border-violet-400 outline-none";
+  const inputCls = dk ? "bg-white/5 border border-white/8 text-white placeholder:text-white/25 focus:border-violet-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-400 focus:border-violet-400 outline-none";
   const dv       = dk ? "divide-white/5"   : "divide-slate-100";
   const rh       = dk ? "hover:bg-white/3" : "hover:bg-slate-50/80";
-  const thCls    = dk ? "border-b border-white/5 text-slate-300" : "border-b border-slate-100 text-black font-semibold";
+  const thCls    = dk ? "border-b border-white/5 text-white/25" : "border-b border-slate-100 text-slate-400";
   const modalBg  = dk ? "bg-[#0f2035] border border-white/10" : "bg-white border border-slate-200";
-  const labelCls = dk ? "text-slate-300 font-semibold" : "text-black font-semibold";
+  const labelCls = dk ? "text-white/60" : "text-slate-600";
 
-  // Close modal on Escape key
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        closeModal();
-      }
-    };
-    if (modal) {
-      window.addEventListener("keydown", handleKeyDown);
-    }
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [modal]);
-
-  const filtered = useMemo(() => {
+  const filtered = partnerList.filter(p => {
     const q = search.toLowerCase();
-    return partnerList.filter(p => {
-      const matchSearch = p.name.toLowerCase().includes(q) ||
-        p.agencyName.toLowerCase().includes(q) ||
-        p.email.toLowerCase().includes(q) ||
-        p.rpslNumber.toLowerCase().includes(q);
-      const matchFilter = filter === "all" || p.status === filter;
-      return matchSearch && matchFilter;
-    });
-  }, [partnerList, search, filter]);
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / rowsPerPage));
-  const safePage = Math.min(currentPage, totalPages);
-
-  const paginatedPartners = useMemo(() => {
-    const start = (safePage - 1) * rowsPerPage;
-    return filtered.slice(start, start + rowsPerPage);
-  }, [filtered, safePage, rowsPerPage]);
+    const matchSearch = p.name.toLowerCase().includes(q) ||
+      p.agencyName.toLowerCase().includes(q) ||
+      p.email.toLowerCase().includes(q) ||
+      p.rpslNumber.toLowerCase().includes(q);
+    const matchFilter = filter === "all" || p.status === filter;
+    return matchSearch && matchFilter;
+  });
 
   const openModal = (type: ModalType, partner?: MockPartner) => {
     setSelected(partner ?? null);
     setViewTab("profile");
     setSaved(false);
     setResetDone(false);
-    setShowPurchases(false);
+    setIsEditingPricing(false);
+    if (partner) {
+      const draft: Record<string, { hariomPrice: number; suggestedSellingPrice: number; status: "Approved" | "Custom" }> = {};
+      (partner.assignedPricing || []).forEach(ap => {
+        draft[ap.courseId] = {
+          hariomPrice: ap.hariomPrice,
+          suggestedSellingPrice: ap.suggestedSellingPrice,
+          status: ap.status,
+        };
+      });
+      setPricingDraft(draft);
+    }
     setModal(type);
   };
 
@@ -103,7 +89,36 @@ export default function PartnerAdminsPage() {
     setSelected(null);
     setSaved(false);
     setResetDone(false);
-    setShowPurchases(false);
+    setIsEditingPricing(false);
+  };
+
+  const handleSavePricing = () => {
+    if (!selected) return;
+    const updatedPricing = selected.assignedPricing.map(ap => {
+      const draft = pricingDraft[ap.courseId];
+      if (draft) {
+        return {
+          ...ap,
+          hariomPrice: Number(draft.hariomPrice) || ap.hariomPrice,
+          suggestedSellingPrice: Number(draft.suggestedSellingPrice) || ap.suggestedSellingPrice,
+          status: draft.status,
+        };
+      }
+      return ap;
+    });
+    const updatedPartner: MockPartner = { ...selected, assignedPricing: updatedPricing };
+    setSelected(updatedPartner);
+    setPartnerList(prev => prev.map(p => p.id === selected.id ? updatedPartner : p));
+    setIsEditingPricing(false);
+    toast.success("Course pricing & terms updated successfully!");
+  };
+
+  const toggleStatus = (p: MockPartner) => {
+    setPartnerList(prev => prev.map(item =>
+      item.id === p.id
+        ? { ...item, status: item.status === "active" ? "inactive" : "active" }
+        : item
+    ));
   };
 
   const handleAddPartner = () => {
@@ -148,9 +163,7 @@ export default function PartnerAdminsPage() {
         </div>
         <button
           onClick={() => { setForm({ name: "", agencyName: "", rpslNumber: "", contactPerson: "", email: "", phone: "", location: "" }); openModal("add"); }}
-          className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-colors shadow-sm ${
-            dk ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
-          }`}
+          className="flex items-center gap-2 px-4 py-2 bg-violet-500 hover:bg-violet-600 text-white text-sm font-semibold rounded-xl transition-colors shadow-md shadow-violet-500/20"
         >
           <Plus className="w-4 h-4" /> Add Partner Agency
         </button>
@@ -183,47 +196,25 @@ export default function PartnerAdminsPage() {
           <Search className={`w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 ${mt}`} />
           <input
             value={search}
-            onChange={e => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
+            onChange={e => setSearch(e.target.value)}
             placeholder="Search by Partner name, Agency, RPSL #, or email..."
             className={`w-full pl-9 pr-4 py-2 text-sm rounded-xl ${inputCls}`}
           />
         </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => {
-              setFilter("all");
-              setCurrentPage(1);
-            }}
-            className={`text-xs capitalize transition-colors ${
-              filter === "all"
-                ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-violet-500"
-                : dk ? "text-slate-400 hover:text-white font-medium" : "text-black hover:text-black font-medium"
-            }`}
-          >
-            All
-          </button>
-          {partnerStatuses.map(s => {
-            const isSel = filter === s.id;
-            return (
-              <button
-                key={s.id}
-                onClick={() => {
-                  setFilter(s.id);
-                  setCurrentPage(1);
-                }}
-                className={`text-xs capitalize transition-colors ${
-                  isSel
-                    ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-violet-500"
-                    : dk ? "text-slate-400 hover:text-white font-medium" : "text-black hover:text-black font-medium"
-                }`}
-              >
-                {s.label}
-              </button>
-            );
-          })}
+        <div className="flex items-center gap-2">
+          {(["all", "active", "inactive", "pending"] as const).map(f => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={`px-3 py-1.5 text-xs font-semibold rounded-xl capitalize transition-colors ${
+                filter === f
+                  ? "bg-violet-500 text-white shadow-sm"
+                  : dk ? "bg-white/5 text-white/50 hover:bg-white/10" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+              }`}
+            >
+              {f}
+            </button>
+          ))}
         </div>
       </div>
 
@@ -239,32 +230,29 @@ export default function PartnerAdminsPage() {
               </tr>
             </thead>
             <tbody className={`divide-y ${dv}`}>
-              {paginatedPartners.map(p => {
-                const statusItem = getStatus(p.status);
-                const statusLabel = statusItem?.label || p.status;
-                const statusColor = statusItem?.color || "text-slate-400";
-                const SIcon = (statusItem && STATUS_ICON_MAP[statusItem.iconName]) || CheckCircle2;
+              {filtered.map(p => {
+                const S = STATUS_CONFIG[p.status];
+                const SIcon = S.icon;
                 return (
-                  <tr
-                    key={p.id}
-                    onClick={() => openModal("view", p)}
-                    className={`${rh} transition-colors cursor-pointer`}
-                  >
+                  <tr key={p.id} className={`${rh} transition-colors`}>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-[#7C3AED] text-white flex items-center justify-center text-xs font-bold shrink-0">
+                        <div className="w-9 h-9 rounded-xl bg-violet-500/20 text-violet-400 border border-violet-500/30 flex items-center justify-center text-xs font-bold shrink-0">
                           {p.name.slice(0, 2).toUpperCase()}
                         </div>
                         <div>
-                          <p className={`font-semibold text-[13px] ${ht}`}>
+                          <button
+                            onClick={() => openModal("view", p)}
+                            className={`font-semibold text-[13px] text-left hover:underline ${ht}`}
+                          >
                             {p.name}
-                          </p>
+                          </button>
                           <p className={`text-[11px] ${mt}`}>{p.agencyName}</p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-[12px] font-mono font-medium text-black dark:text-white`}>
+                      <span className={`text-[12px] font-mono font-medium ${dk ? "text-violet-300" : "text-violet-700"}`}>
                         {p.rpslNumber}
                       </span>
                     </td>
@@ -288,22 +276,47 @@ export default function PartnerAdminsPage() {
                       <span className="text-rose-500 font-semibold">₹{(p.pendingAmount / 1000).toFixed(0)}K</span>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold ${statusColor}`}>
-                        <SIcon className="w-3 h-3" />{statusLabel}
+                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full ${S.cls}`}>
+                        <SIcon className="w-3 h-3" />{S.label}
                       </span>
                     </td>
                     <td className="px-6 py-4">
-                      <div className="flex items-center gap-1">
+                      <div className="relative">
                         <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openModal("reset", p);
-                          }}
-                          title="Reset Password"
-                          className={`p-1.5 rounded-lg transition-colors ${dk ? "hover:bg-amber-500/10 text-white/40 hover:text-amber-400" : "hover:bg-amber-50 text-slate-400 hover:text-amber-500"}`}
+                          onClick={() => setOpenDropdown(openDropdown === p.id ? null : p.id)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${dk ? "bg-white/5 border-white/10 text-white/70 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"}`}
                         >
-                          <Key className="w-3.5 h-3.5" />
+                          <Eye className="w-3.5 h-3.5" />
+                          View
+                          <ChevronDown className="w-3 h-3 opacity-50" />
                         </button>
+                        {openDropdown === p.id && (
+                          <>
+                            <div className="fixed inset-0 z-10" onClick={() => setOpenDropdown(null)} />
+                            <div className={`absolute right-0 mt-1 w-48 rounded-xl shadow-xl border z-20 py-1 ${dk ? "bg-[#0c1a2e] border-white/10" : "bg-white border-slate-200"}`}>
+                              <button
+                                onClick={() => { setOpenDropdown(null); openModal("view", p); }}
+                                className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold transition-colors ${dk ? "text-white/70 hover:bg-white/8 hover:text-white" : "text-slate-700 hover:bg-slate-50"}`}
+                              >
+                                <Eye className="w-3.5 h-3.5 text-violet-400" /> View Details
+                              </button>
+                              <button
+                                onClick={() => { setOpenDropdown(null); toggleStatus(p); }}
+                                className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold transition-colors ${dk ? "text-white/70 hover:bg-white/8 hover:text-white" : "text-slate-700 hover:bg-slate-50"}`}
+                              >
+                                {p.status === "active"
+                                  ? <><PowerOff className="w-3.5 h-3.5 text-red-400" /> Deactivate Partner</>
+                                  : <><Power className="w-3.5 h-3.5 text-emerald-400" /> Activate Partner</>}
+                              </button>
+                              <button
+                                onClick={() => { setOpenDropdown(null); openModal("reset", p); }}
+                                className={`w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-semibold transition-colors ${dk ? "text-white/70 hover:bg-white/8 hover:text-white" : "text-slate-700 hover:bg-slate-50"}`}
+                              >
+                                <Key className="w-3.5 h-3.5 text-amber-400" /> Reset Password
+                              </button>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -312,119 +325,49 @@ export default function PartnerAdminsPage() {
             </tbody>
           </table>
         </div>
-        <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex flex-wrap items-center justify-between gap-4 text-xs ${mt}`}>
-          <div className="flex items-center gap-2">
-            <span className={`text-xs ${mt}`}>Rows per page:</span>
-            <div className="relative inline-flex items-center">
-              <select
-                value={rowsPerPage}
-                onChange={e => {
-                  setRowsPerPage(Number(e.target.value));
-                  setCurrentPage(1);
-                }}
-                className={`appearance-none text-xs font-medium py-1 pl-2.5 pr-7 rounded-lg border cursor-pointer outline-none transition-colors ${
-                  dk
-                    ? "bg-[#0f2035] border-white/10 text-white hover:border-white/20 focus:border-violet-500"
-                    : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 focus:border-violet-500 shadow-sm"
-                }`}
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-              <ChevronDown className={`w-3.5 h-3.5 absolute right-2 pointer-events-none ${mt}`} />
-            </div>
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={safePage === 1}
-                className={`p-1.5 rounded-lg border transition-colors disabled:opacity-40 disabled:pointer-events-none cursor-pointer ${
-                  dk ? "border-white/10 hover:bg-white/5 text-white" : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                }`}
-                title="Previous page"
-              >
-                <ChevronLeft className="w-3.5 h-3.5" />
-              </button>
-              <span className="px-2 text-xs font-medium">
-                Page {safePage} of {totalPages}
-              </span>
-              <button
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={safePage === totalPages}
-                className={`p-1.5 rounded-lg border transition-colors disabled:opacity-40 disabled:pointer-events-none cursor-pointer ${
-                  dk ? "border-white/10 hover:bg-white/5 text-white" : "border-slate-200 hover:bg-slate-50 text-slate-700"
-                }`}
-                title="Next page"
-              >
-                <ChevronRight className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          )}
-
-          <span className={`text-[11px] ${mt}`}>Compliant with PRD §1.8 (View-Only Management)</span>
+        <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between`}>
+          <p className={`text-[12px] ${mt}`}>Showing {filtered.length} of {partnerList.length} maritime partners</p>
+          <span className={`text-[11px] ${mt}`}>All partner agreements active</span>
         </div>
       </div>
 
-      {/* ── MODAL: Comprehensive View-Only Partner Detail (Matches Seafarer Profile Layout & Sizing) ── */}
+      {/* ── MODAL: Comprehensive Partner Detail ── */}
       {modal === "view" && selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={closeModal}>
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-          <div
-            className={`relative w-full max-w-4xl h-[560px] max-h-[90vh] flex flex-col rounded-2xl shadow-2xl z-10 overflow-hidden ${modalBg}`}
-            onClick={e => e.stopPropagation()}
-          >
-            {/* Modal Header */}
-            <div className={`px-6 py-4 flex items-center justify-between border-b shrink-0 ${dk ? "border-white/8" : "border-slate-100"}`}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className={`w-full max-w-3xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${modalBg}`}>
+            {/* Header */}
+            <div className={`flex items-center justify-between px-6 py-4 border-b ${dk ? "border-white/8" : "border-slate-100"}`}>
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-full bg-[#7C3AED] text-white flex items-center justify-center text-sm font-bold shrink-0">
+                <div className="w-10 h-10 rounded-xl bg-violet-500/20 text-violet-400 border border-violet-500/30 flex items-center justify-center text-sm font-bold">
                   {selected.name.slice(0, 2).toUpperCase()}
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
                     <h2 className={`text-base font-bold ${ht}`}>{selected.name}</h2>
-                    <span className="text-xs font-mono font-semibold text-black dark:text-white">
-                      {selected.id} • {selected.rpslNumber}
-                    </span>
-                    <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${getStatus(selected.status)?.color || "text-emerald-500"}`}>
-                      <CheckCircle2 className="w-3 h-3" />
-                      {getStatus(selected.status)?.label || (selected.status.charAt(0).toUpperCase() + selected.status.slice(1))}
-                    </span>
                   </div>
-                  <p className="text-xs mt-0.5 text-slate-600 dark:text-slate-400 font-medium">
-                    {selected.agencyName} · Registered on {selected.joinedDate}
-                  </p>
+                  <p className={`text-xs ${mt}`}>{selected.agencyName} · RPSL: {selected.rpslNumber}</p>
                 </div>
               </div>
-
-              <button
-                onClick={closeModal}
-                className={`p-1.5 rounded-lg transition-colors ${dk ? "hover:bg-white/10 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}
-                title="Close"
-              >
-                <X className="w-4 h-4" />
+              <button onClick={closeModal} className={`p-1.5 rounded-lg ${dk ? "hover:bg-white/8 text-white/40" : "hover:bg-slate-100 text-slate-400"}`}>
+                <X className="w-5 h-5" />
               </button>
             </div>
 
-            {/* Modal Tabs */}
-            <div className={`flex items-center gap-6 px-6 border-b text-xs font-semibold shrink-0 ${dk ? "border-white/8" : "border-slate-100"}`}>
+            {/* Navigation Tabs */}
+            <div className={`flex items-center gap-2 px-6 pt-3 border-b ${dk ? "border-white/8" : "border-slate-100"}`}>
               {[
                 { id: "profile",     label: "Partner Profile",        Icon: Building2 },
                 { id: "seafarers",   label: "Associated Seafarers",   Icon: Users     },
                 { id: "courses",     label: "Course Pricing & Terms", Icon: BookOpen  },
-                { id: "settlements", label: "Settlement",             Icon: Wallet    },
+                { id: "settlements", label: "Detailed Settlement",    Icon: Wallet    },
               ].map(t => (
                 <button
                   key={t.id}
-                  onClick={() => setViewTab(t.id as "profile" | "seafarers" | "courses" | "settlements")}
-                  className={`flex items-center gap-2 py-3 border-b-2 transition-all ${
+                  onClick={() => setViewTab(t.id as any)}
+                  className={`flex items-center gap-2 px-3 py-2 text-xs font-semibold border-b-2 transition-colors -mb-px ${
                     viewTab === t.id
-                      ? (dk ? "border-violet-500 text-white" : "border-violet-600 text-slate-900")
-                      : (dk ? "border-transparent text-slate-400 hover:text-white" : "border-transparent text-slate-600 hover:text-slate-900")
+                      ? "border-violet-500 text-violet-400"
+                      : "border-transparent opacity-60 hover:opacity-100"
                   }`}
                 >
                   <t.Icon className="w-3.5 h-3.5" />
@@ -433,140 +376,75 @@ export default function PartnerAdminsPage() {
               ))}
             </div>
 
-            {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6 text-xs">
-              {/* TAB 1: PARTNER PROFILE */}
+            {/* Tab Body */}
+            <div className="p-6 overflow-y-auto space-y-4 text-xs">
               {viewTab === "profile" && (
-                <div className="space-y-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Agency Identification */}
-                    <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                      <p className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Agency Identification & Legal</p>
-                      <div className="space-y-3 text-xs">
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Partner Name:</span>
-                          <span className="font-semibold text-slate-900 dark:text-slate-100">{selected.name}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Legal / Company Name:</span>
-                          <span className="font-semibold text-slate-900 dark:text-slate-100">{selected.agencyName}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Partner ID:</span>
-                          <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{selected.id}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">RPSL License Number:</span>
-                          <span className="font-mono font-semibold text-slate-900 dark:text-slate-100">{selected.rpslNumber}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Operational Status:</span>
-                          <span className={`inline-flex items-center gap-1 font-semibold ${getStatus(selected.status)?.color || "text-emerald-500"}`}>
-                            {getStatus(selected.status)?.label || selected.status}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Registration Date:</span>
-                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.joinedDate}</span>
-                        </div>
-                      </div>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className={`p-3.5 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>RPSL Number</p>
+                      <p className={`text-sm font-bold mt-1 ${ht}`}>{selected.rpslNumber}</p>
                     </div>
-
-                    {/* Contact & Location Details */}
-                    <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                      <p className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Contact & Location Details</p>
-                      <div className="space-y-3 text-xs">
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Contact Person:</span>
-                          <span className="font-semibold text-slate-900 dark:text-slate-100">{selected.contactPerson}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Official Email:</span>
-                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.email}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Phone / Hotline:</span>
-                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.phone}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Registered Location:</span>
-                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.location}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Country:</span>
-                          <span className="font-medium text-slate-900 dark:text-slate-100">India</span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-slate-600 dark:text-slate-300 font-medium">Last Active:</span>
-                          <span className="font-medium text-slate-900 dark:text-slate-100">{selected.lastActive}</span>
-                        </div>
-                      </div>
+                    <div className={`p-3.5 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>Operational Status</p>
+                      <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full mt-1 ${STATUS_CONFIG[selected.status].cls}`}>
+                        {STATUS_CONFIG[selected.status].label}
+                      </span>
+                    </div>
+                    <div className={`p-3.5 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>Contact Person</p>
+                      <p className={`text-sm font-bold mt-1 ${ht}`}>{selected.contactPerson}</p>
+                    </div>
+                    <div className={`p-3.5 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>Official Email</p>
+                      <p className={`text-sm font-bold mt-1 ${ht}`}>{selected.email}</p>
+                    </div>
+                    <div className={`p-3.5 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>Phone / Support Hotline</p>
+                      <p className={`text-sm font-bold mt-1 ${ht}`}>{selected.phone}</p>
+                    </div>
+                    <div className={`p-3.5 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>Registered Location</p>
+                      <p className={`text-sm font-bold mt-1 ${ht}`}>{selected.location}</p>
                     </div>
                   </div>
 
-                  {/* Financial & Settlement Overview */}
-                  <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                    <h3 className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Financial & Settlement Overview</h3>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className={`p-4 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                    <h3 className={`text-xs font-bold mb-2 ${ht}`}>Operational Statistics</h3>
+                    <div className="grid grid-cols-3 gap-3 text-center">
                       <div>
-                        <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Total Amount Payable</p>
-                        <p className="text-lg font-bold mt-1 text-slate-900 dark:text-slate-100">₹{selected.totalAmountPayable.toLocaleString()}</p>
-                        <p className="text-[11px] mt-0.5 text-slate-600 dark:text-slate-400 font-medium">Configured Hari Om Pricing</p>
+                        <p className={`text-base font-bold ${ht}`}>{selected.totalSeafarers}</p>
+                        <p className={`text-[10px] ${mt}`}>Total Seafarers</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Total Settled / Received</p>
-                        <p className="text-lg font-bold mt-1 text-emerald-600 dark:text-emerald-400">₹{selected.totalAmountReceived.toLocaleString()}</p>
-                        <p className="text-[11px] mt-0.5 text-slate-600 dark:text-slate-400 font-medium">Verified Bank Credits</p>
+                        <p className={`text-base font-bold ${ht}`}>{selected.totalCoursePurchases}</p>
+                        <p className={`text-[10px] ${mt}`}>Course Purchases</p>
                       </div>
                       <div>
-                        <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Pending Settlement</p>
-                        <p className="text-lg font-bold mt-1 text-rose-500 dark:text-rose-400">₹{selected.pendingAmount.toLocaleString()}</p>
-                        <p className="text-[11px] mt-0.5 text-slate-600 dark:text-slate-400 font-medium">Action Required</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Operational Crew Statistics */}
-                  <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                    <h3 className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Operational Statistics</h3>
-                    <div className="grid grid-cols-3 gap-4 text-center">
-                      <div>
-                        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{selected.totalSeafarers}</p>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium mt-0.5">Associated Seafarers</p>
-                      </div>
-                      <div>
-                        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">{selected.totalCoursePurchases}</p>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium mt-0.5">Course Purchases</p>
-                      </div>
-                      <div>
-                        <p className="text-xl font-bold text-slate-900 dark:text-slate-100">₹{(selected.totalAmountPayable / 1000).toFixed(0)}K</p>
-                        <p className="text-[11px] text-slate-600 dark:text-slate-400 font-medium mt-0.5">Total Revenue Volume</p>
+                        <p className={`text-base font-bold text-violet-400`}>₹{(selected.totalAmountPayable / 1000).toFixed(0)}K</p>
+                        <p className={`text-[10px] ${mt}`}>Total Revenue Volume</p>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
 
-              {/* TAB 2: ASSOCIATED SEAFARERS */}
               {viewTab === "seafarers" && (
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Associated Seafarers ({associatedSeafarers.length})</p>
-                    <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Registered via {selected.name}</span>
-                  </div>
+                <div className="space-y-3">
+                  <p className={`text-xs ${mt}`}>Seafarers enrolled via {selected.name}:</p>
                   {associatedSeafarers.length > 0 ? (
-                    <div className={`border rounded-xl divide-y ${dk ? "border-white/5 divide-white/5" : "border-slate-200 divide-slate-100"}`}>
+                    <div className={`border rounded-xl divide-y ${dk ? "border-white/5 divide-white/5" : "border-slate-100 divide-slate-100"}`}>
                       {associatedSeafarers.map(s => (
-                        <div key={s.id} className="p-3.5 flex items-center justify-between">
+                        <div key={s.id} className="p-3 flex items-center justify-between">
                           <div>
-                            <p className="font-semibold text-xs text-slate-900 dark:text-slate-100">{s.name} ({s.rank})</p>
-                            <p className="text-[11px] font-mono text-slate-600 dark:text-slate-400 mt-0.5">INDOS: {s.indosNumber} · CDC: {s.cdcNumber}</p>
+                            <p className={`font-semibold text-xs ${ht}`}>{s.name} ({s.rank})</p>
+                            <p className={`text-[11px] ${mt}`}>INDOS: {s.indosNumber} · CDC: {s.cdcNumber}</p>
                           </div>
                           <div className="text-right">
-                            <span className="text-[11px] font-semibold text-sky-600 dark:text-sky-400">
+                            <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">
                               {s.status}
                             </span>
-                            <p className="text-[10px] text-slate-600 dark:text-slate-400 mt-0.5">{s.enrollments.length} Course Enrollments</p>
+                            <p className={`text-[10px] ${mt} mt-1`}>{s.enrollments.length} Course Enrollments</p>
                           </div>
                         </div>
                       ))}
@@ -580,16 +458,41 @@ export default function PartnerAdminsPage() {
                 </div>
               )}
 
-              {/* TAB 3: COURSE PRICING & TERMS */}
               {viewTab === "courses" && (
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <p className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300">Assigned Course Pricing Schedule</p>
-                    <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Amount Payable to Hari Om</span>
+                    <div>
+                      <h3 className={`text-xs font-bold ${ht}`}>Course Pricing Schedule</h3>
+                      <p className={`text-[11px] ${mt}`}>Amount Payable to Hari Om configured for this partner</p>
+                    </div>
+                    {!isEditingPricing ? (
+                      <button
+                        onClick={() => setIsEditingPricing(true)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-violet-500/15 text-violet-400 border border-violet-500/30 hover:bg-violet-500/25 transition-all"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" /> Edit Pricing & Terms
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setIsEditingPricing(false)}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-medium ${dk ? "bg-white/5 text-white/60 hover:bg-white/10" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          onClick={handleSavePricing}
+                          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-white transition-all shadow-md shadow-emerald-500/20"
+                        >
+                          <Save className="w-3.5 h-3.5" /> Save Changes
+                        </button>
+                      </div>
+                    )}
                   </div>
-                  <div className={`border rounded-xl overflow-hidden ${dk ? "border-white/5" : "border-slate-200"}`}>
+
+                  <div className={`border rounded-xl overflow-hidden ${dk ? "border-white/5" : "border-slate-100"}`}>
                     <table className="w-full text-left">
-                      <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-600"}`}>
+                      <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-white/40" : "bg-slate-100 text-slate-500"}`}>
                         <tr>
                           <th className="p-3">Course Title</th>
                           <th className="p-3">Payable to Hari Om</th>
@@ -598,140 +501,186 @@ export default function PartnerAdminsPage() {
                         </tr>
                       </thead>
                       <tbody className={`divide-y ${dk ? "divide-white/5" : "divide-slate-100"}`}>
-                        {selected.assignedPricing.map(ap => (
-                          <tr key={ap.courseId}>
-                            <td className={`p-3 font-medium ${ht}`}>{ap.courseTitle}</td>
-                            <td className="p-3 font-bold text-emerald-500">₹{ap.hariomPrice.toLocaleString()}</td>
-                            <td className="p-3 text-slate-700 dark:text-slate-300 font-medium">₹{ap.suggestedSellingPrice.toLocaleString()}</td>
-                            <td className="p-3">
-                              <span className="text-[10px] font-semibold text-black dark:text-white">
-                                {ap.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
+                        {selected.assignedPricing.map(ap => {
+                          const draft = pricingDraft[ap.courseId] || {
+                            hariomPrice: ap.hariomPrice,
+                            suggestedSellingPrice: ap.suggestedSellingPrice,
+                            status: ap.status,
+                          };
+
+                          return (
+                            <tr key={ap.courseId}>
+                              <td className={`p-3 font-medium ${ht}`}>{ap.courseTitle}</td>
+                              <td className="p-3">
+                                {isEditingPricing ? (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white/40">₹</span>
+                                    <input
+                                      type="number"
+                                      value={draft.hariomPrice}
+                                      onChange={e => setPricingDraft(prev => ({
+                                        ...prev,
+                                        [ap.courseId]: { ...draft, hariomPrice: Number(e.target.value) || 0 }
+                                      }))}
+                                      className={`w-24 px-2 py-1 text-xs rounded-lg ${inputCls}`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className="font-bold text-emerald-400">₹{ap.hariomPrice.toLocaleString()}</span>
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {isEditingPricing ? (
+                                  <div className="flex items-center gap-1">
+                                    <span className="text-white/40">₹</span>
+                                    <input
+                                      type="number"
+                                      value={draft.suggestedSellingPrice}
+                                      onChange={e => setPricingDraft(prev => ({
+                                        ...prev,
+                                        [ap.courseId]: { ...draft, suggestedSellingPrice: Number(e.target.value) || 0 }
+                                      }))}
+                                      className={`w-24 px-2 py-1 text-xs rounded-lg ${inputCls}`}
+                                    />
+                                  </div>
+                                ) : (
+                                  <span className={mt}>₹{ap.suggestedSellingPrice.toLocaleString()}</span>
+                                )}
+                              </td>
+                              <td className="p-3">
+                                {isEditingPricing ? (
+                                  <select
+                                    value={draft.status}
+                                    onChange={e => setPricingDraft(prev => ({
+                                      ...prev,
+                                      [ap.courseId]: { ...draft, status: e.target.value as "Approved" | "Custom" }
+                                    }))}
+                                    className={`px-2 py-1 text-xs rounded-lg ${inputCls}`}
+                                  >
+                                    <option value="Approved">Approved</option>
+                                    <option value="Custom">Custom</option>
+                                  </select>
+                                ) : (
+                                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-500/10 text-violet-400 font-semibold border border-violet-500/20">
+                                    {ap.status}
+                                  </span>
+                                )}
+                              </td>
+                            </tr>
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
                 </div>
               )}
 
-              {/* TAB 4: SETTLEMENTS & TRANSACTIONS */}
-              {viewTab === "settlements" && (() => {
-                const s = MOCK_PARTNER_SETTLEMENTS.find(item => item.partnerId === selected.id) || {
-                  id: `SET-2026-${selected.id.replace(/\D/g, "") || "001"}`,
-                  partnerId: selected.id,
-                  partnerName: selected.agencyName || selected.name,
-                  totalPayable: selected.totalAmountPayable,
-                  totalReceived: selected.totalAmountReceived,
-                  pendingAmount: selected.pendingAmount,
-                  settlementStatus: selected.pendingAmount === 0 ? "Settled" : selected.totalAmountReceived > 0 ? "Partially Settled" : "Pending",
-                  settlementDate: "28 Aug 2026",
-                  settlementReference: "UTR-HDFC-9918237190",
-                  relatedPurchasesCount: selected.totalCoursePurchases || 142,
-                  purchases: [],
-                };
+              {viewTab === "settlements" && (
+                <div className="space-y-4">
+                  {/* Top KPI Summary */}
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className={`p-3 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>Total Amount Payable</p>
+                      <p className={`text-base font-bold mt-1 ${ht}`}>₹{selected.totalAmountPayable.toLocaleString()}</p>
+                      <p className={`text-[10px] ${mt} mt-0.5`}>Lifetime volume</p>
+                    </div>
+                    <div className={`p-3 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>Amount Received</p>
+                      <p className="text-base font-bold mt-1 text-emerald-400">₹{selected.totalAmountReceived.toLocaleString()}</p>
+                      <p className={`text-[10px] text-emerald-400/60 mt-0.5`}>Settled to Hari Om</p>
+                    </div>
+                    <div className={`p-3 rounded-xl border ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                      <p className={`text-[10px] font-semibold uppercase ${mt}`}>Pending Settlement</p>
+                      <p className="text-base font-bold mt-1 text-rose-400">₹{selected.pendingAmount.toLocaleString()}</p>
+                      <p className={`text-[10px] text-rose-400/60 mt-0.5`}>Due for collection</p>
+                    </div>
+                  </div>
 
-                const statusColor = (s.settlementStatus === "Settled" || s.settlementStatus === "Partially Settled")
-                  ? "text-emerald-600 dark:text-emerald-400 font-semibold"
-                  : "text-rose-500 dark:text-rose-400 font-semibold";
-
-                return (
-                  <div className="space-y-4">
-                    <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                      <h3 className="text-xs font-bold uppercase tracking-wider mb-4 text-slate-700 dark:text-slate-300">Settlement Details</h3>
-
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Settlement ID</p>
-                          <p className="text-sm font-bold font-mono mt-1 text-black dark:text-white">
-                            {s.id}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Partner Agency</p>
-                          <p className={`text-sm font-semibold mt-1 ${ht}`}>{s.partnerName}</p>
-                          <p className="text-[11px] font-mono text-slate-600 dark:text-slate-400">ID: {s.partnerId}</p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Total Amount Payable</p>
-                          <p className={`text-sm font-bold mt-1 ${ht}`}>
-                            ₹{s.totalPayable.toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Total Amount Received</p>
-                          <p className="text-sm font-bold mt-1 text-emerald-600 dark:text-emerald-400">
-                            ₹{s.totalReceived.toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Pending Amount</p>
-                          <p className="text-sm font-bold mt-1 text-rose-500 dark:text-rose-400">
-                            ₹{s.pendingAmount.toLocaleString()}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Settlement Status</p>
-                          <p className={`text-sm mt-1 ${statusColor}`}>
-                            {s.settlementStatus}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Settlement Date</p>
-                          <p className={`text-sm font-medium mt-1 ${ht}`}>
-                            {s.settlementDate}
-                          </p>
-                        </div>
-
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">UTR / Bank Reference</p>
-                          <p className={`text-sm font-mono font-medium mt-1 ${dk ? "text-white/80" : "text-slate-700"}`}>
-                            {s.settlementReference}
-                          </p>
-                        </div>
-
-                        <div className="md:col-span-2 pt-3 border-t border-slate-200/50 dark:border-white/5">
-                          <p className="text-[10px] font-semibold uppercase text-slate-600 dark:text-slate-400">Related Purchases</p>
-                          <button
-                            type="button"
-                            onClick={() => setShowPurchases(prev => !prev)}
-                            className="inline-flex items-center gap-1.5 mt-1 text-sm font-semibold text-black dark:text-white hover:underline cursor-pointer"
-                          >
-                            <FileText className="w-3.5 h-3.5" />
-                            {s.relatedPurchasesCount} Purchases {s.purchases && s.purchases.length > 0 && <span className="text-xs opacity-75">({showPurchases ? "Hide details" : "View purchases"})</span>}
-                          </button>
-                        </div>
+                  {/* Financial Breakdown Section */}
+                  <div className={`p-4 rounded-xl border space-y-4 ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h4 className={`text-xs font-bold ${ht}`}>Financial Breakdown</h4>
+                        <p className={`text-[11px] ${mt}`}>Audit-ready settlement breakdown by Year and Month</p>
+                      </div>
+                      <div className="flex items-center gap-1 p-1 rounded-xl bg-black/20 border border-white/5">
+                        <button
+                          onClick={() => setSettlementBreakdownView("year")}
+                          className={`px-2.5 py-1 text-[11px] font-medium rounded-lg transition-all ${
+                            settlementBreakdownView === "year"
+                              ? "bg-violet-500 text-white shadow-sm"
+                              : "text-white/50 hover:text-white"
+                          }`}
+                        >
+                          Total by Year
+                        </button>
+                        <button
+                          onClick={() => setSettlementBreakdownView("month")}
+                          className={`px-2.5 py-1 text-[11px] font-medium rounded-lg transition-all ${
+                            settlementBreakdownView === "month"
+                              ? "bg-violet-500 text-white shadow-sm"
+                              : "text-white/50 hover:text-white"
+                          }`}
+                        >
+                          Total by Month
+                        </button>
                       </div>
                     </div>
 
-                    {/* Interactive Purchases Breakdown */}
-                    {showPurchases && s.purchases && s.purchases.length > 0 && (
-                      <div className={`p-4 rounded-xl border ${dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"}`}>
-                        <h4 className="text-xs font-bold uppercase tracking-wider mb-3 text-slate-700 dark:text-slate-300">Purchases in Settlement ({s.id})</h4>
-                        <div className={`border rounded-lg overflow-hidden ${dk ? "border-white/5" : "border-slate-200"}`}>
-                          <table className="w-full text-left text-xs">
-                            <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-slate-400" : "bg-slate-100 text-slate-600"}`}>
+                    {/* Total Amount Breakdown: By Year */}
+                    {settlementBreakdownView === "year" && (
+                      <div className="space-y-2">
+                        <p className={`text-[11px] font-semibold ${ht}`}>Total Amount by Year</p>
+                        <div className="grid grid-cols-3 gap-2">
+                          {[
+                            { year: "2026 (FY 26-27)", amount: Math.round(selected.totalAmountPayable * 0.55), share: "55%", count: 18 },
+                            { year: "2025 (FY 25-26)", amount: Math.round(selected.totalAmountPayable * 0.35), share: "35%", count: 14 },
+                            { year: "2024 (FY 24-25)", amount: Math.round(selected.totalAmountPayable * 0.10), share: "10%", count: 6 },
+                          ].map(y => (
+                            <div key={y.year} className={`p-3 rounded-lg border ${dk ? "bg-white/5 border-white/5" : "bg-white border-slate-200"}`}>
+                              <p className={`text-[10px] ${mt}`}>{y.year}</p>
+                              <p className={`text-sm font-bold text-violet-400 mt-0.5`}>₹{y.amount.toLocaleString()}</p>
+                              <div className="flex items-center justify-between text-[10px] mt-1 text-white/50">
+                                <span>{y.count} Batches</span>
+                                <span>{y.share} volume</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Total Amount Breakdown: By Month */}
+                    {settlementBreakdownView === "month" && (
+                      <div className="space-y-2">
+                        <p className={`text-[11px] font-semibold ${ht}`}>Total Amount by Month (2026)</p>
+                        <div className={`border rounded-xl overflow-hidden ${dk ? "border-white/5" : "border-slate-200 bg-white"}`}>
+                          <table className="w-full text-left">
+                            <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-white/40" : "bg-slate-100 text-slate-500"}`}>
                               <tr>
-                                <th className="p-2.5">Seafarer</th>
-                                <th className="p-2.5">Course Title</th>
-                                <th className="p-2.5">Amount</th>
-                                <th className="p-2.5">Date</th>
+                                <th className="p-2.5">Month</th>
+                                <th className="p-2.5">Enrolled Seafarers</th>
+                                <th className="p-2.5">Hari Om Invoiced</th>
+                                <th className="p-2.5">Settlement Status</th>
                               </tr>
                             </thead>
-                            <tbody className={`divide-y ${dk ? "divide-white/5" : "divide-slate-100"}`}>
-                              {s.purchases.map((p, idx) => (
-                                <tr key={idx}>
-                                  <td className={`p-2.5 font-medium ${ht}`}>{p.seafarerName}</td>
-                                  <td className="p-2.5 text-slate-600 dark:text-slate-400">{p.courseTitle}</td>
-                                  <td className="p-2.5 font-bold text-emerald-600 dark:text-emerald-400">₹{p.amount.toLocaleString()}</td>
-                                  <td className="p-2.5 text-slate-600 dark:text-slate-400">{p.date}</td>
+                            <tbody className={`divide-y text-xs ${dk ? "divide-white/5" : "divide-slate-100"}`}>
+                              {[
+                                { month: "September 2026", seafarers: 6, amount: Math.round(selected.totalAmountPayable * 0.24), status: "Processing", statusCls: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+                                { month: "August 2026", seafarers: 5, amount: Math.round(selected.totalAmountPayable * 0.22), status: "Partially Settled", statusCls: "text-sky-400 bg-sky-500/10 border-sky-500/20" },
+                                { month: "July 2026", seafarers: 4, amount: Math.round(selected.totalAmountPayable * 0.18), status: "Fully Settled", statusCls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                                { month: "June 2026", seafarers: 3, amount: Math.round(selected.totalAmountPayable * 0.14), status: "Fully Settled", statusCls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                                { month: "May 2026", seafarers: 3, amount: Math.round(selected.totalAmountPayable * 0.12), status: "Fully Settled", statusCls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                              ].map(m => (
+                                <tr key={m.month}>
+                                  <td className={`p-2.5 font-medium ${ht}`}>{m.month}</td>
+                                  <td className={`p-2.5 ${mt}`}>{m.seafarers} Candidates</td>
+                                  <td className={`p-2.5 font-semibold text-violet-400`}>₹{m.amount.toLocaleString()}</td>
+                                  <td className="p-2.5">
+                                    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${m.statusCls}`}>
+                                      {m.status}
+                                    </span>
+                                  </td>
                                 </tr>
                               ))}
                             </tbody>
@@ -739,23 +688,61 @@ export default function PartnerAdminsPage() {
                         </div>
                       </div>
                     )}
+
+                    {/* Pending Amount Breakdown: By Month */}
+                    <div className="space-y-2 pt-2 border-t border-white/5">
+                      <div className="flex items-center justify-between">
+                        <p className={`text-[11px] font-semibold text-rose-400`}>Pending Amount Breakdown by Month</p>
+                        <span className="text-[10px] text-white/50">Total Pending: ₹{selected.pendingAmount.toLocaleString()}</span>
+                      </div>
+                      <div className={`border rounded-xl overflow-hidden ${dk ? "border-white/5" : "border-slate-200 bg-white"}`}>
+                        <table className="w-full text-left">
+                          <thead className={`text-[10px] font-semibold uppercase ${dk ? "bg-white/5 text-white/40" : "bg-slate-100 text-slate-500"}`}>
+                            <tr>
+                              <th className="p-2.5">Billing Month</th>
+                              <th className="p-2.5">Invoice Ref</th>
+                              <th className="p-2.5">Pending Amount</th>
+                              <th className="p-2.5">Aging / Due Date</th>
+                              <th className="p-2.5">Settlement Action</th>
+                            </tr>
+                          </thead>
+                          <tbody className={`divide-y text-xs ${dk ? "divide-white/5" : "divide-slate-100"}`}>
+                            {[
+                              { month: "September 2026", invoice: `INV-26-09-${selected.id.slice(-2)}`, amount: Math.round(selected.pendingAmount * 0.65), due: "Due in 12 days (21 Sep 2026)", aging: "Current", agingCls: "text-amber-400 bg-amber-500/10 border-amber-500/20" },
+                              { month: "August 2026", invoice: `INV-26-08-${selected.id.slice(-2)}`, amount: Math.round(selected.pendingAmount * 0.35), due: "Overdue by 10 days", aging: "Overdue", agingCls: "text-rose-400 bg-rose-500/10 border-rose-500/20" },
+                              { month: "July 2026 & Prior", invoice: "Historical", amount: 0, due: "Cleared", aging: "Settled", agingCls: "text-emerald-400 bg-emerald-500/10 border-emerald-500/20" },
+                            ].map(p => (
+                              <tr key={p.month}>
+                                <td className={`p-2.5 font-medium ${ht}`}>{p.month}</td>
+                                <td className={`p-2.5 ${mt} font-mono text-[11px]`}>{p.invoice}</td>
+                                <td className={`p-2.5 font-bold ${p.amount > 0 ? "text-rose-400" : "text-emerald-400"}`}>
+                                  ₹{p.amount.toLocaleString()}
+                                </td>
+                                <td className={`p-2.5 text-[11px] ${mt}`}>{p.due}</td>
+                                <td className="p-2.5">
+                                  <span className={`text-[10px] px-2 py-0.5 rounded-full border font-semibold ${p.agingCls}`}>
+                                    {p.aging}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
                   </div>
-                );
-              })()}
+
+                  <p className={`text-[11px] ${mt}`}>
+                    * Financial calculations use the amount payable to Hari Om configured for this partner and course. The partner's individual selling price is not required for platform settlement.
+                  </p>
+                </div>
+              )}
             </div>
 
-            {/* Modal Footer */}
-            <div className={`px-6 py-3 border-t flex items-center justify-between shrink-0 ${dk ? "border-white/8" : "border-slate-100"}`}>
-              <span className="text-xs text-slate-600 dark:text-slate-400 font-medium">
-                RPSL: {selected.rpslNumber} · Partner ID: {selected.id} · Location: {selected.location}
-              </span>
-              <button
-                onClick={closeModal}
-                className={`px-4 py-1.5 text-xs font-semibold rounded-lg border transition-colors ${
-                  dk ? "border-white/10 text-white/70 hover:bg-white/5" : "border-slate-200 text-slate-700 hover:bg-slate-50"
-                }`}
-              >
-                Close Profile
+            {/* Footer */}
+            <div className={`flex items-center justify-end px-6 py-3 border-t ${dk ? "border-white/8" : "border-slate-100"}`}>
+              <button onClick={closeModal} className={`px-4 py-2 text-xs font-semibold rounded-xl ${dk ? "bg-white/10 text-white hover:bg-white/15" : "bg-slate-200 text-slate-700 hover:bg-slate-300"}`}>
+                Close
               </button>
             </div>
           </div>
@@ -764,50 +751,50 @@ export default function PartnerAdminsPage() {
 
       {/* ── MODAL: Add Partner Agency ── */}
       {modal === "add" && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={closeModal}>
-          <div className={`w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 ${modalBg}`} onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className={`w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden p-6 space-y-4 ${modalBg}`}>
             <div className="flex items-center justify-between">
               <h2 className={`text-base font-bold ${ht}`}>Add Partner Agency</h2>
-              <button onClick={closeModal} className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white transition-colors"><X className="w-5 h-5" /></button>
+              <button onClick={closeModal} className={mt}><X className="w-5 h-5" /></button>
             </div>
             <div className="space-y-3">
               <div>
-                <label className={`text-[11px] block mb-1 ${labelCls}`}>Partner Name / Brand *</label>
+                <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Partner Name / Brand *</label>
                 <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="e.g. Ocean Maritime Recruitment" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Legal Agency Name</label>
+                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Legal Agency Name</label>
                   <input value={form.agencyName} onChange={e => setForm({ ...form, agencyName: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="e.g. Ocean Maritime Services Pvt Ltd" />
                 </div>
                 <div>
-                  <label className={`text-[11px] block mb-1 ${labelCls}`}>RPSL Number *</label>
+                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>RPSL Number *</label>
                   <input value={form.rpslNumber} onChange={e => setForm({ ...form, rpslNumber: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="e.g. RPSL-MUM-482" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Contact Person</label>
+                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Contact Person</label>
                   <input value={form.contactPerson} onChange={e => setForm({ ...form, contactPerson: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="Capt. Name" />
                 </div>
                 <div>
-                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Official Email *</label>
+                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Official Email *</label>
                   <input value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="partner@agency.com" />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Phone Number</label>
+                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Phone Number</label>
                   <input value={form.phone} onChange={e => setForm({ ...form, phone: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="+91 98000 00000" />
                 </div>
                 <div>
-                  <label className={`text-[11px] block mb-1 ${labelCls}`}>Location</label>
+                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Location</label>
                   <input value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} className={`w-full px-3 py-2 text-xs rounded-xl ${inputCls}`} placeholder="e.g. Mumbai, India" />
                 </div>
               </div>
             </div>
             <div className="flex items-center justify-end gap-2 pt-2">
-              <button onClick={closeModal} className={`px-4 py-2 text-xs font-semibold rounded-xl border transition-colors ${dk ? "bg-white/5 border-white/10 text-white/80 hover:bg-white/10" : "bg-slate-100 border-slate-200 text-slate-700 hover:bg-slate-200"}`}>Cancel</button>
+              <button onClick={closeModal} className={`px-4 py-2 text-xs rounded-xl ${dk ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-600"}`}>Cancel</button>
               <button onClick={handleAddPartner} className="px-5 py-2 text-xs font-semibold rounded-xl bg-violet-500 hover:bg-violet-600 text-white transition-colors">
                 {saved ? "Partner Added!" : "Register Partner"}
               </button>
@@ -835,32 +822,6 @@ export default function PartnerAdminsPage() {
                 <button onClick={() => { setResetDone(true); setTimeout(closeModal, 1200); }} className="px-4 py-2 text-xs font-semibold rounded-xl bg-amber-500 hover:bg-amber-600 text-white">Send Reset Email</button>
               </div>
             )}
-          </div>
-        </div>
-      )}
-
-      {/* ── MODAL: Audit Trail ── */}
-      {modal === "audit" && selected && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className={`w-full max-w-md rounded-2xl shadow-2xl p-6 space-y-4 ${modalBg}`}>
-            <div className="flex items-center justify-between">
-              <h2 className={`text-sm font-bold ${ht}`}>Partner Audit Log · {selected.name}</h2>
-              <button onClick={closeModal} className={mt}><X className="w-4 h-4" /></button>
-            </div>
-            <div className="space-y-2.5 max-h-64 overflow-y-auto">
-              {AUDIT_LOG.map((al, idx) => (
-                <div key={idx} className={`p-2.5 rounded-xl border text-xs ${dk ? "bg-white/3 border-white/5" : "bg-slate-50 border-slate-100"}`}>
-                  <div className="flex items-center justify-between">
-                    <span className={`font-semibold ${ht}`}>{al.action}</span>
-                    <span className={`text-[10px] ${mt}`}>{al.date}</span>
-                  </div>
-                  <p className={`text-[11px] mt-0.5 ${mt}`}>{al.detail} · By {al.by}</p>
-                </div>
-              ))}
-            </div>
-            <div className="flex justify-end">
-              <button onClick={closeModal} className={`px-4 py-1.5 text-xs rounded-xl ${dk ? "bg-white/10 text-white" : "bg-slate-200 text-slate-700"}`}>Close</button>
-            </div>
           </div>
         </div>
       )}

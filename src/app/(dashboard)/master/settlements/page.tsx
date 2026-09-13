@@ -516,7 +516,7 @@ export default function MasterSettlementsPage() {
                 <th className="text-left px-5 py-3.5">Pending Due Date</th>
                 <th className="text-left px-5 py-3.5">Settlement Status</th>
                 <th className="text-left px-5 py-3.5">Related Purchases</th>
-                <th className="text-right px-5 py-3.5">Actions</th>
+                <th className="text-left px-5 py-3.5">Actions</th>
               </tr>
             </thead>
             <tbody>

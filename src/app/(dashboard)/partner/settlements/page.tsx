@@ -17,9 +17,7 @@ import {
 } from "lucide-react";
 
 export default function SettlementsHistoryPage() {
-  const { theme } = useTheme();
-  const mounted = true;
-  useEffect(() => setMounted(true), []);
+  const { theme, mounted } = useTheme();
   const isDark = mounted ? theme === "dark" : true;
 
   const [settlements, setSettlements] = useState<any[]>([]);

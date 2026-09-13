@@ -1,18 +1,50 @@
+/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/set-state-in-effect */
 "use client";
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { agentAdminService } from "@/services/agent-admin.service";
-import { partnerPricingService, CoursePricingItem } from "@/services/partner-pricing.service";
-import { 
-  Users, Plus, Search, Edit2, Key, ToggleLeft, ToggleRight, Check,
-  QrCode, AlertCircle, RefreshCw, X, Percent, CheckSquare, Sparkles,
-  Tag, Send, DollarSign, Clock, CheckCircle2, XCircle, ArrowLeft, ChevronLeft,
-  Eye, FileText, Building, Phone, Mail, MapPin, ShieldCheck, ExternalLink, Download
+import {
+  partnerPricingService,
+  CoursePricingItem,
+} from "@/services/partner-pricing.service";
+import {
+  Users,
+  Plus,
+  Search,
+  Edit2,
+  Key,
+  ToggleLeft,
+  ToggleRight,
+  Check,
+  QrCode,
+  AlertCircle,
+  RefreshCw,
+  X,
+  Percent,
+  CheckSquare,
+  Sparkles,
+  Tag,
+  Send,
+  DollarSign,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  ArrowLeft,
+  ChevronLeft,
+  Eye,
+  FileText,
+  Building,
+  Phone,
+  Mail,
+  MapPin,
+  ShieldCheck,
+  ExternalLink,
+  Download,
 } from "lucide-react";
 
-export default function AgentManagement() {
+function AgentManagementContent() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const searchParams = useSearchParams();
@@ -29,12 +61,23 @@ export default function AgentManagement() {
   const [showOnboardingModal, setShowOnboardingModal] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedAgentForPricing, setSelectedAgentForPricing] = useState<any>(null);
-  const [activeAgentTab, setActiveAgentTab] = useState<"pricing" | "details">("details");
+  const [selectedAgentForPricing, setSelectedAgentForPricing] =
+    useState<any>(null);
+  const [activeAgentTab, setActiveAgentTab] = useState<"pricing" | "details">(
+    "details",
+  );
   const [coursePricings, setCoursePricings] = useState<CoursePricingItem[]>([]);
-  const [pricingInputMap, setPricingInputMap] = useState<Record<string, string>>({});
-  const [pricingSubmittingId, setPricingSubmittingId] = useState<string | null>(null);
-  const [pricingFeedback, setPricingFeedback] = useState<{ courseId: string; msg: string; type: "success" | "error" } | null>(null);
+  const [pricingInputMap, setPricingInputMap] = useState<
+    Record<string, string>
+  >({});
+  const [pricingSubmittingId, setPricingSubmittingId] = useState<string | null>(
+    null,
+  );
+  const [pricingFeedback, setPricingFeedback] = useState<{
+    courseId: string;
+    msg: string;
+    type: "success" | "error";
+  } | null>(null);
   const [editName, setEditName] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [editPhone, setEditPhone] = useState("");
@@ -71,15 +114,23 @@ export default function AgentManagement() {
   const [commSuccess, setCommSuccess] = useState(false);
 
   const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
-    isDark
-      ? "bg-[#111827] text-white"
-      : "bg-white text-[#111827]"
+    isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
   }`;
-  const inputBg = isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/20" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF]";
-  const labelText = isDark ? "text-slate-300 font-medium" : "text-[#111827] font-semibold";
-  const valueText = isDark ? "text-white font-bold" : "text-[#111827] font-bold";
-  const ht = isDark ? "text-white font-extrabold" : "text-[#111827] font-extrabold";
-  const mt = isDark ? "text-slate-400 font-medium" : "text-[#6B7280] font-medium";
+  const inputBg = isDark
+    ? "bg-white/5 border-white/10 text-white placeholder:text-white/20"
+    : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF]";
+  const labelText = isDark
+    ? "text-slate-300 font-medium"
+    : "text-[#111827] font-semibold";
+  const valueText = isDark
+    ? "text-white font-bold"
+    : "text-[#111827] font-bold";
+  const ht = isDark
+    ? "text-white font-extrabold"
+    : "text-[#111827] font-extrabold";
+  const mt = isDark
+    ? "text-slate-400 font-medium"
+    : "text-[#6B7280] font-medium";
 
   const fetchAgents = async () => {
     try {
@@ -106,7 +157,7 @@ export default function AgentManagement() {
     setCreateSuccess(false);
 
     try {
-      await agentAdminService.createAgent({
+      const createdAgent = await agentAdminService.createAgent({
         name: newName,
         email: newEmail,
         password: newPassword,
@@ -115,16 +166,29 @@ export default function AgentManagement() {
       });
 
       setCreateSuccess(true);
+      if (createdAgent) {
+        setAgents((prev) => [
+          createdAgent,
+          ...prev.filter(
+            (a) =>
+              a.id !== createdAgent.id &&
+              a.email?.toLowerCase().trim() !==
+                createdAgent.email?.toLowerCase().trim(),
+          ),
+        ]);
+      }
       setNewName("");
       setNewEmail("");
       setNewPassword("");
       setNewPhone("");
       setNewGenComm("5.0");
-      fetchAgents();
+
       setTimeout(() => {
         setShowCreateModal(false);
         setCreateSuccess(false);
-      }, 1500);
+      }, 1200);
+
+      fetchAgents();
     } catch (err: any) {
       setCreateError(err.message || "Failed to create agent account.");
     }
@@ -135,8 +199,17 @@ export default function AgentManagement() {
     const nextStatus = agent.status === "Active" ? "Deactivated" : "Active";
     try {
       await agentAdminService.updateAgentStatus(agent.id, nextStatus);
-      setAgents(prev =>
-        prev.map(a => (a.id === agent.id ? { ...a, status: nextStatus, onboardingStatus: nextStatus === "Active" ? "Active" : "Inactive" } : a))
+      setAgents((prev) =>
+        prev.map((a) =>
+          a.id === agent.id
+            ? {
+                ...a,
+                status: nextStatus,
+                onboardingStatus:
+                  nextStatus === "Active" ? "Active" : "Inactive",
+              }
+            : a,
+        ),
       );
     } catch (err) {
       console.error("Failed to update status: ", err);
@@ -150,7 +223,9 @@ export default function AgentManagement() {
     setPassSuccess(false);
 
     try {
-      await agentAdminService.resetAgentPassword(selectedAgent.id, { password: resetPass });
+      await agentAdminService.resetAgentPassword(selectedAgent.id, {
+        password: resetPass,
+      });
       setPassSuccess(true);
       setResetPass("");
       setTimeout(() => {
@@ -169,7 +244,11 @@ export default function AgentManagement() {
     setCommSuccess(false);
 
     try {
-      await agentAdminService.updateAgentCommission(selectedAgent.id, generalComm, courseComm);
+      await agentAdminService.updateAgentCommission(
+        selectedAgent.id,
+        generalComm,
+        courseComm,
+      );
       setCommSuccess(true);
       fetchAgents();
       setTimeout(() => {
@@ -205,7 +284,10 @@ export default function AgentManagement() {
     setShowPasswordModal(true);
   };
 
-  const openAgentView = async (agent: any, initialTab: "pricing" | "details" = "details") => {
+  const openAgentView = async (
+    agent: any,
+    initialTab: "pricing" | "details" = "details",
+  ) => {
     setSelectedAgentForPricing(agent);
     setSelectedAgent(agent);
     setActiveAgentTab(initialTab);
@@ -215,7 +297,9 @@ export default function AgentManagement() {
       setCoursePricings(pricings);
       const initialMap: Record<string, string> = {};
       pricings.forEach((item) => {
-        initialMap[item.id] = (item.proposedPayableAmount ?? item.activePayableAmount).toString();
+        initialMap[item.id] = (
+          item.proposedPayableAmount ?? item.activePayableAmount
+        ).toString();
       });
       setPricingInputMap(initialMap);
     } catch (e) {
@@ -234,22 +318,35 @@ export default function AgentManagement() {
     const rawVal = pricingInputMap[courseId];
     const proposedNum = parseFloat(rawVal);
     if (isNaN(proposedNum) || proposedNum <= 0) {
-      setPricingFeedback({ courseId, msg: "Please enter a valid positive amount", type: "error" });
+      setPricingFeedback({
+        courseId,
+        msg: "Please enter a valid positive amount",
+        type: "error",
+      });
       return;
     }
 
     setPricingSubmittingId(courseId);
     setPricingFeedback(null);
     try {
-      const updatedItem = await partnerPricingService.submitProposedPrice(courseId, proposedNum);
-      setCoursePricings((prev) => prev.map((item) => (item.id === courseId ? updatedItem : item)));
+      const updatedItem = await partnerPricingService.submitProposedPrice(
+        courseId,
+        proposedNum,
+      );
+      setCoursePricings((prev) =>
+        prev.map((item) => (item.id === courseId ? updatedItem : item)),
+      );
       setPricingFeedback({
         courseId,
         msg: `Proposed Hari Om payable price of ₹${proposedNum.toLocaleString("en-IN")} submitted for Master approval.`,
         type: "success",
       });
     } catch (err: any) {
-      setPricingFeedback({ courseId, msg: err.message || "Failed to submit proposed price", type: "error" });
+      setPricingFeedback({
+        courseId,
+        msg: err.message || "Failed to submit proposed price",
+        type: "error",
+      });
     } finally {
       setPricingSubmittingId(null);
     }
@@ -282,7 +379,7 @@ export default function AgentManagement() {
         email: editEmail,
         phone: editPhone,
         agencyName: editAgencyName,
-        officeAddress: editOfficeAddress
+        officeAddress: editOfficeAddress,
       });
       setEditSuccess(true);
       fetchAgents();
@@ -294,10 +391,20 @@ export default function AgentManagement() {
     }
   };
 
-  const handleVerifyDocument = async (agentId: string, docId: string, status: string) => {
+  const handleVerifyDocument = async (
+    agentId: string,
+    docId: string,
+    status: string,
+  ) => {
     try {
-      await agentAdminService.verifyAgentDocument(agentId, docId, status, verificationRemarks);
-      const updatedChecklist = await agentAdminService.getAgentOnboarding(agentId);
+      await agentAdminService.verifyAgentDocument(
+        agentId,
+        docId,
+        status,
+        verificationRemarks,
+      );
+      const updatedChecklist =
+        await agentAdminService.getAgentOnboarding(agentId);
       setOnboardingChecklist(updatedChecklist);
       setVerificationRemarks("");
       setVerifyingDocId(null);
@@ -308,17 +415,31 @@ export default function AgentManagement() {
   };
 
   // Filters mapping
-  const filteredAgents = agents.filter(agent => {
-    const matchesSearch = 
+  const filteredAgents = agents.filter((agent) => {
+    const matchesSearch =
       agent.name?.toLowerCase().includes(search.toLowerCase()) ||
       agent.email?.toLowerCase().includes(search.toLowerCase()) ||
-      (agent.referralCode && agent.referralCode.toLowerCase().includes(search.toLowerCase()));
+      (agent.agencyName &&
+        agent.agencyName.toLowerCase().includes(search.toLowerCase()));
 
-    const matchesStatus = 
+    const status = agent.status || "Active";
+    const onboardingStatus = agent.onboardingStatus || "Profile Pending";
+
+    const matchesStatus =
       statusFilter === "all" ||
-      (statusFilter === "active" && agent.status === "Active") ||
-      (statusFilter === "deactivated" && agent.status === "Deactivated") ||
-      (statusFilter === "onboarding" && ["Invited", "Profile Pending", "Referral Pending"].includes(agent.onboardingStatus));
+      (statusFilter === "active" &&
+        (status === "Active" ||
+          status === "Pending Audit" ||
+          status === "Pending Verification")) ||
+      (statusFilter === "deactivated" && status === "Deactivated") ||
+      (statusFilter === "onboarding" &&
+        [
+          "Invited",
+          "Profile Pending",
+          "KYC Pending",
+          "Pending Verification",
+          "Pending Audit",
+        ].includes(onboardingStatus));
 
     return matchesSearch && matchesStatus;
   });
@@ -345,7 +466,9 @@ export default function AgentManagement() {
               <span>Agent Directory</span>
               <ChevronLeft className="w-3.5 h-3.5 rotate-180 opacity-40" />
               <span className="text-[#3D5EF6] font-bold">
-                {activeAgentTab === "details" ? "Agent Profile & Documents" : "Course Pricing & Proposals"}
+                {activeAgentTab === "details"
+                  ? "Agent Profile & Documents"
+                  : "Course Pricing & Proposals"}
               </span>
             </div>
           </div>
@@ -369,15 +492,24 @@ export default function AgentManagement() {
                   {selectedAgentForPricing.name}
                 </h1>
                 <p className={`text-xs mt-1 ${mt}`}>
-                  {selectedAgentForPricing.email} • {selectedAgentForPricing.phone || "+91 99999 88888"} • Agency: <span className={`font-bold ${valueText}`}>{selectedAgentForPricing.agencyName || selectedAgentForPricing.name}</span>
+                  {selectedAgentForPricing.email} •{" "}
+                  {selectedAgentForPricing.phone || "+91 99999 88888"} • Agency:{" "}
+                  <span className={`font-bold ${valueText}`}>
+                    {selectedAgentForPricing.agencyName ||
+                      selectedAgentForPricing.name}
+                  </span>
                 </p>
               </div>
             </div>
 
             <div className="flex items-center gap-2">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                selectedAgentForPricing.status === "Active" ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20" : "bg-red-500/10 text-red-500 border border-red-500/20"
-              }`}>
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-bold ${
+                  selectedAgentForPricing.status === "Active"
+                    ? "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                    : "bg-red-500/10 text-red-500 border border-red-500/20"
+                }`}
+              >
                 {selectedAgentForPricing.status}
               </span>
               <button
@@ -391,15 +523,17 @@ export default function AgentManagement() {
           </div>
 
           {/* Sub-Navigation Tabs */}
-          <div className="flex items-center gap-3 mt-6 pt-4 border-t border-white/10">
+          <div
+            className={`flex items-center gap-3 mt-6 pt-4 border-t ${isDark ? "border-white/10" : "border-slate-200"}`}
+          >
             <button
               onClick={() => setActiveAgentTab("details")}
               className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 transition cursor-pointer ${
                 activeAgentTab === "details"
                   ? "bg-[#3D5EF6] text-white shadow-md"
                   : isDark
-                  ? "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                    ? "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
               }`}
             >
               <FileText className="w-4 h-4" />
@@ -412,8 +546,8 @@ export default function AgentManagement() {
                 activeAgentTab === "pricing"
                   ? "bg-[#3D5EF6] text-white shadow-md"
                   : isDark
-                  ? "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
-                  : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
+                    ? "bg-white/5 text-slate-400 hover:bg-white/10 hover:text-white"
+                    : "bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900"
               }`}
             >
               <Tag className="w-4 h-4" />
@@ -427,33 +561,51 @@ export default function AgentManagement() {
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Grid 1: Operations & Summary KPI Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+              <div
+                className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}
+              >
                 <div className="p-2.5 rounded-[12px] bg-[#EEF1FE] text-[#3D5EF6] shrink-0">
                   <Users className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Seafarers Managed</p>
-                  <p className="text-base font-bold text-[#3D5EF6] mt-0.5">142 Seafarers</p>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>
+                    Seafarers Managed
+                  </p>
+                  <p className="text-base font-bold text-[#3D5EF6] mt-0.5">
+                    142 Seafarers
+                  </p>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+              <div
+                className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}
+              >
                 <div className="p-2.5 rounded-[12px] bg-[#DCFCE7] text-[#16A34A] shrink-0">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Course Purchases</p>
-                  <p className="text-base font-bold text-[#16A34A] mt-0.5">38 Completed</p>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>
+                    Course Purchases
+                  </p>
+                  <p className="text-base font-bold text-[#16A34A] mt-0.5">
+                    38 Completed
+                  </p>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+              <div
+                className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}
+              >
                 <div className="p-2.5 rounded-[12px] bg-[#FEF3C7] text-[#B45309] shrink-0">
                   <DollarSign className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Total Settled Revenue</p>
-                  <p className="text-base font-bold text-[#B45309] mt-0.5">₹14,50,000</p>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>
+                    Total Settled Revenue
+                  </p>
+                  <p className="text-base font-bold text-[#B45309] mt-0.5">
+                    ₹14,50,000
+                  </p>
                 </div>
               </div>
             </div>
@@ -465,69 +617,135 @@ export default function AgentManagement() {
                 <div className="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
                   <div className="flex items-center gap-2.5">
                     <Building className="w-4.5 h-4.5 text-[#3D5EF6]" />
-                    <h2 className="text-sm font-bold">Agency & Business Profile</h2>
+                    <h2 className="text-sm font-bold">
+                      Agency & Business Profile
+                    </h2>
                   </div>
-                  <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
-                    Active Partner
+                  <span
+                    className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                      selectedAgentForPricing.status === "Active"
+                        ? "bg-emerald-500/10 text-emerald-500 border-emerald-500/20"
+                        : selectedAgentForPricing.status === "Deactivated"
+                          ? "bg-red-500/10 text-red-500 border-red-500/20"
+                          : "bg-amber-500/10 text-amber-500 border-amber-500/20"
+                    }`}
+                  >
+                    {selectedAgentForPricing.status || "Pending Verification"}
                   </span>
                 </div>
 
                 <div className="space-y-3 text-xs">
-                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                  <div
+                    className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
+                  >
                     <span className={labelText}>Agency Name</span>
-                    <span className={`font-bold ${valueText}`}>{selectedAgentForPricing.agencyName || selectedAgentForPricing.name}</span>
+                    <span className={`font-bold ${valueText}`}>
+                      {selectedAgentForPricing.agencyName ||
+                        selectedAgentForPricing.name}
+                    </span>
                   </div>
-                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
-                    <span className={labelText}>Manning Registration / License</span>
-                    <span className="font-mono font-bold text-[#3D5EF6]">ML-REG-2026-8890</span>
+                  <div
+                    className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
+                  >
+                    <span className={labelText}>
+                      Manning Registration / License
+                    </span>
+                    <span className="font-mono font-bold text-[#3D5EF6]">
+                      ML-REG-2026-8890
+                    </span>
                   </div>
-                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                  <div
+                    className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
+                  >
                     <span className={labelText}>Primary Contact Person</span>
-                    <span className={`font-semibold ${valueText}`}>{selectedAgentForPricing.name}</span>
+                    <span className={`font-semibold ${valueText}`}>
+                      {selectedAgentForPricing.name}
+                    </span>
                   </div>
-                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                  <div
+                    className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
+                  >
                     <span className={labelText}>Official Email</span>
-                    <span className={`font-semibold ${valueText}`}>{selectedAgentForPricing.email}</span>
+                    <span className={`font-semibold ${valueText}`}>
+                      {selectedAgentForPricing.email}
+                    </span>
                   </div>
-                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                  <div
+                    className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
+                  >
                     <span className={labelText}>Primary Contact Phone</span>
-                    <span className={`font-semibold ${valueText}`}>{selectedAgentForPricing.phone || "+91 99999 88888"}</span>
+                    <span className={`font-semibold ${valueText}`}>
+                      {selectedAgentForPricing.phone || "+91 99999 88888"}
+                    </span>
                   </div>
                   <div className="flex justify-between py-1.5">
                     <span className={labelText}>Onboarding Progress</span>
-                    <span className="font-bold text-emerald-500 dark:text-emerald-400">{selectedAgentForPricing.onboardingStatus || "Active"}</span>
+                    <span
+                      className={`font-bold ${
+                        selectedAgentForPricing.onboardingStatus === "Active"
+                          ? "text-emerald-500 dark:text-emerald-400"
+                          : selectedAgentForPricing.onboardingStatus ===
+                              "Inactive"
+                            ? "text-red-500 dark:text-red-400"
+                            : "text-amber-500 dark:text-amber-400"
+                      }`}
+                    >
+                      {selectedAgentForPricing.onboardingStatus ||
+                        "Profile Pending"}
+                    </span>
                   </div>
                 </div>
               </div>
 
               {/* Office Premises & Location */}
               <div className={card}>
-                <div className={`flex items-center justify-between pb-3 border-b ${isDark ? "border-white/10" : "border-slate-100"} mb-4`}>
+                <div
+                  className={`flex items-center justify-between pb-3 border-b ${isDark ? "border-white/10" : "border-slate-100"} mb-4`}
+                >
                   <div className="flex items-center gap-2.5">
                     <MapPin className="w-4.5 h-4.5 text-[#3D5EF6]" />
-                    <h2 className="text-sm font-bold">Registered Office Premises & Bank Account</h2>
+                    <h2 className="text-sm font-bold">
+                      Registered Office Premises & Bank Account
+                    </h2>
                   </div>
-                  <span className={`text-[10px] font-bold ${mt}`}>Verified Premises</span>
+                  <span className={`text-[10px] font-bold ${mt}`}>
+                    Verified Premises
+                  </span>
                 </div>
 
                 <div className="space-y-3 text-xs">
-                  <div className={`py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                  <div
+                    className={`py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
+                  >
                     <span className={labelText}>Office Address</span>
-                    <p className={`font-semibold ${valueText} mt-1 leading-relaxed`}>
-                      {selectedAgentForPricing.officeAddress || "102 Maritime Towers, Off S.V. Road, Nariman Point, Mumbai, Maharashtra 400021"}
+                    <p
+                      className={`font-semibold ${valueText} mt-1 leading-relaxed`}
+                    >
+                      {selectedAgentForPricing.officeAddress ||
+                        "102 Maritime Towers, Off S.V. Road, Nariman Point, Mumbai, Maharashtra 400021"}
                     </p>
                   </div>
-                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                  <div
+                    className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
+                  >
                     <span className={labelText}>City & State</span>
-                    <span className={`font-semibold ${valueText}`}>Mumbai, Maharashtra</span>
+                    <span className={`font-semibold ${valueText}`}>
+                      Mumbai, Maharashtra
+                    </span>
                   </div>
-                  <div className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}>
+                  <div
+                    className={`flex justify-between py-1.5 border-b ${isDark ? "border-white/5" : "border-slate-100"}`}
+                  >
                     <span className={labelText}>Bank Name & Account</span>
-                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">HDFC Bank • A/C **** 4892</span>
+                    <span className="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                      HDFC Bank • A/C **** 4892
+                    </span>
                   </div>
                   <div className="flex justify-between py-1.5">
                     <span className={labelText}>IFSC Code & Branch</span>
-                    <span className={`font-mono font-semibold ${valueText}`}>HDFC0000123 (Nariman Pt)</span>
+                    <span className={`font-mono font-semibold ${valueText}`}>
+                      HDFC0000123 (Nariman Pt)
+                    </span>
                   </div>
                 </div>
               </div>
@@ -539,10 +757,13 @@ export default function AgentManagement() {
                 <div>
                   <div className="flex items-center gap-2.5">
                     <ShieldCheck className="w-5 h-5 text-[#3D5EF6]" />
-                    <h2 className="text-sm font-bold">Mandatory Verification Documents & Compliance</h2>
+                    <h2 className="text-sm font-bold">
+                      Mandatory Verification Documents & Compliance
+                    </h2>
                   </div>
                   <p className={`text-xs mt-1 ${mt}`}>
-                    Review and verify mandatory onboarding documents uploaded by the partner agency.
+                    Review and verify mandatory onboarding documents uploaded by
+                    the partner agency.
                   </p>
                 </div>
                 <button
@@ -556,19 +777,32 @@ export default function AgentManagement() {
 
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 {/* Document 1 */}
-                <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                <div
+                  className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}
+                >
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">Manning License</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">
+                        Manning License
+                      </span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                         Verified
                       </span>
                     </div>
-                    <h3 className="font-bold text-xs mt-2">Company Manning License PDF</h3>
-                    <p className={`text-[10px] mt-1 ${labelText}`}>Reg: ML-REG-2026-8890</p>
+                    <h3 className="font-bold text-xs mt-2">
+                      Company Manning License PDF
+                    </h3>
+                    <p className={`text-[10px] mt-1 ${labelText}`}>
+                      Reg: ML-REG-2026-8890
+                    </p>
                   </div>
                   <button
-                    onClick={() => window.open("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "_blank")}
+                    onClick={() =>
+                      window.open(
+                        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                        "_blank",
+                      )
+                    }
                     className="w-full py-2 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -577,19 +811,32 @@ export default function AgentManagement() {
                 </div>
 
                 {/* Document 2 */}
-                <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                <div
+                  className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}
+                >
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">Identity / GST</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">
+                        Identity / GST
+                      </span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                         Verified
                       </span>
                     </div>
-                    <h3 className="font-bold text-xs mt-2">GST & PAN Registration</h3>
-                    <p className={`text-[10px] mt-1 ${labelText}`}>GSTIN: 27AAAAA0000A1Z5</p>
+                    <h3 className="font-bold text-xs mt-2">
+                      GST & PAN Registration
+                    </h3>
+                    <p className={`text-[10px] mt-1 ${labelText}`}>
+                      GSTIN: 27AAAAA0000A1Z5
+                    </p>
                   </div>
                   <button
-                    onClick={() => window.open("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "_blank")}
+                    onClick={() =>
+                      window.open(
+                        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                        "_blank",
+                      )
+                    }
                     className="w-full py-2 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -598,19 +845,32 @@ export default function AgentManagement() {
                 </div>
 
                 {/* Document 3 */}
-                <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                <div
+                  className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}
+                >
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">Bank Mandate</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">
+                        Bank Mandate
+                      </span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                         Verified
                       </span>
                     </div>
-                    <h3 className="font-bold text-xs mt-2">Cancelled Cheque & Mandate</h3>
-                    <p className={`text-[10px] mt-1 ${labelText}`}>HDFC Bank • IFSC: HDFC0000123</p>
+                    <h3 className="font-bold text-xs mt-2">
+                      Cancelled Cheque & Mandate
+                    </h3>
+                    <p className={`text-[10px] mt-1 ${labelText}`}>
+                      HDFC Bank • IFSC: HDFC0000123
+                    </p>
                   </div>
                   <button
-                    onClick={() => window.open("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "_blank")}
+                    onClick={() =>
+                      window.open(
+                        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                        "_blank",
+                      )
+                    }
                     className="w-full py-2 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -619,67 +879,102 @@ export default function AgentManagement() {
                 </div>
 
                 {/* Document 4 */}
-                <div className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}>
+                <div
+                  className={`p-4 rounded-xl border flex flex-col justify-between space-y-3 ${isDark ? "bg-white/5 border-white/10" : "bg-slate-50 border-slate-200"}`}
+                >
                   <div>
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">Empanlement</span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#3D5EF6]">
+                        Empanlement
+                      </span>
                       <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
                         Verified
                       </span>
                     </div>
-                    <h3 className="font-bold text-xs mt-2">Partner MoU Agreement</h3>
-                    <p className={`text-[10px] mt-1 ${labelText}`}>Ref: MoU-THAL-2026-09</p>
+                    <h3 className="font-bold text-xs mt-2">
+                      Partner MoU Agreement
+                    </h3>
+                    <p className={`text-[10px] mt-1 ${labelText}`}>
+                      Ref: MoU-THAL-2026-09
+                    </p>
                   </div>
                   <button
-                    onClick={() => window.open("https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", "_blank")}
+                    onClick={() =>
+                      window.open(
+                        "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
+                        "_blank",
+                      )
+                    }
                     className="w-full py-2 rounded-xl bg-[#3D5EF6]/10 hover:bg-[#3D5EF6]/20 text-[#3D5EF6] font-bold text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                     View MoU PDF
                   </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
         {/* TAB 2: COURSE PRICING & PROPOSALS */}
         {activeAgentTab === "pricing" && (
           <div className="space-y-6 animate-in fade-in duration-200">
             {/* Status KPI Summary Strip */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+              <div
+                className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}
+              >
                 <div className="p-2.5 rounded-[12px] bg-[#DCFCE7] text-[#16A34A] shrink-0">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Active In-Use Prices</p>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>
+                    Active In-Use Prices
+                  </p>
                   <p className="text-base font-bold text-[#16A34A] mt-0.5">
-                    {coursePricings.filter(c => c.status === "Active").length} Courses Active
+                    {coursePricings.filter((c) => c.status === "Active").length}{" "}
+                    Courses Active
                   </p>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+              <div
+                className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}
+              >
                 <div className="p-2.5 rounded-[12px] bg-[#FEF3C7] text-[#B45309] shrink-0">
                   <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Pending Master Review</p>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>
+                    Pending Master Review
+                  </p>
                   <p className="text-base font-bold text-[#B45309] mt-0.5">
-                    {coursePricings.filter(c => c.status === "Pending Approval").length} Proposals Pending
+                    {
+                      coursePricings.filter(
+                        (c) => c.status === "Pending Approval",
+                      ).length
+                    }{" "}
+                    Proposals Pending
                   </p>
                 </div>
               </div>
 
-              <div className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}>
+              <div
+                className={`p-4 rounded-[16px] border-0 card-elevated flex items-center gap-3.5 ${isDark ? "bg-[#111827]" : "bg-white"}`}
+              >
                 <div className="p-2.5 rounded-[12px] bg-[#FEE2E2] text-[#DC2626] shrink-0">
                   <XCircle className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>Rejected Proposals</p>
+                  <p className={`text-[10px] font-bold uppercase ${labelText}`}>
+                    Rejected Proposals
+                  </p>
                   <p className="text-base font-bold text-[#DC2626] mt-0.5">
-                    {coursePricings.filter(c => c.status === "Rejected").length} Proposals Rejected
+                    {
+                      coursePricings.filter((c) => c.status === "Rejected")
+                        .length
+                    }{" "}
+                    Proposals Rejected
                   </p>
                 </div>
               </div>
@@ -689,43 +984,71 @@ export default function AgentManagement() {
             <div className={card}>
               <div className="flex items-center justify-between pb-4 border-b mb-4 border-white/10">
                 <div>
-                  <h2 className="text-sm font-bold tracking-tight">Applicable Course Fees & Proposed Hari Om Payable</h2>
+                  <h2 className="text-sm font-bold tracking-tight">
+                    Applicable Course Fees & Proposed Hari Om Payable
+                  </h2>
                   <p className={`text-xs mt-0.5 ${mt}`}>
-                    Enter or update proposed Hari Om payable price for any course and submit for Master Admin review.
+                    Enter or update proposed Hari Om payable price for any
+                    course and submit for Master Admin review.
                   </p>
                 </div>
               </div>
 
-
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
-                    <tr className={`border-b pb-3 ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-400"} uppercase text-[10px] font-bold tracking-wider`}>
+                    <tr
+                      className={`border-b pb-3 ${isDark ? "border-white/10 text-white/40" : "border-slate-200 text-slate-400"} uppercase text-[10px] font-bold tracking-wider`}
+                    >
                       <th className="py-3 px-3">Course Name & Code</th>
                       <th className="py-3 px-3 text-right">Standard Fee</th>
-                      <th className="py-3 px-3 text-right">Active Hari Om Payable</th>
-                      <th className="py-3 px-3 text-center">Proposed Hari Om Payable</th>
+                      <th className="py-3 px-3 text-right">
+                        Active Hari Om Payable
+                      </th>
+                      <th className="py-3 px-3 text-center">
+                        Proposed Hari Om Payable
+                      </th>
                       <th className="py-3 px-3 text-center">Status</th>
                       <th className="py-3 px-3 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
+                  <tbody
+                    className={
+                      isDark
+                        ? "divide-y divide-white/5"
+                        : "divide-y divide-slate-100"
+                    }
+                  >
                     {coursePricings.map((item) => {
-                      const inputVal = pricingInputMap[item.id] ?? (item.proposedPayableAmount ?? item.activePayableAmount).toString();
+                      const inputVal =
+                        pricingInputMap[item.id] ??
+                        (
+                          item.proposedPayableAmount ?? item.activePayableAmount
+                        ).toString();
                       const isPending = item.status === "Pending Approval";
                       const isRejected = item.status === "Rejected";
-                      const feedback = pricingFeedback?.courseId === item.id ? pricingFeedback : null;
+                      const feedback =
+                        pricingFeedback?.courseId === item.id
+                          ? pricingFeedback
+                          : null;
 
                       return (
-                        <tr key={item.id} className="hover:bg-white/[0.02] transition-colors">
+                        <tr
+                          key={item.id}
+                          className="hover:bg-white/[0.02] transition-colors"
+                        >
                           {/* Course Details */}
                           <td className="py-4 px-3">
-                            <p className="font-bold text-sm">{item.courseName}</p>
+                            <p className="font-bold text-sm">
+                              {item.courseName}
+                            </p>
                             <div className="flex items-center gap-2 mt-1">
                               <span className="font-mono text-[10px] font-bold px-2 py-0.5 rounded bg-[#3D5EF6]/10 text-[#3D5EF6]">
                                 {item.courseCode}
                               </span>
-                              <span className={`text-[10px] ${labelText}`}>{item.category}</span>
+                              <span className={`text-[10px] ${labelText}`}>
+                                {item.category}
+                              </span>
                             </div>
                           </td>
 
@@ -737,7 +1060,8 @@ export default function AgentManagement() {
                           {/* Active Hari Om Payable */}
                           <td className="py-4 px-3 text-right">
                             <span className="font-bold text-emerald-500 bg-emerald-500/10 px-3 py-1.5 rounded-xl text-xs border border-emerald-500/20">
-                              ₹{item.activePayableAmount.toLocaleString("en-IN")}
+                              ₹
+                              {item.activePayableAmount.toLocaleString("en-IN")}
                             </span>
                           </td>
 
@@ -745,12 +1069,17 @@ export default function AgentManagement() {
                           <td className="py-4 px-3 text-center">
                             <div className="flex flex-col items-center gap-1 max-w-[160px] mx-auto">
                               <div className="relative w-full">
-                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold opacity-60">₹</span>
+                                <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-xs font-bold opacity-60">
+                                  ₹
+                                </span>
                                 <input
                                   type="number"
                                   value={inputVal}
                                   onChange={(e) =>
-                                    setPricingInputMap({ ...pricingInputMap, [item.id]: e.target.value })
+                                    setPricingInputMap({
+                                      ...pricingInputMap,
+                                      [item.id]: e.target.value,
+                                    })
                                   }
                                   placeholder="Amount"
                                   className={`w-full pl-8 pr-3 py-2 rounded-xl border text-xs font-bold outline-none transition ${inputBg}`}
@@ -758,7 +1087,10 @@ export default function AgentManagement() {
                               </div>
                               {item.proposedPayableAmount && (
                                 <span className="text-[10px] font-semibold text-amber-500">
-                                  Proposed: ₹{item.proposedPayableAmount.toLocaleString("en-IN")}
+                                  Proposed: ₹
+                                  {item.proposedPayableAmount.toLocaleString(
+                                    "en-IN",
+                                  )}
                                 </span>
                               )}
                             </div>
@@ -772,17 +1104,26 @@ export default function AgentManagement() {
                                   isPending
                                     ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
                                     : isRejected
-                                    ? "bg-red-500/10 text-red-500 border border-red-500/20"
-                                    : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
+                                      ? "bg-red-500/10 text-red-500 border border-red-500/20"
+                                      : "bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"
                                 }`}
                               >
-                                {isPending && <Clock className="w-3.5 h-3.5 animate-spin" />}
-                                {isRejected && <XCircle className="w-3.5 h-3.5" />}
-                                {!isPending && !isRejected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                {isPending && (
+                                  <Clock className="w-3.5 h-3.5 animate-spin" />
+                                )}
+                                {isRejected && (
+                                  <XCircle className="w-3.5 h-3.5" />
+                                )}
+                                {!isPending && !isRejected && (
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                )}
                                 {item.status}
                               </span>
                               {isRejected && item.rejectionReason && (
-                                <span className="text-[10px] text-red-400 max-w-[140px] truncate" title={item.rejectionReason}>
+                                <span
+                                  className="text-[10px] text-red-400 max-w-[140px] truncate"
+                                  title={item.rejectionReason}
+                                >
                                   {item.rejectionReason}
                                 </span>
                               )}
@@ -809,7 +1150,9 @@ export default function AgentManagement() {
                             </button>
 
                             {feedback && (
-                              <p className={`text-[10px] mt-1.5 font-semibold ${feedback.type === "success" ? "text-emerald-400" : "text-red-400"}`}>
+                              <p
+                                className={`text-[10px] mt-1.5 font-semibold ${feedback.type === "success" ? "text-emerald-400" : "text-red-400"}`}
+                              >
                                 {feedback.msg}
                               </p>
                             )}
@@ -832,8 +1175,13 @@ export default function AgentManagement() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>Agent Directory</h1>
-          <p className={`text-xs mt-1.5 ${mt}`}>Manage placement agent accounts, commissions, and onboarding checklist progress.</p>
+          <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>
+            Agent Directory
+          </h1>
+          <p className={`text-xs mt-1.5 ${mt}`}>
+            Manage placement agent accounts, commissions, and onboarding
+            checklist progress.
+          </p>
         </div>
         <button
           onClick={() => setShowCreateModal(true)}
@@ -846,7 +1194,9 @@ export default function AgentManagement() {
 
       {/* Filter and Search Bar */}
       <div className="flex flex-col md:flex-row gap-4">
-        <label className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-slate-200 text-slate-600 shadow-sm"}`}>
+        <label
+          className={`flex-1 flex items-center gap-2 px-3 py-2.5 rounded-xl border text-sm ${isDark ? "bg-white/5 border-white/10 text-white/60" : "bg-white border-slate-200 text-slate-600 shadow-sm"}`}
+        >
           <Search className="w-4 h-4 opacity-55" />
           <input
             type="text"
@@ -856,7 +1206,7 @@ export default function AgentManagement() {
             className="bg-transparent outline-none w-full text-xs"
           />
         </label>
-        
+
         <div className="flex gap-2">
           <select
             value={statusFilter}
@@ -869,7 +1219,7 @@ export default function AgentManagement() {
             <option value="onboarding">In Onboarding</option>
           </select>
 
-          <button 
+          <button
             onClick={fetchAgents}
             className={`p-2.5 rounded-xl border flex items-center justify-center cursor-pointer transition ${isDark ? "border-white/10 hover:bg-white/5 text-white/50" : "border-slate-200 hover:bg-slate-50 text-slate-500 shadow-sm"}`}
           >
@@ -886,29 +1236,57 @@ export default function AgentManagement() {
           </div>
         ) : filteredAgents.length === 0 ? (
           <div className="text-center py-10">
-            <p className={`text-xs ${mt}`}>No manning agents found matching your query.</p>
+            <p className={`text-xs ${mt}`}>
+              No manning agents found matching your query.
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className={`border-b pb-3 ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}>
+                <tr
+                  className={`border-b pb-3 ${isDark ? "border-white/5 text-white/30" : "border-slate-100 text-slate-400"} uppercase font-semibold tracking-wider`}
+                >
                   <th className="py-3.5 px-2">Name & Info</th>
-                  <th className="py-3.5 px-2 text-center">Agent Profile & Docs</th>
+                  <th className="py-3.5 px-2 text-center">
+                    Agent Profile & Docs
+                  </th>
                   <th className="py-3.5 px-2 text-center">Course Pricing</th>
                   <th className="py-3.5 px-2">Onboarding</th>
                   <th className="py-3.5 px-2">Status</th>
                   <th className="py-3.5 px-2 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className={isDark ? "divide-y divide-white/5" : "divide-y divide-slate-100"}>
+              <tbody
+                className={
+                  isDark
+                    ? "divide-y divide-white/5"
+                    : "divide-y divide-slate-100"
+                }
+              >
                 {filteredAgents.map((agent) => (
-                  <tr key={agent.id} className="hover:bg-white/[0.03] transition-all cursor-pointer group">
+                  <tr
+                    key={agent.id}
+                    className="hover:bg-white/[0.03] transition-all cursor-pointer group"
+                  >
                     {/* User Info - Click opens Agent Profile & Documents */}
-                    <td className="py-4 px-2" onClick={() => openAgentDetails(agent)}>
-                      <p className={`font-bold group-hover:text-[#3D5EF6] transition ${isDark ? "text-white/95" : "text-slate-800"}`}>{agent.name}</p>
-                      <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.email}</p>
-                      {agent.phone && <p className={`text-[10px] mt-0.5 ${labelText}`}>{agent.phone}</p>}
+                    <td
+                      className="py-4 px-2"
+                      onClick={() => openAgentDetails(agent)}
+                    >
+                      <p
+                        className={`font-bold group-hover:text-[#3D5EF6] transition ${isDark ? "text-white/95" : "text-slate-800"}`}
+                      >
+                        {agent.name}
+                      </p>
+                      <p className={`text-[10px] mt-0.5 ${labelText}`}>
+                        {agent.email}
+                      </p>
+                      {agent.phone && (
+                        <p className={`text-[10px] mt-0.5 ${labelText}`}>
+                          {agent.phone}
+                        </p>
+                      )}
                     </td>
 
                     {/* Agent Profile & Verification Documents Action Button */}
@@ -940,11 +1318,11 @@ export default function AgentManagement() {
                       <button
                         onClick={() => handleViewOnboarding(agent)}
                         className={`px-2.5 py-1 rounded-full text-[10px] font-bold flex items-center gap-1.5 transition ${
-                          agent.onboardingStatus === "Active" 
-                            ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20" 
+                          agent.onboardingStatus === "Active"
+                            ? "bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20"
                             : agent.onboardingStatus === "Inactive"
-                            ? "bg-red-500/10 text-red-500 hover:bg-red-500/20"
-                            : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
+                              ? "bg-red-500/10 text-red-500 hover:bg-red-500/20"
+                              : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
                         }`}
                       >
                         <CheckSquare className="w-3.5 h-3.5" />
@@ -954,10 +1332,16 @@ export default function AgentManagement() {
 
                     {/* Status */}
                     <td className="py-4 px-2">
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        agent.status === "Active" ? "bg-emerald-500/10 text-emerald-500" : "bg-red-500/10 text-red-500"
-                      }`}>
-                        {agent.status}
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                          agent.status === "Active"
+                            ? "bg-emerald-500/10 text-emerald-500"
+                            : agent.status === "Deactivated"
+                              ? "bg-red-500/10 text-red-500"
+                              : "bg-red-500/10 text-red-500"
+                        }`}
+                      >
+                        {agent.status || "Pending Verification"}
                       </span>
                     </td>
 
@@ -995,9 +1379,17 @@ export default function AgentManagement() {
                         <button
                           onClick={() => handleToggleStatus(agent)}
                           className={`p-1.5 rounded-lg border transition ${isDark ? "border-white/5 hover:bg-white/5 text-white/50 hover:text-white" : "border-slate-200 hover:bg-slate-50 text-slate-500 hover:text-slate-800"}`}
-                          title={agent.status === "Active" ? "Deactivate Account" : "Activate Account"}
+                          title={
+                            agent.status === "Active"
+                              ? "Deactivate Account"
+                              : "Activate Account"
+                          }
                         >
-                          {agent.status === "Active" ? <ToggleRight className="w-3.5 h-3.5 text-emerald-500" /> : <ToggleLeft className="w-3.5 h-3.5" />}
+                          {agent.status === "Active" ? (
+                            <ToggleRight className="w-3.5 h-3.5 text-emerald-500" />
+                          ) : (
+                            <ToggleLeft className="w-3.5 h-3.5" />
+                          )}
                         </button>
                       </div>
                     </td>
@@ -1012,8 +1404,10 @@ export default function AgentManagement() {
       {/* --- CREATE AGENT MODAL --- */}
       {showCreateModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
-            <button 
+          <div
+            className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}
+          >
+            <button
               onClick={() => setShowCreateModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
             >
@@ -1021,15 +1415,27 @@ export default function AgentManagement() {
             </button>
             <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
               <Users className="w-5 h-5 text-[#3D5EF6]" />
-              <h3 className="text-sm font-bold">Onboard New Manning Placement Agent</h3>
+              <h3 className="text-sm font-bold">
+                Onboard New Manning Placement Agent
+              </h3>
             </div>
 
-            {createError && <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">{createError}</p>}
-            {createSuccess && <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">Agent created successfully! Sending invite...</p>}
+            {createError && (
+              <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">
+                {createError}
+              </p>
+            )}
+            {createSuccess && (
+              <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">
+                Agent created successfully! Sending invite...
+              </p>
+            )}
 
             <form onSubmit={handleCreateAgent} className="space-y-4">
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Full Name *</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Full Name *
+                </label>
                 <input
                   type="text"
                   required
@@ -1041,7 +1447,9 @@ export default function AgentManagement() {
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Email Address *</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Email Address *
+                </label>
                 <input
                   type="email"
                   required
@@ -1053,7 +1461,9 @@ export default function AgentManagement() {
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Initial Account Password *</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Initial Account Password *
+                </label>
                 <input
                   type="password"
                   required
@@ -1065,7 +1475,9 @@ export default function AgentManagement() {
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Mobile Number (Optional)</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Mobile Number (Optional)
+                </label>
                 <input
                   type="text"
                   value={newPhone}
@@ -1076,7 +1488,9 @@ export default function AgentManagement() {
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>General Commission Rate (%)</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  General Commission Rate (%)
+                </label>
                 <input
                   type="number"
                   step="0.1"
@@ -1102,8 +1516,10 @@ export default function AgentManagement() {
       {/* --- RESET PASSWORD MODAL --- */}
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-sm p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
-            <button 
+          <div
+            className={`w-full max-w-sm p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}
+          >
+            <button
               onClick={() => setShowPasswordModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
             >
@@ -1113,14 +1529,27 @@ export default function AgentManagement() {
               <Key className="w-5 h-5 text-[#3D5EF6]" />
               <h3 className="text-sm font-bold">Reset Password</h3>
             </div>
-            <p className={`text-[11px] mb-4 ${labelText}`}>Reset password for {selectedAgent?.name}. The agent will use this to sign in.</p>
+            <p className={`text-[11px] mb-4 ${labelText}`}>
+              Reset password for {selectedAgent?.name}. The agent will use this
+              to sign in.
+            </p>
 
-            {passError && <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">{passError}</p>}
-            {passSuccess && <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">Password reset successfully!</p>}
+            {passError && (
+              <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">
+                {passError}
+              </p>
+            )}
+            {passSuccess && (
+              <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">
+                Password reset successfully!
+              </p>
+            )}
 
             <form onSubmit={handleResetPassword} className="space-y-4">
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>New Password</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  New Password
+                </label>
                 <input
                   type="password"
                   required
@@ -1145,8 +1574,10 @@ export default function AgentManagement() {
       {/* --- EDIT COMMISSIONS MODAL --- */}
       {showCommissionModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
-            <button 
+          <div
+            className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}
+          >
+            <button
               onClick={() => setShowCommissionModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
             >
@@ -1156,20 +1587,34 @@ export default function AgentManagement() {
               <Percent className="w-5 h-5 text-[#3D5EF6]" />
               <h3 className="text-sm font-bold">Commission overrides</h3>
             </div>
-            <p className={`text-[11px] mb-4 ${labelText}`}>Edit commission percentages for {selectedAgent?.name}.</p>
+            <p className={`text-[11px] mb-4 ${labelText}`}>
+              Edit commission percentages for {selectedAgent?.name}.
+            </p>
 
-            {commError && <p className="mb-4 text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">{commError}</p>}
-            {commSuccess && <p className="mb-4 text-xs text-emerald-500 bg-emerald-500/10 p-2 rounded-lg">Commissions updated successfully!</p>}
+            {commError && (
+              <p className="mb-4 text-xs text-red-500 bg-red-500/10 p-2 rounded-lg">
+                {commError}
+              </p>
+            )}
+            {commSuccess && (
+              <p className="mb-4 text-xs text-emerald-500 bg-emerald-500/10 p-2 rounded-lg">
+                Commissions updated successfully!
+              </p>
+            )}
 
             <form onSubmit={handleUpdateCommission} className="space-y-4">
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>General Commission (%)</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  General Commission (%)
+                </label>
                 <input
                   type="number"
                   step="0.1"
                   required
                   value={generalComm}
-                  onChange={(e) => setGeneralComm(parseFloat(e.target.value) || 5.0)}
+                  onChange={(e) =>
+                    setGeneralComm(parseFloat(e.target.value) || 5.0)
+                  }
                   placeholder="e.g. 5.0"
                   className={`w-full px-3 py-2 rounded-xl border text-xs outline-none ${inputBg}`}
                 />
@@ -1177,7 +1622,9 @@ export default function AgentManagement() {
 
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <label className={`text-[10px] font-bold ${labelText}`}>Course Override (STCW BST Override)</label>
+                  <label className={`text-[10px] font-bold ${labelText}`}>
+                    Course Override (STCW BST Override)
+                  </label>
                 </div>
                 <input
                   type="number"
@@ -1185,9 +1632,9 @@ export default function AgentManagement() {
                   value={courseComm["STCW BST"] || ""}
                   onChange={(e) => {
                     const val = parseFloat(e.target.value);
-                    setCourseComm(prev => ({
+                    setCourseComm((prev) => ({
                       ...prev,
-                      "STCW BST": isNaN(val) ? 0 : val
+                      "STCW BST": isNaN(val) ? 0 : val,
                     }));
                   }}
                   placeholder="e.g. 8.0 (Override general commission for BST)"
@@ -1209,8 +1656,10 @@ export default function AgentManagement() {
       {/* --- ONBOARDING DETAILS MODAL --- */}
       {showOnboardingModal && onboardingChecklist && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-2xl p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
-            <button 
+          <div
+            className={`w-full max-w-2xl p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl overflow-y-auto max-h-[90vh] ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}
+          >
+            <button
               onClick={() => setShowOnboardingModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
             >
@@ -1218,31 +1667,59 @@ export default function AgentManagement() {
             </button>
             <div className="flex items-center gap-2 border-b pb-4 mb-4 border-white/5">
               <CheckSquare className="w-5 h-5 text-[#3D5EF6]" />
-              <h3 className="text-sm font-bold">Onboarding & KYC Verification</h3>
+              <h3 className="text-sm font-bold">
+                Onboarding & KYC Verification
+              </h3>
             </div>
-            
+
             <div className="mb-6">
-              <p className={`text-xs font-bold ${isDark ? "text-white/80" : "text-slate-800"}`}>{selectedAgent?.name}</p>
-              <p className={`text-[10px] ${labelText}`}>Status: {onboardingChecklist.status}</p>
+              <p
+                className={`text-xs font-bold ${isDark ? "text-white/80" : "text-slate-800"}`}
+              >
+                {selectedAgent?.name}
+              </p>
+              <p className={`text-[10px] ${labelText}`}>
+                Status:{" "}
+                {onboardingChecklist?.status ||
+                  selectedAgent?.onboardingStatus ||
+                  "Profile Pending"}
+              </p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Checklist Column */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">Checklist Steps</h4>
-                {onboardingChecklist.checklist.map((step: any) => (
-                  <div key={step.step} className="flex items-start gap-3">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
-                      step.status === 'completed'
-                        ? "bg-emerald-500/10 text-emerald-500"
-                        : "bg-white/5 border border-white/10 text-white/30"
-                    }`}>
-                      {step.status === 'completed' ? <Check className="w-3.5 h-3.5" /> : step.step}
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">
+                  Checklist Steps
+                </h4>
+                {(onboardingChecklist?.checklist || []).map((step: any) => (
+                  <div
+                    key={step.step || step.label}
+                    className="flex items-start gap-3"
+                  >
+                    <div
+                      className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 mt-0.5 ${
+                        step.status === "completed"
+                          ? "bg-emerald-500/10 text-emerald-500"
+                          : "bg-white/5 border border-white/10 text-white/30"
+                      }`}
+                    >
+                      {step.status === "completed" ? (
+                        <Check className="w-3.5 h-3.5" />
+                      ) : (
+                        step.step
+                      )}
                     </div>
                     <div>
-                      <p className={`text-xs font-semibold ${step.status === 'completed' ? (isDark ? "text-white" : "text-slate-850") : (isDark ? "text-white/30" : "text-slate-400")}`}>{step.label}</p>
-                      <p className={`text-[10px] mt-0.5 ${step.status === 'completed' ? "text-emerald-500/80" : labelText}`}>
-                        {step.status === 'completed' ? 'Completed' : 'Pending'}
+                      <p
+                        className={`text-xs font-semibold ${step.status === "completed" ? (isDark ? "text-white" : "text-slate-850") : isDark ? "text-white/30" : "text-slate-400"}`}
+                      >
+                        {step.label}
+                      </p>
+                      <p
+                        className={`text-[10px] mt-0.5 ${step.status === "completed" ? "text-emerald-500/80" : labelText}`}
+                      >
+                        {step.status === "completed" ? "Completed" : "Pending"}
                       </p>
                     </div>
                   </div>
@@ -1251,16 +1728,26 @@ export default function AgentManagement() {
 
               {/* Documents Verification Column */}
               <div className="space-y-4">
-                <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">KYC Credentials Documents</h4>
-                {(!onboardingChecklist.documents || onboardingChecklist.documents.length === 0) ? (
-                  <p className={`text-xs italic ${mt}`}>No verification credentials uploaded yet.</p>
+                <h4 className="text-xs font-bold uppercase tracking-wider text-[#3D5EF6] mb-2">
+                  KYC Credentials Documents
+                </h4>
+                {!onboardingChecklist.documents ||
+                onboardingChecklist.documents.length === 0 ? (
+                  <p className={`text-xs italic ${mt}`}>
+                    No verification credentials uploaded yet.
+                  </p>
                 ) : (
                   <div className="space-y-3 max-h-[50vh] overflow-y-auto pr-1">
                     {onboardingChecklist.documents.map((doc: any) => (
-                      <div key={doc.id} className={`p-3 rounded-2xl border ${isDark ? "bg-slate-900/40 border-white/5" : "bg-slate-50 border-slate-200"}`}>
+                      <div
+                        key={doc.id}
+                        className={`p-3 rounded-2xl border ${isDark ? "bg-slate-900/40 border-white/5" : "bg-slate-50 border-slate-200"}`}
+                      >
                         <div className="flex justify-between items-start">
                           <div>
-                            <p className="text-xs font-bold capitalize">{doc.type.replace(/([A-Z])/g, ' $1')}</p>
+                            <p className="text-xs font-bold capitalize">
+                              {doc.type.replace(/([A-Z])/g, " $1")}
+                            </p>
                             <a
                               href={`http://localhost:4000${doc.url}`}
                               target="_blank"
@@ -1273,41 +1760,103 @@ export default function AgentManagement() {
                               const rawName = doc.name || "";
                               if (rawName.includes("|||")) {
                                 try {
-                                  const meta = JSON.parse(rawName.split("|||")[1]);
+                                  const meta = JSON.parse(
+                                    rawName.split("|||")[1],
+                                  );
                                   return (
-                                    <div className={`mt-2 space-y-0.5 text-[9px] border-l pl-2 font-semibold ${isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}>
-                                      {meta.number && <p><span className="opacity-60">Number:</span> {meta.number}</p>}
-                                      {meta.issueDate && <p><span className="opacity-60">Issued:</span> {new Date(meta.issueDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
-                                      {doc.expiryDate && <p><span className="opacity-60">Expires:</span> {new Date(doc.expiryDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</p>}
-                                      {meta.issuePlace && <p><span className="opacity-60">Place:</span> {meta.issuePlace}</p>}
+                                    <div
+                                      className={`mt-2 space-y-0.5 text-[9px] border-l pl-2 font-semibold ${isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}
+                                    >
+                                      {meta.number && (
+                                        <p>
+                                          <span className="opacity-60">
+                                            Number:
+                                          </span>{" "}
+                                          {meta.number}
+                                        </p>
+                                      )}
+                                      {meta.issueDate && (
+                                        <p>
+                                          <span className="opacity-60">
+                                            Issued:
+                                          </span>{" "}
+                                          {new Date(
+                                            meta.issueDate,
+                                          ).toLocaleDateString("en-IN", {
+                                            day: "numeric",
+                                            month: "short",
+                                            year: "numeric",
+                                          })}
+                                        </p>
+                                      )}
+                                      {doc.expiryDate && (
+                                        <p>
+                                          <span className="opacity-60">
+                                            Expires:
+                                          </span>{" "}
+                                          {new Date(
+                                            doc.expiryDate,
+                                          ).toLocaleDateString("en-IN", {
+                                            day: "numeric",
+                                            month: "short",
+                                            year: "numeric",
+                                          })}
+                                        </p>
+                                      )}
+                                      {meta.issuePlace && (
+                                        <p>
+                                          <span className="opacity-60">
+                                            Place:
+                                          </span>{" "}
+                                          {meta.issuePlace}
+                                        </p>
+                                      )}
                                     </div>
                                   );
                                 } catch (e) {
-                                  console.warn("Failed to parse document metadata JSON:", e);
+                                  console.warn(
+                                    "Failed to parse document metadata JSON:",
+                                    e,
+                                  );
                                 }
                               } else if (doc.expiryDate) {
                                 return (
-                                  <div className={`mt-2 space-y-0.5 text-[9px] border-l pl-2 font-semibold ${isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}>
-                                    <p><span className="opacity-60">Expires:</span> {new Date(doc.expiryDate).toLocaleDateString("en-IN", { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+                                  <div
+                                    className={`mt-2 space-y-0.5 text-[9px] border-l pl-2 font-semibold ${isDark ? "border-white/10 text-white/50" : "border-slate-200 text-slate-500"}`}
+                                  >
+                                    <p>
+                                      <span className="opacity-60">
+                                        Expires:
+                                      </span>{" "}
+                                      {new Date(
+                                        doc.expiryDate,
+                                      ).toLocaleDateString("en-IN", {
+                                        day: "numeric",
+                                        month: "short",
+                                        year: "numeric",
+                                      })}
+                                    </p>
                                   </div>
                                 );
                               }
                               return null;
                             })()}
                           </div>
-                          <span className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
-                            doc.status === 'Verified'
-                              ? "bg-emerald-500/10 text-emerald-500"
-                              : doc.status === 'Rejected'
-                              ? "bg-red-500/10 text-red-500"
-                              : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
-                          }`}>
+                          <span
+                            className={`px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${
+                              doc.status === "Verified"
+                                ? "bg-emerald-500/10 text-emerald-500"
+                                : doc.status === "Rejected"
+                                  ? "bg-red-500/10 text-red-500"
+                                  : "bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/10"
+                            }`}
+                          >
                             {doc.status}
                           </span>
                         </div>
 
                         {/* Verification Actions */}
-                        {doc.status !== 'Verified' && (
+                        {doc.status !== "Verified" && (
                           <div className="mt-3 pt-3 border-t border-white/5 flex flex-col gap-2">
                             {verifyingDocId === doc.id ? (
                               <div className="space-y-2">
@@ -1315,7 +1864,9 @@ export default function AgentManagement() {
                                   type="text"
                                   placeholder="Reason / Remarks (mandatory for reject)"
                                   value={verificationRemarks}
-                                  onChange={(e) => setVerificationRemarks(e.target.value)}
+                                  onChange={(e) =>
+                                    setVerificationRemarks(e.target.value)
+                                  }
                                   className={`w-full px-2.5 py-1.5 rounded-lg border text-[10px] outline-none ${inputBg}`}
                                 />
                                 <div className="flex gap-2 justify-end">
@@ -1326,7 +1877,13 @@ export default function AgentManagement() {
                                     Cancel
                                   </button>
                                   <button
-                                    onClick={() => handleVerifyDocument(selectedAgent.id, doc.id, 'Rejected')}
+                                    onClick={() =>
+                                      handleVerifyDocument(
+                                        selectedAgent.id,
+                                        doc.id,
+                                        "Rejected",
+                                      )
+                                    }
                                     disabled={!verificationRemarks.trim()}
                                     className="px-2.5 py-1 rounded bg-red-600 hover:bg-red-500 text-[9px] text-white disabled:opacity-50"
                                   >
@@ -1343,7 +1900,13 @@ export default function AgentManagement() {
                                   Reject
                                 </button>
                                 <button
-                                  onClick={() => handleVerifyDocument(selectedAgent.id, doc.id, 'Verified')}
+                                  onClick={() =>
+                                    handleVerifyDocument(
+                                      selectedAgent.id,
+                                      doc.id,
+                                      "Verified",
+                                    )
+                                  }
                                   className="px-2.5 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-[9px] text-white"
                                 >
                                   Verify
@@ -1365,8 +1928,10 @@ export default function AgentManagement() {
       {/* --- EDIT AGENT MODAL --- */}
       {showEditModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}>
-            <button 
+          <div
+            className={`w-full max-w-md p-6 rounded-[16px] card-elevated border-0 relative shadow-2xl ${isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"}`}
+          >
+            <button
               onClick={() => setShowEditModal(false)}
               className="absolute top-4 right-4 p-1 rounded-lg hover:bg-white/5 opacity-50 hover:opacity-100 transition cursor-pointer"
             >
@@ -1377,12 +1942,22 @@ export default function AgentManagement() {
               <h3 className="text-sm font-bold">Edit Agent Information</h3>
             </div>
 
-            {editError && <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">{editError}</p>}
-            {editSuccess && <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">Agent profile updated successfully!</p>}
+            {editError && (
+              <p className="mb-4 text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">
+                {editError}
+              </p>
+            )}
+            {editSuccess && (
+              <p className="mb-4 text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold">
+                Agent profile updated successfully!
+              </p>
+            )}
 
             <form onSubmit={handleEditAgent} className="space-y-4">
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Full Name *</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Full Name *
+                </label>
                 <input
                   type="text"
                   required
@@ -1393,7 +1968,9 @@ export default function AgentManagement() {
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Email Address *</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Email Address *
+                </label>
                 <input
                   type="email"
                   required
@@ -1404,7 +1981,9 @@ export default function AgentManagement() {
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Mobile Number</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Mobile Number
+                </label>
                 <input
                   type="text"
                   value={editPhone}
@@ -1414,7 +1993,9 @@ export default function AgentManagement() {
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Agency Company Name</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Agency Company Name
+                </label>
                 <input
                   type="text"
                   value={editAgencyName}
@@ -1424,7 +2005,9 @@ export default function AgentManagement() {
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-bold ${labelText}`}>Office Premises Address</label>
+                <label className={`text-[10px] font-bold ${labelText}`}>
+                  Office Premises Address
+                </label>
                 <input
                   type="text"
                   value={editOfficeAddress}
@@ -1444,5 +2027,19 @@ export default function AgentManagement() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function AgentManagement() {
+  return (
+    <React.Suspense
+      fallback={
+        <div className="flex h-[60vh] items-center justify-center">
+          <div className="w-8 h-8 border-4 border-[#3D5EF6] border-t-transparent rounded-full animate-spin" />
+        </div>
+      }
+    >
+      <AgentManagementContent />
+    </React.Suspense>
   );
 }

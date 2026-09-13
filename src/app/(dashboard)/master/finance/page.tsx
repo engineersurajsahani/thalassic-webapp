@@ -6,15 +6,19 @@ import { useTheme } from "@/providers/theme-provider";
 import {
   TrendingUp, ArrowUpRight, ArrowDownRight,
   Wallet, CreditCard, Clock, CheckCircle2,
-  Download, Handshake, ChevronDown,
+  XCircle, Filter, Download, ChevronDown, Handshake,
+  Calendar, Layers, ShieldCheck, Building2,
 } from "lucide-react";
 import {
-  BarChart, Bar, XAxis, YAxis,
-  CartesianGrid, Tooltip, ResponsiveContainer, Cell,
+  AreaChart, Area, BarChart, Bar, XAxis, YAxis,
+  CartesianGrid, Tooltip, ResponsiveContainer, Cell, PieChart, Pie,
 } from "recharts";
 import FinanceTabs from "@/components/master/FinanceTabs";
 import {
   MOCK_PAYMENTS,
+  MOCK_PARTNERS,
+  MOCK_PARTNER_SETTLEMENTS,
+  MOCK_INSTITUTE_FINANCE,
 } from "@/data/master-portal-mock";
 
 // Monthly Trend data
@@ -37,8 +41,7 @@ const PAYMENT_STREAMS = [
 export default function FinanceOverviewPage() {
   const { theme } = useTheme();
   const dk = theme === "dark";
-
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [dateFilter, setDateFilter] = useState("Current Year (2026)");
 
   const fmt = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
@@ -93,6 +96,7 @@ export default function FinanceOverviewPage() {
       {/* PRD 2.1 Secondary Navigation Tabs */}
       <FinanceTabs />
 
+      {/* Scope Disclaimer & Partner Settlement Mechanics */}
       {/* PRD 2.2 Finance Overview Primary KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
         {[
@@ -131,29 +135,35 @@ export default function FinanceOverviewPage() {
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#8b5cf6" }} />
+                <span className="w-2.5 h-2.5 rounded-full bg-violet-500" />
                 <span className={`text-[11px] ${mt}`}>Partner Revenue</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-2.5 rounded-sm inline-block" style={{ background: "#0ea5e9" }} />
+                <span className="w-2.5 h-2.5 rounded-full bg-sky-500" />
                 <span className={`text-[11px] ${mt}`}>Direct Revenue</span>
               </div>
             </div>
           </div>
           <div className="px-4 py-4">
             <ResponsiveContainer width="100%" height={240}>
-              <BarChart data={REVENUE_TREND} margin={{ top: 10, right: 10, left: 0, bottom: 0 }} barSize={14} barGap={4} barCategoryGap="25%">
-                <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.06)"} vertical={false} />
+              <AreaChart data={REVENUE_TREND} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="gPrt" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="gDir" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.05)"} />
                 <XAxis dataKey="month" tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#94a3b8" }} axisLine={false} tickLine={false} />
                 <YAxis tickFormatter={v => `₹${v/1000}K`} tick={{ fontSize: 11, fill: dk ? "rgba(255,255,255,0.4)" : "#94a3b8" }} axisLine={false} tickLine={false} />
-                <Tooltip
-                  contentStyle={ttStyle}
-                  formatter={(v: unknown, name: unknown) => [`₹${Number(v || 0).toLocaleString("en-IN")}`, String(name || "")]}
-                  cursor={{ fill: dk ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)" }}
-                />
-                <Bar dataKey="partnerRevenue" name="Partner Revenue" fill="#8b5cf6" radius={[3, 3, 0, 0]} />
-                <Bar dataKey="directRevenue" name="Direct Revenue" fill="#0ea5e9" radius={[3, 3, 0, 0]} />
-              </BarChart>
+                <Tooltip contentStyle={ttStyle} formatter={(v: any, name: any) => [`₹${Number(v || 0).toLocaleString()}`, String(name || "")] as any} />
+                <Area type="monotone" dataKey="partnerRevenue" name="Partner Revenue" stroke="#8b5cf6" strokeWidth={2} fill="url(#gPrt)" />
+                <Area type="monotone" dataKey="directRevenue"  name="Direct Revenue"  stroke="#0ea5e9" strokeWidth={2} fill="url(#gDir)" />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
@@ -170,7 +180,7 @@ export default function FinanceOverviewPage() {
                 <CartesianGrid strokeDasharray="3 3" stroke={dk ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.05)"} horizontal={false} />
                 <XAxis type="number" tickFormatter={v => `₹${v/100000}L`} tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.3)" : "#94a3b8" }} axisLine={false} tickLine={false} />
                 <YAxis type="category" dataKey="name" tick={{ fontSize: 10, fill: dk ? "rgba(255,255,255,0.5)" : "#64748b" }} axisLine={false} tickLine={false} width={100} />
-                <Tooltip contentStyle={ttStyle} formatter={(v: unknown) => [`₹${Number(v || 0).toLocaleString()}`, "Volume"]} />
+                <Tooltip contentStyle={ttStyle} formatter={(v: any) => [`₹${Number(v || 0).toLocaleString()}`, "Volume"] as any} />
                 <Bar dataKey="value" radius={[0, 6, 6, 0]}>
                   {PAYMENT_STREAMS.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Bar>
@@ -200,113 +210,59 @@ export default function FinanceOverviewPage() {
           </div>
           <Link
             href="/master/finance/payments"
-            className="flex items-center gap-1.5 text-xs font-semibold text-black dark:text-white hover:opacity-80"
+            className="flex items-center gap-1.5 text-xs font-semibold text-sky-500 hover:text-sky-400"
           >
             View All Payments <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full table-fixed min-w-[960px] text-sm">
-            <colgroup>
-              <col className="w-[11%]" />
-              <col className="w-[15%]" />
-              <col className="w-[19%]" />
-              <col className="w-[7%]" />
-              <col className="w-[12%]" />
-              <col className="w-[10%]" />
-              <col className="w-[10%]" />
-              <col className="w-[7%]" />
-              <col className="w-[9%]" />
-            </colgroup>
+          <table className="w-full text-sm">
             <thead>
               <tr className={thCls}>
-                <th className="text-left pl-6 pr-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Payment ID</th>
-                <th className="text-left px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Seafarer</th>
-                <th className="text-left px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Course</th>
-                <th className="text-left px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Type</th>
-                <th className="text-left px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Partner</th>
-                <th className="text-right px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Amount Payable</th>
-                <th className="text-right px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Amount Received</th>
-                <th className="text-left px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Status</th>
-                <th className="text-right pl-3 pr-6 py-3.5 text-[10px] font-semibold uppercase tracking-wider">Date</th>
+                {["Payment ID", "Seafarer", "Course", "Type", "Partner", "Amount Payable", "Amount Received", "Status", "Date"].map(h => (
+                  <th key={h} className="text-left px-6 py-3.5 text-[10px] font-semibold uppercase tracking-wider">{h}</th>
+                ))}
               </tr>
             </thead>
             <tbody className={`divide-y ${dv}`}>
-              {MOCK_PAYMENTS.slice(0, rowsPerPage).map(t => (
+              {MOCK_PAYMENTS.slice(0, 5).map(t => (
                 <tr key={t.id} className={`${rh} transition-colors`}>
-                  <td className={`pl-6 pr-3 py-4 text-[12px] font-mono font-semibold truncate ${dk ? "text-white" : "text-black"}`}>
-                    {t.id}
+                  <td className={`px-6 py-4 text-[12px] font-mono font-semibold ${dk ? "text-sky-400" : "text-sky-600"}`}>{t.id}</td>
+                  <td className="px-6 py-4">
+                    <p className={`text-[12px] font-semibold ${ht}`}>{t.seafarerName}</p>
+                    <p className={`text-[10px] font-mono ${mt}`}>INDOS: {t.indosNumber}</p>
                   </td>
-                  <td className="px-3 py-4">
-                    <p className={`text-[12px] font-semibold truncate ${ht}`}>{t.seafarerName}</p>
-                    <p className={`text-[10px] font-mono truncate ${mt}`}>INDOS: {t.indosNumber}</p>
-                  </td>
-                  <td className="px-3 py-4">
-                    <p className={`text-[12px] leading-snug line-clamp-2 ${ht}`} title={t.courseTitle}>
-                      {t.courseTitle}
-                    </p>
-                  </td>
-                  <td className="px-3 py-4">
-                    <span className={`text-[11px] font-semibold whitespace-nowrap ${
-                      dk ? "text-white" : "text-black"
+                  <td className={`px-6 py-4 text-[12px] ${ht}`}>{t.courseTitle}</td>
+                  <td className="px-6 py-4">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      t.purchaseType === "Partner"
+                        ? "bg-violet-500/10 text-violet-400 border-violet-500/20"
+                        : t.purchaseType === "Institute Billable"
+                        ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20"
+                        : "bg-sky-500/10 text-sky-400 border-sky-500/20"
                     }`}>
                       {t.purchaseType}
                     </span>
                   </td>
-                  <td className="px-3 py-4">
-                    <p className={`text-[12px] leading-snug line-clamp-2 ${mt}`}>
-                      {t.partnerName || "—"}
-                    </p>
-                  </td>
-                  <td className={`px-3 py-4 text-right text-[12px] font-bold ${ht}`}>
-                    ₹{t.amountPayable.toLocaleString()}
-                  </td>
-                  <td className={`px-3 py-4 text-right text-[12px] font-bold ${
-                    t.amountReceived === t.amountPayable
-                      ? (dk ? "text-white" : "text-black")
-                      : (dk ? "text-amber-400" : "text-amber-600")
-                  }`}>
+                  <td className={`px-6 py-4 text-[12px] ${mt}`}>{t.partnerName}</td>
+                  <td className={`px-6 py-4 text-[12px] font-bold ${ht}`}>₹{t.amountPayable.toLocaleString()}</td>
+                  <td className={`px-6 py-4 text-[12px] font-bold ${t.amountReceived === t.amountPayable ? "text-emerald-400" : "text-amber-400"}`}>
                     ₹{t.amountReceived.toLocaleString()}
                   </td>
-                  <td className="px-3 py-4">
-                    <span className={`text-[11px] font-semibold whitespace-nowrap ${
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                       t.paymentStatus === "Received"
-                        ? "text-emerald-600 dark:text-emerald-400"
-                        : "text-amber-600 dark:text-amber-400"
+                        ? "bg-emerald-500/10 text-emerald-400"
+                        : "bg-amber-500/10 text-amber-400"
                     }`}>
                       {t.paymentStatus}
                     </span>
                   </td>
-                  <td className={`pl-3 pr-6 py-4 text-right text-[11px] ${mt} whitespace-nowrap`}>
-                    {t.paymentDate}
-                  </td>
+                  <td className={`px-6 py-4 text-[11px] ${mt}`}>{t.paymentDate}</td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-        <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex flex-wrap items-center justify-between gap-4 text-xs ${mt}`}>
-          <div className="flex items-center gap-2">
-            <span className={`text-xs ${mt}`}>Rows per page:</span>
-            <div className="relative inline-flex items-center">
-              <select
-                value={rowsPerPage}
-                onChange={e => setRowsPerPage(Number(e.target.value))}
-                className={`appearance-none text-xs font-medium py-1 pl-2.5 pr-7 rounded-lg border cursor-pointer outline-none transition-colors ${
-                  dk
-                    ? "bg-[#0c1a2e] border-white/10 text-white hover:border-white/20 focus:border-sky-500"
-                    : "bg-white border-slate-200 text-slate-700 hover:border-slate-300 focus:border-sky-500 shadow-sm"
-                }`}
-              >
-                <option value={10}>10</option>
-                <option value={25}>25</option>
-                <option value={50}>50</option>
-                <option value={100}>100</option>
-              </select>
-              <ChevronDown className={`w-3.5 h-3.5 absolute right-2 pointer-events-none ${mt}`} />
-            </div>
-          </div>
-          <span>Compliant with PRD §2.3 (Direct vs Partner separation)</span>
         </div>
       </div>
 

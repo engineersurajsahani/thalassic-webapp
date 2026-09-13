@@ -14,8 +14,8 @@ export interface AgentDashboard {
     time: string;
     status: string;
   }[];
-  recentPurchases?: any[];
-  recentSettlements?: any[];
+  recentPurchases?: unknown[];
+  recentSettlements?: unknown[];
   referralCode?: string;
 }
 
@@ -189,34 +189,12 @@ export const agentService = {
         );
         return {
           stats: {
-            activeLeads: 14,
-            convertedSeafarers: 52,
-            pendingCommissions: 32000,
-            totalEarned: 195000,
+            activeLeads: 0,
+            convertedSeafarers: 0,
+            pendingCommissions: 0,
+            totalEarned: 0,
           },
-          recentActivities: [
-            {
-              id: "1",
-              type: "purchase",
-              title: "Purchased AFF Course for Rajesh Kumar",
-              time: "2 hours ago",
-              status: "Completed",
-            },
-            {
-              id: "2",
-              type: "settlement",
-              title: "Settlement submitted for ₹45,000",
-              time: "Yesterday",
-              status: "Pending",
-            },
-            {
-              id: "3",
-              type: "seafarer",
-              title: "New seafarer registered: Amit Patel",
-              time: "3 days ago",
-              status: "Active",
-            },
-          ],
+          recentActivities: [],
         };
       }
     }
@@ -316,7 +294,7 @@ export const agentService = {
     totalAmount?: number;
     proofUrl?: string;
     proofFileName?: string;
-    allocations?: any[];
+    allocations?: unknown[];
   }): Promise<Settlement> {
     const response = await api.post("/partner/settlements", settlementData);
     return response.data;
@@ -418,44 +396,7 @@ export const agentService = {
         const res = await api.get(`/agent/seafarers/${seafarerId}/documents`);
         return res.data;
       } catch {
-        return [
-          {
-            id: "doc-01",
-            seafarerId,
-            type: "Passport Copy",
-            documentNumber: "Z1234567",
-            issueDate: "2020-05-15",
-            expiryDate: "2030-05-14",
-            placeOfIssue: "Mumbai",
-            status: "Verified",
-            uploadedAt: "2026-08-01T10:00:00Z",
-            fileName: "Passport_Z1234567.pdf",
-          },
-          {
-            id: "doc-02",
-            seafarerId,
-            type: "INDoS Certificate",
-            documentNumber: "20N1234",
-            issueDate: "2020-01-10",
-            expiryDate: "N/A",
-            placeOfIssue: "Noida",
-            status: "Verified",
-            uploadedAt: "2026-08-01T10:05:00Z",
-            fileName: "INDOS_20N1234.pdf",
-          },
-          {
-            id: "doc-03",
-            seafarerId,
-            type: "CDC (Continuous Discharge Certificate)",
-            documentNumber: "MUM123456",
-            issueDate: "2019-11-20",
-            expiryDate: "2029-11-19",
-            placeOfIssue: "Mumbai",
-            status: "Verified",
-            uploadedAt: "2026-08-01T10:10:00Z",
-            fileName: "CDC_MUM123456.pdf",
-          },
-        ];
+        return [];
       }
     }
   },
@@ -657,7 +598,7 @@ export const agentService = {
     oldPassword?: string;
     newPassword?: string;
     currentPassword?: string;
-  }): Promise<any> {
+  }): Promise<{ success: boolean; message?: string }> {
     const response = await api.put("/users/security", data);
     return response.data;
   },

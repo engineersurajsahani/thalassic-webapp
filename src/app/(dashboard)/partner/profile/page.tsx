@@ -18,10 +18,8 @@ import {
 } from "lucide-react";
 
 export default function PartnerProfilePage() {
-  const { theme } = useTheme();
+  const { theme, mounted } = useTheme();
   const { user } = useAuth();
-  const mounted = true;
-  useEffect(() => setMounted(true), []);
   const isDark = mounted ? theme === "dark" : true;
 
   const [profile, setProfile] = useState<any>({

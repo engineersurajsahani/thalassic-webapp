@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { api, setCookie, getCookie, deleteCookie } from "@/lib/axios";
 
 interface User {
@@ -24,14 +23,11 @@ interface User {
     dob?: string;
     placeOfBirth?: string;
     nationality?: string;
-    gender?: string;
-    maritalStatus?: string;
     indosNumber?: string;
     address?: string;
     city?: string;
     state?: string;
     country?: string;
-    zipCode?: string;
     profilePicture?: string;
     seaService?: any[];
   };
@@ -80,17 +76,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return response.data;
         }
       }
-      const authRes = await api.get("/auth/profile").catch(async () => {
-        const token = getCookie("auth_token");
-        if (token) {
-          const localRes = await axios.get("/api/auth/profile", {
-            headers: { Authorization: `Bearer ${token}` }
-          }).catch(() => null);
-          return localRes;
-        }
-        return null;
-      });
-      return authRes?.data || null;
+      const authRes = await api.get("/auth/profile");
+      return authRes.data;
     } catch (err) {
       console.warn("Session profile fetch status (expected if guest):", err);
       return null;
