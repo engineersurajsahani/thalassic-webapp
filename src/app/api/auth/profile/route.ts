@@ -7,8 +7,21 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+    let apiUrl =
+      process.env.NEXT_PUBLIC_API_URL?.trim() ||
+      (process.env.NODE_ENV === "production"
+        ? "https://thalassic-api.onrender.com/api/v1"
+        : "http://localhost:4000/api/v1");
+
+    apiUrl = apiUrl.replace(/\/+$/, "");
+    if (!apiUrl.endsWith("/api/v1")) {
+      if (apiUrl.endsWith("/api")) {
+        apiUrl = `${apiUrl}/v1`;
+      } else {
+        apiUrl = `${apiUrl}/api/v1`;
+      }
+    }
+
     const backendRes = await fetch(`${apiUrl}/auth/profile`, {
       method: "GET",
       headers: {

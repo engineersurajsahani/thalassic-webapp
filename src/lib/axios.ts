@@ -2,23 +2,34 @@ import axios from "axios";
 
 // ISSUE-030: Validate environment variables at build time
 // Throw an error in development if NEXT_PUBLIC_API_URL is not set
-const getApiUrl = () => {
-  const url = process.env.NEXT_PUBLIC_API_URL;
-  if (!url || url.trim() === "") {
+export const getApiUrl = () => {
+  let url = process.env.NEXT_PUBLIC_API_URL?.trim();
+  if (!url) {
     if (typeof window !== "undefined") {
-      // In browser, warn but use default
-      console.warn(
-        "NEXT_PUBLIC_API_URL is not configured. Using default: http://localhost:4000/api",
-      );
-      return "http://localhost:4000/api";
+      if (window.location.hostname.includes("onrender.com")) {
+        url = "https://thalassic-api.onrender.com/api/v1";
+      } else {
+        url = "http://localhost:4000/api/v1";
+      }
+    } else {
+      url =
+        process.env.NODE_ENV === "production"
+          ? "https://thalassic-api.onrender.com/api/v1"
+          : "http://localhost:4000/api/v1";
     }
-    // In build server-side, throw error
-    throw new Error(
-      "NEXT_PUBLIC_API_URL environment variable is required. " +
-        "Please set it in your .env.local file (e.g., NEXT_PUBLIC_API_URL=http://localhost:4000/api)",
-    );
   }
-  return url.trim();
+
+  url = url.replace(/\/+$/, "");
+
+  if (!url.endsWith("/api/v1")) {
+    if (url.endsWith("/api")) {
+      url = `${url}/v1`;
+    } else {
+      url = `${url}/api/v1`;
+    }
+  }
+
+  return url;
 };
 
 // ISSUE-016, ISSUE-017: Single canonical token resolution

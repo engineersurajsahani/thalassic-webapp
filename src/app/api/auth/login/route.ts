@@ -7,8 +7,21 @@ export async function POST(request: NextRequest) {
     const cleanEmail = (email || "").trim().toLowerCase();
     const cleanPassword = (password || "").trim();
 
-    const apiUrl =
-      process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+    let apiUrl =
+      process.env.NEXT_PUBLIC_API_URL?.trim() ||
+      (process.env.NODE_ENV === "production"
+        ? "https://thalassic-api.onrender.com/api/v1"
+        : "http://localhost:4000/api/v1");
+
+    apiUrl = apiUrl.replace(/\/+$/, "");
+    if (!apiUrl.endsWith("/api/v1")) {
+      if (apiUrl.endsWith("/api")) {
+        apiUrl = `${apiUrl}/v1`;
+      } else {
+        apiUrl = `${apiUrl}/api/v1`;
+      }
+    }
+
     const backendRes = await fetch(`${apiUrl}/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
