@@ -23,13 +23,16 @@ interface User {
     dob?: string;
     placeOfBirth?: string;
     nationality?: string;
+    gender?: string;
+    maritalStatus?: string;
     indosNumber?: string;
     address?: string;
     city?: string;
     state?: string;
     country?: string;
+    zipCode?: string;
     profilePicture?: string;
-    seaService?: any[];
+    seaService?: Record<string, unknown>[];
   };
 }
 
@@ -37,13 +40,13 @@ interface AuthContextType {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: any) => Promise<any>;
-  register: (userDetails: any) => Promise<any>;
+  login: (credentials: Record<string, unknown>) => Promise<User>;
+  register: (userDetails: Record<string, unknown>) => Promise<User>;
   logout: () => Promise<void>;
-  updateProfile: (details: any) => Promise<void>;
+  updateProfile: (details: Record<string, unknown>) => Promise<void>;
   uploadProfilePhoto: (file: File) => Promise<string>;
-  updateSecurity: (securityDetails: any) => Promise<void>;
-  addSeaService: (record: any) => Promise<any>;
+  updateSecurity: (securityDetails: Record<string, unknown>) => Promise<void>;
+  addSeaService: (record: Record<string, unknown>) => Promise<unknown>;
   deleteSeaService: (recordId: string) => Promise<void>;
   refreshProfile: () => Promise<void>;
 }
@@ -57,17 +60,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async () => {
     try {
-      // Only call seafarer profile endpoint for seafarer roles
-      const role = getCookie("user_role") || "";
-      const roleNorm = role?.toLowerCase().replace('_', '-');
-      if (roleNorm === "seafarer" || roleNorm === "seafarer") {
-        const response = await api.get("/users/profile").catch(() => null);
-        if (response && response.data && response.data.id) {
-          return response.data;
-        }
+      const token = getCookie("auth_token");
+      if (!token) return null;
+
+      const authRes = await api.get("/auth/profile").catch(() => null);
+      if (authRes && authRes.data && authRes.data.id) {
+        return authRes.data;
       }
-      const authRes = await api.get("/auth/profile");
-      return authRes.data;
+      return null;
     } catch (err) {
       console.warn("Session profile fetch status (expected if guest):", err);
       return null;
@@ -83,32 +83,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const bootstrapSession = async () => {
-      // ISSUE-016: Use shared resolveAuthToken() from axios instead of duplicating route logic
       const token = getCookie("auth_token");
-      let currentRole = "";
-
-      if (token && typeof window !== "undefined") {
-        const pathname = window.location.pathname;
-        if (pathname.startsWith("/agent-admin")) {
-          currentRole = "agent-admin";
-        } else if (pathname.startsWith("/agent")) {
-          currentRole = "agent";
-        } else if (pathname.startsWith("/company-admin")) {
-          currentRole = "company-admin";
-        } else if (pathname.startsWith("/master")) {
-          currentRole = "master";
-        } else if (pathname.startsWith("/seafarer") || pathname.startsWith("/seafarer")) {
-          currentRole = "seafarer";
-        }
-      }
 
       if (token) {
         const profileUser = await fetchProfile();
         if (profileUser) {
           setUser(profileUser);
-          const roleSuffix = profileUser.role.toLowerCase().replace('_', '-');
 
-          // ISSUE-017: Only set ONE cookie for onboarding status (not role-specific duplicates)
           if (profileUser.onboardingStatus) {
             setCookie("onboarding_status", profileUser.onboardingStatus);
           } else {
@@ -116,11 +97,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } else {
           // Token expired or invalid
-          // ISSUE-017: Clean up only the core auth cookies (not role-specific duplicates)
           deleteCookie("auth_token");
           deleteCookie("user_role");
           deleteCookie("onboarding_status");
-          router.push("/login");
+          setUser(null);
         }
       }
       setIsLoading(false);
@@ -129,42 +109,62 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     bootstrapSession();
   }, [router]);
 
-  const login = async (credentials: any) => {
+  const login = async (credentials: Record<string, unknown>) => {
     setIsLoading(true);
     try {
-      const response = await api.post("/auth/login", credentials);
-      const { token, user: loggedUser } = response.data;
-      const roleSuffix = loggedUser.role.toLowerCase().replace('_', '-');
+      const email = String(credentials.email || "")
+        .trim()
+        .toLowerCase();
+      const cleanPassword = String(credentials.password || "").trim();
 
-      // ISSUE-017: Only set ONE auth_token cookie (not multiple role-specific copies)
-      // The shared resolveAuthToken() function handles role-based token selection
+      if (!email || !cleanPassword) {
+        throw new Error("Email and password are required");
+      }
+
+      const response = await api.post("/auth/login", {
+        email,
+        password: cleanPassword,
+      });
+
+      const responseData = response.data;
+      if (!responseData || !responseData.token || !responseData.user) {
+        throw new Error("Invalid response from server");
+      }
+
+      const { token, user: loggedUser } = responseData;
+
+      // Ensure single unified cookies
       setCookie("auth_token", token);
       setCookie("user_role", loggedUser.role);
 
-      // ISSUE-017: Only ONE onboarding_status cookie (not role-specific duplicates)
       if (loggedUser.onboardingStatus) {
         setCookie("onboarding_status", loggedUser.onboardingStatus);
+      } else {
+        deleteCookie("onboarding_status");
       }
 
-      // Fetch full profile (includes nested seaService logs)
-      const fullProfile = await fetchProfile();
-      const finalUser = fullProfile || loggedUser;
-
-      setUser(finalUser);
-      return finalUser;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Login failed");
+      setUser(loggedUser);
+      return loggedUser;
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message ||
+          errorObj.message ||
+          "Invalid email or password",
+      );
     } finally {
       setIsLoading(false);
     }
   };
 
-  const register = async (userDetails: any) => {
+  const register = async (userDetails: Record<string, unknown>) => {
     setIsLoading(true);
     try {
       const response = await api.post("/auth/register", userDetails);
       const { token, user: registeredUser } = response.data;
-      const roleSuffix = registeredUser.role.toLowerCase().replace('_', '-');
 
       // ISSUE-017: Only set ONE auth_token cookie (not multiple role-specific copies)
       setCookie("auth_token", token);
@@ -180,8 +180,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       setUser(finalUser);
       return finalUser;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Registration failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Registration failed",
+      );
     } finally {
       setIsLoading(false);
     }
@@ -194,22 +200,56 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } catch (err) {
       console.error("Logout API call warning: ", err);
     } finally {
-      // ISSUE-017: Clean up only the core cookies
-      deleteCookie("auth_token");
-      deleteCookie("user_role");
-      deleteCookie("onboarding_status");
+      // Clean up all auth and session cookies
+      const cookieKeys = [
+        "auth_token",
+        "token",
+        "user_role",
+        "role",
+        "onboarding_status",
+        "onboarding_status_agent",
+        "onboarding_status_seafarer",
+        "onboarding_status_master",
+        "onboarding_status_company",
+      ];
+      cookieKeys.forEach((key) => deleteCookie(key));
+
+      // Clear local and session storage
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem("token");
+          localStorage.removeItem("auth_token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("user_role");
+          sessionStorage.clear();
+        } catch {
+          // Ignore storage access errors
+        }
+      }
+
       setUser(null);
       setIsLoading(false);
-      router.push("/login");
+
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      } else {
+        router.push("/login");
+      }
     }
   };
 
-  const updateProfile = async (details: any) => {
+  const updateProfile = async (details: Record<string, unknown>) => {
     try {
       await api.put("/users/profile", details);
       await refreshProfile();
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Profile update failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Profile update failed",
+      );
     }
   };
 
@@ -222,26 +262,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       });
       await refreshProfile();
       return res.data.profilePicture;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Profile photo upload failed. Please try again.");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message ||
+          "Profile photo upload failed. Please try again.",
+      );
     }
   };
 
-  const updateSecurity = async (securityDetails: any) => {
+  const updateSecurity = async (securityDetails: Record<string, unknown>) => {
     try {
       await api.put("/users/security", securityDetails);
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Security update failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Security update failed",
+      );
     }
   };
 
-  const addSeaService = async (record: any) => {
+  const addSeaService = async (record: Record<string, unknown>) => {
     try {
       const response = await api.post("/users/sea-service", record);
       await refreshProfile();
       return response.data;
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Sea service insert failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Sea service insert failed",
+      );
     }
   };
 
@@ -249,8 +308,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await api.delete(`/users/sea-service/${recordId}`);
       await refreshProfile();
-    } catch (err: any) {
-      throw new Error(err.response?.data?.message || "Sea service delete failed");
+    } catch (err: unknown) {
+      const errorObj = err as {
+        response?: { data?: { message?: string } };
+        message?: string;
+      };
+      throw new Error(
+        errorObj.response?.data?.message || "Sea service delete failed",
+      );
     }
   };
 

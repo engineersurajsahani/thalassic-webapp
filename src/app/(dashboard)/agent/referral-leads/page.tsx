@@ -129,37 +129,37 @@ export default function ReferralsTrackerPage() {
     switch (status) {
       case "Converted":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-emerald-400 bg-emerald-400/10 border border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border border-emerald-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A]">
             <CheckCircle2 className="w-3 h-3" /> Converted
           </span>
         );
       case "Expired":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-red-400 bg-red-400/10 border border-red-500/20" : "text-red-700 bg-red-50 border border-red-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FEE2E2] text-[#DC2626]">
             <XCircle className="w-3 h-3" /> Expired
           </span>
         );
       case "Cancelled":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-slate-400 bg-slate-400/10 border border-slate-500/20" : "text-slate-600 bg-slate-100 border border-slate-300"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FEE2E2] text-[#DC2626]">
             <XCircle className="w-3 h-3" /> Cancelled
           </span>
         );
       case "Contacted":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full ${isDark ? "text-blue-400 bg-blue-400/10 border border-blue-500/20" : "text-blue-700 bg-blue-50 border border-blue-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#EEF1FE] text-[#3D5EF6]">
             <Clock className="w-3 h-3" /> Contacted
           </span>
         );
       case "Registered":
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full animate-pulse ${isDark ? "text-indigo-400 bg-indigo-400/10 border border-indigo-500/20" : "text-indigo-700 bg-indigo-50 border border-indigo-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#EEF1FE] text-[#3D5EF6]">
             <Users className="w-3 h-3" /> Registered
           </span>
         );
       default:
         return (
-          <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full animate-pulse ${isDark ? "text-amber-400 bg-amber-400/10 border border-amber-500/20" : "text-amber-700 bg-amber-50 border border-amber-200"}`}>
+          <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FEF3C7] text-[#B45309]">
             <Clock className="w-3 h-3" /> New
           </span>
         );
@@ -169,13 +169,13 @@ export default function ReferralsTrackerPage() {
   const getPurchaseStatusBadge = (status: string) => {
     if (status === "Completed") {
       return (
-        <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${isDark ? "text-emerald-400 bg-emerald-400/10 border-emerald-500/20" : "text-emerald-700 bg-emerald-50 border-emerald-200"}`}>
+        <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#DCFCE7] text-[#16A34A]">
           <CheckCircle2 className="w-3 h-3" /> Completed
         </span>
       );
     }
     return (
-      <span className={`inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full border ${isDark ? "text-red-400 bg-red-400/10 border-red-500/20" : "text-red-700 bg-red-50 border-red-200"}`}>
+      <span className="inline-flex items-center gap-1 text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FEE2E2] text-[#DC2626]">
         <XCircle className="w-3 h-3" /> Cancelled
       </span>
     );
@@ -188,9 +188,9 @@ export default function ReferralsTrackerPage() {
     const diffTime = expiry.getTime() - now.getTime();
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     
-    if (diffDays <= 0) return <span className="text-red-500 font-extrabold text-[10px]">EXPIRED</span>;
-    if (diffDays <= 7) return <span className="text-rose-500 font-bold text-[10px]">{diffDays} days left</span>;
-    return <span className="text-slate-500 text-[10px]">{diffDays} days left</span>;
+    if (diffDays <= 0) return <span className="text-[#DC2626] font-bold text-[10px]">EXPIRED</span>;
+    if (diffDays <= 7) return <span className="text-[#B45309] font-bold text-[10px]">{diffDays} days left</span>;
+    return <span className={`text-[10px] ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>{diffDays} days left</span>;
   };
 
   // Filter Leads
@@ -224,15 +224,15 @@ export default function ReferralsTrackerPage() {
   if (loading) {
     return (
       <div className="space-y-8 animate-pulse">
-        <div className="h-16 rounded-2xl bg-slate-100 dark:bg-[#09162c]" />
-        <div className="h-96 rounded-3xl bg-slate-100 dark:bg-[#09162c]" />
+        <div className="h-16 rounded-[16px] bg-slate-100 dark:bg-[#0B0F19]" />
+        <div className="h-96 rounded-[16px] bg-slate-100 dark:bg-[#0B0F19]" />
       </div>
     );
   }
 
-  const borderB = isDark ? "border-slate-800" : "border-slate-100";
-  const labelText = isDark ? "text-slate-500" : "text-slate-400";
-  const inputBg = isDark ? "bg-[#0b182d] border-slate-800 text-white" : "bg-slate-50 border-slate-200 text-slate-800";
+  const borderB = isDark ? "border-[#1F2937]" : "border-[#E5E7EB]";
+  const labelText = isDark ? "text-gray-400" : "text-[#6B7280]";
+  const inputBg = isDark ? "bg-[#111827] border-[#1F2937] text-white" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827]";
 
   return (
     <div className="space-y-8 animate-fadeIn relative pb-10">
@@ -240,15 +240,10 @@ export default function ReferralsTrackerPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex flex-col gap-1">
-          <span className={`text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full w-fit ${
-            isDark ? "bg-cyan-500/10 text-cyan-400" : "bg-blue-50 text-[#3b71cb]"
-          }`}>
-            👥 Referrals Tracker
-          </span>
-          <h1 className="text-3xl font-extrabold tracking-tight mt-1.5">
+          <h1 className="text-3xl font-extrabold tracking-tight">
             Referrals Directory
           </h1>
-          <p className={`text-xs ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+          <p className={`text-xs ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
             Track prospective leads in pipeline or monitor course bookings completed using your code.
           </p>
         </div>
@@ -256,9 +251,7 @@ export default function ReferralsTrackerPage() {
         {activeTab === "leads" && (
           <button
             onClick={openAddModal}
-            className={`px-5 py-3 rounded-xl font-bold text-xs shadow-md flex items-center gap-1.5 cursor-pointer transition-all ${
-              isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white shadow-cyan-900/15" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white shadow-blue-200"
-            }`}
+            className="px-5 py-3 rounded-full font-bold text-xs shadow-sm flex items-center gap-1.5 cursor-pointer transition-colors duration-200 bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white"
           >
             <Plus className="w-4 h-4" /> Add Referral Lead
           </button>
@@ -266,23 +259,23 @@ export default function ReferralsTrackerPage() {
       </div>
 
       {/* Tabs */}
-      <div className={`flex border-b ${isDark ? "border-white/5" : "border-slate-200"}`}>
+      <div className={`flex border-b ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
         <button
           onClick={() => setActiveTab("leads")}
-          className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+          className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-colors duration-200 cursor-pointer ${
             activeTab === "leads"
-              ? isDark ? "border-cyan-500 text-cyan-400 font-extrabold" : "border-blue-600 text-blue-700 font-extrabold"
-              : isDark ? "border-transparent text-slate-400 hover:text-white/60" : "border-transparent text-slate-500 hover:text-slate-800"
+              ? "border-[#3D5EF6] text-[#3D5EF6] font-extrabold"
+              : isDark ? "border-transparent text-gray-400 hover:text-white" : "border-transparent text-[#6B7280] hover:text-[#111827]"
           }`}
         >
           Referral Pipeline (Leads)
         </button>
         <button
           onClick={() => setActiveTab("purchases")}
-          className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer ${
+          className={`px-5 py-3 text-xs font-bold uppercase tracking-wider border-b-2 transition-colors duration-200 cursor-pointer ${
             activeTab === "purchases"
-              ? isDark ? "border-cyan-500 text-cyan-400 font-extrabold" : "border-blue-600 text-blue-700 font-extrabold"
-              : isDark ? "border-transparent text-slate-400 hover:text-white/60" : "border-transparent text-slate-500 hover:text-slate-800"
+              ? "border-[#3D5EF6] text-[#3D5EF6] font-extrabold"
+              : isDark ? "border-transparent text-gray-400 hover:text-white" : "border-transparent text-[#6B7280] hover:text-[#111827]"
           }`}
         >
           Referred Purchases (Bookings)
@@ -290,20 +283,20 @@ export default function ReferralsTrackerPage() {
       </div>
 
       {activeTab === "leads" ? (
-        <section className={`rounded-3xl border p-6 md:p-8 shadow-xl relative overflow-hidden ${
-          isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
+        <section className={`rounded-[16px] border-0 p-6 md:p-8 relative overflow-hidden ${
+          isDark ? "bg-[#0B0F19] shadow-[0_4px_20px_rgba(0,0,0,0.3)] text-white" : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] text-[#111827]"
         }`}>
           {/* Search & Filters (Leads) */}
-          <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
+          <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <div className="flex-1 w-full max-w-sm">
-              <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${inputBg}`}>
+              <label className={`flex items-center gap-2 px-3 py-2.5 rounded-full border text-sm ${inputBg}`}>
                 <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
                 <input
                   type="text"
                   placeholder="Search leads by name, email, or mobile..."
                   value={searchTermLeads}
                   onChange={(e) => setSearchTermLeads(e.target.value)}
-                  className="bg-transparent outline-none w-full text-[13px]"
+                  className={`bg-transparent outline-none w-full text-[13px] ${isDark ? "placeholder:text-gray-500" : "placeholder:text-[#9CA3AF]"}`}
                 />
               </label>
             </div>
@@ -313,7 +306,7 @@ export default function ReferralsTrackerPage() {
               <select
                 value={statusFilterLeads}
                 onChange={(e) => setStatusFilterLeads(e.target.value)}
-                className={`p-2.5 text-xs rounded-lg border outline-none cursor-pointer ${inputBg}`}
+                className={`p-2.5 text-xs rounded-full border outline-none cursor-pointer ${inputBg}`}
               >
                 <option value="all">All Lead Statuses</option>
                 <option value="new">New</option>
@@ -328,7 +321,7 @@ export default function ReferralsTrackerPage() {
 
           {/* Directory Table (Leads) */}
           {filteredLeads.length === 0 ? (
-            <div className="text-center py-16 text-slate-500">
+            <div className="text-center py-16 text-[#6B7280]">
               <Users className="w-10 h-10 mx-auto opacity-30 mb-3" />
               <h4 className="text-sm font-bold">No referral leads found</h4>
               <p className="text-xs mt-1">Try modifying your query or click Add Lead on the top right.</p>
@@ -337,8 +330,8 @@ export default function ReferralsTrackerPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs leading-normal">
                 <thead>
-                  <tr className={`font-black border-b uppercase tracking-widest text-[9px] ${
-                    isDark ? "text-slate-500 border-slate-800" : "text-slate-400 border-slate-100"
+                  <tr className={`font-semibold border-b uppercase tracking-wider text-[10px] ${
+                    isDark ? "text-gray-400 border-[#1F2937]" : "text-[#6B7280] border-[#E5E7EB]"
                   }`}>
                     <th className="pb-3 pr-4">Seafarer Name</th>
                     <th className="pb-3 pr-4">Contact Info</th>
@@ -349,14 +342,14 @@ export default function ReferralsTrackerPage() {
                     <th className="pb-3 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/10">
+                <tbody className={isDark ? "divide-y divide-[#1F2937]" : "divide-y divide-[#E5E7EB]"}>
                   {filteredLeads.map((lead) => (
-                    <tr key={lead.id} className={`hover:bg-slate-500/5 transition-colors ${
-                      isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
+                    <tr key={lead.id} className={`transition-colors duration-200 ${
+                      isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50/70"
                     }`}>
-                      <td className="py-4 pr-4 font-black text-sm">
+                      <td className="py-4 pr-4 font-bold text-sm">
                         {lead.name}
-                        {lead.city && <span className="block text-[10px] text-slate-500 font-medium">{lead.city}</span>}
+                        {lead.city && <span className={`block text-[10px] font-medium ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>{lead.city}</span>}
                       </td>
                       <td className="py-4 pr-4 space-y-0.5">
                         <span className="block font-bold">{lead.phone}</span>
@@ -377,10 +370,10 @@ export default function ReferralsTrackerPage() {
                       <td className="py-4 text-right flex justify-end">
                         <button
                           onClick={() => openEditModal(lead)}
-                          className={`p-2 rounded-xl border flex items-center justify-center transition-all cursor-pointer hover:scale-105 active:scale-95 ${
+                          className={`p-2 rounded-full border flex items-center justify-center transition-colors duration-200 cursor-pointer ${
                             isDark 
-                              ? "border-slate-800 bg-slate-900/40 text-gray-300 hover:bg-slate-800 hover:border-slate-700" 
-                              : "border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100"
+                              ? "border-[#1F2937] bg-[#111827] text-white/70 hover:text-white hover:bg-white/10" 
+                              : "border-[#E5E7EB] bg-[#F3F4F6] text-[#6B7280] hover:text-[#111827] hover:bg-[#E5E7EB]"
                           }`}
                           title="Edit lead details"
                         >
@@ -395,20 +388,20 @@ export default function ReferralsTrackerPage() {
           )}
         </section>
       ) : (
-        <section className={`rounded-3xl border p-6 md:p-8 shadow-xl relative overflow-hidden ${
-          isDark ? "bg-[#0a1122]/70 border-white/5 shadow-[0_8px_32px_rgba(0,0,0,0.3)] text-white backdrop-blur-xl" : "bg-white/80 border-slate-200/60 shadow-[0_8px_30px_rgba(0,0,0,0.04)] text-slate-900 backdrop-blur-xl"
+        <section className={`rounded-[16px] border-0 p-6 md:p-8 relative overflow-hidden ${
+          isDark ? "bg-[#0B0F19] shadow-[0_4px_20px_rgba(0,0,0,0.3)] text-white" : "bg-white shadow-[0_4px_16px_rgba(0,0,0,0.06),0_1px_3px_rgba(0,0,0,0.04)] text-[#111827]"
         }`}>
           {/* Search & Filters (Purchases) */}
-          <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
+          <div className={`flex flex-col md:flex-row justify-between items-center gap-4 border-b pb-5 mb-5 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
             <div className="flex-1 w-full max-w-sm">
-              <label className={`flex items-center gap-2 px-3 py-2.5 rounded-lg border text-sm ${inputBg}`}>
+              <label className={`flex items-center gap-2 px-3 py-2.5 rounded-full border text-sm ${inputBg}`}>
                 <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
                 <input
                   type="text"
                   placeholder="Search by invoice, course, or crew name..."
                   value={searchTermPurchases}
                   onChange={(e) => setSearchTermPurchases(e.target.value)}
-                  className="bg-transparent outline-none w-full text-[13px]"
+                  className={`bg-transparent outline-none w-full text-[13px] ${isDark ? "placeholder:text-gray-500" : "placeholder:text-[#9CA3AF]"}`}
                 />
               </label>
             </div>
@@ -418,7 +411,7 @@ export default function ReferralsTrackerPage() {
               <select
                 value={statusFilterPurchases}
                 onChange={(e) => setStatusFilterPurchases(e.target.value)}
-                className={`p-2.5 text-xs rounded-lg border outline-none cursor-pointer ${inputBg}`}
+                className={`p-2.5 text-xs rounded-full border outline-none cursor-pointer ${inputBg}`}
               >
                 <option value="all">All Purchases</option>
                 <option value="completed">Completed</option>
@@ -429,7 +422,7 @@ export default function ReferralsTrackerPage() {
 
           {/* Directory Table (Purchases) */}
           {filteredPurchases.length === 0 ? (
-            <div className="text-center py-16 text-slate-500">
+            <div className="text-center py-16 text-[#6B7280]">
               <ClipboardList className="w-10 h-10 mx-auto opacity-30 mb-3" />
               <h4 className="text-sm font-bold">No purchase records found</h4>
               <p className="text-xs mt-1">Referred checkouts will display here automatically.</p>
@@ -438,8 +431,8 @@ export default function ReferralsTrackerPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs leading-normal">
                 <thead>
-                  <tr className={`font-black border-b uppercase tracking-widest text-[9px] ${
-                    isDark ? "text-slate-500 border-slate-800" : "text-slate-400 border-slate-100"
+                  <tr className={`font-semibold border-b uppercase tracking-wider text-[10px] ${
+                    isDark ? "text-gray-400 border-[#1F2937]" : "text-[#6B7280] border-[#E5E7EB]"
                   }`}>
                     <th className="pb-3 pr-4">Invoice Number</th>
                     <th className="pb-3 pr-4">Seafarer Name</th>
@@ -449,12 +442,12 @@ export default function ReferralsTrackerPage() {
                     <th className="pb-3 text-right">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-800/10">
+                <tbody className={isDark ? "divide-y divide-[#1F2937]" : "divide-y divide-[#E5E7EB]"}>
                   {filteredPurchases.map((pur, i) => (
-                    <tr key={i} className={`hover:bg-slate-500/5 transition-colors ${
-                      isDark ? "border-b border-slate-900/60" : "border-b border-slate-100"
+                    <tr key={i} className={`transition-colors duration-200 ${
+                      isDark ? "hover:bg-white/[0.02]" : "hover:bg-slate-50/70"
                     }`}>
-                      <td className={`py-4 pr-4 font-black tracking-wider text-[10px] ${isDark ? "text-cyan-400" : "text-blue-700"}`}>
+                      <td className="py-4 pr-4 font-mono font-bold tracking-wider text-[10px] text-[#3D5EF6]">
                         {pur.invoiceNumber}
                       </td>
                       <td className="py-4 pr-4 font-extrabold">
@@ -463,10 +456,10 @@ export default function ReferralsTrackerPage() {
                       <td className="py-4 pr-4 font-semibold max-w-[250px] truncate">
                         {pur.courseName}
                       </td>
-                      <td className={`py-4 pr-4 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
+                      <td className={`py-4 pr-4 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
                         {new Date(pur.purchaseDate).toLocaleDateString()}
                       </td>
-                      <td className="py-4 pr-4 font-black">
+                      <td className="py-4 pr-4 font-bold text-[#111827] dark:text-white">
                         ₹{pur.courseFee?.toLocaleString()}
                       </td>
                       <td className="py-4 text-right">
@@ -484,16 +477,16 @@ export default function ReferralsTrackerPage() {
       {/* ADD / EDIT LEAD MODAL */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fadeIn">
-          <div className={`w-full max-w-lg rounded-3xl border shadow-2xl p-6 md:p-8 animate-zoomIn relative ${
-            isDark ? "bg-[#0a1122]/90 border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.4)] text-white backdrop-blur-2xl" : "bg-white border-slate-200/80 shadow-2xl text-slate-900 backdrop-blur-2xl"
+          <div className={`w-full max-w-lg rounded-[16px] border-0 shadow-2xl p-6 md:p-8 animate-zoomIn relative ${
+            isDark ? "bg-[#0B0F19] text-white" : "bg-white text-[#111827]"
           }`}>
             
-            <h3 className={`text-xl font-black tracking-tight border-b pb-4 mb-6 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
+            <h3 className={`text-xl font-extrabold tracking-tight border-b pb-4 mb-6 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
               {modalMode === "add" ? "Register New Referral Lead" : "Edit Lead Details"}
             </h3>
 
             {errorMsg && (
-              <div className={`mb-5 p-4 rounded-xl flex items-start gap-3 text-xs animate-shake ${isDark ? "bg-red-500/10 border border-red-500/20 text-red-400" : "bg-red-50 border border-red-200 text-red-700"}`}>
+              <div className="mb-5 p-4 rounded-[16px] flex items-start gap-3 text-xs bg-[#FEE2E2] border border-[#FEE2E2] text-[#DC2626]">
                 <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
                 <div>
                   <p className="font-extrabold">Submission Error</p>
@@ -505,7 +498,7 @@ export default function ReferralsTrackerPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Seafarer Name *</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Seafarer Name *</label>
                   <input
                     type="text"
                     name="name"
@@ -513,14 +506,14 @@ export default function ReferralsTrackerPage() {
                     onChange={handleInputChange}
                     placeholder="Amit Kadam"
                     required
-                    className={`w-full px-3 py-2 text-xs rounded-xl border outline-none ${
-                      isDark ? "bg-slate-950 border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    className={`w-full px-3 py-2 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                      isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                     }`}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Mobile Number *</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Mobile Number *</label>
                   <input
                     type="text"
                     name="phone"
@@ -528,14 +521,14 @@ export default function ReferralsTrackerPage() {
                     onChange={handleInputChange}
                     placeholder="+919876543210"
                     required
-                    className={`w-full px-3 py-2 text-xs rounded-xl border outline-none ${
-                      isDark ? "bg-slate-950 border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    className={`w-full px-3 py-2 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                      isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                     }`}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Email Address *</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Email Address *</label>
                   <input
                     type="email"
                     name="email"
@@ -543,35 +536,35 @@ export default function ReferralsTrackerPage() {
                     onChange={handleInputChange}
                     placeholder="amit@crew.in"
                     required
-                    className={`w-full px-3 py-2 text-xs rounded-xl border outline-none ${
-                      isDark ? "bg-slate-950 border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    className={`w-full px-3 py-2 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                      isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                     }`}
                   />
                 </div>
 
                 <div className="space-y-1">
-                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>City</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>City</label>
                   <input
                     type="text"
                     name="city"
                     value={formData.city}
                     onChange={handleInputChange}
                     placeholder="Mumbai"
-                    className={`w-full px-3 py-2 text-xs rounded-xl border outline-none ${
-                      isDark ? "bg-slate-950 border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                    className={`w-full px-3 py-2 text-xs rounded-full border outline-none transition-colors duration-200 ${
+                      isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                     }`}
                   />
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Interested Course</label>
+                <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Interested Course</label>
                 <select
                   name="courseId"
                   value={formData.courseId}
                   onChange={handleInputChange}
-                  className={`w-full px-3 py-2 text-xs rounded-xl border outline-none cursor-pointer ${
-                    isDark ? "bg-slate-950 border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800"
+                  className={`w-full px-3 py-2 text-xs rounded-full border outline-none cursor-pointer transition-colors duration-200 ${
+                    isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                   }`}
                 >
                   <option value="">Select a Course</option>
@@ -585,13 +578,13 @@ export default function ReferralsTrackerPage() {
 
               {modalMode === "edit" && (
                 <div className="space-y-1">
-                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Lead Status</label>
+                  <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Lead Status</label>
                   <select
                     name="status"
                     value={formData.status}
                     onChange={handleInputChange}
-                    className={`w-full px-3 py-2 text-xs rounded-xl border outline-none cursor-pointer ${
-                      isDark ? "bg-slate-950 border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800"
+                    className={`w-full px-3 py-2 text-xs rounded-full border outline-none cursor-pointer transition-colors duration-200 ${
+                      isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                     }`}
                   >
                     <option value="New">New</option>
@@ -602,35 +595,33 @@ export default function ReferralsTrackerPage() {
               )}
 
               <div className="space-y-1">
-                <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-slate-400" : "text-slate-500"}`}>Remarks</label>
+                <label className={`text-[10px] font-black uppercase tracking-wider ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>Remarks</label>
                 <textarea
                   name="remarks"
                   value={formData.remarks}
                   onChange={handleInputChange}
                   placeholder="Additional notes about lead qualifications..."
                   rows={3}
-                  className={`w-full px-3 py-2 text-xs rounded-xl border outline-none ${
-                    isDark ? "bg-slate-950 border-slate-800 text-white focus:border-cyan-500" : "bg-slate-50 border-slate-200 text-slate-800 focus:border-[#3b71cb]"
+                  className={`w-full px-3 py-2 text-xs rounded-[16px] border outline-none transition-colors duration-200 ${
+                    isDark ? "bg-[#111827] border-[#1F2937] text-white focus:border-[#3D5EF6]" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] focus:border-[#3D5EF6]"
                   }`}
                 />
               </div>
 
               {/* Submit Buttons */}
-              <div className={`pt-4 flex justify-end gap-3 border-t mt-4 ${isDark ? "border-slate-800/40" : "border-slate-200"}`}>
+              <div className={`pt-4 flex justify-end gap-3 border-t mt-4 ${isDark ? "border-[#1F2937]" : "border-[#E5E7EB]"}`}>
                 <button
                   type="button"
                   onClick={() => setShowModal(false)}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${
-                    isDark ? "border-slate-800 hover:bg-white/5" : "border-slate-300 hover:bg-slate-50 text-slate-700"
+                  className={`px-4 py-2 rounded-full text-xs font-bold border transition-colors duration-200 cursor-pointer ${
+                    isDark ? "border-[#1F2937] bg-[#111827] text-white hover:bg-white/10" : "border-[#E5E7EB] bg-[#F3F4F6] text-[#6B7280] hover:bg-[#E5E7EB]"
                   }`}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className={`px-5 py-2 rounded-xl text-xs font-bold shadow-md transition-all ${
-                    isDark ? "bg-cyan-600 hover:bg-cyan-500 text-white" : "bg-[#3b71cb] hover:bg-[#2c5fb3] text-white"
-                  }`}
+                  className="px-5 py-2 rounded-full text-xs font-bold shadow-sm transition-colors duration-200 cursor-pointer bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white"
                 >
                   {modalMode === "add" ? "Register Lead" : "Save Changes"}
                 </button>

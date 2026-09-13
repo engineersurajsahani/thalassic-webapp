@@ -1191,7 +1191,7 @@ export default function DocumentsPage() {
             <CloudLightning className="w-10 h-10 text-slate-500 mb-3" />
             <h3 className="text-sm font-bold text-slate-400">No Certificates Added Yet</h3>
             <p className="text-xs text-slate-500 mt-1 max-w-[300px] leading-relaxed">
-              Click "+ Add New Certificate" above to record your STCW course qualifications.
+              Click &quot;+ Add New Certificate&quot; above to record your STCW course qualifications.
             </p>
           </div>
         ) : (

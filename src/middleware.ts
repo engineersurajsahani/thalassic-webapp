@@ -10,6 +10,7 @@ const PROTECTED_ROUTES = [
   '/master',
   '/agent-admin',
   '/agent',
+  '/partner',
   '/company-admin',
   '/seafarer',
 ];
@@ -24,6 +25,14 @@ const PUBLIC_ROUTES = [
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // Immediately redirect any misspelled /seafearer routes to /seafarer
+  if (pathname.startsWith('/seafearer')) {
+    const correctedPath = pathname.replace(/^\/seafearer/, '/seafarer');
+    const url = new URL(correctedPath, request.url);
+    url.search = request.nextUrl.search;
+    return NextResponse.redirect(url);
+  }
 
   // Check if the route is protected
   const isProtectedRoute = PROTECTED_ROUTES.some(route =>
@@ -51,7 +60,8 @@ export function middleware(request: NextRequest) {
       'MASTER': '/master/dashboard',
       'SEAFARER': '/seafarer/dashboard',
       'AGENT_ADMIN': '/agent-admin/dashboard',
-      'AGENT': '/agent/dashboard',
+      'AGENT': '/partner/dashboard',
+      'PARTNER': '/partner/dashboard',
       'COMPANY_ADMIN': '/company-admin/dashboard',
     };
 
@@ -65,7 +75,7 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith('/company-admin') && userRole !== 'COMPANY_ADMIN' && userRole !== 'MASTER') {
       return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
     }
-    if (pathname.startsWith('/agent') && !pathname.startsWith('/agent-admin') && userRole !== 'AGENT' && userRole !== 'MASTER') {
+    if ((pathname.startsWith('/agent') || pathname.startsWith('/partner')) && !pathname.startsWith('/agent-admin') && userRole !== 'AGENT' && userRole !== 'PARTNER' && userRole !== 'MASTER') {
       return NextResponse.redirect(new URL(roleDashboards[userRole] || '/login', request.url));
     }
     if (pathname.startsWith('/seafarer') && userRole !== 'SEAFARER' && userRole !== 'MASTER') {
@@ -80,7 +90,8 @@ export function middleware(request: NextRequest) {
         'MASTER': '/master/dashboard',
         'SEAFARER': '/seafarer/dashboard',
         'AGENT_ADMIN': '/agent-admin/dashboard',
-        'AGENT': '/agent/dashboard',
+        'AGENT': '/partner/dashboard',
+        'PARTNER': '/partner/dashboard',
         'COMPANY_ADMIN': '/company-admin/dashboard',
       };
 
@@ -104,6 +115,7 @@ export const config = {
     '/agent/:path*',
     '/company-admin/:path*',
     '/seafarer/:path*',
+    '/seafearer/:path*',
     '/login',
     '/register',
     '/reset-password',

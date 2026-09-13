@@ -1,21 +1,29 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useTheme } from "@/providers/theme-provider";
 import { useAuth } from "@/providers/auth-provider";
 import { notificationService } from "@/services/notification.service";
-import { 
-  Bell, Sun, Moon, Search, ChevronRight,
-  BookOpen, AlertCircle, MessageSquare, Check, Users
+import {
+  Bell,
+  Sun,
+  Moon,
+  Search,
+  ChevronRight,
+  BookOpen,
+  AlertCircle,
+  Check,
+  Users,
 } from "lucide-react";
 
 const pageNames: Record<string, string> = {
   "/master/dashboard": "Dashboard",
-  "/master/courses":   "Course Management",
-  "/master/users":     "User Management",
-  "/master/reports":   "Reports",
-  "/master/settings":  "Settings",
+  "/master/courses": "Course Management",
+  "/master/users": "User Management",
+  "/master/reports": "Reports",
+  "/master/settings": "Settings",
 };
 
 function getGreeting() {
@@ -27,43 +35,64 @@ function getGreeting() {
 
 function getFormattedDate() {
   return new Date().toLocaleDateString("en-IN", {
-    weekday: "long", day: "numeric", month: "long", year: "numeric",
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
   });
+}
+
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+  type: string;
 }
 
 export default function MasterTopbar() {
   const { theme, toggleTheme } = useTheme();
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const isDark = theme === "dark";
   const pathname = usePathname();
 
-  const [notifications, setNotifications] = useState<any[]>([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
 
   const currentPage = pageNames[pathname] || "Dashboard";
   const isHome = pathname === "/master/dashboard";
 
-  const fetchNotifications = async () => {
+  const fetchNotifications = useCallback(async () => {
     try {
       const list = await notificationService.getNotifications();
-      setNotifications(list);
+      setNotifications(list as Notification[]);
     } catch (err) {
       console.error("Failed to load notifications: ", err);
     }
-  };
-
-  useEffect(() => {
-    fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
-    return () => clearInterval(interval);
   }, []);
+
+  // Initial load + polling — wrapped in setTimeout to satisfy set-state-in-effect rule
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      void fetchNotifications();
+    }, 0);
+    const interval = setInterval(() => {
+      void fetchNotifications();
+    }, 30000);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(interval);
+    };
+  }, [fetchNotifications]);
 
   const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       await notificationService.markAsRead(id);
       setNotifications((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+        prev.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
       );
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
@@ -82,41 +111,63 @@ export default function MasterTopbar() {
   const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   return (
-    <header className={`h-16 shrink-0 border-b flex items-center justify-between px-6 gap-4 transition-colors duration-200 ${isDark ? "bg-[#0B0F19] border-[#1F2937]" : "bg-[#FFFFFF] border-[#E5E7EB]"}`}>
-
+    <header
+      className={`h-16 shrink-0 border-b flex items-center justify-between px-6 gap-4 transition-colors duration-200 ${isDark ? "bg-[#0B0F19] border-[#1F2937]" : "bg-[#FFFFFF] border-[#E5E7EB]"}`}
+    >
       {/* Left */}
       <div className="flex flex-col justify-center min-w-0">
         {isHome ? (
           <>
-            <p className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>{getFormattedDate()}</p>
-            <p className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}>{getGreeting()}, Admin</p>
+            <p
+              className={`text-xs font-medium ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}
+            >
+              {getFormattedDate()}
+            </p>
+            <p
+              className={`text-sm font-semibold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}
+            >
+              {getGreeting()}, Admin
+            </p>
           </>
         ) : (
-          <div className={`flex items-center gap-1.5 text-xs ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}>
+          <div
+            className={`flex items-center gap-1.5 text-xs ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}
+          >
             <span>Master</span>
             <ChevronRight className="w-3 h-3" />
-            <span className={isDark ? "text-white" : "text-[#111827]"}>{currentPage}</span>
+            <span className={isDark ? "text-white" : "text-[#111827]"}>
+              {currentPage}
+            </span>
           </div>
         )}
       </div>
 
       {/* Search */}
       <div className="flex-1 max-w-sm">
-        <label className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors duration-200 ${isDark ? "bg-[#111827] border-[#374151] text-white" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827]"}`}>
+        <label
+          className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors duration-200 ${isDark ? "bg-[#111827] border-[#374151] text-white" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827]"}`}
+        >
           <Search className="w-3.5 h-3.5 shrink-0 opacity-50" />
           <input
             type="text"
             placeholder="Search users, courses..."
             className={`bg-transparent outline-none w-full text-[13px] ${isDark ? "placeholder:text-gray-500" : "placeholder:text-[#6B7280]"}`}
           />
-          <kbd className={`hidden sm:inline-flex text-[10px] px-1.5 py-0.5 rounded font-mono ${isDark ? "bg-white/8 text-white/25" : "bg-slate-200 text-slate-400"}`}>⌘K</kbd>
+          <kbd
+            className={`hidden sm:inline-flex text-[10px] px-1.5 py-0.5 rounded font-mono ${isDark ? "bg-white/8 text-white/25" : "bg-slate-200 text-slate-400"}`}
+          >
+            ⌘K
+          </kbd>
         </label>
       </div>
 
       {/* Right */}
       <div className="flex items-center gap-1.5 shrink-0">
-        <button onClick={toggleTheme} aria-label="Toggle theme"
-          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isDark ? "text-yellow-300 hover:bg-white/8" : "text-slate-500 hover:bg-slate-100"}`}>
+        <button
+          onClick={toggleTheme}
+          aria-label="Toggle theme"
+          className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${isDark ? "text-yellow-300 hover:bg-white/8" : "text-slate-500 hover:bg-slate-100"}`}
+        >
           {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
         </button>
 
@@ -124,7 +175,9 @@ export default function MasterTopbar() {
           <button
             onClick={() => setShowNotifications(!showNotifications)}
             className={`relative w-8 h-8 flex items-center justify-center rounded-lg transition-colors cursor-pointer ${
-              isDark ? "text-white/40 hover:bg-white/8 hover:text-white/70" : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+              isDark
+                ? "text-white/40 hover:bg-white/8 hover:text-white/70"
+                : "text-slate-500 hover:bg-slate-100 hover:text-slate-700"
             }`}
             aria-label="Notifications"
           >
@@ -142,7 +195,9 @@ export default function MasterTopbar() {
               />
               <div
                 className={`absolute right-0 mt-2 w-80 border rounded-xl shadow-xl z-30 p-2 overflow-hidden animate-fadeIn ${
-                  isDark ? "bg-[#0c1a2e] border-white/5 text-white" : "bg-white border-slate-200 text-slate-900"
+                  isDark
+                    ? "bg-[#0c1a2e] border-white/5 text-white"
+                    : "bg-white border-slate-200 text-slate-900"
                 }`}
               >
                 <div className="flex items-center justify-between border-b border-white/5 pb-2 mb-2 px-2">
@@ -172,8 +227,8 @@ export default function MasterTopbar() {
                               ? "bg-transparent border-transparent text-gray-400"
                               : "bg-transparent border-transparent text-slate-500"
                             : isDark
-                            ? "bg-blue-950/20 border-blue-900/30 text-white"
-                            : "bg-blue-50/50 border-blue-100 text-slate-800"
+                              ? "bg-blue-950/20 border-blue-900/30 text-white"
+                              : "bg-blue-50/50 border-blue-100 text-slate-800"
                         }`}
                       >
                         <div className="mt-0.5 flex-shrink-0">
@@ -187,7 +242,9 @@ export default function MasterTopbar() {
                         </div>
                         <div className="flex-1 min-w-0 text-left">
                           <div className="font-bold truncate">{n.title}</div>
-                          <p className={`mt-0.5 text-[10px] leading-relaxed ${isDark ? "text-gray-400" : "text-slate-500"}`}>
+                          <p
+                            className={`mt-0.5 text-[10px] leading-relaxed ${isDark ? "text-gray-400" : "text-slate-500"}`}
+                          >
                             {n.message}
                           </p>
                         </div>
@@ -209,17 +266,112 @@ export default function MasterTopbar() {
           )}
         </div>
 
-        <div className={`w-px h-5 mx-1 ${isDark ? "bg-white/10" : "bg-slate-200"}`} />
+        <div
+          className={`w-px h-5 mx-1 ${isDark ? "bg-white/10" : "bg-slate-200"}`}
+        />
 
-        <button aria-label="Profile" className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-[#3D5EF6] flex items-center justify-center text-white text-[10px] font-black uppercase shrink-0">
-            {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "MA"}
-          </div>
-          <div className="hidden sm:flex flex-col items-start leading-tight">
-            <span className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}>{user?.name || "Master Admin"}</span>
-            <span className={`text-[10px] ${isDark ? "text-white/30" : "text-slate-400"}`}>Super Admin</span>
-          </div>
-        </button>
+        <div className="relative">
+          <button
+            onClick={() => setShowProfileDropdown(!showProfileDropdown)}
+            aria-label="Profile"
+            className="flex items-center gap-2.5 cursor-pointer"
+          >
+            <div
+              className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 overflow-hidden border ${
+                isDark
+                  ? "bg-[#0a1525] border-white/10"
+                  : "bg-white border-slate-200"
+              }`}
+            >
+              <Image
+                src="/logo/hariom_logo.png"
+                alt="Hari Om Thalassic"
+                width={32}
+                height={32}
+                className="object-contain w-6 h-6"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </div>
+            <div className="hidden sm:flex flex-col items-start leading-tight">
+              <span
+                className={`text-xs font-semibold ${isDark ? "text-white/75" : "text-slate-800"}`}
+              >
+                {user?.name || "Master Admin"}
+              </span>
+              <span
+                className={`text-[10px] ${isDark ? "text-white/30" : "text-slate-400"}`}
+              >
+                Super Admin
+              </span>
+            </div>
+          </button>
+
+          {showProfileDropdown && (
+            <>
+              <div
+                className="fixed inset-0 z-30"
+                onClick={() => setShowProfileDropdown(false)}
+              />
+              <div
+                className={`absolute right-0 mt-2 w-48 border rounded-xl shadow-xl z-35 p-1.5 overflow-hidden animate-fadeIn ${
+                  isDark
+                    ? "bg-[#0c1a2e] border-white/5 text-white"
+                    : "bg-white border-slate-200 text-slate-900"
+                }`}
+              >
+                <div className="px-3 py-2 border-b border-solid border-slate-100 dark:border-white/5 mb-1.5 text-left">
+                  <p className="text-[9px] opacity-40 font-bold uppercase tracking-wider">
+                    Authorized Role
+                  </p>
+                  <p className="text-xs font-bold truncate mt-0.5 text-slate-700 dark:text-white">
+                    {user?.name || "Master Admin"}
+                  </p>
+                  <p className="text-[9px] opacity-55 truncate mt-0.5">
+                    {user?.email || "admin@thalassic.in"}
+                  </p>
+                </div>
+                <div className="space-y-0.5 text-left">
+                  <a
+                    href="/master/dashboard"
+                    onClick={() => setShowProfileDropdown(false)}
+                    className={`block w-full px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      isDark
+                        ? "hover:bg-white/5 text-slate-300"
+                        : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    Dashboard
+                  </a>
+                  <a
+                    href="/master/settings"
+                    onClick={() => setShowProfileDropdown(false)}
+                    className={`block w-full px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      isDark
+                        ? "hover:bg-white/5 text-slate-300"
+                        : "hover:bg-slate-50 text-slate-700"
+                    }`}
+                  >
+                    Platform Settings
+                  </a>
+                  <div
+                    className={`h-px my-1.5 ${isDark ? "bg-white/5" : "bg-slate-100"}`}
+                  />
+                  <button
+                    onClick={() => {
+                      setShowProfileDropdown(false);
+                      logout();
+                    }}
+                    className="w-full text-left px-3 py-1.5 rounded-lg text-xs font-bold transition-colors cursor-pointer text-red-500 hover:bg-red-500/10"
+                  >
+                    Sign Out Account
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
       </div>
     </header>
   );

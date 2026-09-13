@@ -4,25 +4,24 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { partnerService } from "@/services/partner.service";
 import { useTheme } from "@/providers/theme-provider";
-import {
-  Users,
-  Search,
-  UserPlus,
-  ShoppingCart,
-  Eye,
-  Mail,
-  Phone,
-  ArrowRight,
-  ShieldCheck,
-} from "lucide-react";
+import { Users, Search, UserPlus, ShoppingCart } from "lucide-react";
+
+interface SeafarerRecord {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  indosNum?: string;
+  cdcNum?: string;
+  passportNum?: string;
+  purchasesCount?: number;
+}
 
 export default function SeafarersDirectoryPage() {
   const { theme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  const isDark = mounted ? theme === "dark" : true;
+  const isDark = theme === "dark";
 
-  const [seafarers, setSeafarers] = useState<any[]>([]);
+  const [seafarers, setSeafarers] = useState<SeafarerRecord[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
@@ -47,51 +46,37 @@ export default function SeafarersDirectoryPage() {
       s.email?.toLowerCase().includes(q) ||
       s.phone?.toLowerCase().includes(q) ||
       s.indosNum?.toLowerCase().includes(q) ||
+      s.cdcNum?.toLowerCase().includes(q) ||
       s.passportNum?.toLowerCase().includes(q)
     );
   });
 
   const cardBg = isDark
-    ? "bg-[#09162c]/80 border-white/5"
-    : "bg-white border-slate-200/80 shadow-sm";
+    ? "bg-[#111827] rounded-[16px] border-0 card-elevated"
+    : "bg-[#FFFFFF] rounded-[16px] border-0 card-elevated";
 
   return (
     <div className="space-y-8 animate-fadeIn pb-10">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <div className="flex items-center gap-2">
-            <span
-              className={`text-[10px] font-bold uppercase tracking-widest px-3 py-0.5 rounded-full ${
-                isDark ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20" : "bg-blue-50 text-blue-600 border border-blue-200"
-              }`}
-            >
-              Master Identity Registry
-            </span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-extrabold tracking-tight mt-2">
-            Seafarer Masters
+          <h1
+            className={`text-2xl md:text-3xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-[#111827]"}`}
+          >
+            Seafarer Management
           </h1>
-          <p className={`text-xs md:text-sm mt-1 ${isDark ? "text-slate-400" : "text-slate-500"}`}>
-            Unified database of Seafarer Master identities. One record per individual across all partners and direct purchases.
+          <p
+            className={`text-xs md:text-sm mt-1 ${isDark ? "text-slate-400" : "text-[#6B7280]"}`}
+          >
+            Unified database of Seafarer Master identities. One record per
+            individual across all partners and direct purchases.
           </p>
         </div>
 
         <div className="flex items-center gap-3 w-full md:w-auto">
           <Link
-            href="/partner/seafarers/search"
-            className={`flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
-              isDark
-                ? "bg-white/10 hover:bg-white/15 text-white border border-white/10"
-                : "bg-slate-100 hover:bg-slate-200 text-slate-800"
-            }`}
-          >
-            <Search className="w-4 h-4 text-cyan-400" />
-            Search Seafarer
-          </Link>
-          <Link
             href="/partner/seafarers/create"
-            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-md shadow-cyan-500/20 transition-all shrink-0"
+            className="flex-1 md:flex-none flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg text-xs font-bold bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white shadow-sm transition-colors duration-200 shrink-0"
           >
             <UserPlus className="w-4 h-4" />
             Create Seafarer Master
@@ -100,34 +85,40 @@ export default function SeafarersDirectoryPage() {
       </div>
 
       {/* Filter Bar */}
-      <div className={`p-4 rounded-2xl border ${cardBg}`}>
+      <div className={`p-4 ${cardBg}`}>
         <div className="relative">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Filter seafarers by name, INDoS, passport, email, or mobile..."
-            className={`w-full pl-10 pr-4 py-2.5 rounded-xl text-xs font-medium outline-none transition-all ${
+            placeholder="Filter seafarers by name, INDoS, CDC, email, or mobile..."
+            className={`w-full pl-10 pr-4 py-2.5 rounded-lg text-xs font-medium outline-none transition-colors duration-200 ${
               isDark
-                ? "bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-cyan-500/50"
-                : "bg-slate-50 border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-blue-500"
+                ? "bg-white/5 border border-white/10 text-white placeholder:text-slate-500 focus:border-[#3D5EF6]"
+                : "bg-[#FAFAFA] border border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF] focus:border-[#3D5EF6]"
             }`}
           />
         </div>
       </div>
 
       {/* Directory Table */}
-      <div className={`rounded-2xl border overflow-hidden ${cardBg}`}>
+      <div className={`overflow-hidden ${cardBg}`}>
         {loading ? (
-          <div className="p-8 text-center text-slate-400 animate-pulse">Loading Seafarer Masters...</div>
+          <div className="p-8 text-center text-slate-400 animate-pulse">
+            Loading Seafarer Masters...
+          </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center">
             <Users className="w-10 h-10 text-slate-500 mx-auto mb-3" />
-            <p className="text-sm font-semibold text-slate-300">No Seafarer Masters match your search.</p>
+            <p
+              className={`text-sm font-semibold ${isDark ? "text-slate-300" : "text-[#6B7280]"}`}
+            >
+              No Seafarer Masters match your search.
+            </p>
             <Link
               href="/partner/seafarers/create"
-              className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-cyan-400 hover:underline"
+              className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-[#3D5EF6] hover:underline"
             >
               Register a new Seafarer Master
             </Link>
@@ -135,44 +126,91 @@ export default function SeafarersDirectoryPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className={isDark ? "bg-white/[0.03] text-slate-400 border-b border-white/5" : "bg-slate-50 text-slate-500 border-b border-slate-200"}>
+              <thead
+                className={
+                  isDark
+                    ? "bg-white/[0.03] text-slate-400 border-b border-white/5"
+                    : "bg-[#FAFAFA] text-[#6B7280] border-b border-[#E5E7EB]"
+                }
+              >
                 <tr>
                   <th className="py-3.5 px-4 font-semibold">Seafarer Name</th>
                   <th className="py-3.5 px-4 font-semibold">INDoS No</th>
-                  <th className="py-3.5 px-4 font-semibold">Passport No</th>
+                  <th className="py-3.5 px-4 font-semibold">CDC Number</th>
                   <th className="py-3.5 px-4 font-semibold">Contact Info</th>
-                  <th className="py-3.5 px-4 font-semibold text-center">Purchases</th>
-                  <th className="py-3.5 px-4 font-semibold text-right">Actions</th>
+                  <th className="py-3.5 px-4 font-semibold text-center">
+                    Purchases
+                  </th>
+                  <th className="py-3.5 px-4 font-semibold text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/5">
+              <tbody
+                className={
+                  isDark
+                    ? "divide-y divide-white/5"
+                    : "divide-y divide-[#E5E7EB]"
+                }
+              >
                 {filtered.map((s) => (
-                  <tr key={s.id} className="hover:bg-white/[0.02]">
+                  <tr
+                    key={s.id}
+                    className={
+                      isDark
+                        ? "hover:bg-white/[0.02] transition-colors duration-200"
+                        : "hover:bg-[#EEF1FE]/30 transition-colors duration-200"
+                    }
+                  >
                     <td className="py-3.5 px-4">
                       <div className="flex items-center gap-2.5">
-                        <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-cyan-500 to-blue-600 text-white flex items-center justify-center font-bold text-[10px] uppercase shrink-0">
+                        <div className="w-7 h-7 rounded-full bg-[#3D5EF6] text-white flex items-center justify-center font-bold text-[10px] uppercase shrink-0">
                           {s.name ? s.name[0] : "S"}
                         </div>
                         <div>
-                          <p className="font-bold text-white leading-tight">{s.name}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">ID: {s.id.substring(0, 8)}...</p>
+                          <p
+                            className={`font-bold leading-tight ${isDark ? "text-white" : "text-[#111827]"}`}
+                          >
+                            {s.name}
+                          </p>
+                          <p
+                            className={`text-[10px] font-mono ${isDark ? "text-slate-400" : "text-[#9CA3AF]"}`}
+                          >
+                            ID: {s.id.substring(0, 8)}...
+                          </p>
                         </div>
                       </div>
                     </td>
-                    <td className="py-3.5 px-4 font-mono font-bold text-cyan-400">
+                    <td className="py-3.5 px-4 font-mono font-bold text-[#3D5EF6]">
                       {s.indosNum || "N/A"}
                     </td>
-                    <td className="py-3.5 px-4 font-mono text-slate-300">
-                      {s.passportNum || "N/A"}
+                    <td
+                      className={`py-3.5 px-4 font-mono font-bold ${isDark ? "text-slate-100" : "text-[#1E293B]"}`}
+                    >
+                      {s.cdcNum || "N/A"}
                     </td>
                     <td className="py-3.5 px-4">
-                      <div className="space-y-0.5 text-[11px] text-slate-300">
-                        <p>{s.email}</p>
-                        <p className="text-slate-400 text-[10px]">{s.phone}</p>
+                      <div className="space-y-0.5 text-[11px]">
+                        <p
+                          className={`font-semibold ${isDark ? "text-slate-200" : "text-[#1E293B]"}`}
+                        >
+                          {s.email}
+                        </p>
+                        <p
+                          className={`text-[11px] font-medium ${isDark ? "text-slate-300" : "text-[#374151]"}`}
+                        >
+                          {s.phone}
+                        </p>
                       </div>
                     </td>
                     <td className="py-3.5 px-4 text-center">
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/5 text-slate-200 border border-white/10">
+                      <span
+                        className={`px-2.5 py-0.5 rounded-lg text-[10px] font-bold ${
+                          isDark
+                            ? "bg-white/5 text-slate-200 border border-white/10"
+                            : "bg-[#EEF1FE] text-[#3D5EF6]"
+                        }`}
+                      >
                         {s.purchasesCount || 0} Courses
                       </span>
                     </td>
@@ -180,13 +218,17 @@ export default function SeafarersDirectoryPage() {
                       <div className="flex items-center justify-end gap-2">
                         <Link
                           href={`/partner/seafarers/${s.id}`}
-                          className="px-2.5 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 text-xs font-semibold text-slate-300"
+                          className={`px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors duration-200 ${
+                            isDark
+                              ? "border-white/10 hover:bg-white/5 text-slate-300"
+                              : "border-[#E5E7EB] bg-[#F3F4F6] hover:bg-[#E5E7EB] text-[#6B7280]"
+                          }`}
                         >
                           Profile
                         </Link>
                         <Link
                           href={`/partner/purchases/create?seafarerId=${s.id}`}
-                          className="px-3 py-1.5 rounded-lg bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs flex items-center gap-1 shadow-sm"
+                          className="px-3.5 py-1.5 rounded-lg bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white font-bold text-xs flex items-center gap-1 shadow-sm transition-colors duration-200"
                         >
                           <ShoppingCart className="w-3.5 h-3.5" />
                           Purchase

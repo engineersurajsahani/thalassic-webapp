@@ -33,12 +33,7 @@ export default function AuthLayout({
   children,
 }: AuthLayoutProps) {
   const pathname = usePathname();
-  const { theme, toggleTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { theme, toggleTheme, mounted } = useTheme();
 
   const isDark = mounted ? (theme === "dark") : true;
 

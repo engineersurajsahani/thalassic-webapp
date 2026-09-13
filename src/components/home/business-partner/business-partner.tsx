@@ -36,12 +36,7 @@ function ScrollReveal({ children, delay = 0 }: { children: React.ReactNode; dela
 }
 
 export function BusinessPartnerSection() {
-  const { theme } = useTheme();
-  const [mounted, setMounted] = React.useState(false);
-
-  React.useEffect(() => {
-    setMounted(true);
-  }, []);
+  const { theme, mounted } = useTheme();
 
   const isDark = mounted ? (theme === "dark") : true;
 
