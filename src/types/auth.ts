@@ -1,4 +1,11 @@
-export type Role = 'MASTER' | 'COMPANY_ADMIN' | 'AGENT_ADMIN' | 'AGENT' | 'SEAFARER';
+export type Role =
+  | "MASTER"
+  | "COMPANY_ADMIN"
+  | "PARTNER_ADMIN"
+  | "PARTNER"
+  | "SEAFARER"
+  | "AGENT_ADMIN"
+  | "AGENT";
 
 export interface AuthUser {
   id: string;

@@ -1,7 +1,7 @@
 "use client";
 import toast from "react-hot-toast";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import {
   GraduationCap,
@@ -20,6 +20,7 @@ import {
   Users,
   Download,
 } from "lucide-react";
+import { api } from "@/lib/api";
 
 export type Institute = {
   id: string;
@@ -79,6 +80,7 @@ export default function InstitutesManagementPage() {
   const dk = theme === "dark";
 
   const [institutes, setInstitutes] = useState<Institute[]>(INITIAL_INSTITUTES);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [selected, setSelected] = useState<Institute | null>(null);
@@ -87,6 +89,24 @@ export default function InstitutesManagementPage() {
   );
   const [form, setForm] = useState({ ...EMPTY_INST });
   const [saved, setSaved] = useState(false);
+
+  const fetchInstitutes = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get("/master/institutes");
+      if (Array.isArray(res.data)) {
+        setInstitutes(res.data);
+      }
+    } catch (err) {
+      console.warn("Failed to fetch institutes from DB:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchInstitutes();
+  }, []);
 
   // Theme tokens
   const ht = dk ? "text-white" : "text-slate-800";
@@ -134,21 +154,22 @@ export default function InstitutesManagementPage() {
     setSaved(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.name.trim() || !form.code.trim()) return;
-    if (modalMode === "add") {
-      const newInst: Institute = {
-        id: `INST-${String(institutes.length + 1).padStart(3, "0")}`,
-        ...form,
-      };
-      setInstitutes((prev) => [newInst, ...prev]);
-    } else if (modalMode === "edit" && selected) {
-      setInstitutes((prev) =>
-        prev.map((i) => (i.id === selected.id ? { ...i, ...form } : i)),
-      );
+    try {
+      if (modalMode === "add") {
+        await api.post("/master/institutes", form);
+        toast.success("Institute added successfully!");
+      } else if (modalMode === "edit" && selected) {
+        await api.patch(`/master/institutes/${selected.id}`, form);
+        toast.success("Institute updated successfully!");
+      }
+      fetchInstitutes();
+      closeModal();
+    } catch (err) {
+      toast.error("Failed to save institute.");
+      console.error(err);
     }
-    setSaved(true);
-    setTimeout(closeModal, 1000);
   };
 
   const stats = [

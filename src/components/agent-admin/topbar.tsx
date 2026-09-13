@@ -9,7 +9,7 @@ import { Bell, Sun, Moon, ChevronRight } from "lucide-react";
 const pageNames: Record<string, string> = {
   "/partner-admin": "Partner Admin Management",
   "/agent-admin/dashboard": "Dashboard",
-  "/agent-admin/agents": "Partners & Agents",
+  "/agent-admin/agents": "Partners",
   "/agent-admin/pricing": "Course Pricing",
   "/agent-admin/invoices": "Invoices",
   "/agent-admin/settlements": "Settlements",

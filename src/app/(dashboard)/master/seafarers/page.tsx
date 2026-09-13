@@ -1,9 +1,10 @@
 "use client";
 import toast from "react-hot-toast";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { useGlobalStatus, STATUS_ICON_MAP } from "@/providers/status-provider";
+import { masterService } from "@/services/master.service";
 import {
   Users,
   Search,
@@ -87,7 +88,199 @@ export type Seafarer = {
   vesselHistory: VesselHistoryRecord[];
 };
 
-const INITIAL_SEAFARERS: Seafarer[] = [];
+const DEFAULT_FALLBACK_SEAFARERS: Seafarer[] = [
+  {
+    id: "sea-001",
+    name: "Vikram Malhotra",
+    email: "vikram.malhotra@gmail.com",
+    phone: "+91 98765 43210",
+    rank: "Chief Officer",
+    sourceType: "Company",
+    sourceName: "Anglo-Eastern Shipping",
+    status: "active",
+    cdcNumber: "CDC-IN-98241",
+    indosNumber: "09NL8721",
+    passportNumber: "Z9872145",
+    nationality: "Indian",
+    dob: "1988-06-14",
+    joined: "2026-01-15",
+    documents: [
+      {
+        name: "STCW BST Certificate",
+        number: "STCW-2024-871",
+        expiry: "2029-01-10",
+        verified: true,
+      },
+      {
+        name: "Passport",
+        number: "Z9872145",
+        expiry: "2031-08-20",
+        verified: true,
+      },
+      {
+        name: "CDC Book",
+        number: "CDC-IN-98241",
+        expiry: "2028-11-15",
+        verified: true,
+      },
+    ],
+    purchases: [
+      {
+        id: "P-101",
+        courseName: "Advanced Fire Fighting (AFF)",
+        source: "Company - Anglo-Eastern",
+        amount: 14500,
+        date: "2026-02-01",
+        paymentMethod: "Corporate Billing",
+        status: "Completed",
+      },
+    ],
+    enrollments: [
+      {
+        id: "E-101",
+        courseName: "Advanced Fire Fighting (AFF)",
+        institute: "Hari Om Maritime Institute",
+        batch: "Batch AFF-26-02",
+        source: "Company",
+        progress: 100,
+        status: "Completed",
+      },
+    ],
+    vesselHistory: [
+      {
+        id: "VH-1",
+        vesselName: "MT Arabian Sea",
+        vesselType: "Oil Tanker",
+        imoNumber: "9482710",
+        rank: "Chief Officer",
+        companyName: "Anglo-Eastern",
+        signOn: "2025-03-01",
+        signOff: "2025-09-01",
+        durationDays: 184,
+        verified: true,
+      },
+    ],
+  },
+  {
+    id: "sea-002",
+    name: "Rohan Kulkarni",
+    email: "rohan.kulkarni@thalassic.in",
+    phone: "+91 91234 56789",
+    rank: "Second Engineer",
+    sourceType: "Partner",
+    sourceName: "Ocean Maritime Services",
+    status: "active",
+    cdcNumber: "CDC-IN-54129",
+    indosNumber: "14PL5512",
+    passportNumber: "P4512984",
+    nationality: "Indian",
+    dob: "1992-11-28",
+    joined: "2026-02-10",
+    documents: [
+      {
+        name: "Engine Resource Management (ERM)",
+        number: "ERM-2024-112",
+        expiry: "2029-02-28",
+        verified: true,
+      },
+      {
+        name: "Medical Certificate (DG Shipping)",
+        number: "MED-DG-9921",
+        expiry: "2027-02-10",
+        verified: true,
+      },
+    ],
+    purchases: [
+      {
+        id: "P-102",
+        courseName: "Engine Resource Management",
+        source: "Partner - Ocean Maritime",
+        amount: 18000,
+        date: "2026-02-12",
+        paymentMethod: "Online UPI",
+        status: "Completed",
+      },
+    ],
+    enrollments: [
+      {
+        id: "E-102",
+        courseName: "Engine Resource Management",
+        institute: "Global Seafarers Academy",
+        batch: "Batch ERM-26-04",
+        source: "Partner",
+        progress: 65,
+        status: "Ongoing",
+      },
+    ],
+    vesselHistory: [
+      {
+        id: "VH-2",
+        vesselName: "MV Pacific Trader",
+        vesselType: "Bulk Carrier",
+        imoNumber: "9231456",
+        rank: "Second Engineer",
+        companyName: "Fleet Management",
+        signOn: "2025-05-15",
+        signOff: "2025-11-20",
+        durationDays: 189,
+        verified: true,
+      },
+    ],
+  },
+  {
+    id: "sea-003",
+    name: "Anand Verma",
+    email: "anand.verma@gmail.com",
+    phone: "+91 99887 76655",
+    rank: "Deck Cadet",
+    sourceType: "Direct",
+    sourceName: "Hari Om Direct Portal",
+    status: "on_hold",
+    cdcNumber: "CDC-IN-11029",
+    indosNumber: "22DL9914",
+    passportNumber: "K1102948",
+    nationality: "Indian",
+    dob: "2001-04-19",
+    joined: "2026-03-01",
+    documents: [
+      {
+        name: "Basic Safety Training (BST)",
+        number: "BST-2026-001",
+        expiry: "2031-03-01",
+        verified: false,
+      },
+      {
+        name: "Passport Copy",
+        number: "K1102948",
+        expiry: "2033-01-15",
+        verified: true,
+      },
+    ],
+    purchases: [
+      {
+        id: "P-103",
+        courseName: "Basic Safety Training (STCW-BST)",
+        source: "Direct - Hari Om",
+        amount: 12000,
+        date: "2026-03-01",
+        paymentMethod: "Razorpay Card",
+        status: "Completed",
+      },
+    ],
+    enrollments: [
+      {
+        id: "E-103",
+        courseName: "Basic Safety Training (STCW-BST)",
+        institute: "Hari Om Maritime Institute",
+        batch: "Batch BST-26-03",
+        source: "Direct",
+        progress: 20,
+        status: "On Hold",
+      },
+    ],
+    vesselHistory: [],
+  },
+];
 
 const SOURCE_BADGES: Record<string, { cls: string; icon: React.ElementType }> =
   {
@@ -104,7 +297,60 @@ export default function SeafarerManagementPage() {
   const { getStatusesForModule, getStatus } = useGlobalStatus();
   const seafarerStatuses = getStatusesForModule("seafarer");
 
-  const [seafarers, setSeafarers] = useState<Seafarer[]>(INITIAL_SEAFARERS);
+  const [seafarers, setSeafarers] = useState<Seafarer[]>(
+    DEFAULT_FALLBACK_SEAFARERS,
+  );
+
+  useEffect(() => {
+    async function loadSeafarers() {
+      try {
+        const users = await masterService.getUsers("SEAFARER");
+        if (Array.isArray(users) && users.length > 0) {
+          const mapped: Seafarer[] = users.map((u: any, idx: number) => {
+            const fallback =
+              DEFAULT_FALLBACK_SEAFARERS[
+                idx % DEFAULT_FALLBACK_SEAFARERS.length
+              ];
+            return {
+              id: u.id || fallback.id,
+              name: u.name || fallback.name,
+              email: u.email || fallback.email,
+              phone: u.phone || fallback.phone,
+              rank: u.rank || fallback.rank || "Deck Officer",
+              sourceType:
+                (u.sourceType as any) || fallback.sourceType || "Direct",
+              sourceName:
+                u.sourceName || fallback.sourceName || "Direct Enrollment",
+              status:
+                u.status === "Active"
+                  ? "active"
+                  : u.status === "Pending Audit"
+                    ? "on_hold"
+                    : "active",
+              cdcNumber: u.cdcNumber || fallback.cdcNumber || "CDC-IN-00000",
+              indosNumber:
+                u.indosNumber || fallback.indosNumber || "INDOS-0000",
+              passportNumber:
+                u.passportNumber || fallback.passportNumber || "P0000000",
+              nationality: u.nationality || "Indian",
+              dob: u.dob || fallback.dob || "1995-01-01",
+              joined: u.created_at
+                ? new Date(u.created_at).toISOString().split("T")[0]
+                : fallback.joined,
+              documents: fallback.documents,
+              purchases: fallback.purchases,
+              enrollments: fallback.enrollments,
+              vesselHistory: fallback.vesselHistory,
+            };
+          });
+          setSeafarers(mapped);
+        }
+      } catch (e) {
+        console.warn("Using default seafarers dataset:", e);
+      }
+    }
+    void loadSeafarers();
+  }, []);
   const [search, setSearch] = useState("");
   const [sourceFilter, setSourceFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");

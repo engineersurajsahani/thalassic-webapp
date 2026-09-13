@@ -1,44 +1,88 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { useGlobalStatus } from "@/providers/status-provider";
 import {
-  Search, Plus, BookOpen,
-  Clock, X, Edit, Save, Calendar,
-  Building2, MapPin, Star, Check, Eye
+  Search,
+  Plus,
+  BookOpen,
+  Clock,
+  X,
+  Edit,
+  Save,
+  Calendar,
+  Building2,
+  MapPin,
+  Star,
+  Check,
+  Eye,
 } from "lucide-react";
-import { MOCK_COURSES, MockCourse } from "@/data/master-portal-mock";
+import { api } from "@/lib/api";
+import { MockCourse } from "@/data/master-portal-mock";
 import {
-  MOCK_INSTITUTES,
   COURSE_INSTITUTES_MAP,
   COURSE_INSTITUTE_PRICING,
 } from "@/constants/masterCourses";
 
 const CATEGORIES = ["All", "Safety", "Technical", "Compliance", "Operations"];
 
-const catColors: Record<string, string>     = { Safety: "text-indigo-700",  Technical: "text-amber-700",  Compliance: "text-violet-700",  Operations: "text-emerald-700"  };
-const catColorsDark: Record<string, string> = { Safety: "text-indigo-400", Technical: "text-amber-400", Compliance: "text-violet-400", Operations: "text-emerald-400" };
-const statusColors: Record<string, string>     = { Active: "text-emerald-700", Draft: "text-amber-700",     Inactive: "text-slate-500"      };
-const statusColorsDark: Record<string, string> = { Active: "text-emerald-400", Draft: "text-amber-400", Inactive: "text-slate-400" };
+const catColors: Record<string, string> = {
+  Safety: "text-indigo-700",
+  Technical: "text-amber-700",
+  Compliance: "text-violet-700",
+  Operations: "text-emerald-700",
+};
+const catColorsDark: Record<string, string> = {
+  Safety: "text-indigo-400",
+  Technical: "text-amber-400",
+  Compliance: "text-violet-400",
+  Operations: "text-emerald-400",
+};
+const statusColors: Record<string, string> = {
+  Active: "text-emerald-700",
+  Draft: "text-amber-700",
+  Inactive: "text-slate-500",
+};
+const statusColorsDark: Record<string, string> = {
+  Active: "text-emerald-400",
+  Draft: "text-amber-400",
+  Inactive: "text-slate-400",
+};
 
 const COURSE_DESCRIPTIONS: Record<string, string> = {
-  "CRS-01": "Mandatory safety training covering Personal Survival Techniques, Firefighting, First Aid, and PSSR under STCW 2010 guidelines.",
-  "STCW-BST": "Mandatory safety training covering Personal Survival Techniques, Firefighting, First Aid, and PSSR under STCW 2010 guidelines.",
-  "CRS-02": "Advanced training in organizing, tactics, command, and control of onboard firefighting operations.",
-  "STCW-AFF": "Advanced training in organizing, tactics, command, and control of onboard firefighting operations.",
-  "CRS-03": "Comprehensive bridge watchkeeping, radar plotting, ARPA operations, and electronic navigation systems.",
-  "NAV-RADAR": "Comprehensive bridge watchkeeping, radar plotting, ARPA operations, and electronic navigation systems.",
-  "CRS-04": "International maritime conventions including SOLAS, MARPOL, MLC 2006, and Port State Control compliance.",
-  "LAW-MAR": "International maritime conventions including SOLAS, MARPOL, MLC 2006, and Port State Control compliance.",
-  "CRS-05": "Advanced safety procedures, cargo handling, inert gas systems, and pollution prevention on oil/chemical tankers.",
-  "OPS-TANK": "Advanced safety procedures, cargo handling, inert gas systems, and pollution prevention on oil/chemical tankers.",
-  "CRS-06": "Marine propulsion systems, auxiliary machinery maintenance, power generation, and emergency preparedness.",
-  "ENG-SIM": "Marine propulsion systems, auxiliary machinery maintenance, power generation, and emergency preparedness.",
-  "CRS-07": "Immediate first aid application, trauma care, telemedicine coordination, and medical kit administration at sea.",
-  "MED-FIRST": "Immediate first aid application, trauma care, telemedicine coordination, and medical kit administration at sea.",
-  "CRS-08": "Passenger vessel safety, crowd psychology, emergency muster procedures, and life-saving appliance deployment.",
-  "CMP-CRISIS": "Passenger ship crowd management, human behaviour in emergencies, crisis communications, and muster station organization.",
+  "CRS-01":
+    "Mandatory safety training covering Personal Survival Techniques, Firefighting, First Aid, and PSSR under STCW 2010 guidelines.",
+  "STCW-BST":
+    "Mandatory safety training covering Personal Survival Techniques, Firefighting, First Aid, and PSSR under STCW 2010 guidelines.",
+  "CRS-02":
+    "Advanced training in organizing, tactics, command, and control of onboard firefighting operations.",
+  "STCW-AFF":
+    "Advanced training in organizing, tactics, command, and control of onboard firefighting operations.",
+  "CRS-03":
+    "Comprehensive bridge watchkeeping, radar plotting, ARPA operations, and electronic navigation systems.",
+  "NAV-RADAR":
+    "Comprehensive bridge watchkeeping, radar plotting, ARPA operations, and electronic navigation systems.",
+  "CRS-04":
+    "International maritime conventions including SOLAS, MARPOL, MLC 2006, and Port State Control compliance.",
+  "LAW-MAR":
+    "International maritime conventions including SOLAS, MARPOL, MLC 2006, and Port State Control compliance.",
+  "CRS-05":
+    "Advanced safety procedures, cargo handling, inert gas systems, and pollution prevention on oil/chemical tankers.",
+  "OPS-TANK":
+    "Advanced safety procedures, cargo handling, inert gas systems, and pollution prevention on oil/chemical tankers.",
+  "CRS-06":
+    "Marine propulsion systems, auxiliary machinery maintenance, power generation, and emergency preparedness.",
+  "ENG-SIM":
+    "Marine propulsion systems, auxiliary machinery maintenance, power generation, and emergency preparedness.",
+  "CRS-07":
+    "Immediate first aid application, trauma care, telemedicine coordination, and medical kit administration at sea.",
+  "MED-FIRST":
+    "Immediate first aid application, trauma care, telemedicine coordination, and medical kit administration at sea.",
+  "CRS-08":
+    "Passenger vessel safety, crowd psychology, emergency muster procedures, and life-saving appliance deployment.",
+  "CMP-CRISIS":
+    "Passenger ship crowd management, human behaviour in emergencies, crisis communications, and muster station organization.",
 };
 
 function getCourseDescription(course: MockCourse): string {
@@ -81,70 +125,6 @@ interface CourseInstituteDetail {
   nextBatch: string;
 }
 
-function getInstitutesForCourse(course: MockCourse): CourseInstituteDetail[] {
-  const keys = Object.keys(COURSE_INSTITUTES_MAP);
-  const matchedKey = keys.find(k =>
-    course.title.toLowerCase().includes(k.toLowerCase()) ||
-    k.toLowerCase().includes(course.title.toLowerCase())
-  );
-
-  if (matchedKey && COURSE_INSTITUTES_MAP[matchedKey]) {
-    const instIds = COURSE_INSTITUTES_MAP[matchedKey];
-    const pricingMap = COURSE_INSTITUTE_PRICING[matchedKey] || {};
-
-    return instIds.map((id) => {
-      const institute = MOCK_INSTITUTES.find((i) => i.id === id) || {
-        id,
-        name: "Hari Om Thalassic Maritime Training Institute",
-        location: "Mumbai, Maharashtra",
-        rating: 4.9,
-      };
-      const pricing = pricingMap[id] || { price: `₹${course.price.toLocaleString()}`, seats: 20, nextBatch: "15 Sep 2026" };
-
-      return {
-        id: institute.id,
-        name: institute.name,
-        location: institute.location,
-        rating: institute.rating,
-        price: pricing.price,
-        seats: pricing.seats,
-        nextBatch: pricing.nextBatch,
-      };
-    });
-  }
-
-  // Dynamic fallback for newly added / custom courses
-  return [
-    {
-      id: "inst_1",
-      name: "Hari Om Thalassic Maritime Training Institute",
-      location: "Mumbai, Maharashtra",
-      rating: 4.9,
-      price: `₹${course.price.toLocaleString()}`,
-      seats: 24,
-      nextBatch: "15 Sep 2026",
-    },
-    {
-      id: "inst_2",
-      name: "Global Seafarers Academy",
-      location: "Kochi, Kerala",
-      rating: 4.8,
-      price: `₹${(course.price + 500).toLocaleString()}`,
-      seats: 18,
-      nextBatch: "20 Sep 2026",
-    },
-    {
-      id: "inst_3",
-      name: "Oceanic Maritime Center",
-      location: "Chennai, Tamil Nadu",
-      rating: 4.7,
-      price: `₹${(course.price > 500 ? course.price - 200 : course.price).toLocaleString()}`,
-      seats: 30,
-      nextBatch: "18 Sep 2026",
-    },
-  ];
-}
-
 const EMPTY_FORM: {
   title: string;
   code: string;
@@ -169,14 +149,99 @@ export default function CoursesPage() {
   const { getStatusesForModule, getStatus } = useGlobalStatus();
   const courseStatuses = getStatusesForModule("course");
 
-  const [courseList, setCourseList]   = useState<MockCourse[]>(MOCK_COURSES);
-  const [search, setSearch]           = useState("");
-  const [cat, setCat]                 = useState("All");
-  const [status, setStatus]           = useState("All");
+  const [courseList, setCourseList] = useState<MockCourse[]>([]);
+  const [institutesList, setInstitutesList] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [search, setSearch] = useState("");
+  const [cat, setCat] = useState("All");
+  const [status, setStatus] = useState("All");
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingCourseId, setEditingCourseId] = useState<string | null>(null);
-  const [form, setForm]               = useState({ ...EMPTY_FORM });
-  const [saved, setSaved]             = useState(false);
+  const [form, setForm] = useState({ ...EMPTY_FORM });
+  const [saved, setSaved] = useState(false);
+
+  const fetchCourses = async () => {
+    try {
+      setLoading(true);
+      const [crsRes, instRes] = await Promise.all([
+        api.get("/master/courses"),
+        api.get("/master/institutes"),
+      ]);
+      if (Array.isArray(crsRes.data)) {
+        setCourseList(
+          crsRes.data.map((c: any) => ({
+            id: c.id,
+            code: c.code || "CRS",
+            title: c.name || c.title,
+            category: c.category || "Safety",
+            duration: c.duration || "3 Days",
+            price: Number(c.standard_fee || c.fees || c.price || 0),
+            description: c.description || "",
+            status: c.status || "Active",
+            rating: 4.8,
+            enrolledCount: c.enrolledCount || 0,
+            associatedInstituteIds: c.associatedInstituteIds || [],
+            institutes: c.institutes || [],
+          })),
+        );
+      }
+      if (Array.isArray(instRes.data)) {
+        setInstitutesList(instRes.data);
+      }
+    } catch (err) {
+      console.warn("Failed to load courses from DB:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  function getInstitutesForCourse(course: MockCourse): CourseInstituteDetail[] {
+    const courseAny = course as any;
+    if (
+      Array.isArray(courseAny.institutes) &&
+      courseAny.institutes.length > 0
+    ) {
+      return courseAny.institutes.map((inst: any) => ({
+        id: inst.id,
+        name: inst.name,
+        location:
+          inst.location ||
+          `${inst.city || "Mumbai"}, ${inst.state || "Maharashtra"}`,
+        rating: 4.9,
+        price: `₹${(course.price || 5000).toLocaleString()}`,
+        seats: 25,
+        nextBatch: "15 Sep 2026",
+      }));
+    }
+
+    if (institutesList.length > 0) {
+      return institutesList.map((inst: any) => ({
+        id: inst.id,
+        name: inst.name,
+        location: inst.location || "Mumbai, Maharashtra",
+        rating: inst.rating || 4.8,
+        price: `₹${(course.price || 5000).toLocaleString()}`,
+        seats: 20,
+        nextBatch: "18 Sep 2026",
+      }));
+    }
+
+    return [
+      {
+        id: "inst-1",
+        name: "Oceanic Maritime Training Institute",
+        location: "Mumbai, Maharashtra",
+        rating: 4.9,
+        price: `₹${(course.price || 5000).toLocaleString()}`,
+        seats: 24,
+        nextBatch: "15 Sep 2026",
+      },
+    ];
+  }
 
   // Selected Course for Details Modal
   const [selectedCourse, setSelectedCourse] = useState<MockCourse | null>(null);
@@ -197,19 +262,28 @@ export default function CoursesPage() {
   const [assignSuccess, setAssignSuccess] = useState<string | null>(null);
 
   // theme tokens
-  const bg        = dk ? "bg-[#0d1f35] border border-white/6" : "bg-white border border-slate-200";
-  const headText  = dk ? "text-white/80"  : "text-slate-800";
-  const mutedText = dk ? "text-slate-400"  : "text-slate-600";
-  const inputBg   = dk ? "bg-white/5 border border-white/10 text-white placeholder:text-slate-400 focus:border-indigo-500/50 outline-none" : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-indigo-400 outline-none";
-  const divider   = dk ? "divide-white/5" : "divide-slate-100";
-  const rowHover  = dk ? "hover:bg-white/[0.03]" : "hover:bg-slate-50";
-  const modalBg   = dk ? "bg-[#0d1f35] border border-white/10" : "bg-white border border-slate-200";
-  const labelCls  = dk ? "text-slate-300 font-semibold"  : "text-slate-700 font-semibold";
+  const bg = dk
+    ? "bg-[#0d1f35] border border-white/6"
+    : "bg-white border border-slate-200";
+  const headText = dk ? "text-white/80" : "text-slate-800";
+  const mutedText = dk ? "text-slate-400" : "text-slate-600";
+  const inputBg = dk
+    ? "bg-white/5 border border-white/10 text-white placeholder:text-slate-400 focus:border-indigo-500/50 outline-none"
+    : "bg-slate-50 border border-slate-200 text-slate-800 placeholder:text-slate-500 focus:border-indigo-400 outline-none";
+  const divider = dk ? "divide-white/5" : "divide-slate-100";
+  const rowHover = dk ? "hover:bg-white/[0.03]" : "hover:bg-slate-50";
+  const modalBg = dk
+    ? "bg-[#0d1f35] border border-white/10"
+    : "bg-white border border-slate-200";
+  const labelCls = dk
+    ? "text-slate-300 font-semibold"
+    : "text-slate-700 font-semibold";
 
   const filtered = courseList.filter((c) => {
     const q = search.toLowerCase();
-    const matchSearch = c.title.toLowerCase().includes(q) || c.code.toLowerCase().includes(q);
-    const matchCat    = cat === "All" || c.category === cat;
+    const matchSearch =
+      c.title.toLowerCase().includes(q) || c.code.toLowerCase().includes(q);
+    const matchCat = cat === "All" || c.category === cat;
     const matchStatus = status === "All" || c.status === status;
     return matchSearch && matchCat && matchStatus;
   });
@@ -222,12 +296,12 @@ export default function CoursesPage() {
   };
 
   const toggleInstituteAssociation = (instId: string) => {
-    setForm(prev => {
+    setForm((prev) => {
       const exists = prev.associatedInstituteIds.includes(instId);
       return {
         ...prev,
         associatedInstituteIds: exists
-          ? prev.associatedInstituteIds.filter(id => id !== instId)
+          ? prev.associatedInstituteIds.filter((id) => id !== instId)
           : [...prev.associatedInstituteIds, instId],
       };
     });
@@ -239,54 +313,36 @@ export default function CoursesPage() {
     setSaved(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!form.title.trim() || !form.duration.trim()) return;
 
-    if (editingCourseId) {
-      setCourseList(prev =>
-        prev.map(c =>
-          c.id === editingCourseId
-            ? {
-                ...c,
-                title: form.title.trim(),
-                code: form.code.trim() || c.code,
-                category: form.category,
-                duration: form.duration.trim(),
-                price: Number(form.price) || c.price,
-                status: form.status,
-              }
-            : c
-        )
-      );
-      if (selectedCourse && selectedCourse.id === editingCourseId) {
-        setSelectedCourse(prev =>
-          prev
-            ? {
-                ...prev,
-                title: form.title.trim(),
-                code: form.code.trim() || prev.code,
-                category: form.category,
-                duration: form.duration.trim(),
-                price: Number(form.price) || prev.price,
-                status: form.status,
-              }
-            : null
-        );
+    try {
+      if (editingCourseId) {
+        const payload = {
+          title: form.title.trim(),
+          code: form.code.trim(),
+          category: form.category,
+          duration: form.duration.trim(),
+          price: Number(form.price) || 5000,
+          status: form.status,
+          associatedInstituteIds: form.associatedInstituteIds,
+        };
+        await api.patch(`/master/courses/${editingCourseId}`, payload);
+      } else {
+        const payload = {
+          title: form.title.trim(),
+          code: form.code.trim() || `CRS-${Date.now().toString().slice(-4)}`,
+          category: form.category,
+          duration: form.duration.trim(),
+          price: Number(form.price) || 5000,
+          status: form.status,
+          associatedInstituteIds: form.associatedInstituteIds,
+        };
+        await api.post("/master/courses", payload);
       }
-    } else {
-      const newCourse: MockCourse = {
-        id: `CRS-0${courseList.length + 1}`,
-        code: form.code.trim() || `CRS-${courseList.length + 1}`,
-        title: form.title.trim(),
-        category: form.category,
-        duration: form.duration.trim(),
-        price: Number(form.price) || 5000,
-        status: form.status,
-        rating: 4.8,
-        enrolledCount: 0,
-        associatedInstituteIds: [],
-      };
-      setCourseList(prev => [newCourse, ...prev]);
+      fetchCourses();
+    } catch (err) {
+      console.warn("API save course failed:", err);
     }
 
     setSaved(true);
@@ -297,14 +353,15 @@ export default function CoursesPage() {
     if (!selectedCourse) return;
     setEditForm({
       title: selectedCourse.title,
-      description: selectedCourse.description || getCourseDescription(selectedCourse),
+      description:
+        selectedCourse.description || getCourseDescription(selectedCourse),
       duration: selectedCourse.duration,
       price: String(selectedCourse.price),
     });
     setIsEditing(true);
   };
 
-  const saveEdit = () => {
+  const saveEdit = async () => {
     if (!selectedCourse) return;
     const newPrice = Number(editForm.price) || selectedCourse.price;
     const updated: MockCourse = {
@@ -315,12 +372,26 @@ export default function CoursesPage() {
       description: editForm.description.trim(),
     };
 
-    setCourseList(prev => prev.map(c => (c.id === selectedCourse.id ? updated : c)));
+    try {
+      await api.patch(`/master/courses/${selectedCourse.id}`, {
+        title: updated.title,
+        duration: updated.duration,
+        price: updated.price,
+        description: updated.description,
+      });
+      fetchCourses();
+    } catch (err) {
+      console.warn("API patch course error:", err);
+    }
+
     setSelectedCourse(updated);
     setIsEditing(false);
   };
 
-  const handleAssignCrew = (course: MockCourse, inst: CourseInstituteDetail) => {
+  const handleAssignCrew = (
+    course: MockCourse,
+    inst: CourseInstituteDetail,
+  ) => {
     setAssignModal({
       courseTitle: course.title,
       instituteName: inst.name,
@@ -330,17 +401,20 @@ export default function CoursesPage() {
 
   return (
     <div className="space-y-6">
-
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className={`text-xl font-bold ${headText}`}>Course Management</h1>
-          <p className={`text-sm mt-0.5 ${mutedText}`}>Manage maritime curriculum and DGS-approved modules</p>
+          <p className={`text-sm mt-0.5 ${mutedText}`}>
+            Manage maritime curriculum and DGS-approved modules
+          </p>
         </div>
         <button
           onClick={openAddModal}
           className={`flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-xl border transition-colors shadow-sm ${
-            dk ? "bg-white/5 border-white/10 text-white hover:bg-white/10" : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
+            dk
+              ? "bg-white/5 border-white/10 text-white hover:bg-white/10"
+              : "bg-white border-slate-200 text-slate-800 hover:bg-slate-50"
           }`}
         >
           <Plus className="w-4 h-4" /> Add New Course
@@ -348,13 +422,17 @@ export default function CoursesPage() {
       </div>
 
       {/* Filters & Search */}
-      <div className={`p-4 rounded-2xl ${bg} flex flex-wrap items-center justify-between gap-3`}>
+      <div
+        className={`p-4 rounded-2xl ${bg} flex flex-wrap items-center justify-between gap-3`}
+      >
         <div className="flex-1 max-w-md">
           <div className="relative">
-            <Search className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${dk ? "text-slate-400" : "text-slate-500"}`} />
+            <Search
+              className={`w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 ${dk ? "text-slate-400" : "text-slate-500"}`}
+            />
             <input
               value={search}
-              onChange={e => setSearch(e.target.value)}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search courses by title, code..."
               className={`w-full pl-9 pr-4 py-2 text-xs rounded-xl ${inputBg}`}
             />
@@ -364,40 +442,48 @@ export default function CoursesPage() {
         {/* Category & Status Filter Tabs */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="flex items-center gap-2">
-            {CATEGORIES.map(c => (
+            {CATEGORIES.map((c) => (
               <button
                 key={c}
                 onClick={() => setCat(c)}
                 className={`text-xs capitalize transition-colors ${
                   cat === c
                     ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-indigo-500"
-                    : dk ? "text-slate-400 hover:text-white font-medium" : "text-slate-600 hover:text-slate-900 font-medium"
+                    : dk
+                      ? "text-slate-400 hover:text-white font-medium"
+                      : "text-slate-600 hover:text-slate-900 font-medium"
                 }`}
               >
                 {c}
               </button>
             ))}
           </div>
-          <div className={`h-4 w-px ${dk ? "bg-white/10" : "bg-slate-200"} mx-1`} />
+          <div
+            className={`h-4 w-px ${dk ? "bg-white/10" : "bg-slate-200"} mx-1`}
+          />
           <div className="flex items-center gap-2">
             <button
               onClick={() => setStatus("All")}
               className={`text-xs capitalize transition-colors ${
                 status === "All"
                   ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-violet-500"
-                  : dk ? "text-slate-400 hover:text-white font-medium" : "text-slate-600 hover:text-slate-900 font-medium"
+                  : dk
+                    ? "text-slate-400 hover:text-white font-medium"
+                    : "text-slate-600 hover:text-slate-900 font-medium"
               }`}
             >
               All Statuses
             </button>
-            {courseStatuses.map(s => (
+            {courseStatuses.map((s) => (
               <button
                 key={s.id}
                 onClick={() => setStatus(s.label)}
                 className={`text-xs capitalize transition-colors ${
                   status === s.label
                     ? "text-black dark:text-white font-bold underline underline-offset-4 decoration-2 decoration-violet-500"
-                    : dk ? "text-slate-400 hover:text-white font-medium" : "text-slate-600 hover:text-slate-900 font-medium"
+                    : dk
+                      ? "text-slate-400 hover:text-white font-medium"
+                      : "text-slate-600 hover:text-slate-900 font-medium"
                 }`}
               >
                 {s.label}
@@ -412,7 +498,9 @@ export default function CoursesPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className={`border-b text-[11px] font-semibold uppercase tracking-wider ${dk ? "border-white/5 text-slate-300" : "border-slate-100 text-slate-700"}`}>
+              <tr
+                className={`border-b text-[11px] font-semibold uppercase tracking-wider ${dk ? "border-white/5 text-slate-300" : "border-slate-100 text-slate-700"}`}
+              >
                 <th className="text-left px-6 py-3.5">Course Title & Code</th>
                 <th className="text-left px-6 py-3.5">Category</th>
                 <th className="text-left px-6 py-3.5">Associated Institutes</th>
@@ -423,7 +511,7 @@ export default function CoursesPage() {
               </tr>
             </thead>
             <tbody className={`divide-y ${divider}`}>
-              {filtered.map(c => {
+              {filtered.map((c) => {
                 const institutesCount = getInstitutesForCourse(c).length;
                 return (
                   <tr
@@ -440,33 +528,61 @@ export default function CoursesPage() {
                           <BookOpen className="w-4 h-4" />
                         </div>
                         <div>
-                          <p className={`font-semibold text-[13px] ${headText}`}>{c.title}</p>
-                          <p className={`text-[11px] font-mono font-medium ${mutedText}`}>{c.code}</p>
+                          <p
+                            className={`font-semibold text-[13px] ${headText}`}
+                          >
+                            {c.title}
+                          </p>
+                          <p
+                            className={`text-[11px] font-mono font-medium ${mutedText}`}
+                          >
+                            {c.code}
+                          </p>
                         </div>
                       </div>
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-[12px] font-semibold ${dk ? catColorsDark[c.category] : catColors[c.category]}`}>
+                      <span
+                        className={`text-[12px] font-semibold ${dk ? catColorsDark[c.category] : catColors[c.category]}`}
+                      >
                         {c.category}
                       </span>
                     </td>
-                    <td className={`px-6 py-4 text-[12px] font-medium ${mutedText}`}>
+                    <td
+                      className={`px-6 py-4 text-[12px] font-medium ${mutedText}`}
+                    >
                       <span className="flex items-center gap-1.5">
-                        <Building2 className={`w-3.5 h-3.5 ${dk ? "text-slate-400" : "text-slate-500"}`} />
-                        {institutesCount} {institutesCount === 1 ? "Institute" : "Institutes"}
+                        <Building2
+                          className={`w-3.5 h-3.5 ${dk ? "text-slate-400" : "text-slate-500"}`}
+                        />
+                        {institutesCount}{" "}
+                        {institutesCount === 1 ? "Institute" : "Institutes"}
                       </span>
                     </td>
-                    <td className={`px-6 py-4 text-[12px] font-medium ${mutedText}`}>
-                      <span className="flex items-center gap-1"><Clock className={`w-3 h-3 ${dk ? "text-slate-400" : "text-slate-500"}`} />{c.duration}</span>
+                    <td
+                      className={`px-6 py-4 text-[12px] font-medium ${mutedText}`}
+                    >
+                      <span className="flex items-center gap-1">
+                        <Clock
+                          className={`w-3 h-3 ${dk ? "text-slate-400" : "text-slate-500"}`}
+                        />
+                        {c.duration}
+                      </span>
                     </td>
-                    <td className={`px-6 py-4 text-[13px] font-bold ${headText}`}>
+                    <td
+                      className={`px-6 py-4 text-[13px] font-bold ${headText}`}
+                    >
                       ₹{c.price.toLocaleString()}
                     </td>
-                    <td className={`px-6 py-4 text-[12px] font-medium ${headText}`}>
+                    <td
+                      className={`px-6 py-4 text-[12px] font-medium ${headText}`}
+                    >
                       {c.enrolledCount} seafarers
                     </td>
                     <td className="px-6 py-4">
-                      <span className={`text-[12px] font-semibold ${getStatus(c.status)?.color || (dk ? statusColorsDark[c.status] : statusColors[c.status])}`}>
+                      <span
+                        className={`text-[12px] font-semibold ${getStatus(c.status)?.color || (dk ? statusColorsDark[c.status] : statusColors[c.status])}`}
+                      >
                         {getStatus(c.status)?.label || c.status}
                       </span>
                     </td>
@@ -476,8 +592,12 @@ export default function CoursesPage() {
             </tbody>
           </table>
         </div>
-        <div className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs font-medium ${mutedText}`}>
-          <span>Showing {filtered.length} of {courseList.length} courses</span>
+        <div
+          className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex items-center justify-between text-xs font-medium ${mutedText}`}
+        >
+          <span>
+            Showing {filtered.length} of {courseList.length} courses
+          </span>
         </div>
       </div>
 
@@ -497,14 +617,20 @@ export default function CoursesPage() {
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
-            <div className={`p-6 border-b flex items-start justify-between gap-4 ${dk ? "border-white/8" : "border-slate-100"}`}>
+            <div
+              className={`p-6 border-b flex items-start justify-between gap-4 ${dk ? "border-white/8" : "border-slate-100"}`}
+            >
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-3 mb-1.5">
-                  <span className={`text-xs font-bold uppercase tracking-wider ${dk ? catColorsDark[selectedCourse.category] || "text-indigo-400" : catColors[selectedCourse.category] || "text-indigo-700"}`}>
+                  <span
+                    className={`text-xs font-bold uppercase tracking-wider ${dk ? catColorsDark[selectedCourse.category] || "text-indigo-400" : catColors[selectedCourse.category] || "text-indigo-700"}`}
+                  >
                     {selectedCourse.category}
                   </span>
                   {selectedCourse.code && (
-                    <span className={`text-xs font-mono font-medium ${mutedText}`}>
+                    <span
+                      className={`text-xs font-mono font-medium ${mutedText}`}
+                    >
                       {selectedCourse.code}
                     </span>
                   )}
@@ -512,16 +638,23 @@ export default function CoursesPage() {
                 {isEditing ? (
                   <input
                     value={editForm.title}
-                    onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, title: e.target.value })
+                    }
                     className={`text-xl font-bold w-full bg-transparent border-b outline-none pb-1 ${
-                      dk ? "border-white/20 focus:border-indigo-400 text-white" : "border-slate-300 focus:border-indigo-500 text-slate-900"
+                      dk
+                        ? "border-white/20 focus:border-indigo-400 text-white"
+                        : "border-slate-300 focus:border-indigo-500 text-slate-900"
                     }`}
                   />
                 ) : (
-                  <h2 className={`text-xl font-bold ${headText}`}>{selectedCourse.title}</h2>
+                  <h2 className={`text-xl font-bold ${headText}`}>
+                    {selectedCourse.title}
+                  </h2>
                 )}
                 <p className={`text-xs mt-1 ${mutedText}`}>
-                  Duration: {isEditing ? editForm.duration : selectedCourse.duration}
+                  Duration:{" "}
+                  {isEditing ? editForm.duration : selectedCourse.duration}
                 </p>
               </div>
 
@@ -541,7 +674,9 @@ export default function CoursesPage() {
                     setIsEditing(false);
                   }}
                   className={`p-1.5 rounded-lg border transition-colors cursor-pointer ${
-                    dk ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-200 hover:bg-slate-100 text-slate-600"
+                    dk
+                      ? "border-white/10 hover:bg-white/5 text-slate-300"
+                      : "border-slate-200 hover:bg-slate-100 text-slate-600"
                   }`}
                   aria-label="Close modal"
                 >
@@ -560,15 +695,22 @@ export default function CoursesPage() {
                 {isEditing ? (
                   <textarea
                     value={editForm.description}
-                    onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    onChange={(e) =>
+                      setEditForm({ ...editForm, description: e.target.value })
+                    }
                     rows={3}
                     className={`w-full text-xs leading-relaxed p-2.5 rounded-xl border outline-none resize-none ${
-                      dk ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+                      dk
+                        ? "bg-white/5 border-white/10 text-white"
+                        : "bg-slate-50 border-slate-200 text-slate-900"
                     }`}
                   />
                 ) : (
-                  <p className={`text-xs leading-relaxed ${dk ? "text-white/80" : "text-slate-600"}`}>
-                    {selectedCourse.description || getCourseDescription(selectedCourse)}
+                  <p
+                    className={`text-xs leading-relaxed ${dk ? "text-white/80" : "text-slate-600"}`}
+                  >
+                    {selectedCourse.description ||
+                      getCourseDescription(selectedCourse)}
                   </p>
                 )}
               </div>
@@ -582,9 +724,13 @@ export default function CoursesPage() {
                     </label>
                     <input
                       value={editForm.duration}
-                      onChange={(e) => setEditForm({ ...editForm, duration: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, duration: e.target.value })
+                      }
                       className={`w-full p-2.5 rounded-xl border outline-none text-xs ${
-                        dk ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+                        dk
+                          ? "bg-white/5 border-white/10 text-white"
+                          : "bg-slate-50 border-slate-200 text-slate-900"
                       }`}
                       placeholder="e.g. 5 days"
                     />
@@ -596,9 +742,13 @@ export default function CoursesPage() {
                     <input
                       type="number"
                       value={editForm.price}
-                      onChange={(e) => setEditForm({ ...editForm, price: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, price: e.target.value })
+                      }
                       className={`w-full p-2.5 rounded-xl border outline-none text-xs ${
-                        dk ? "bg-white/5 border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
+                        dk
+                          ? "bg-white/5 border-white/10 text-white"
+                          : "bg-slate-50 border-slate-200 text-slate-900"
                       }`}
                       placeholder="e.g. 5000"
                     />
@@ -615,16 +765,22 @@ export default function CoursesPage() {
                   </h4>
                   <div className="space-y-2.5">
                     {getInstitutesForCourse(selectedCourse).map((inst) => {
-                      const durationDays = parseDurationDays(selectedCourse.duration);
+                      const durationDays = parseDurationDays(
+                        selectedCourse.duration,
+                      );
                       const startDate = new Date(inst.nextBatch);
                       const validStart = !isNaN(startDate.getTime());
-                      const endDate = validStart ? addDays(startDate, durationDays) : null;
+                      const endDate = validStart
+                        ? addDays(startDate, durationDays)
+                        : null;
 
                       return (
                         <div
                           key={inst.id}
                           className={`p-3.5 rounded-xl border grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs ${
-                            dk ? "bg-white/[0.02] border-white/5" : "bg-slate-50 border-slate-200"
+                            dk
+                              ? "bg-white/[0.02] border-white/5"
+                              : "bg-slate-50 border-slate-200"
                           }`}
                         >
                           <div>
@@ -647,13 +803,17 @@ export default function CoursesPage() {
                             <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-white/40 block mb-0.5">
                               DURATION
                             </span>
-                            <span className={`font-bold ${headText}`}>{selectedCourse.duration}</span>
+                            <span className={`font-bold ${headText}`}>
+                              {selectedCourse.duration}
+                            </span>
                           </div>
                           <div>
                             <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-white/40 block mb-0.5">
                               BATCH CAPACITY
                             </span>
-                            <span className={`font-bold ${headText}`}>{inst.seats} seats</span>
+                            <span className={`font-bold ${headText}`}>
+                              {inst.seats} seats
+                            </span>
                           </div>
                           <div className="col-span-2 sm:col-span-4 mt-0.5">
                             <span className="text-[11px] text-slate-500 dark:text-white/40 font-medium">
@@ -673,7 +833,8 @@ export default function CoursesPage() {
                   <div className="flex items-center justify-between mb-3">
                     <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-white/40 flex items-center gap-1.5">
                       <Building2 className="w-3.5 h-3.5 text-indigo-500" />
-                      AVAILABLE INSTITUTES & PRICE ({getInstitutesForCourse(selectedCourse).length})
+                      AVAILABLE INSTITUTES & PRICE (
+                      {getInstitutesForCourse(selectedCourse).length})
                     </h4>
                     <span className="text-[11px] text-black dark:text-white font-medium">
                       Prices vary by institute
@@ -685,12 +846,16 @@ export default function CoursesPage() {
                       <div
                         key={inst.id}
                         className={`p-4 rounded-xl border transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
-                          dk ? "bg-white/[0.02] border-white/5 hover:border-white/10" : "bg-slate-50 border-slate-200 hover:border-slate-300"
+                          dk
+                            ? "bg-white/[0.02] border-white/5 hover:border-white/10"
+                            : "bg-slate-50 border-slate-200 hover:border-slate-300"
                         }`}
                       >
                         <div className="space-y-1">
                           <div className="flex items-center gap-2">
-                            <span className={`text-xs font-bold ${headText}`}>{inst.name}</span>
+                            <span className={`text-xs font-bold ${headText}`}>
+                              {inst.name}
+                            </span>
                             {inst.rating && (
                               <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-500">
                                 <Star className="w-2.5 h-2.5 fill-amber-500" />
@@ -712,8 +877,12 @@ export default function CoursesPage() {
 
                         <div className="flex items-center sm:justify-end shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200 dark:border-white/5">
                           <div className="text-left sm:text-right">
-                            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-white/40 block">Price</span>
-                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">{inst.price}</span>
+                            <span className="text-[10px] uppercase font-semibold text-slate-400 dark:text-white/40 block">
+                              Price
+                            </span>
+                            <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                              {inst.price}
+                            </span>
                           </div>
                         </div>
                       </div>
@@ -726,7 +895,9 @@ export default function CoursesPage() {
             {/* Modal Footer */}
             <div
               className={`p-4 px-6 border-t flex items-center justify-between ${
-                dk ? "border-white/5 bg-white/[0.01]" : "border-slate-100 bg-slate-50/50"
+                dk
+                  ? "border-white/5 bg-white/[0.01]"
+                  : "border-slate-100 bg-slate-50/50"
               }`}
             >
               <span className="text-xs text-slate-400 dark:text-white/40">
@@ -748,7 +919,9 @@ export default function CoursesPage() {
                     setIsEditing(false);
                   }}
                   className={`px-4 py-2 rounded-xl text-xs font-medium border transition-colors cursor-pointer ${
-                    dk ? "border-white/10 hover:bg-white/5 text-slate-300" : "border-slate-200 hover:bg-slate-100 text-slate-600"
+                    dk
+                      ? "border-white/10 hover:bg-white/5 text-slate-300"
+                      : "border-slate-200 hover:bg-slate-100 text-slate-600"
                   }`}
                 >
                   {isEditing ? "Cancel" : "Close"}
@@ -769,19 +942,30 @@ export default function CoursesPage() {
             className={`w-full max-w-md rounded-2xl shadow-2xl p-6 border ${modalBg}`}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className={`flex items-center justify-between pb-4 border-b ${dk ? "border-white/8" : "border-slate-100"}`}>
+            <div
+              className={`flex items-center justify-between pb-4 border-b ${dk ? "border-white/8" : "border-slate-100"}`}
+            >
               <div>
                 <h3 className={`text-sm font-bold ${headText}`}>Assign Crew</h3>
-                <p className={`text-xs ${mutedText}`}>{assignModal.courseTitle}</p>
+                <p className={`text-xs ${mutedText}`}>
+                  {assignModal.courseTitle}
+                </p>
               </div>
-              <button onClick={() => setAssignModal(null)} className={mutedText}>
+              <button
+                onClick={() => setAssignModal(null)}
+                className={mutedText}
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="py-4 space-y-3 text-xs">
               <div>
-                <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Training Institute</label>
+                <label
+                  className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                >
+                  Training Institute
+                </label>
                 <input
                   readOnly
                   value={assignModal.instituteName}
@@ -790,7 +974,11 @@ export default function CoursesPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Batch Date</label>
+                  <label
+                    className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                  >
+                    Batch Date
+                  </label>
                   <input
                     readOnly
                     value={assignModal.nextBatch}
@@ -798,7 +986,11 @@ export default function CoursesPage() {
                   />
                 </div>
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Seats Required</label>
+                  <label
+                    className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                  >
+                    Seats Required
+                  </label>
                   <input
                     type="number"
                     min={1}
@@ -810,7 +1002,9 @@ export default function CoursesPage() {
               </div>
             </div>
 
-            <div className={`flex items-center justify-end gap-2 pt-4 border-t ${dk ? "border-white/8" : "border-slate-100"}`}>
+            <div
+              className={`flex items-center justify-end gap-2 pt-4 border-t ${dk ? "border-white/8" : "border-slate-100"}`}
+            >
               <button
                 onClick={() => setAssignModal(null)}
                 className={`px-4 py-2 text-xs rounded-xl ${dk ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-600"}`}
@@ -819,7 +1013,9 @@ export default function CoursesPage() {
               </button>
               <button
                 onClick={() => {
-                  setAssignSuccess(`Crew assigned to ${assignModal.courseTitle} at ${assignModal.instituteName}`);
+                  setAssignSuccess(
+                    `Crew assigned to ${assignModal.courseTitle} at ${assignModal.instituteName}`,
+                  );
                   setAssignModal(null);
                   setTimeout(() => setAssignSuccess(null), 3500);
                 }}
@@ -843,25 +1039,35 @@ export default function CoursesPage() {
       {/* ── MODAL: Add / Edit Course ── */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className={`w-full max-w-xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${modalBg}`}>
+          <div
+            className={`w-full max-w-xl max-h-[90vh] flex flex-col rounded-2xl shadow-2xl overflow-hidden ${modalBg}`}
+          >
             {/* Modal Header */}
-            <div className={`flex items-center justify-between px-6 py-4 border-b ${dk ? "border-white/8" : "border-slate-100"}`}>
+            <div
+              className={`flex items-center justify-between px-6 py-4 border-b ${dk ? "border-white/8" : "border-slate-100"}`}
+            >
               <div className="flex items-center gap-2.5">
                 <BookOpen className="w-5 h-5 text-indigo-400" />
                 <h2 className={`text-base font-bold ${headText}`}>
                   {editingCourseId ? "Edit Course" : "Add New Course"}
                 </h2>
               </div>
-              <button onClick={closeModal} className={mutedText}><X className="w-5 h-5" /></button>
+              <button onClick={closeModal} className={mutedText}>
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
             {/* Modal Form Body */}
             <div className="p-6 overflow-y-auto space-y-4 text-xs">
               <div>
-                <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Course Title *</label>
+                <label
+                  className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                >
+                  Course Title *
+                </label>
                 <input
                   value={form.title}
-                  onChange={e => setForm({ ...form, title: e.target.value })}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
                   className={`w-full px-3 py-2 text-xs rounded-xl ${inputBg}`}
                   placeholder="e.g. Advanced Fire Fighting (AFF)"
                 />
@@ -869,23 +1075,38 @@ export default function CoursesPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Course Code / ID</label>
+                  <label
+                    className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                  >
+                    Course Code / ID
+                  </label>
                   <input
                     value={form.code}
-                    onChange={e => setForm({ ...form, code: e.target.value })}
+                    onChange={(e) => setForm({ ...form, code: e.target.value })}
                     className={`w-full px-3 py-2 text-xs rounded-xl ${inputBg}`}
                     placeholder="e.g. STCW-AFF-02"
                   />
                 </div>
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Category</label>
+                  <label
+                    className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                  >
+                    Category
+                  </label>
                   <select
                     value={form.category}
-                    onChange={e => setForm({ ...form, category: e.target.value as typeof form.category })}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        category: e.target.value as typeof form.category,
+                      })
+                    }
                     className={`w-full px-3 py-2 text-xs rounded-xl ${inputBg}`}
                   >
-                    {CATEGORIES.filter(c => c !== "All").map(c => (
-                      <option key={c} value={c}>{c}</option>
+                    {CATEGORIES.filter((c) => c !== "All").map((c) => (
+                      <option key={c} value={c}>
+                        {c}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -893,55 +1114,88 @@ export default function CoursesPage() {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Duration</label>
+                  <label
+                    className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                  >
+                    Duration
+                  </label>
                   <input
                     value={form.duration}
-                    onChange={e => setForm({ ...form, duration: e.target.value })}
+                    onChange={(e) =>
+                      setForm({ ...form, duration: e.target.value })
+                    }
                     className={`w-full px-3 py-2 text-xs rounded-xl ${inputBg}`}
                     placeholder="e.g. 5 days"
                   />
                 </div>
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Hari Om Price (₹)</label>
+                  <label
+                    className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                  >
+                    Hari Om Price (₹)
+                  </label>
                   <input
                     type="number"
                     value={form.price}
-                    onChange={e => setForm({ ...form, price: Number(e.target.value) })}
+                    onChange={(e) =>
+                      setForm({ ...form, price: Number(e.target.value) })
+                    }
                     className={`w-full px-3 py-2 text-xs rounded-xl ${inputBg}`}
                   />
                 </div>
                 <div>
-                  <label className={`text-[11px] font-medium block mb-1 ${labelCls}`}>Status</label>
+                  <label
+                    className={`text-[11px] font-medium block mb-1 ${labelCls}`}
+                  >
+                    Status
+                  </label>
                   <select
                     value={form.status}
-                    onChange={e => setForm({ ...form, status: e.target.value as typeof form.status })}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        status: e.target.value as typeof form.status,
+                      })
+                    }
                     className={`w-full px-3 py-2 text-xs rounded-xl ${inputBg}`}
                   >
-                    {courseStatuses.map(s => (
-                      <option key={s.id} value={s.label}>{s.label}</option>
+                    {courseStatuses.map((s) => (
+                      <option key={s.id} value={s.label}>
+                        {s.label}
+                      </option>
                     ))}
                   </select>
                 </div>
               </div>
               {/* PRD 1.10 Associated Institutes Multi-Select */}
               <div className="pt-2">
-                <label className={`text-[11px] font-bold block mb-1.5 ${headText}`}>
+                <label
+                  className={`text-[11px] font-bold block mb-1.5 ${headText}`}
+                >
                   Associated Institutes Offering This Course
                 </label>
                 <p className={`text-[10px] mb-2 ${mutedText}`}>
-                  Select which physical training institutions are accredited to conduct this course:
+                  Select which physical training institutions are accredited to
+                  conduct this course:
                 </p>
 
-                <div className={`p-3 rounded-xl border max-h-48 overflow-y-auto space-y-2 ${dk ? "bg-white/3 border-white/8" : "bg-slate-50 border-slate-100"}`}>
-                  {MOCK_INSTITUTES.map(inst => {
-                    const isChecked = form.associatedInstituteIds?.includes(inst.id) || false;
+                <div
+                  className={`p-3 rounded-xl border max-h-48 overflow-y-auto space-y-2 ${dk ? "bg-white/3 border-white/8" : "bg-slate-50 border-slate-100"}`}
+                >
+                  {institutesList.map((inst: any) => {
+                    const isChecked =
+                      form.associatedInstituteIds?.includes(inst.id) || false;
                     return (
                       <label
                         key={inst.id}
                         className={`flex items-start gap-3 p-2 rounded-lg cursor-pointer transition-colors ${
                           isChecked
-                            ? (dk ? "bg-indigo-500/15 text-white" : "bg-indigo-50 text-indigo-900")
-                            : (dk ? "hover:bg-white/5" : "hover:bg-slate-100")
+                            ? dk
+                              ? "bg-indigo-500/15 text-white"
+                              : "bg-indigo-50 text-indigo-900"
+                            : dk
+                              ? "hover:bg-white/5"
+                              : "hover:bg-slate-100"
                         }`}
                       >
                         <input
@@ -951,9 +1205,12 @@ export default function CoursesPage() {
                           className="mt-0.5 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
                         />
                         <div className="flex-1 min-w-0">
-                          <p className="font-semibold text-xs leading-tight">{inst.name}</p>
+                          <p className="font-semibold text-xs leading-tight">
+                            {inst.name}
+                          </p>
                           <p className={`text-[10px] mt-0.5 ${mutedText}`}>
-                            {inst.location} · {inst.contact || "Accredited Training Center"}
+                            {inst.location} ·{" "}
+                            {inst.contact || "Accredited Training Center"}
                           </p>
                         </div>
                       </label>
@@ -964,21 +1221,29 @@ export default function CoursesPage() {
             </div>
 
             {/* Modal Footer */}
-            <div className={`flex items-center justify-end gap-2 px-6 py-3 border-t ${dk ? "border-white/8" : "border-slate-100"}`}>
-              <button onClick={closeModal} className={`px-4 py-2 text-xs rounded-xl ${dk ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-600"}`}>
+            <div
+              className={`flex items-center justify-end gap-2 px-6 py-3 border-t ${dk ? "border-white/8" : "border-slate-100"}`}
+            >
+              <button
+                onClick={closeModal}
+                className={`px-4 py-2 text-xs rounded-xl ${dk ? "bg-white/5 text-white/60" : "bg-slate-100 text-slate-600"}`}
+              >
                 Cancel
               </button>
               <button
                 onClick={handleSave}
                 className="px-5 py-2 text-xs font-semibold rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition-colors"
               >
-                {saved ? "Saved!" : editingCourseId ? "Save Changes" : "Create Course"}
+                {saved
+                  ? "Saved!"
+                  : editingCourseId
+                    ? "Save Changes"
+                    : "Create Course"}
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

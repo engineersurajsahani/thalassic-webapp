@@ -24,7 +24,7 @@ export interface AgentRecord {
   [key: string]: unknown;
 }
 
-const MOCK_AGENT_ADMIN_DASHBOARD = {
+const MOCK_PARTNER_ADMIN_DASHBOARD = {
   stats: {
     totalPartners: 0,
     activePartners: 0,
@@ -42,7 +42,7 @@ const MOCK_AGENT_ADMIN_DASHBOARD = {
   recentPartners: [] as AgentRecord[],
 };
 
-const LOCAL_CREATED_AGENTS: AgentRecord[] = [];
+const LOCAL_CREATED_PARTNERS: AgentRecord[] = [];
 
 export const agentAdminService = {
   async getDashboardData() {
@@ -50,7 +50,7 @@ export const agentAdminService = {
       const response = await api.get("/agent-admin/dashboard");
       return response.data;
     } catch {
-      return MOCK_AGENT_ADMIN_DASHBOARD;
+      return MOCK_PARTNER_ADMIN_DASHBOARD;
     }
   },
 
@@ -59,7 +59,7 @@ export const agentAdminService = {
       const response = await api.get("/agent-admin/agents");
       const list = response.data;
       if (Array.isArray(list)) {
-        LOCAL_CREATED_AGENTS.forEach((createdAgent) => {
+        LOCAL_CREATED_PARTNERS.forEach((createdAgent) => {
           const uEmail = (createdAgent.email || "").toLowerCase().trim();
           if (
             !list.some(
@@ -77,8 +77,8 @@ export const agentAdminService = {
       console.warn("API fetch agents failed, returning fallback list");
     }
 
-    const fallbackList = [...MOCK_AGENT_ADMIN_DASHBOARD.recentPartners];
-    LOCAL_CREATED_AGENTS.forEach((createdAgent) => {
+    const fallbackList = [...MOCK_PARTNER_ADMIN_DASHBOARD.recentPartners];
+    LOCAL_CREATED_PARTNERS.forEach((createdAgent) => {
       const uEmail = (createdAgent.email || "").toLowerCase().trim();
       if (
         !fallbackList.some(
@@ -106,7 +106,7 @@ export const agentAdminService = {
     }
 
     const nameStr =
-      typeof agentData.name === "string" ? agentData.name : "AGENT";
+      typeof agentData.name === "string" ? agentData.name : "PARTNER";
     const cleanName = nameStr
       .replace(/[^a-zA-Z0-9]/g, "")
       .toUpperCase()
@@ -143,13 +143,13 @@ export const agentAdminService = {
 
     const uEmail = (agentObj.email || "").toLowerCase().trim();
     if (
-      !LOCAL_CREATED_AGENTS.some(
+      !LOCAL_CREATED_PARTNERS.some(
         (a) =>
           a.id === agentObj.id ||
           (a.email && a.email.toLowerCase().trim() === uEmail),
       )
     ) {
-      LOCAL_CREATED_AGENTS.unshift(agentObj);
+      LOCAL_CREATED_PARTNERS.unshift(agentObj);
     }
 
     return agentObj;

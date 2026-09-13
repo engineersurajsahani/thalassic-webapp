@@ -19,7 +19,7 @@ const PROTECTED_ROUTES = [
 function normalizeRole(role?: string): string {
   if (!role) return "";
   const r = role.toUpperCase();
-  if (r === "PARTNER_ADMIN" || r === "AGENT_ADMIN") return "AGENT_ADMIN";
+  if (r === "PARTNER_ADMIN" || r === "AGENT_ADMIN") return "PARTNER_ADMIN";
   if (r === "PARTNER" || r === "AGENT") return "PARTNER";
   return r;
 }
@@ -75,7 +75,7 @@ export function middleware(request: NextRequest) {
     if (
       (pathname.startsWith("/agent-admin") ||
         pathname.startsWith("/partner-admin")) &&
-      normalizedRole !== "AGENT_ADMIN" &&
+      normalizedRole !== "PARTNER_ADMIN" &&
       normalizedRole !== "MASTER"
     ) {
       return NextResponse.redirect(

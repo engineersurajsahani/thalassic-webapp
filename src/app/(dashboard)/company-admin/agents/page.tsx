@@ -177,7 +177,7 @@ function AgentDetailDrawer({
         <div
           className={`flex items-center justify-between px-5 py-4 border-b ${divBor}`}
         >
-          <p className={`text-sm font-semibold ${ht}`}>Agent Profile</p>
+          <p className={`text-sm font-semibold ${ht}`}>Partner Profile</p>
           <button
             onClick={onClose}
             className={`p-1.5 rounded-lg transition-colors ${dk ? "hover:bg-white/8 text-white/40 hover:text-white/70" : "hover:bg-slate-100 text-slate-400 hover:text-slate-600"}`}
@@ -347,7 +347,7 @@ function AgentDetailDrawer({
               <p
                 className={`text-[10px] font-semibold uppercase tracking-widest mb-2 ${mt}`}
               >
-                Enrolled Through This Agent ({seafarers.length})
+                Enrolled Through This Partner ({seafarers.length})
               </p>
               {seafarers.length === 0 ? (
                 <div
@@ -355,7 +355,7 @@ function AgentDetailDrawer({
                 >
                   <Users className="w-8 h-8 mb-3 opacity-40" />
                   <p className="text-sm">
-                    No seafarers enrolled through this agent
+                    No seafarers enrolled through this partner
                   </p>
                 </div>
               ) : (
@@ -552,7 +552,9 @@ function RequestReviewModal({
         <div
           className={`flex items-center justify-between px-5 py-4 border-b ${divBor}`}
         >
-          <p className={`text-sm font-semibold ${ht}`}>Review Agent Request</p>
+          <p className={`text-sm font-semibold ${ht}`}>
+            Review Partner Request
+          </p>
           <button
             onClick={onClose}
             className={`p-1.5 rounded-lg transition-colors ${dk ? "hover:bg-white/8 text-white/40 hover:text-white/70" : "hover:bg-slate-100 text-slate-400 hover:text-slate-600"}`}
@@ -704,7 +706,7 @@ export default function AgentsPage() {
 
   const handleApprove = (id: string) => {
     setRequests((prev) => prev.filter((r) => r.id !== id));
-    showToast("Agent request approved! Welcome email sent.");
+    showToast("Partner request approved! Welcome email sent.");
   };
   const handleReject = (id: string) => {
     setRequests((prev) => prev.filter((r) => r.id !== id));
@@ -746,9 +748,9 @@ export default function AgentsPage() {
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-xl font-bold ${ht}`}>Agents</h1>
+          <h1 className={`text-xl font-bold ${ht}`}>Partners</h1>
           <p className={`text-sm mt-0.5 ${mt}`}>
-            Manage your referral agents and partnerships
+            Manage your referral partners and partnerships
           </p>
         </div>
         {requests.length > 0 && (
@@ -772,7 +774,7 @@ export default function AgentsPage() {
         >
           {[
             {
-              label: "Active Agents",
+              label: "Active Partners",
               value: activeAgentCount,
               color: dk ? "text-emerald-400" : "text-emerald-600",
             },
@@ -813,7 +815,7 @@ export default function AgentsPage() {
             ) : (
               <UserPlus className="w-3.5 h-3.5" />
             )}
-            {v === "agents" ? "Active Agents" : `New Requests`}
+            {v === "agents" ? "Active Partners" : `New Requests`}
             {v === "requests" && requests.length > 0 && (
               <span
                 className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${activeView === "requests" ? "bg-white/20 text-white" : "bg-red-500/20 text-red-500"}`}
@@ -838,7 +840,7 @@ export default function AgentsPage() {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Search agent name, company, location…"
+                  placeholder="Search partner name, company, location…"
                   className={`w-full pl-9 pr-3 py-2 text-sm rounded-lg border outline-none transition-colors ${inputBg}`}
                 />
               </div>
@@ -965,7 +967,7 @@ export default function AgentsPage() {
           {filtered.length === 0 && (
             <div className={`${card} py-16 text-center ${mt}`}>
               <Handshake className="w-8 h-8 mx-auto mb-3 opacity-40" />
-              <p className="text-sm">No agents match your filters</p>
+              <p className="text-sm">No partners match your filters</p>
             </div>
           )}
         </>
@@ -977,7 +979,7 @@ export default function AgentsPage() {
           {requests.length === 0 ? (
             <div className={`${card} py-20 text-center ${mt}`}>
               <UserCheck className="w-10 h-10 mx-auto mb-3 opacity-40" />
-              <p className="text-sm font-medium">No pending agent requests</p>
+              <p className="text-sm font-medium">No pending partner requests</p>
               <p className="text-xs mt-1 opacity-60">
                 All requests have been reviewed
               </p>

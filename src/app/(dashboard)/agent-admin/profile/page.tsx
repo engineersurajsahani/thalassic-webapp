@@ -18,11 +18,11 @@ export default function Profile() {
   const [loading, setLoading] = useState(false);
 
   const card = `rounded-[16px] p-7 border-0 card-elevated transition-all duration-300 hover:-translate-y-0.5 ${
-    isDark
-      ? "bg-[#111827] text-white"
-      : "bg-white text-[#111827]"
+    isDark ? "bg-[#111827] text-white" : "bg-white text-[#111827]"
   }`;
-  const inputBg = isDark ? "bg-white/5 border-white/10 text-white placeholder:text-white/20" : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF]";
+  const inputBg = isDark
+    ? "bg-white/5 border-white/10 text-white placeholder:text-white/20"
+    : "bg-[#FAFAFA] border-[#E5E7EB] text-[#111827] placeholder:text-[#9CA3AF]";
   const labelText = isDark ? "text-white/50" : "text-[#6B7280]";
   const ht = isDark ? "text-white/95" : "text-[#111827]";
   const mt = isDark ? "text-white/35" : "text-[#9CA3AF]";
@@ -58,22 +58,33 @@ export default function Profile() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>Account Settings</h1>
-        <p className={`text-xs mt-1.5 ${mt}`}>Manage your personal credentials, contact info, and security parameters.</p>
+        <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>
+          Account Settings
+        </h1>
+        <p className={`text-xs mt-1.5 ${mt}`}>
+          Manage your personal credentials, contact info, and security
+          parameters.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
         {/* Profile Card */}
         <div className={`${card} h-fit space-y-6`}>
           <div className="flex flex-col items-center text-center">
             <div className="w-16 h-16 rounded-full bg-[#3D5EF6] flex items-center justify-center text-white text-xl font-black uppercase shadow-lg mb-4">
-              {user?.name ? user.name.split(" ").map((n: any) => n[0]).join("") : "AA"}
+              {user?.name
+                ? user.name
+                    .split(" ")
+                    .map((n: any) => n[0])
+                    .join("")
+                : "PA"}
             </div>
-            <h3 className={`text-sm font-bold ${ht}`}>{user?.name || "Agent Admin"}</h3>
+            <h3 className={`text-sm font-bold ${ht}`}>
+              {user?.name || "Partner Admin"}
+            </h3>
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#3D5EF6]/10 text-[#3D5EF6] mt-2 flex items-center gap-1.5">
               <ShieldCheck className="w-3.5 h-3.5" />
-              {user?.role || "AGENT_ADMIN"}
+              {user?.role || "PARTNER_ADMIN"}
             </span>
           </div>
 
@@ -82,7 +93,9 @@ export default function Profile() {
               <Mail className="w-4 h-4 text-[#3D5EF6] shrink-0" />
               <div className="min-w-0">
                 <p className={labelText}>Email Address</p>
-                <p className={`font-semibold truncate ${ht}`}>{user?.email || "admin@thalassic.in"}</p>
+                <p className={`font-semibold truncate ${ht}`}>
+                  {user?.email || "admin@thalassic.in"}
+                </p>
               </div>
             </div>
 
@@ -90,7 +103,9 @@ export default function Profile() {
               <Phone className="w-4 h-4 text-[#3D5EF6] shrink-0" />
               <div className="min-w-0">
                 <p className={labelText}>Contact Number</p>
-                <p className={`font-semibold truncate ${ht}`}>{user?.phone || "+91 99887 76655"}</p>
+                <p className={`font-semibold truncate ${ht}`}>
+                  {user?.phone || "+91 99887 76655"}
+                </p>
               </div>
             </div>
           </div>
@@ -103,12 +118,22 @@ export default function Profile() {
             <h3 className="text-sm font-bold">Change Password</h3>
           </div>
 
-          {error && <p className="text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">{error}</p>}
-          {success && <p className="text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold flex items-center gap-1"><Check className="w-4 h-4" /> Password updated successfully!</p>}
+          {error && (
+            <p className="text-xs text-[#DC2626] bg-[#FEE2E2] p-2 rounded-[10px] font-semibold">
+              {error}
+            </p>
+          )}
+          {success && (
+            <p className="text-xs text-[#16A34A] bg-[#DCFCE7] p-2 rounded-[10px] font-semibold flex items-center gap-1">
+              <Check className="w-4 h-4" /> Password updated successfully!
+            </p>
+          )}
 
           <form onSubmit={handleUpdatePassword} className="space-y-4 max-w-sm">
             <div className="space-y-1">
-              <label className={`text-[10px] font-bold ${labelText}`}>Current Password</label>
+              <label className={`text-[10px] font-bold ${labelText}`}>
+                Current Password
+              </label>
               <input
                 type="password"
                 required
@@ -120,7 +145,9 @@ export default function Profile() {
             </div>
 
             <div className="space-y-1">
-              <label className={`text-[10px] font-bold ${labelText}`}>New Password</label>
+              <label className={`text-[10px] font-bold ${labelText}`}>
+                New Password
+              </label>
               <input
                 type="password"
                 required
@@ -132,7 +159,9 @@ export default function Profile() {
             </div>
 
             <div className="space-y-1">
-              <label className={`text-[10px] font-bold ${labelText}`}>Confirm New Password</label>
+              <label className={`text-[10px] font-bold ${labelText}`}>
+                Confirm New Password
+              </label>
               <input
                 type="password"
                 required
@@ -152,7 +181,6 @@ export default function Profile() {
             </button>
           </form>
         </div>
-
       </div>
     </div>
   );

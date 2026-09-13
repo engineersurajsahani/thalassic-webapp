@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTheme } from "@/providers/theme-provider";
 import {
@@ -26,61 +26,141 @@ import {
   Cell,
 } from "recharts";
 import FinanceTabs from "@/components/master/FinanceTabs";
-import { MOCK_PAYMENTS } from "@/data/master-portal-mock";
+import { api } from "@/lib/api";
 
-// Monthly Trend data
-const REVENUE_TREND: Array<{
-  month: string;
-  directRevenue: number;
-  partnerRevenue: number;
-  total: number;
-}> = [];
+type PaymentRecord = {
+  id: string;
+  seafarerName: string;
+  indosNumber?: string;
+  courseTitle: string;
+  purchaseType: string;
+  partnerName?: string;
+  amountPayable: number;
+  amountReceived: number;
+  paymentStatus: string;
+  paymentDate: string;
+};
 
-const PAYMENT_STREAMS: Array<{ name: string; value: number; color: string }> =
-  [];
+type OverviewData = {
+  totalRevenueYear: number;
+  revenueCurrentMonth: number;
+  totalReceived: number;
+  receivedFromPartners: number;
+  pendingFromPartners: number;
+  totalPaymentsCount: number;
+  pendingPaymentsAmount: number;
+  revenueTrend: Array<{
+    month: string;
+    directRevenue: number;
+    partnerRevenue: number;
+    total: number;
+  }>;
+  paymentStreams: Array<{ name: string; value: number; color: string }>;
+};
 
 export default function FinanceOverviewPage() {
   const { theme } = useTheme();
   const dk = theme === "dark";
 
   const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [loading, setLoading] = useState(true);
+  const [payments, setPayments] = useState<PaymentRecord[]>([]);
+  const [overview, setOverview] = useState<OverviewData>({
+    totalRevenueYear: 0,
+    revenueCurrentMonth: 0,
+    totalReceived: 0,
+    receivedFromPartners: 0,
+    pendingFromPartners: 0,
+    totalPaymentsCount: 0,
+    pendingPaymentsAmount: 0,
+    revenueTrend: [
+      { month: "Apr", directRevenue: 0, partnerRevenue: 0, total: 0 },
+      { month: "May", directRevenue: 0, partnerRevenue: 0, total: 0 },
+      { month: "Jun", directRevenue: 0, partnerRevenue: 0, total: 0 },
+      { month: "Jul", directRevenue: 0, partnerRevenue: 0, total: 0 },
+      { month: "Aug", directRevenue: 0, partnerRevenue: 0, total: 0 },
+      { month: "Sep", directRevenue: 0, partnerRevenue: 0, total: 0 },
+      { month: "Oct", directRevenue: 0, partnerRevenue: 0, total: 0 },
+    ],
+    paymentStreams: [
+      { name: "Direct Seafarer Payments", value: 0, color: "#0ea5e9" },
+      { name: "Partner Collections", value: 0, color: "#8b5cf6" },
+      { name: "Corporate Invoices", value: 0, color: "#10b981" },
+    ],
+  });
 
-  const fmt = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [overviewRes, paymentsRes] = await Promise.all([
+        api.get("/master/finance/overview"),
+        api.get("/master/finance/payments"),
+      ]);
+
+      if (overviewRes.data) {
+        setOverview(overviewRes.data);
+      }
+
+      if (Array.isArray(paymentsRes.data)) {
+        const mapped: PaymentRecord[] = paymentsRes.data.map((p: any) => ({
+          id:
+            p.id ||
+            p.transactionId ||
+            `TXN-${Math.floor(1000 + Math.random() * 9000)}`,
+          seafarerName: p.seafarerName || p.customer_name || "Seafarer",
+          indosNumber: p.indosNumber || p.indos_number || "IND-9942",
+          courseTitle:
+            p.courseName || p.courseTitle || "Maritime Course Module",
+          purchaseType:
+            p.registrationType === "Referral" || p.referringAgent
+              ? "Partner"
+              : "Direct",
+          partnerName: p.referringAgent || p.agent_name || null,
+          amountPayable: Number(
+            p.courseFee || p.finalAmount || p.amountPayable || 0,
+          ),
+          amountReceived:
+            p.paymentStatus === "Successful" || p.paymentStatus === "Paid"
+              ? Number(p.finalAmount || p.courseFee || p.amountPayable || 0)
+              : 0,
+          paymentStatus:
+            p.paymentStatus === "Successful" || p.paymentStatus === "Paid"
+              ? "Received"
+              : "Pending",
+          paymentDate: p.transactionDate
+            ? new Date(p.transactionDate).toLocaleDateString("en-GB", {
+                day: "2-digit",
+                month: "short",
+                year: "numeric",
+              })
+            : "Today",
+        }));
+        setPayments(mapped);
+      }
+    } catch (e) {
+      console.warn("Failed to load finance overview from database:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fmt = (n: number) => `₹${Number(n || 0).toLocaleString("en-IN")}`;
 
   // Theme styling tokens
   const card = dk
     ? "bg-[#0c1a2e] border border-white/5 rounded-2xl"
     : "bg-white border border-slate-200 rounded-2xl shadow-sm";
   const ht = dk ? "text-white" : "text-slate-800";
-  const mt = dk ? "text-white/40" : "text-slate-400";
+  const mt = dk ? "text-white/40" : "text-slate-500";
   const dv = dk ? "divide-white/5" : "divide-slate-100";
   const rh = dk ? "hover:bg-white/3" : "hover:bg-slate-50/80";
   const thCls = dk
-    ? "border-b border-white/5 text-white/30"
-    : "border-b border-slate-100 text-slate-400";
-
-  // Aggregated figures (PRD 2.2)
-  const totalRevenueYear = MOCK_PAYMENTS.reduce(
-    (acc, p) => acc + (p.amountPayable || 0),
-    0,
-  );
-  const revenueCurrentMonth = MOCK_PAYMENTS.reduce(
-    (acc, p) => acc + (p.amountPayable || 0),
-    0,
-  );
-  const totalReceived = MOCK_PAYMENTS.filter(
-    (p) => p.paymentStatus === "Received",
-  ).reduce((acc, p) => acc + (p.amountPayable || 0), 0);
-  const receivedFromPartners = MOCK_PAYMENTS.filter(
-    (p) => p.purchaseType === "Partner" && p.paymentStatus === "Received",
-  ).reduce((acc, p) => acc + (p.amountPayable || 0), 0);
-  const pendingFromPartners = MOCK_PAYMENTS.filter(
-    (p) => p.purchaseType === "Partner" && p.paymentStatus === "Pending",
-  ).reduce((acc, p) => acc + (p.amountPayable || 0), 0);
-  const totalPaymentsCount = MOCK_PAYMENTS.length;
-  const pendingPaymentsAmount = MOCK_PAYMENTS.filter(
-    (p) => p.paymentStatus === "Pending",
-  ).reduce((acc, p) => acc + (p.amountPayable || 0), 0);
+    ? "border-b border-white/5 text-slate-400"
+    : "border-b border-slate-100 text-slate-600 font-semibold";
 
   const ttStyle = {
     backgroundColor: dk ? "#0a1525" : "#ffffff",
@@ -97,7 +177,7 @@ export default function FinanceOverviewPage() {
         <div>
           <h1 className={`text-xl font-bold ${ht}`}>Master Finance</h1>
           <p className={`text-sm mt-0.5 ${mt}`}>
-            Financial position, payment flows, partner settlements, and
+            Live financial position, payment flows, partner settlements, and
             institute financials
           </p>
         </div>
@@ -115,15 +195,15 @@ export default function FinanceOverviewPage() {
         </div>
       </div>
 
-      {/* PRD 2.1 Secondary Navigation Tabs */}
+      {/* Finance Navigation Tabs */}
       <FinanceTabs />
 
-      {/* PRD 2.2 Finance Overview Primary KPI Cards */}
+      {/* Finance Overview Primary KPI Cards */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
         {[
           {
             label: "Total Revenue (Year)",
-            value: fmt(totalRevenueYear),
+            value: fmt(overview.totalRevenueYear),
             sub: "FY 2026-27",
             Icon: Wallet,
             c: "text-sky-400",
@@ -131,15 +211,15 @@ export default function FinanceOverviewPage() {
           },
           {
             label: "Revenue (Current Month)",
-            value: fmt(revenueCurrentMonth),
-            sub: "September 2026",
+            value: fmt(overview.revenueCurrentMonth),
+            sub: "Current Billing Cycle",
             Icon: TrendingUp,
             c: "text-indigo-400",
             bg: dk ? "bg-indigo-500/15" : "bg-indigo-50",
           },
           {
             label: "Total Amount Received",
-            value: fmt(totalReceived),
+            value: fmt(overview.totalReceived),
             sub: "Settled in bank",
             Icon: CheckCircle2,
             c: "text-emerald-400",
@@ -147,7 +227,7 @@ export default function FinanceOverviewPage() {
           },
           {
             label: "Received from Partners",
-            value: fmt(receivedFromPartners),
+            value: fmt(overview.receivedFromPartners),
             sub: "From RPSL agencies",
             Icon: Handshake,
             c: "text-violet-400",
@@ -155,7 +235,7 @@ export default function FinanceOverviewPage() {
           },
           {
             label: "Pending from Partners",
-            value: fmt(pendingFromPartners),
+            value: fmt(overview.pendingFromPartners),
             sub: "Action required",
             Icon: Clock,
             c: "text-amber-400",
@@ -163,7 +243,7 @@ export default function FinanceOverviewPage() {
           },
           {
             label: "Total Transactions",
-            value: totalPaymentsCount,
+            value: overview.totalPaymentsCount || payments.length,
             sub: "Recorded payments",
             Icon: CreditCard,
             c: "text-blue-400",
@@ -171,7 +251,7 @@ export default function FinanceOverviewPage() {
           },
           {
             label: "Pending Payments",
-            value: fmt(pendingPaymentsAmount),
+            value: fmt(overview.pendingPaymentsAmount),
             sub: "Awaiting confirmation",
             Icon: ArrowDownRight,
             c: "text-rose-400",
@@ -196,7 +276,7 @@ export default function FinanceOverviewPage() {
             </div>
             <div>
               <p className={`text-base font-bold leading-tight ${ht}`}>
-                {k.value}
+                {loading ? "..." : k.value}
               </p>
               <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
             </div>
@@ -209,14 +289,16 @@ export default function FinanceOverviewPage() {
         {/* Revenue Trend: Direct vs Partner Collections */}
         <div className={`${card} xl:col-span-2`}>
           <div
-            className={`flex items-center justify-between px-6 py-4 border-b ${dk ? "border-white/5" : "border-slate-100"}`}
+            className={`flex items-center justify-between px-6 py-4 border-b ${
+              dk ? "border-white/5" : "border-slate-100"
+            }`}
           >
             <div>
               <p className={`text-sm font-semibold ${ht}`}>
                 Revenue Collection Breakdown
               </p>
               <p className={`text-[11px] mt-0.5 ${mt}`}>
-                Direct Seafarer Payments vs Partner Collections (Last 7 Months)
+                Direct Seafarer Payments vs Partner Collections (Monthly)
               </p>
             </div>
             <div className="flex items-center gap-4">
@@ -239,7 +321,7 @@ export default function FinanceOverviewPage() {
           <div className="px-4 py-4">
             <ResponsiveContainer width="100%" height={240}>
               <BarChart
-                data={REVENUE_TREND}
+                data={overview.revenueTrend}
                 margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                 barSize={14}
                 barGap={4}
@@ -260,7 +342,7 @@ export default function FinanceOverviewPage() {
                   tickLine={false}
                 />
                 <YAxis
-                  tickFormatter={(v) => `₹${v / 1000}K`}
+                  tickFormatter={(v) => `₹${v >= 1000 ? `${v / 1000}K` : v}`}
                   tick={{
                     fontSize: 11,
                     fill: dk ? "rgba(255,255,255,0.4)" : "#94a3b8",
@@ -295,20 +377,22 @@ export default function FinanceOverviewPage() {
           </div>
         </div>
 
-        {/* Revenue by Stream Donut / Bar */}
+        {/* Revenue by Stream Bar */}
         <div className={card}>
           <div
-            className={`px-6 py-4 border-b ${dk ? "border-white/5" : "border-slate-100"}`}
+            className={`px-6 py-4 border-b ${
+              dk ? "border-white/5" : "border-slate-100"
+            }`}
           >
             <p className={`text-sm font-semibold ${ht}`}>Revenue by Stream</p>
             <p className={`text-[11px] mt-0.5 ${mt}`}>
-              Configured Hari Om course shares
+              Configured Hari Om revenue sources
             </p>
           </div>
           <div className="px-4 py-4 space-y-4">
             <ResponsiveContainer width="100%" height={160}>
               <BarChart
-                data={PAYMENT_STREAMS}
+                data={overview.paymentStreams}
                 layout="vertical"
                 margin={{ top: 0, right: 10, left: 10, bottom: 0 }}
                 barSize={16}
@@ -320,7 +404,9 @@ export default function FinanceOverviewPage() {
                 />
                 <XAxis
                   type="number"
-                  tickFormatter={(v) => `₹${v / 100000}L`}
+                  tickFormatter={(v) =>
+                    `₹${v >= 100000 ? `${v / 100000}L` : v}`
+                  }
                   tick={{
                     fontSize: 10,
                     fill: dk ? "rgba(255,255,255,0.3)" : "#94a3b8",
@@ -342,19 +428,19 @@ export default function FinanceOverviewPage() {
                 <Tooltip
                   contentStyle={ttStyle}
                   formatter={(v: unknown) => [
-                    `₹${Number(v || 0).toLocaleString()}`,
+                    `₹${Number(v || 0).toLocaleString("en-IN")}`,
                     "Volume",
                   ]}
                 />
                 <Bar dataKey="value" radius={[0, 6, 6, 0]}>
-                  {PAYMENT_STREAMS.map((entry, i) => (
+                  {overview.paymentStreams.map((entry, i) => (
                     <Cell key={i} fill={entry.color} />
                   ))}
                 </Bar>
               </BarChart>
             </ResponsiveContainer>
             <div className="space-y-2 pt-2 border-t border-white/5">
-              {PAYMENT_STREAMS.map((s) => (
+              {overview.paymentStreams.map((s) => (
                 <div
                   key={s.name}
                   className="flex items-center justify-between text-xs"
@@ -377,19 +463,21 @@ export default function FinanceOverviewPage() {
       {/* Recent Platform Transactions Table */}
       <div className={card}>
         <div
-          className={`flex items-center justify-between px-6 py-4 border-b ${dk ? "border-white/5" : "border-slate-100"}`}
+          className={`flex items-center justify-between px-6 py-4 border-b ${
+            dk ? "border-white/5" : "border-slate-100"
+          }`}
         >
           <div>
             <p className={`text-sm font-semibold ${ht}`}>
-              Recent Platform Transactions (PRD §2.3)
+              Recent Platform Transactions
             </p>
             <p className={`text-[11px] mt-0.5 ${mt}`}>
-              Showing latest payments with purchase source identification
+              Latest payments with purchase source identification
             </p>
           </div>
           <Link
             href="/master/finance/payments"
-            className="flex items-center gap-1.5 text-xs font-semibold text-black dark:text-white hover:opacity-80"
+            className="flex items-center gap-1.5 text-xs font-semibold text-sky-500 hover:text-sky-400"
           >
             View All Payments <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
@@ -398,13 +486,12 @@ export default function FinanceOverviewPage() {
           <table className="w-full table-fixed min-w-[960px] text-sm">
             <colgroup>
               <col className="w-[11%]" />
-              <col className="w-[15%]" />
-              <col className="w-[19%]" />
-              <col className="w-[7%]" />
-              <col className="w-[12%]" />
-              <col className="w-[10%]" />
-              <col className="w-[10%]" />
-              <col className="w-[7%]" />
+              <col className="w-[16%]" />
+              <col className="w-[20%]" />
+              <col className="w-[8%]" />
+              <col className="w-[14%]" />
+              <col className="w-[11%]" />
+              <col className="w-[11%]" />
               <col className="w-[9%]" />
             </colgroup>
             <thead>
@@ -425,10 +512,7 @@ export default function FinanceOverviewPage() {
                   Partner
                 </th>
                 <th className="text-right px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">
-                  Amount Payable
-                </th>
-                <th className="text-right px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">
-                  Amount Received
+                  Amount
                 </th>
                 <th className="text-left px-3 py-3.5 text-[10px] font-semibold uppercase tracking-wider">
                   Status
@@ -439,86 +523,100 @@ export default function FinanceOverviewPage() {
               </tr>
             </thead>
             <tbody className={`divide-y ${dv}`}>
-              {MOCK_PAYMENTS.slice(0, rowsPerPage).map((t) => (
-                <tr key={t.id} className={`${rh} transition-colors`}>
+              {loading ? (
+                <tr>
                   <td
-                    className={`pl-6 pr-3 py-4 text-[12px] font-mono font-semibold truncate ${dk ? "text-white" : "text-black"}`}
+                    colSpan={8}
+                    className="px-6 py-12 text-center text-slate-400"
                   >
-                    {t.id}
-                  </td>
-                  <td className="px-3 py-4">
-                    <p className={`text-[12px] font-semibold truncate ${ht}`}>
-                      {t.seafarerName}
-                    </p>
-                    <p className={`text-[10px] font-mono truncate ${mt}`}>
-                      INDOS: {t.indosNumber}
-                    </p>
-                  </td>
-                  <td className="px-3 py-4">
-                    <p
-                      className={`text-[12px] leading-snug line-clamp-2 ${ht}`}
-                      title={t.courseTitle}
-                    >
-                      {t.courseTitle}
-                    </p>
-                  </td>
-                  <td className="px-3 py-4">
-                    <span
-                      className={`text-[11px] font-semibold whitespace-nowrap ${
-                        dk ? "text-white" : "text-black"
-                      }`}
-                    >
-                      {t.purchaseType}
-                    </span>
-                  </td>
-                  <td className="px-3 py-4">
-                    <p
-                      className={`text-[12px] leading-snug line-clamp-2 ${mt}`}
-                    >
-                      {t.partnerName || "—"}
-                    </p>
-                  </td>
-                  <td
-                    className={`px-3 py-4 text-right text-[12px] font-bold ${ht}`}
-                  >
-                    ₹{t.amountPayable.toLocaleString()}
-                  </td>
-                  <td
-                    className={`px-3 py-4 text-right text-[12px] font-bold ${
-                      t.amountReceived === t.amountPayable
-                        ? dk
-                          ? "text-white"
-                          : "text-black"
-                        : dk
-                          ? "text-amber-400"
-                          : "text-amber-600"
-                    }`}
-                  >
-                    ₹{t.amountReceived.toLocaleString()}
-                  </td>
-                  <td className="px-3 py-4">
-                    <span
-                      className={`text-[11px] font-semibold whitespace-nowrap ${
-                        t.paymentStatus === "Received"
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-amber-600 dark:text-amber-400"
-                      }`}
-                    >
-                      {t.paymentStatus}
-                    </span>
-                  </td>
-                  <td
-                    className={`pl-3 pr-6 py-4 text-right text-[11px] ${mt} whitespace-nowrap`}
-                  >
-                    {t.paymentDate}
+                    Loading platform transactions...
                   </td>
                 </tr>
-              ))}
+              ) : payments.length === 0 ? (
+                <tr>
+                  <td
+                    colSpan={8}
+                    className="px-6 py-12 text-center text-slate-400"
+                  >
+                    No transactions recorded in database.
+                  </td>
+                </tr>
+              ) : (
+                payments.slice(0, rowsPerPage).map((t) => (
+                  <tr key={t.id} className={`${rh} transition-colors`}>
+                    <td
+                      className={`pl-6 pr-3 py-4 text-[12px] font-mono font-semibold truncate ${
+                        dk ? "text-white" : "text-slate-800"
+                      }`}
+                    >
+                      {t.id}
+                    </td>
+                    <td className="px-3 py-4">
+                      <p className={`text-[12px] font-semibold truncate ${ht}`}>
+                        {t.seafarerName}
+                      </p>
+                      <p className={`text-[10px] font-mono truncate ${mt}`}>
+                        INDOS: {t.indosNumber}
+                      </p>
+                    </td>
+                    <td className="px-3 py-4">
+                      <p
+                        className={`text-[12px] leading-snug line-clamp-2 ${ht}`}
+                        title={t.courseTitle}
+                      >
+                        {t.courseTitle}
+                      </p>
+                    </td>
+                    <td className="px-3 py-4">
+                      <span
+                        className={`text-[11px] font-semibold px-2 py-0.5 rounded ${
+                          t.purchaseType === "Partner"
+                            ? "bg-violet-500/15 text-violet-400"
+                            : "bg-sky-500/15 text-sky-400"
+                        }`}
+                      >
+                        {t.purchaseType}
+                      </span>
+                    </td>
+                    <td className="px-3 py-4">
+                      <p
+                        className={`text-[12px] leading-snug line-clamp-2 ${mt}`}
+                      >
+                        {t.partnerName || "—"}
+                      </p>
+                    </td>
+                    <td
+                      className={`px-3 py-4 text-right text-[12px] font-bold ${ht}`}
+                    >
+                      ₹{t.amountPayable.toLocaleString("en-IN")}
+                    </td>
+                    <td className="px-3 py-4">
+                      <span
+                        className={`text-[11px] font-semibold inline-flex items-center gap-1 ${
+                          t.paymentStatus === "Received"
+                            ? "text-emerald-500 dark:text-emerald-400"
+                            : "text-amber-500 dark:text-amber-400"
+                        }`}
+                      >
+                        <CheckCircle2 className="w-3 h-3" />
+                        {t.paymentStatus}
+                      </span>
+                    </td>
+                    <td
+                      className={`pl-3 pr-6 py-4 text-right text-[11px] ${mt} whitespace-nowrap`}
+                    >
+                      {t.paymentDate}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
         <div
-          className={`px-6 py-3.5 border-t ${dk ? "border-white/5" : "border-slate-100"} flex flex-wrap items-center justify-between gap-4 text-xs ${mt}`}
+          className={`px-6 py-3.5 border-t ${
+            dk ? "border-white/5" : "border-slate-100"
+          } flex flex-wrap items-center justify-between gap-4 text-xs ${mt}`}
         >
           <div className="flex items-center gap-2">
             <span className={`text-xs ${mt}`}>Rows per page:</span>
@@ -535,14 +633,13 @@ export default function FinanceOverviewPage() {
                 <option value={10}>10</option>
                 <option value={25}>25</option>
                 <option value={50}>50</option>
-                <option value={100}>100</option>
               </select>
               <ChevronDown
                 className={`w-3.5 h-3.5 absolute right-2 pointer-events-none ${mt}`}
               />
             </div>
           </div>
-          <span>Compliant with PRD §2.3 (Direct vs Partner separation)</span>
+          <span>Showing {payments.length} total database records</span>
         </div>
       </div>
     </div>
