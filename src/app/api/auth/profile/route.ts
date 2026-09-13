@@ -7,24 +7,22 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
-    const token = authHeader.slice(7);
-    if (token === "mock-agent-token") {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
+    const apiUrl =
+      process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000/api/v1";
+    const backendRes = await fetch(`${apiUrl}/auth/profile`, {
+      method: "GET",
+      headers: {
+        Authorization: authHeader,
+        "Content-Type": "application/json",
+      },
+    });
 
-    let payload: Record<string, any>;
-    try {
-      payload = JSON.parse(Buffer.from(token, "base64").toString("utf-8"));
-    } catch {
-      return NextResponse.json({ message: "Invalid token" }, { status: 401 });
-    }
-
-    if (!payload || !payload.id || !payload.role) {
-      return NextResponse.json({ message: "Invalid token payload" }, { status: 401 });
-    }
-
-    return NextResponse.json(payload, { status: 200 });
+    const data = await backendRes.json().catch(() => ({}));
+    return NextResponse.json(data, { status: backendRes.status });
   } catch {
-    return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      { message: "Internal server error" },
+      { status: 500 },
+    );
   }
 }

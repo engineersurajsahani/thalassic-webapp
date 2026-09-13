@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import axios from "axios";
 import { api, setCookie, getCookie, deleteCookie } from "@/lib/axios";
 
 interface User {
@@ -64,37 +63,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const token = getCookie("auth_token");
       if (!token) return null;
 
-      // Handle base64 fallback tokens gracefully
-      try {
-        if (!token.includes(".")) {
-          return JSON.parse(atob(token));
-        }
-      } catch {
-        // Not a base64 encoded JSON token
+      const authRes = await api.get("/auth/profile").catch(() => null);
+      if (authRes && authRes.data && authRes.data.id) {
+        return authRes.data;
       }
-
-      // Only call seafarer profile endpoint for seafarer roles
-      const role = getCookie("user_role") || "";
-      const roleNorm = role?.toLowerCase().replace("_", "-");
-      if (roleNorm === "seafarer") {
-        const response = await api.get("/users/profile").catch(() => null);
-        if (response && response.data && response.data.id) {
-          return response.data;
-        }
-      }
-      const authRes = await api.get("/auth/profile").catch(async () => {
-        const currentToken = getCookie("auth_token");
-        if (currentToken) {
-          const localRes = await axios
-            .get("/api/auth/profile", {
-              headers: { Authorization: `Bearer ${currentToken}` },
-            })
-            .catch(() => null);
-          return localRes;
-        }
-        return null;
-      });
-      return authRes?.data || null;
+      return null;
     } catch (err) {
       console.warn("Session profile fetch status (expected if guest):", err);
       return null;
@@ -117,7 +90,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (profileUser) {
           setUser(profileUser);
 
-          // ISSUE-017: Only set ONE cookie for onboarding status
           if (profileUser.onboardingStatus) {
             setCookie("onboarding_status", profileUser.onboardingStatus);
           } else {
@@ -144,104 +116,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .trim()
         .toLowerCase();
       const cleanPassword = String(credentials.password || "").trim();
-      let reqEmail = email;
-      if (email === "agentadmin@thalassic.in" || email === "agentadmin")
-        reqEmail = "admin@thalassic.in";
-      if (email === "partner@thalassic.in" || email === "partner")
-        reqEmail = "agent@thalassic.in";
 
-      let responseData: { token: string; user: User } | null = null;
-
-      try {
-        const response = await api.post("/auth/login", {
-          ...credentials,
-          email: reqEmail,
-          password: cleanPassword,
-        });
-        responseData = response.data;
-      } catch (apiErr: unknown) {
-        // Fallback for demo credentials if remote backend fails, cold-starts, or returns 400
-        const DEMO_FALLBACKS: Record<
-          string,
-          { role: string; name: string; phone: string }
-        > = {
-          "master@gmail.com": {
-            role: "MASTER",
-            name: "Master Admin",
-            phone: "+91 90000 00000",
-          },
-          "admin@thalassic.in": {
-            role: "AGENT_ADMIN",
-            name: "Agent Admin",
-            phone: "+91 88888 77777",
-          },
-          "agentadmin@thalassic.in": {
-            role: "AGENT_ADMIN",
-            name: "Agent Admin",
-            phone: "+91 88888 77777",
-          },
-          "agent@thalassic.in": {
-            role: "AGENT",
-            name: "Agent User",
-            phone: "+91 99999 88888",
-          },
-          "partner@thalassic.in": {
-            role: "AGENT",
-            name: "Partner User",
-            phone: "+91 99999 88888",
-          },
-          "seafarer@test.com": {
-            role: "SEAFARER",
-            name: "Test Seafarer",
-            phone: "+91 98765 43210",
-          },
-          "companyadmin@thalassic.in": {
-            role: "COMPANY_ADMIN",
-            name: "Company Admin",
-            phone: "+91 77777 66666",
-          },
-          "raj@example.com": {
-            role: "SEAFARER",
-            name: "Raj Kumar",
-            phone: "+91 98201 12345",
-          },
-          "priya@example.com": {
-            role: "SEAFARER",
-            name: "Priya Singh",
-            phone: "+91 97112 34567",
-          },
-          "amit@example.com": {
-            role: "SEAFARER",
-            name: "Amit Patel",
-            phone: "+91 98989 89898",
-          },
-        };
-
-        const matched = DEMO_FALLBACKS[email] || DEMO_FALLBACKS[reqEmail];
-        const isDemoPassword =
-          cleanPassword.toLowerCase() === "admin123" ||
-          cleanPassword === "password123" ||
-          cleanPassword === "master123" ||
-          cleanPassword.length >= 6;
-
-        if (matched && isDemoPassword) {
-          const demoUser: User = {
-            id: `usr-${Date.now()}`,
-            email: email,
-            name: matched.name,
-            role: matched.role,
-            phone: matched.phone,
-            onboardingStatus: "Active",
-          };
-          const token = btoa(JSON.stringify(demoUser));
-          responseData = { token, user: demoUser };
-        } else {
-          throw apiErr;
-        }
+      if (!email || !cleanPassword) {
+        throw new Error("Email and password are required");
       }
 
-      if (!responseData) {
-        throw new Error("Login failed");
+      const response = await api.post("/auth/login", {
+        email,
+        password: cleanPassword,
+      });
+
+      const responseData = response.data;
+      if (!responseData || !responseData.token || !responseData.user) {
+        throw new Error("Invalid response from server");
       }
 
       const { token, user: loggedUser } = responseData;
@@ -252,6 +139,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (loggedUser.onboardingStatus) {
         setCookie("onboarding_status", loggedUser.onboardingStatus);
+      } else {
+        deleteCookie("onboarding_status");
       }
 
       setUser(loggedUser);

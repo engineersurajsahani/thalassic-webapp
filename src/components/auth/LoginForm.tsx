@@ -56,9 +56,9 @@ export default function LoginForm() {
         targetPath = "/seafarer/dashboard";
       } else if (role === "company-admin") {
         targetPath = "/company-admin/dashboard";
-      } else if (role === "agent-admin") {
-        targetPath = "/agent-admin/dashboard";
-      } else if (role === "agent" || role === "partner") {
+      } else if (role === "partner-admin" || role === "agent-admin") {
+        targetPath = "/partner-admin";
+      } else if (role === "partner" || role === "agent") {
         targetPath = "/partner/dashboard";
       } else {
         targetPath = "/master/dashboard";
