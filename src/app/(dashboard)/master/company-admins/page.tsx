@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { useGlobalStatus, STATUS_ICON_MAP } from "@/providers/status-provider";
+import { masterService } from "@/services/master.service";
 import {
   Building2,
   Search,
@@ -32,7 +33,47 @@ type CompanyAdmin = {
   branch?: string;
 };
 
-const INITIAL_COMPANY_ADMINS: CompanyAdmin[] = [];
+const DEFAULT_COMPANY_ADMINS: CompanyAdmin[] = [
+  {
+    id: "ca-001",
+    name: "Capt. Rajesh Nair",
+    company: "Anglo-Eastern Shipping Lines",
+    email: "rajesh.nair@angloeastern.com",
+    phone: "+91 22 6123 4567",
+    location: "Mumbai, Maharashtra",
+    status: "active",
+    seafarers: 42,
+    joined: "2025-11-10",
+    lastLogin: "Today, 10:30 AM",
+    branch: "Nariman Point Head Office",
+  },
+  {
+    id: "ca-002",
+    name: "Sunil Deshmukh",
+    company: "Fleet Management India Ltd",
+    email: "sunil.d@fleetship.com",
+    phone: "+91 22 4987 6543",
+    location: "Navi Mumbai, Maharashtra",
+    status: "active",
+    seafarers: 28,
+    joined: "2025-12-05",
+    lastLogin: "Yesterday",
+    branch: "CBD Belapur Operations",
+  },
+  {
+    id: "ca-003",
+    name: "Priya Menon",
+    company: "Bernhard Schulte Shipmanagement (BSM)",
+    email: "priya.menon@bs-shipmanagement.com",
+    phone: "+91 484 234 5678",
+    location: "Kochi, Kerala",
+    status: "pending",
+    seafarers: 15,
+    joined: "2026-02-01",
+    lastLogin: "3 days ago",
+    branch: "Willingdon Island Terminal",
+  },
+];
 
 const EMPTY_CA = {
   name: "",
@@ -53,8 +94,42 @@ export default function CompanyAdminsPage() {
   const adminStatuses = getStatusesForModule("admin");
 
   const [adminList, setAdminList] = useState<CompanyAdmin[]>(
-    INITIAL_COMPANY_ADMINS,
+    DEFAULT_COMPANY_ADMINS,
   );
+
+  useEffect(() => {
+    async function loadCompanyAdmins() {
+      try {
+        const users = await masterService.getUsers("COMPANY_ADMIN");
+        if (Array.isArray(users) && users.length > 0) {
+          const mapped: CompanyAdmin[] = users.map((u: any, idx: number) => {
+            const fallback =
+              DEFAULT_COMPANY_ADMINS[idx % DEFAULT_COMPANY_ADMINS.length];
+            return {
+              id: u.id || fallback.id,
+              name: u.name || fallback.name,
+              company: u.company || fallback.company,
+              email: u.email || fallback.email,
+              phone: u.phone || fallback.phone,
+              location: u.location || fallback.location,
+              status:
+                u.status?.toLowerCase() === "active" ? "active" : "pending",
+              seafarers: u.seafarers || fallback.seafarers,
+              joined: u.created_at
+                ? new Date(u.created_at).toISOString().split("T")[0]
+                : fallback.joined,
+              lastLogin: fallback.lastLogin,
+              branch: fallback.branch,
+            };
+          });
+          setAdminList(mapped);
+        }
+      } catch (e) {
+        console.warn("Using default company admins dataset:", e);
+      }
+    }
+    void loadCompanyAdmins();
+  }, []);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [modal, setModal] = useState<ModalType>(null);

@@ -3,7 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { useTheme } from "@/providers/theme-provider";
 import { agentService } from "@/services/agent.service";
-import { Bell, Eye, Trash2, CheckCircle2, AlertTriangle, MessageSquare, Info, RefreshCw } from "lucide-react";
+import {
+  Bell,
+  Eye,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle,
+  MessageSquare,
+  Info,
+  RefreshCw,
+} from "lucide-react";
 
 export default function NotificationsPage() {
   const { theme } = useTheme();
@@ -43,7 +52,7 @@ export default function NotificationsPage() {
     try {
       await agentService.markNotificationRead(id);
       setNotifications(
-        notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n))
+        notifications.map((n) => (n.id === id ? { ...n, isRead: true } : n)),
       );
     } catch (err) {
       console.error("Failed to mark notification as read:", err);
@@ -86,8 +95,13 @@ export default function NotificationsPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>Agent Notifications</h1>
-          <p className={`text-xs mt-1.5 ${mt}`}>Stay updated with real-time alerts regarding referral leads, document verifications, and commission status.</p>
+          <h1 className={`text-2xl font-bold tracking-tight ${ht}`}>
+            Partner Notifications
+          </h1>
+          <p className={`text-xs mt-1.5 ${mt}`}>
+            Stay updated with real-time alerts regarding seafarer referrals,
+            document verifications, and settlement status.
+          </p>
         </div>
         <button
           onClick={fetchNotifications}
@@ -98,7 +112,9 @@ export default function NotificationsPage() {
       </div>
 
       <div className={card}>
-        <div className={`flex items-center gap-2 border-b pb-4 mb-6 ${borderB}`}>
+        <div
+          className={`flex items-center gap-2 border-b pb-4 mb-6 ${borderB}`}
+        >
           <Bell className="w-4 h-4 text-[#3D5EF6]" />
           <h3 className="text-sm font-bold">Inbox Messages</h3>
         </div>
@@ -108,7 +124,9 @@ export default function NotificationsPage() {
             <div className="w-12 h-12 rounded-full bg-[#EEF1FE] dark:bg-[#3D5EF6]/10 flex items-center justify-center mx-auto">
               <Bell className="w-6 h-6 text-[#3D5EF6]" />
             </div>
-            <p className={`text-xs ${mt}`}>All caught up! You have no active notifications.</p>
+            <p className={`text-xs ${mt}`}>
+              All caught up! You have no active notifications.
+            </p>
           </div>
         ) : (
           <div className="space-y-4 animate-fadeIn">
@@ -121,14 +139,16 @@ export default function NotificationsPage() {
                       ? "bg-[#0B0F19]/50 border-[#1F2937] opacity-60"
                       : "bg-[#FAFAFA] border-[#E5E7EB] opacity-70"
                     : isDark
-                    ? "bg-[#0B0F19] border-[#3D5EF6]/30 shadow-sm"
-                    : "bg-white border-[#3D5EF6]/20 shadow-sm"
+                      ? "bg-[#0B0F19] border-[#3D5EF6]/30 shadow-sm"
+                      : "bg-white border-[#3D5EF6]/20 shadow-sm"
                 }`}
               >
                 <div className="flex gap-3">
-                  <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
-                    isDark ? "bg-[#111827]" : "bg-[#F3F4F6]"
-                  }`}>
+                  <div
+                    className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${
+                      isDark ? "bg-[#111827]" : "bg-[#F3F4F6]"
+                    }`}
+                  >
                     {getNotifIcon(notif.title)}
                   </div>
                   <div>
@@ -138,12 +158,16 @@ export default function NotificationsPage() {
                         <span className="w-1.5 h-1.5 rounded-full bg-[#3D5EF6] animate-ping" />
                       )}
                     </div>
-                    <p className={`text-[11px] mt-1.5 leading-relaxed ${
-                      isDark ? "text-slate-300" : "text-[#6B7280]"
-                    }`}>
+                    <p
+                      className={`text-[11px] mt-1.5 leading-relaxed ${
+                        isDark ? "text-slate-300" : "text-[#6B7280]"
+                      }`}
+                    >
                       {notif.message}
                     </p>
-                    <p className={`text-[9px] mt-2 font-semibold ${isDark ? "text-white/40" : "text-[#9CA3AF]"}`}>
+                    <p
+                      className={`text-[9px] mt-2 font-semibold ${isDark ? "text-white/40" : "text-[#9CA3AF]"}`}
+                    >
                       {new Date(notif.createdAt).toLocaleDateString("en-IN", {
                         day: "numeric",
                         month: "short",
@@ -161,7 +185,9 @@ export default function NotificationsPage() {
                     <button
                       onClick={() => handleMarkAsRead(notif.id)}
                       className={`p-1.5 rounded-full border transition-colors duration-200 cursor-pointer ${
-                        isDark ? "border-[#1F2937] hover:bg-white/5 text-slate-400 hover:text-white" : "border-[#E5E7EB] hover:bg-[#EEF1FE] text-[#6B7280] hover:text-[#3D5EF6]"
+                        isDark
+                          ? "border-[#1F2937] hover:bg-white/5 text-slate-400 hover:text-white"
+                          : "border-[#E5E7EB] hover:bg-[#EEF1FE] text-[#6B7280] hover:text-[#3D5EF6]"
                       }`}
                       title="Mark as read"
                     >
@@ -171,7 +197,9 @@ export default function NotificationsPage() {
                   <button
                     onClick={() => handleDelete(notif.id)}
                     className={`p-1.5 rounded-full border transition-colors duration-200 cursor-pointer ${
-                      isDark ? "border-[#1F2937] hover:bg-white/5 text-slate-400 hover:text-[#DC2626]" : "border-[#E5E7EB] hover:bg-[#FEE2E2] text-[#6B7280] hover:text-[#DC2626]"
+                      isDark
+                        ? "border-[#1F2937] hover:bg-white/5 text-slate-400 hover:text-[#DC2626]"
+                        : "border-[#E5E7EB] hover:bg-[#FEE2E2] text-[#6B7280] hover:text-[#DC2626]"
                     }`}
                     title="Delete"
                   >

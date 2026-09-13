@@ -1,14 +1,11 @@
 "use client";
 
 import React, { useRef } from "react";
-import {
-  X, Download, Printer, Receipt, CheckCircle, XCircle, User,
-  BookOpen, CreditCard, Building2, FileText
-} from "lucide-react";
+import { X, Printer, Receipt } from "lucide-react";
 
 interface InvoiceModalProps {
   pdfData: {
-    invoice: any;
+    invoice: Record<string, any>;
     company: {
       name: string;
       address: string;
@@ -30,19 +27,23 @@ const StatusBadge = ({ status }: { status: string }) => {
   };
   const s = map[status] || { bg: "#EEF1FE", text: "#3D5EF6" };
   return (
-    <span style={{ backgroundColor: s.bg, color: s.text }} className="text-xs font-bold px-2 py-1 rounded-full">
+    <span
+      style={{ backgroundColor: s.bg, color: s.text }}
+      className="text-xs font-bold px-2 py-1 rounded-full"
+    >
       {status}
     </span>
   );
 };
 
 export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
-  if (!pdfData) return null;
   const printRef = useRef<HTMLDivElement>(null);
+  if (!pdfData) return null;
 
   const company = pdfData?.company || {
     name: "Hari Om Thalassic Maritime Training Institute",
-    address: "Suite 404, Marine Trade Tower, Ballard Estate, Mumbai, Maharashtra 400001",
+    address:
+      "Suite 404, Marine Trade Tower, Ballard Estate, Mumbai, Maharashtra 400001",
     email: "support@hariomthalassic.com",
     phone: "+91 22 12345678",
     dgsAccreditationId: "DGS-MTI-10294",
@@ -77,7 +78,10 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
     final_amount: 10500,
   };
 
-  const isHac = (invoice?.invoice_type || invoice?.type) === "HAC" || (invoice?.invoice_type || invoice?.type) === "HAC_PARTNER" || true;
+  const isHac =
+    (invoice?.invoice_type || invoice?.type) === "HAC" ||
+    (invoice?.invoice_type || invoice?.type) === "HAC_PARTNER" ||
+    true;
 
   const handlePrint = () => {
     if (!printRef.current) return;
@@ -101,14 +105,23 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
     `);
     win.document.close();
     win.focus();
-    setTimeout(() => { win.print(); win.close(); }, 500);
+    setTimeout(() => {
+      win.print();
+      win.close();
+    }, 500);
   };
 
   const fmt = (val: number) =>
     `₹${Number(val || 0).toLocaleString("en-IN", { minimumFractionDigits: 2 })}`;
 
   const fmtDate = (d: string) =>
-    d ? new Date(d).toLocaleDateString("en-IN", { day: "2-digit", month: "long", year: "numeric" }) : "—";
+    d
+      ? new Date(d).toLocaleDateString("en-IN", {
+          day: "2-digit",
+          month: "long",
+          year: "numeric",
+        })
+      : "—";
 
   return (
     <div
@@ -151,68 +164,305 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
 
         {/* Scrollable Invoice Body */}
         <div className="overflow-y-auto flex-1 p-6">
-          <div ref={printRef} style={{ fontFamily: "'Inter', sans-serif", color: "#1e293b", fontSize: "13px" }}>
+          <div
+            ref={printRef}
+            style={{
+              fontFamily: "'Inter', sans-serif",
+              color: "#1e293b",
+              fontSize: "13px",
+            }}
+          >
             {/* Company Header */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "24px", paddingBottom: "20px", borderBottom: "2px solid #3D5EF6" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                marginBottom: "24px",
+                paddingBottom: "20px",
+                borderBottom: "2px solid #3D5EF6",
+              }}
+            >
               <div>
-                <div style={{ fontSize: "20px", fontWeight: "800", color: "#3D5EF6", letterSpacing: "-0.5px" }}>HARI OM THALASSIC</div>
-                <div style={{ fontSize: "11px", color: "#475569", marginTop: "2px" }}>Maritime Training Institute</div>
-                <div style={{ fontSize: "11px", color: "#64748b", marginTop: "8px", lineHeight: "1.6" }}>
+                <div
+                  style={{
+                    fontSize: "20px",
+                    fontWeight: "800",
+                    color: "#3D5EF6",
+                    letterSpacing: "-0.5px",
+                  }}
+                >
+                  HARI OM THALASSIC
+                </div>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "#475569",
+                    marginTop: "2px",
+                  }}
+                >
+                  Maritime Training Institute
+                </div>
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "#64748b",
+                    marginTop: "8px",
+                    lineHeight: "1.6",
+                  }}
+                >
                   {company.address}
                 </div>
                 <div style={{ fontSize: "11px", color: "#64748b" }}>
                   📧 {company.email} · 📞 {company.phone}
                 </div>
-                <div style={{ fontSize: "11px", color: "#475569", marginTop: "4px" }}>
-                  DGS Accreditation: {company.dgsAccreditationId} | GSTIN: {company.gstin}
+                <div
+                  style={{
+                    fontSize: "11px",
+                    color: "#475569",
+                    marginTop: "4px",
+                  }}
+                >
+                  DGS Accreditation: {company.dgsAccreditationId} | GSTIN:{" "}
+                  {company.gstin}
                 </div>
               </div>
               <div style={{ textAlign: "right" }}>
-                <div style={{ background: isHac ? "#EEF1FE" : "#DCFCE7", border: `1px solid ${isHac ? "#C7D2FE" : "#BBF7D0"}`, borderRadius: "8px", padding: "12px 16px" }}>
-                  <div style={{ fontSize: "20px", fontWeight: "800", color: isHac ? "#3D5EF6" : "#16A34A" }}>{invoice.invoice_number}</div>
-                  <div style={{ fontSize: "11px", marginTop: "2px", color: "#64748b" }}>Invoice Type: {invoice.invoice_type}</div>
-                  <div style={{ fontSize: "11px", color: "#64748b" }}>Invoice Status: <strong>{invoice.status}</strong></div>
-                  <div style={{ fontSize: "11px", color: "#64748b", marginTop: "2px" }}>Invoice Date: {fmtDate(invoice.created_at)}</div>
-                  <div style={{ fontSize: "11px", color: "#64748b" }}>Payment Date: {fmtDate(invoice.payment_date)}</div>
+                <div
+                  style={{
+                    background: isHac ? "#EEF1FE" : "#DCFCE7",
+                    border: `1px solid ${isHac ? "#C7D2FE" : "#BBF7D0"}`,
+                    borderRadius: "8px",
+                    padding: "12px 16px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "20px",
+                      fontWeight: "800",
+                      color: isHac ? "#3D5EF6" : "#16A34A",
+                    }}
+                  >
+                    {invoice.invoice_number}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      marginTop: "2px",
+                      color: "#64748b",
+                    }}
+                  >
+                    Invoice Type: {invoice.invoice_type}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#64748b" }}>
+                    Invoice Status: <strong>{invoice.status}</strong>
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "11px",
+                      color: "#64748b",
+                      marginTop: "2px",
+                    }}
+                  >
+                    Invoice Date: {fmtDate(invoice.created_at)}
+                  </div>
+                  <div style={{ fontSize: "11px", color: "#64748b" }}>
+                    Payment Date: {fmtDate(invoice.payment_date)}
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Customer & Course Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "20px" }}>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "20px",
+                marginBottom: "20px",
+              }}
+            >
               {/* Customer Details */}
-              <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Customer Details</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Name:</span> <strong style={{ fontSize: "12px" }}>{invoice.customer_name}</strong></div>
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Email:</span> <span style={{ fontSize: "12px" }}>{invoice.customer_email}</span></div>
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Mobile:</span> <span style={{ fontSize: "12px" }}>{invoice.customer_phone}</span></div>
+              <div
+                style={{
+                  background: "#f8fafc",
+                  borderRadius: "10px",
+                  padding: "16px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    color: "#94a3b8",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  Customer Details
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
+                  <div>
+                    <span style={{ color: "#64748b", fontSize: "11px" }}>
+                      Name:
+                    </span>{" "}
+                    <strong style={{ fontSize: "12px" }}>
+                      {invoice.customer_name}
+                    </strong>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b", fontSize: "11px" }}>
+                      Email:
+                    </span>{" "}
+                    <span style={{ fontSize: "12px" }}>
+                      {invoice.customer_email}
+                    </span>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b", fontSize: "11px" }}>
+                      Mobile:
+                    </span>{" "}
+                    <span style={{ fontSize: "12px" }}>
+                      {invoice.customer_phone}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* Course Details */}
-              <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px" }}>
-                <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Course & Institute Details</div>
-                <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Course:</span> <strong style={{ fontSize: "12px" }}>{invoice.course_name}</strong></div>
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Institute:</span> <strong style={{ fontSize: "12px", color: "#3D5EF6" }}>{invoice.institute_name || "Hari Om Maritime Institute, Mumbai"}</strong></div>
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Course Fee:</span> <span style={{ fontSize: "12px" }}>{fmt(invoice.course_fee)}</span></div>
+              <div
+                style={{
+                  background: "#f8fafc",
+                  borderRadius: "10px",
+                  padding: "16px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    color: "#94a3b8",
+                    textTransform: "uppercase",
+                    letterSpacing: "1px",
+                    marginBottom: "12px",
+                  }}
+                >
+                  Course & Institute Details
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "6px",
+                  }}
+                >
+                  <div>
+                    <span style={{ color: "#64748b", fontSize: "11px" }}>
+                      Course:
+                    </span>{" "}
+                    <strong style={{ fontSize: "12px" }}>
+                      {invoice.course_name}
+                    </strong>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b", fontSize: "11px" }}>
+                      Institute:
+                    </span>{" "}
+                    <strong style={{ fontSize: "12px", color: "#3D5EF6" }}>
+                      {invoice.institute_name ||
+                        "Hari Om Maritime Institute, Mumbai"}
+                    </strong>
+                  </div>
+                  <div>
+                    <span style={{ color: "#64748b", fontSize: "11px" }}>
+                      Course Fee:
+                    </span>{" "}
+                    <span style={{ fontSize: "12px" }}>
+                      {fmt(invoice.course_fee)}
+                    </span>
+                  </div>
                   {Number(invoice.discount) > 0 && (
-                    <div><span style={{ color: "#64748b", fontSize: "11px" }}>Discount:</span> <span style={{ fontSize: "12px", color: "#16A34A" }}>-{fmt(invoice.discount)}</span></div>
+                    <div>
+                      <span style={{ color: "#64748b", fontSize: "11px" }}>
+                        Discount:
+                      </span>{" "}
+                      <span style={{ fontSize: "12px", color: "#16A34A" }}>
+                        -{fmt(invoice.discount)}
+                      </span>
+                    </div>
                   )}
                 </div>
               </div>
             </div>
 
             {/* Payment Details */}
-            <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px", marginBottom: "20px" }}>
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "12px" }}>Payment & Settlement Details</div>
-              <div style={{ display: "grid", gridTemplateColumns: invoice.agent_name ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr", gap: "12px" }}>
-                <div><span style={{ color: "#64748b", fontSize: "11px" }}>Gateway:</span><br/><strong>{invoice.payment_gateway}</strong></div>
-                <div><span style={{ color: "#64748b", fontSize: "11px" }}>Method:</span><br/><strong>{invoice.payment_method}</strong></div>
-                <div><span style={{ color: "#64748b", fontSize: "11px" }}>Transaction ID:</span><br/><strong style={{ wordBreak: "break-all" }}>{invoice.transaction_id}</strong></div>
+            <div
+              style={{
+                background: "#f8fafc",
+                borderRadius: "10px",
+                padding: "16px",
+                marginBottom: "20px",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  color: "#94a3b8",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  marginBottom: "12px",
+                }}
+              >
+                Payment & Settlement Details
+              </div>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: invoice.agent_name
+                    ? "1fr 1fr 1fr 1fr"
+                    : "1fr 1fr 1fr",
+                  gap: "12px",
+                }}
+              >
+                <div>
+                  <span style={{ color: "#64748b", fontSize: "11px" }}>
+                    Gateway:
+                  </span>
+                  <br />
+                  <strong>{invoice.payment_gateway}</strong>
+                </div>
+                <div>
+                  <span style={{ color: "#64748b", fontSize: "11px" }}>
+                    Method:
+                  </span>
+                  <br />
+                  <strong>{invoice.payment_method}</strong>
+                </div>
+                <div>
+                  <span style={{ color: "#64748b", fontSize: "11px" }}>
+                    Transaction ID:
+                  </span>
+                  <br />
+                  <strong style={{ wordBreak: "break-all" }}>
+                    {invoice.transaction_id}
+                  </strong>
+                </div>
                 {invoice.agent_name && (
-                  <div><span style={{ color: "#64748b", fontSize: "11px" }}>Partner / Agent:</span><br/><strong>{invoice.agent_name}</strong></div>
+                  <div>
+                    <span style={{ color: "#64748b", fontSize: "11px" }}>
+                      Partner:
+                    </span>
+                    <br />
+                    <strong>{invoice.agent_name}</strong>
+                  </div>
                 )}
               </div>
             </div>
@@ -221,29 +471,85 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
             <div style={{ marginBottom: "20px" }}>
               <div style={{ display: "flex", justifyContent: "flex-end" }}>
                 <div style={{ width: "320px" }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e2e8f0", fontSize: "12px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      padding: "8px 0",
+                      borderBottom: "1px solid #e2e8f0",
+                      fontSize: "12px",
+                    }}
+                  >
                     <span style={{ color: "#64748b" }}>Course Fee</span>
                     <span>{fmt(invoice.course_fee)}</span>
                   </div>
                   {Number(invoice.discount) > 0 && (
-                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e2e8f0", fontSize: "12px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #e2e8f0",
+                        fontSize: "12px",
+                      }}
+                    >
                       <span style={{ color: "#64748b" }}>Discount</span>
-                      <span style={{ color: "#16A34A" }}>- {fmt(invoice.discount)}</span>
+                      <span style={{ color: "#16A34A" }}>
+                        - {fmt(invoice.discount)}
+                      </span>
                     </div>
                   )}
                   {isHac && (
-                    <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: "1px solid #e2e8f0", fontSize: "12px" }}>
-                      <span style={{ color: "#3D5EF6", fontWeight: "600" }}>Hari Om Payable Amount</span>
-                      <strong style={{ color: "#3D5EF6" }}>{fmt(invoice.hariom_payable_amount || invoice.final_amount)}</strong>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        padding: "8px 0",
+                        borderBottom: "1px solid #e2e8f0",
+                        fontSize: "12px",
+                      }}
+                    >
+                      <span style={{ color: "#3D5EF6", fontWeight: "600" }}>
+                        Hari Om Payable Amount
+                      </span>
+                      <strong style={{ color: "#3D5EF6" }}>
+                        {fmt(
+                          invoice.hariom_payable_amount || invoice.final_amount,
+                        )}
+                      </strong>
                     </div>
                   )}
-                  <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderTop: "2px solid #3D5EF6", fontSize: "14px", fontWeight: "700", color: "#3D5EF6", marginTop: "4px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      padding: "10px 0",
+                      borderTop: "2px solid #3D5EF6",
+                      fontSize: "14px",
+                      fontWeight: "700",
+                      color: "#3D5EF6",
+                      marginTop: "4px",
+                    }}
+                  >
                     <span>Recorded Hari Om Revenue</span>
-                    <span>{fmt(invoice.hariom_payable_amount || invoice.final_amount)}</span>
+                    <span>
+                      {fmt(
+                        invoice.hariom_payable_amount || invoice.final_amount,
+                      )}
+                    </span>
                   </div>
                   {isHac && (
-                    <div style={{ fontSize: "10px", color: "#64748b", fontStyle: "italic", marginTop: "4px", textAlign: "right" }}>
-                      * Partner selling price is independent & excluded from Hari Om revenue calculation (PRD 6.6 & 6.8).
+                    <div
+                      style={{
+                        fontSize: "10px",
+                        color: "#64748b",
+                        fontStyle: "italic",
+                        marginTop: "4px",
+                        textAlign: "right",
+                      }}
+                    >
+                      * Partner selling price is independent & excluded from
+                      Hari Om revenue calculation (PRD 6.6 & 6.8).
                     </div>
                   )}
                 </div>
@@ -251,18 +557,55 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
             </div>
 
             {/* Terms & Conditions */}
-            <div style={{ background: "#f8fafc", borderRadius: "10px", padding: "16px", borderLeft: "3px solid #94a3b8" }}>
-              <div style={{ fontSize: "11px", fontWeight: "700", color: "#94a3b8", textTransform: "uppercase", letterSpacing: "1px", marginBottom: "8px" }}>Terms & Conditions</div>
+            <div
+              style={{
+                background: "#f8fafc",
+                borderRadius: "10px",
+                padding: "16px",
+                borderLeft: "3px solid #94a3b8",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  color: "#94a3b8",
+                  textTransform: "uppercase",
+                  letterSpacing: "1px",
+                  marginBottom: "8px",
+                }}
+              >
+                Terms & Conditions
+              </div>
               <ol style={{ paddingLeft: "16px" }}>
                 {terms.map((t, i) => (
-                  <li key={i} style={{ fontSize: "11px", color: "#64748b", marginBottom: "4px" }}>{t}</li>
+                  <li
+                    key={i}
+                    style={{
+                      fontSize: "11px",
+                      color: "#64748b",
+                      marginBottom: "4px",
+                    }}
+                  >
+                    {t}
+                  </li>
                 ))}
               </ol>
             </div>
 
             {/* Footer */}
-            <div style={{ textAlign: "center", marginTop: "24px", paddingTop: "16px", borderTop: "1px solid #e2e8f0", fontSize: "11px", color: "#94a3b8" }}>
-              This is an immutable computer-generated tax invoice (PRD Section 6.5) and requires no physical signature.
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "24px",
+                paddingTop: "16px",
+                borderTop: "1px solid #e2e8f0",
+                fontSize: "11px",
+                color: "#94a3b8",
+              }}
+            >
+              This is an immutable computer-generated tax invoice (PRD Section
+              6.5) and requires no physical signature.
             </div>
           </div>
         </div>

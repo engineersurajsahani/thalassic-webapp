@@ -185,7 +185,7 @@ export default function MasterDashboard() {
     try {
       const [dash, partners] = await Promise.allSettled([
         masterService.getDashboard(),
-        masterService.getUsers("AGENT_ADMIN"),
+        masterService.getUsers("PARTNER_ADMIN"),
       ]);
 
       if (dash.status === "fulfilled" && dash.value) {

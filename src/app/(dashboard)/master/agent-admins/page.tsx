@@ -23,12 +23,96 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { masterService } from "@/services/master.service";
 import {
   MOCK_PARTNERS,
   MockPartner,
   MOCK_SEAFARERS,
   MOCK_PARTNER_SETTLEMENTS,
 } from "@/data/master-portal-mock";
+
+const DEFAULT_PARTNERS: MockPartner[] = [
+  {
+    id: "part-001",
+    name: "Capt. Arvind Joshi",
+    agencyName: "Ocean Maritime Services",
+    rpslNumber: "RPSL-MUM-402",
+    contactPerson: "Arvind Joshi",
+    email: "arvind@oceanmaritime.in",
+    phone: "+91 22 2678 1234",
+    location: "Mumbai, Maharashtra",
+    status: "active",
+    joinedDate: "2025-10-15",
+    lastActive: "Today",
+    totalSeafarers: 34,
+    totalCoursePurchases: 56,
+    totalAmountPayable: 450000,
+    totalAmountReceived: 380000,
+    pendingAmount: 70000,
+    assignedPricing: [
+      {
+        courseId: "CRS-01",
+        courseTitle: "Basic Safety Training (BST)",
+        hariomPrice: 9000,
+        suggestedSellingPrice: 12000,
+        status: "Approved",
+      },
+      {
+        courseId: "CRS-02",
+        courseTitle: "Advanced Fire Fighting (AFF)",
+        hariomPrice: 11000,
+        suggestedSellingPrice: 14500,
+        status: "Approved",
+      },
+    ],
+  },
+  {
+    id: "part-002",
+    name: "Rameshwar Patel",
+    agencyName: "Gujarat Maritime Recruiters",
+    rpslNumber: "RPSL-KDL-188",
+    contactPerson: "Rameshwar Patel",
+    email: "contact@gujaratmaritime.com",
+    phone: "+91 2836 223456",
+    location: "Gandhidham / Kandla, Gujarat",
+    status: "active",
+    joinedDate: "2025-11-20",
+    lastActive: "Yesterday",
+    totalSeafarers: 22,
+    totalCoursePurchases: 38,
+    totalAmountPayable: 310000,
+    totalAmountReceived: 310000,
+    pendingAmount: 0,
+    assignedPricing: [
+      {
+        courseId: "CRS-01",
+        courseTitle: "Basic Safety Training (BST)",
+        hariomPrice: 9000,
+        suggestedSellingPrice: 12000,
+        status: "Approved",
+      },
+    ],
+  },
+  {
+    id: "part-003",
+    name: "Suresh Babu",
+    agencyName: "Southern Seafarers Placement Agency",
+    rpslNumber: "RPSL-CHN-294",
+    contactPerson: "Suresh Babu",
+    email: "suresh@southernseafarers.com",
+    phone: "+91 44 2534 8890",
+    location: "Chennai, Tamil Nadu",
+    status: "pending",
+    joinedDate: "2026-01-10",
+    lastActive: "3 days ago",
+    totalSeafarers: 12,
+    totalCoursePurchases: 18,
+    totalAmountPayable: 160000,
+    totalAmountReceived: 120000,
+    pendingAmount: 40000,
+    assignedPricing: [],
+  },
+];
 
 const AUDIT_LOG: Array<{
   action: string;
@@ -46,7 +130,46 @@ export default function PartnerAdminsPage() {
   const { getStatusesForModule, getStatus } = useGlobalStatus();
   const partnerStatuses = getStatusesForModule("partner");
 
-  const [partnerList, setPartnerList] = useState<MockPartner[]>(MOCK_PARTNERS);
+  const [partnerList, setPartnerList] =
+    useState<MockPartner[]>(DEFAULT_PARTNERS);
+
+  useEffect(() => {
+    async function loadPartners() {
+      try {
+        const users = await masterService.getUsers("PARTNER_ADMIN");
+        if (Array.isArray(users) && users.length > 0) {
+          const mapped: MockPartner[] = users.map((u: any, idx: number) => {
+            const fallback = DEFAULT_PARTNERS[idx % DEFAULT_PARTNERS.length];
+            return {
+              id: u.id || fallback.id,
+              name: u.name || fallback.name,
+              agencyName: u.agencyName || u.name + " Maritime",
+              rpslNumber: u.rpslNumber || fallback.rpslNumber,
+              contactPerson: u.name || fallback.contactPerson,
+              email: u.email || fallback.email,
+              phone: u.phone || fallback.phone,
+              location: u.location || fallback.location,
+              status: u.status === "Active" ? "active" : "pending",
+              joinedDate: u.created_at
+                ? new Date(u.created_at).toISOString().split("T")[0]
+                : fallback.joinedDate,
+              lastActive: fallback.lastActive,
+              totalSeafarers: fallback.totalSeafarers,
+              totalCoursePurchases: fallback.totalCoursePurchases,
+              totalAmountPayable: fallback.totalAmountPayable,
+              totalAmountReceived: fallback.totalAmountReceived,
+              pendingAmount: fallback.pendingAmount,
+              assignedPricing: fallback.assignedPricing,
+            };
+          });
+          setPartnerList(mapped);
+        }
+      } catch (e) {
+        console.warn("Using default partner admins dataset:", e);
+      }
+    }
+    void loadPartners();
+  }, []);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<string>("all");
   const [modal, setModal] = useState<ModalType>(null);
