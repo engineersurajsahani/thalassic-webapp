@@ -16,6 +16,8 @@ import {
   User,
 } from "lucide-react";
 
+import { api } from "@/lib/api";
+
 export default function SettingsPage() {
   const { theme } = useTheme();
   const isDark = theme === "dark";
@@ -28,8 +30,8 @@ export default function SettingsPage() {
   const [logoError, setLogoError] = useState(false);
 
   const [form, setForm] = useState({
-    name: "master_ceo",
-    email: "master@thalassic.in",
+    name: "Master Admin",
+    email: "master@gmail.com",
     newPassword: "",
     confirmPassword: "",
   });
@@ -46,21 +48,35 @@ export default function SettingsPage() {
 
   useEffect(() => {
     let mounted = true;
-    Promise.all([
-      masterService.getSettings().catch(() => null),
-      masterService.getAdminProfile().catch(() => null),
-    ])
-      .then(([, profile]) => {
-        if (!mounted || !profile) return;
+    try {
+      const stored = localStorage.getItem("user");
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u.name || u.email) {
+          setForm((prev) => ({
+            ...prev,
+            name: u.name || prev.name,
+            email: u.email || prev.email,
+          }));
+        }
+      }
+    } catch {}
+
+    api
+      .get("/auth/profile")
+      .then((res) => {
+        if (!mounted || !res.data) return;
         setForm((prev) => ({
           ...prev,
-          name: profile.name || profile.username || prev.name,
-          email: profile.email || prev.email,
+          name: res.data.name || res.data.email?.split("@")[0] || prev.name,
+          email: res.data.email || prev.email,
         }));
       })
+      .catch(() => null)
       .finally(() => {
         if (mounted) setLoading(false);
       });
+
     return () => {
       mounted = false;
     };
@@ -83,29 +99,29 @@ export default function SettingsPage() {
     setSuccess(false);
 
     try {
-      // 1. Update name + email
-      await masterService
-        .updateAdminProfile({
-          name: form.name,
-          email: form.email,
-        })
-        .catch(() => null);
+      await api.patch("/master/profile", {
+        name: form.name,
+        email: form.email,
+        password: form.newPassword || undefined,
+      });
 
-      // 2. Change password via dedicated endpoint if provided
-      if (form.newPassword) {
-        await masterService
-          .changePassword({
-            newPassword: form.newPassword,
-          })
-          .catch(() => null);
-      }
+      try {
+        const stored = localStorage.getItem("user");
+        if (stored) {
+          const u = JSON.parse(stored);
+          localStorage.setItem(
+            "user",
+            JSON.stringify({ ...u, name: form.name, email: form.email }),
+          );
+        }
+      } catch {}
 
       setSuccess(true);
-      toast.success("Profile updated successfully!");
+      toast.success("Profile credentials updated successfully!");
       setForm((prev) => ({ ...prev, newPassword: "", confirmPassword: "" }));
       setTimeout(() => setSuccess(false), 3500);
-    } catch {
-      toast.error("Failed to save settings");
+    } catch (err: any) {
+      toast.error(err.response?.data?.message || "Failed to save settings");
     } finally {
       setSaving(false);
     }
