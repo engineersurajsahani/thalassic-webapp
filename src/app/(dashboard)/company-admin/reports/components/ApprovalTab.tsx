@@ -14,6 +14,15 @@ import {
 import { mockSeafarers } from "@/components/company-admin/mockData";
 import { FilterState } from "./ReportFilterBar";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+interface ApprovalItem {
+  id: string;
+  seafarer: string;
+  document: string;
+  category: string;
+  status: string;
+  date: string;
+}
+
 interface ApprovalTabProps {
   filters: FilterState;
   registerExportData: (data: Record<string, unknown>[]) => void;
@@ -38,7 +47,7 @@ export default function ApprovalTab({
   };
 
   const processedData = useMemo(() => {
-    let approvals: Record<string, unknown>[] = [];
+    let approvals: ApprovalItem[] = [];
 
     mockSeafarers.forEach((sf) => {
       sf.documents.forEach((doc) => {
@@ -65,13 +74,13 @@ export default function ApprovalTab({
     }
 
     approvals.sort((a, b) => {
-      let valA = a[sortField];
-      let valB = b[sortField];
+      let valA = (a as unknown as Record<string, unknown>)[sortField];
+      let valB = (b as unknown as Record<string, unknown>)[sortField];
       if (typeof valA === "string") valA = valA.toLowerCase();
       if (typeof valB === "string") valB = valB.toLowerCase();
 
-      if (valA < valB) return sortAsc ? -1 : 1;
-      if (valA > valB) return sortAsc ? 1 : -1;
+      if ((valA ?? "") < (valB ?? "")) return sortAsc ? -1 : 1;
+      if ((valA ?? "") > (valB ?? "")) return sortAsc ? 1 : -1;
       return 0;
     });
 

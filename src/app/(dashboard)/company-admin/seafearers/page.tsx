@@ -48,13 +48,21 @@ export default function SeafarerManagementPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
+  type DrawerTabType =
+    | "profile"
+    | "documents"
+    | "courses"
+    | "seaService"
+    | "info"
+    | "docPurchases"
+    | "purchases"
+    | "vesselHistory";
+
   // Selected seafarer for Details Drawer
   const [selectedSeafarer, setSelectedSeafarer] = useState<Seafarer | null>(
     null,
   );
-  const [drawerTab, setDrawerTab] = useState<
-    "profile" | "documents" | "vesselHistory" | "purchases"
-  >("profile");
+  const [drawerTab, setDrawerTab] = useState<DrawerTabType>("profile");
   const [isDrawerLoading, setIsDrawerLoading] = useState(false);
 
   // Edit modal states
@@ -148,10 +156,7 @@ export default function SeafarerManagementPage() {
   };
 
   // Drawer Handlers
-  const openDetails = (
-    sf: Seafarer,
-    tab: "profile" | "documents" | "vesselHistory" | "purchases" = "profile",
-  ) => {
+  const openDetails = (sf: Seafarer, tab: DrawerTabType = "profile") => {
     setIsDrawerLoading(true);
     setSelectedSeafarer(sf);
     setDrawerTab(tab);
@@ -286,13 +291,11 @@ export default function SeafarerManagementPage() {
             }`}
           >
             <option value="All">All Departments</option>
-            {departments
-              .filter((d) => d !== "All")
-              .map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
+            {departments.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
           </select>
         </div>
 
@@ -1399,7 +1402,7 @@ export default function SeafarerManagementPage() {
                       setEditFormData({
                         ...editFormData,
                         department: e.target.value as
-                          "Deck" | "Engine" | "Catering" | "Other",
+                          "Deck" | "Engine" | "Galley" | "Safety",
                       })
                     }
                     className={`w-full py-2 px-3 rounded-lg border text-xs outline-none ${

@@ -8,6 +8,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Hari Om Thalassic",
   description: "Maritime Career & Partner Portal",
+  icons: {
+    icon: [{ url: "/logo/hariom_logo.png" }, { url: "/logo.png" }],
+    apple: "/logo/hariom_logo.png",
+    shortcut: "/logo/hariom_logo.png",
+  },
 };
 
 // ISSUE-005: Content Security Policy headers should be configured in next.config.ts
