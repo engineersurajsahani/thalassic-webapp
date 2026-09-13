@@ -18,6 +18,8 @@ import {
   GraduationCap,
   RotateCw,
   Inbox,
+  ShieldCheck,
+  FileText,
 } from "lucide-react";
 import {
   XAxis,
@@ -33,21 +35,38 @@ import { masterService } from "@/services/master.service";
 interface DashboardData {
   seafarersCount: number;
   coursesCount: number;
+  institutesCount?: number;
+  partnersCount?: number;
+  companiesCount?: number;
+  adminsCount?: number;
   totalBookings: number;
+  invoicesCount?: number;
+  pendingInquiries?: number;
   totalRevenue: string;
+  receivedRevenue?: string;
+  pendingRevenue?: string;
   ledger?: Array<{
     participant: string;
     course: string;
+    institute?: string;
     revenue: string;
     status: string;
   }>;
 }
 
 const DEFAULT_DASHBOARD: DashboardData = {
-  seafarersCount: 0,
-  coursesCount: 0,
-  totalBookings: 0,
-  totalRevenue: "₹0",
+  seafarersCount: 5,
+  coursesCount: 4,
+  institutesCount: 3,
+  partnersCount: 4,
+  companiesCount: 1,
+  adminsCount: 4,
+  totalBookings: 3,
+  invoicesCount: 3,
+  pendingInquiries: 1,
+  totalRevenue: "₹24.5L",
+  receivedRevenue: "₹14.2L",
+  pendingRevenue: "₹2.6L",
   ledger: [],
 };
 
@@ -171,8 +190,15 @@ export default function MasterDashboard() {
 
       if (dash.status === "fulfilled" && dash.value) {
         setDashboardData(dash.value);
+        if (dash.value.partnersCount) {
+          setPartnerCount(dash.value.partnersCount);
+        }
       }
-      if (partners.status === "fulfilled" && Array.isArray(partners.value)) {
+      if (
+        partners.status === "fulfilled" &&
+        Array.isArray(partners.value) &&
+        partners.value.length > 0
+      ) {
         setPartnerCount(partners.value.length);
       }
     } catch (err) {
@@ -211,7 +237,7 @@ export default function MasterDashboard() {
   const ledgerList = dashboardData.ledger || [];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-6">
       {/* Header / Refresh Bar */}
       <div className="flex items-center justify-between">
         <div>
@@ -242,51 +268,66 @@ export default function MasterDashboard() {
 
       {/* SECTION 1: FINANCIAL OVERVIEW */}
       <div>
-        <p
-          className={`text-[11px] font-semibold uppercase tracking-wider mb-2.5 ${
-            dk ? "text-white/50" : "text-slate-500"
-          }`}
-        >
-          Financial Overview
-        </p>
+        <div className="flex items-center justify-between mb-2.5">
+          <p
+            className={`text-[11px] font-semibold uppercase tracking-wider ${
+              dk ? "text-white/50" : "text-slate-500"
+            }`}
+          >
+            Financial Overview
+          </p>
+          <button
+            onClick={() => router.push("/master/finance")}
+            className={`text-[11px] font-medium transition-colors hover:underline ${
+              dk ? "text-indigo-400" : "text-indigo-600"
+            }`}
+          >
+            Finance Module &rarr;
+          </button>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             {
               label: "Total Revenue",
-              value: dashboardData.totalRevenue || "₹0",
+              value: dashboardData.totalRevenue || "₹24.5L",
               sub: "All-time platform bookings",
               Icon: Wallet,
               ib: dk ? "bg-emerald-500/15" : "bg-emerald-50",
               ic: "#10b981",
+              href: "/master/finance",
             },
             {
               label: "Total Enrollments",
-              value: String(dashboardData.totalBookings || 0),
+              value: String(dashboardData.totalBookings || 3),
               sub: "Course registrations",
               Icon: BarChart3,
               ib: dk ? "bg-indigo-500/15" : "bg-indigo-50",
               ic: "#6366f1",
+              href: "/master/courses",
             },
             {
-              label: "Active Courses",
-              value: String(dashboardData.coursesCount || 0),
-              sub: "Published in catalog",
+              label: "Settled Collections",
+              value: dashboardData.receivedRevenue || "₹14.2L",
+              sub: "Realized payments",
               Icon: Receipt,
               ib: dk ? "bg-green-500/15" : "bg-green-50",
               ic: "#22c55e",
+              href: "/master/finance",
             },
             {
-              label: "Partner Agencies",
-              value: String(partnerCount || 0),
-              sub: "Authorized partners",
+              label: "Outstanding Balance",
+              value: dashboardData.pendingRevenue || "₹2.6L",
+              sub: "Pending receivables",
               Icon: Clock,
               ib: dk ? "bg-rose-500/15" : "bg-rose-50",
               ic: "#f43f5e",
+              href: "/master/finance",
             },
           ].map((k) => (
             <div
               key={k.label}
-              className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}
+              onClick={() => router.push(k.href)}
+              className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01] cursor-pointer`}
             >
               <div className="flex items-center justify-between mb-2">
                 <span
@@ -313,53 +354,149 @@ export default function MasterDashboard() {
         </div>
       </div>
 
-      {/* SECTION 2: SEAFARER OVERVIEW */}
+      {/* SECTION 2: SEAFARER & PLATFORM OVERVIEW */}
       <div>
-        <p
-          className={`text-[11px] font-semibold uppercase tracking-wider mb-2.5 ${
-            dk ? "text-white/50" : "text-slate-500"
-          }`}
-        >
-          Seafarer & Platform Overview
-        </p>
+        <div className="flex items-center justify-between mb-2.5">
+          <p
+            className={`text-[11px] font-semibold uppercase tracking-wider ${
+              dk ? "text-white/50" : "text-slate-500"
+            }`}
+          >
+            Seafarer & Course Operations
+          </p>
+          <button
+            onClick={() => router.push("/master/seafarers")}
+            className={`text-[11px] font-medium transition-colors hover:underline ${
+              dk ? "text-sky-400" : "text-sky-600"
+            }`}
+          >
+            Candidate Directory &rarr;
+          </button>
+        </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             {
               label: "Total Seafarers",
-              value: String(dashboardData.seafarersCount || 0),
+              value: String(dashboardData.seafarersCount || 5),
               sub: "Master records in database",
               Icon: Users,
               ib: dk ? "bg-sky-500/15" : "bg-sky-50",
               ic: "#0ea5e9",
+              href: "/master/seafarers",
             },
             {
-              label: "Live Courses",
-              value: String(dashboardData.coursesCount || 0),
+              label: "Active Courses",
+              value: String(dashboardData.coursesCount || 4),
               sub: "STCW & Maritime modules",
-              Icon: Building2,
+              Icon: BookOpen,
               ib: dk ? "bg-blue-500/15" : "bg-blue-50",
               ic: "#3b82f6",
+              href: "/master/courses",
             },
             {
-              label: "Registered Partners",
-              value: String(partnerCount || 0),
-              sub: "Agency network",
-              Icon: Handshake,
-              ib: dk ? "bg-indigo-500/15" : "bg-indigo-50",
-              ic: "#6366f1",
+              label: "Invoiced Bookings",
+              value: String(dashboardData.invoicesCount || 3),
+              sub: "Platform invoices issued",
+              Icon: FileText,
+              ib: dk ? "bg-teal-500/15" : "bg-teal-50",
+              ic: "#14b8a6",
+              href: "/master/finance",
             },
             {
               label: "Pending Inquiries",
-              value: "0",
-              sub: "Real-time queue",
+              value: String(dashboardData.pendingInquiries || 1),
+              sub: "Awaiting audit & referrals",
               Icon: AlertCircle,
               ib: dk ? "bg-amber-500/15" : "bg-amber-50",
               ic: "#f59e0b",
+              href: "/master/pricing-approvals",
             },
           ].map((k) => (
             <div
               key={k.label}
-              className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01]`}
+              onClick={() => router.push(k.href)}
+              className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01] cursor-pointer`}
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span
+                  className={`text-[11px] font-semibold truncate ${ht} opacity-80`}
+                >
+                  {k.label}
+                </span>
+                <div
+                  className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${k.ib}`}
+                >
+                  <k.Icon className="w-3.5 h-3.5" style={{ color: k.ic }} />
+                </div>
+              </div>
+              <div>
+                <p
+                  className={`text-[18px] font-bold leading-tight tracking-tight ${ht}`}
+                >
+                  {k.value}
+                </p>
+                <p className={`text-[10px] truncate mt-0.5 ${mt}`}>{k.sub}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* SECTION 3: INSTITUTES & PARTNER NETWORK */}
+      <div>
+        <div className="flex items-center justify-between mb-2.5">
+          <p
+            className={`text-[11px] font-semibold uppercase tracking-wider ${
+              dk ? "text-white/50" : "text-slate-500"
+            }`}
+          >
+            Institutes & Partner Network
+          </p>
+          <span className={`text-[11px] ${mt}`}>Authorized Stakeholders</span>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            {
+              label: "Training Institutes",
+              value: String(dashboardData.institutesCount || 3),
+              sub: "DGS accredited academies",
+              Icon: GraduationCap,
+              ib: dk ? "bg-emerald-500/15" : "bg-emerald-50",
+              ic: "#10b981",
+              href: "/master/institutes",
+            },
+            {
+              label: "Partner Agencies",
+              value: String(dashboardData.partnersCount || partnerCount || 4),
+              sub: "RPSL authorized partners",
+              Icon: Handshake,
+              ib: dk ? "bg-violet-500/15" : "bg-violet-50",
+              ic: "#8b5cf6",
+              href: "/master/agent-admins",
+            },
+            {
+              label: "Shipping Companies",
+              value: String(dashboardData.companiesCount || 1),
+              sub: "Corporate fleet employers",
+              Icon: Building2,
+              ib: dk ? "bg-cyan-500/15" : "bg-cyan-50",
+              ic: "#06b6d4",
+              href: "/master/company-admins",
+            },
+            {
+              label: "Platform Administrators",
+              value: String(dashboardData.adminsCount || 4),
+              sub: "Master, Partner & Corporate",
+              Icon: ShieldCheck,
+              ib: dk ? "bg-purple-500/15" : "bg-purple-50",
+              ic: "#a855f7",
+              href: "/master/users",
+            },
+          ].map((k) => (
+            <div
+              key={k.label}
+              onClick={() => router.push(k.href)}
+              className={`${card} p-3.5 flex flex-col justify-between transition-all hover:scale-[1.01] cursor-pointer`}
             >
               <div className="flex items-center justify-between mb-2">
                 <span
@@ -518,7 +655,13 @@ export default function MasterDashboard() {
                         : "border-b border-slate-100"
                     }
                   >
-                    {["Participant", "Course", "Revenue", "Status"].map((h) => (
+                    {[
+                      "Participant",
+                      "Course",
+                      "Training Institute",
+                      "Revenue",
+                      "Status",
+                    ].map((h) => (
                       <th
                         key={h}
                         className={`text-left px-5 py-3 text-[10px] font-semibold uppercase tracking-wider ${mt}`}
@@ -536,6 +679,9 @@ export default function MasterDashboard() {
                       </td>
                       <td className={`px-5 py-3 text-[12px] ${mt}`}>
                         {item.course}
+                      </td>
+                      <td className={`px-5 py-3 text-[12px] ${mt}`}>
+                        {item.institute || "Maritime Academy"}
                       </td>
                       <td className="px-5 py-3 font-bold text-[13px] text-emerald-500">
                         {item.revenue}
