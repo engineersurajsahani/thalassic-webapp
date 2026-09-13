@@ -57,7 +57,7 @@ export default function LoginForm() {
       } else if (role === "company-admin") {
         targetPath = "/company-admin/dashboard";
       } else if (role === "partner-admin" || role === "agent-admin") {
-        targetPath = "/partner-admin";
+        targetPath = "/agent-admin/dashboard";
       } else if (role === "partner" || role === "agent") {
         targetPath = "/partner/dashboard";
       } else {
@@ -69,8 +69,17 @@ export default function LoginForm() {
         redirectUrl.startsWith("/") &&
         !redirectUrl.startsWith("//")
       ) {
-        const roleFolder = role === "master" ? "/master" : `/${role}`;
-        if (redirectUrl.startsWith(roleFolder)) {
+        const roleFolder =
+          role === "master"
+            ? "/master"
+            : role === "partner-admin" || role === "agent-admin"
+              ? "/agent-admin"
+              : `/${role}`;
+        if (
+          redirectUrl.startsWith(roleFolder) ||
+          (roleFolder === "/agent-admin" &&
+            redirectUrl.startsWith("/partner-admin"))
+        ) {
           targetPath = redirectUrl;
         }
       }
