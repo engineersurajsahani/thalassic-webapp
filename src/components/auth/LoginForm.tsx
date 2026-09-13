@@ -58,8 +58,8 @@ export default function LoginForm() {
         targetPath = "/company-admin/dashboard";
       } else if (role === "agent-admin") {
         targetPath = "/agent-admin/dashboard";
-      } else if (role === "agent") {
-        targetPath = "/agent/dashboard";
+      } else if (role === "agent" || role === "partner") {
+        targetPath = "/partner/dashboard";
       } else {
         targetPath = "/master/dashboard";
       }
