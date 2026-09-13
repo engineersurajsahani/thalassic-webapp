@@ -24,7 +24,6 @@ import {
 
 export default function PartnerAdminDashboard() {
   const { theme, mounted } = useTheme();
-  useEffect(() => setMounted(true), []);
   const isDark = mounted ? theme === "dark" : true;
 
   const [pricings, setPricings] = useState<CoursePricingItem[]>([]);
