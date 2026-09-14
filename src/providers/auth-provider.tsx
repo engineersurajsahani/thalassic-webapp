@@ -60,7 +60,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async () => {
     try {
-      const token = getCookie("auth_token");
+      const token =
+        getCookie("auth_token") ||
+        (typeof window !== "undefined"
+          ? localStorage.getItem("auth_token")
+          : null);
       if (!token) return null;
 
       const authRes = await api.get("/auth/profile").catch(() => null);
@@ -78,36 +82,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const profileUser = await fetchProfile();
     if (profileUser) {
       setUser(profileUser);
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("user", JSON.stringify(profileUser));
+        } catch {
+          // ignore
+        }
+      }
     }
   };
 
   useEffect(() => {
     const bootstrapSession = async () => {
-      const token = getCookie("auth_token");
+      // 1. Instantly hydrate cached session from localStorage if available
+      let cachedUser: User | null = null;
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("user");
+          if (raw) cachedUser = JSON.parse(raw);
+        } catch {
+          // ignore parsing errors
+        }
+      }
+
+      if (cachedUser) {
+        setUser(cachedUser);
+      }
+
+      const token =
+        getCookie("auth_token") ||
+        (typeof window !== "undefined"
+          ? localStorage.getItem("auth_token")
+          : null);
 
       if (token) {
+        // Ensure cookies stay in sync
+        if (!getCookie("auth_token")) {
+          setCookie("auth_token", token);
+        }
+        if (cachedUser?.role && !getCookie("user_role")) {
+          setCookie("user_role", cachedUser.role);
+        }
+
         const profileUser = await fetchProfile();
         if (profileUser) {
           setUser(profileUser);
+
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("user", JSON.stringify(profileUser));
+              if (profileUser.role) {
+                localStorage.setItem("user_role", profileUser.role);
+                setCookie("user_role", profileUser.role);
+              }
+            } catch {
+              // ignore
+            }
+          }
 
           if (profileUser.onboardingStatus) {
             setCookie("onboarding_status", profileUser.onboardingStatus);
           } else {
             deleteCookie("onboarding_status");
           }
-        } else {
-          // Token expired or invalid
-          deleteCookie("auth_token");
-          deleteCookie("user_role");
-          deleteCookie("onboarding_status");
-          setUser(null);
         }
       }
       setIsLoading(false);
     };
 
     bootstrapSession();
-  }, [router]);
+  }, []);
 
   const login = async (credentials: Record<string, unknown>) => {
     setIsLoading(true);
@@ -133,9 +177,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       const { token, user: loggedUser } = responseData;
 
-      // Ensure single unified cookies
+      // Ensure single unified cookies & localStorage persistence
       setCookie("auth_token", token);
       setCookie("user_role", loggedUser.role);
+
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("auth_token", token);
+          localStorage.setItem("user_role", loggedUser.role);
+          localStorage.setItem("user", JSON.stringify(loggedUser));
+        } catch {
+          // ignore storage errors
+        }
+      }
 
       if (loggedUser.onboardingStatus) {
         setCookie("onboarding_status", loggedUser.onboardingStatus);
@@ -166,11 +220,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const response = await api.post("/auth/register", userDetails);
       const { token, user: registeredUser } = response.data;
 
-      // ISSUE-017: Only set ONE auth_token cookie (not multiple role-specific copies)
       setCookie("auth_token", token);
       setCookie("user_role", registeredUser.role);
 
-      // ISSUE-017: Only ONE onboarding_status cookie
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("auth_token", token);
+          localStorage.setItem("user_role", registeredUser.role);
+          localStorage.setItem("user", JSON.stringify(registeredUser));
+        } catch {
+          // ignore
+        }
+      }
+
       if (registeredUser.onboardingStatus) {
         setCookie("onboarding_status", registeredUser.onboardingStatus);
       }

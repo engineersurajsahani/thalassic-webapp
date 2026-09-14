@@ -1,8 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { Mail, Check, LogIn } from "lucide-react";
+import { Mail, Check, LogIn, Loader2, ArrowRight } from "lucide-react";
 import AuthInput from "./AuthInput";
 import PasswordInput from "./PasswordInput";
 import { useTheme } from "@/providers/theme-provider";
@@ -28,6 +28,9 @@ export default function LoginForm() {
   const { login } = useAuth();
   const router = useRouter();
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [isRedirecting, setIsRedirecting] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -39,6 +42,9 @@ export default function LoginForm() {
   });
 
   const onSubmit = async (data: z.infer<typeof loginSchema>) => {
+    if (isLoading || isRedirecting) return;
+    setIsLoading(true);
+
     try {
       const cleanData = {
         email: (data.email || "").trim(),
@@ -84,9 +90,12 @@ export default function LoginForm() {
         }
       }
 
-      router.push(targetPath);
+      setIsRedirecting(true);
       toast.success("Login successful! Redirecting...");
+      router.push(targetPath);
     } catch (err: unknown) {
+      setIsLoading(false);
+      setIsRedirecting(false);
       const message =
         err instanceof Error ? err.message : "Invalid email or password";
       setError("root", { message });
@@ -94,13 +103,19 @@ export default function LoginForm() {
     }
   };
 
+  const isBusy = isLoading || isRedirecting;
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       {formErrors.root && (
         <div
-          className={`p-3 rounded-lg text-xs font-semibold ${isDark ? "bg-red-950/40 border border-red-500/30 text-red-400" : "bg-red-50 border border-red-200 text-red-600"}`}
+          className={`p-3.5 rounded-xl text-xs font-semibold flex items-center gap-2 animate-shake ${
+            isDark
+              ? "bg-red-950/40 border border-red-500/30 text-red-400"
+              : "bg-red-50 border border-red-200 text-red-600"
+          }`}
         >
-          {formErrors.root.message}
+          <span>{formErrors.root.message}</span>
         </div>
       )}
 
@@ -110,6 +125,7 @@ export default function LoginForm() {
         placeholder="name@example.com"
         icon={Mail}
         error={formErrors.email?.message}
+        disabled={isBusy}
         required
         {...register("email")}
       />
@@ -118,20 +134,29 @@ export default function LoginForm() {
         label="Password"
         placeholder="••••••••"
         error={formErrors.password?.message}
+        disabled={isBusy}
         required
         {...register("password")}
       />
 
       <div className="flex items-center justify-between">
         <label className="flex items-center gap-2.5 cursor-pointer group select-none">
-          <input type="checkbox" className="sr-only" />
+          <input type="checkbox" className="sr-only" disabled={isBusy} />
           <div
-            className={`w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200 ${isDark ? "border-[#374151] bg-[#111827] group-hover:border-gray-500" : "border-[#E5E7EB] bg-white group-hover:border-gray-400"}`}
+            className={`w-5 h-5 rounded border flex items-center justify-center transition-colors duration-200 ${
+              isDark
+                ? "border-[#374151] bg-[#111827] group-hover:border-gray-500"
+                : "border-[#E5E7EB] bg-white group-hover:border-gray-400"
+            }`}
           >
             <Check className="w-3.5 h-3.5 text-white stroke-[3px] opacity-0" />
           </div>
           <span
-            className={`text-xs transition-colors duration-200 ${isDark ? "text-gray-400 group-hover:text-gray-300" : "text-[#6B7280] group-hover:text-[#111827]"}`}
+            className={`text-xs transition-colors duration-200 ${
+              isDark
+                ? "text-gray-400 group-hover:text-gray-300"
+                : "text-[#6B7280] group-hover:text-[#111827]"
+            }`}
           >
             Remember me
           </span>
@@ -139,7 +164,11 @@ export default function LoginForm() {
 
         <Link
           href="/reset-password"
-          className={`text-xs font-semibold transition-colors duration-200 ${isDark ? "text-[#3D5EF6] hover:text-[#2E4FE0]" : "text-[#3D5EF6] hover:text-[#2E4FE0]"}`}
+          className={`text-xs font-semibold transition-colors duration-200 ${
+            isDark
+              ? "text-[#3D5EF6] hover:text-[#2E4FE0]"
+              : "text-[#3D5EF6] hover:text-[#2E4FE0]"
+          }`}
         >
           Forgot password?
         </Link>
@@ -147,19 +176,45 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        className="w-full mt-2 py-3.5 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer bg-[#3D5EF6] hover:bg-[#2E4FE0] text-white"
+        disabled={isBusy}
+        className={`w-full mt-2 py-3.5 font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 text-white shadow-md ${
+          isBusy
+            ? "bg-[#3D5EF6]/70 cursor-not-allowed scale-[0.99]"
+            : "bg-[#3D5EF6] hover:bg-[#2E4FE0] hover:shadow-lg active:scale-[0.98] cursor-pointer"
+        }`}
       >
-        <LogIn className="w-5 h-5" />
-        Login
+        {isRedirecting ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Redirecting to Dashboard...</span>
+          </>
+        ) : isLoading ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            <span>Authenticating...</span>
+          </>
+        ) : (
+          <>
+            <LogIn className="w-5 h-5" />
+            <span>Login</span>
+            <ArrowRight className="w-4 h-4 ml-0.5 opacity-70 group-hover:translate-x-1 transition-transform" />
+          </>
+        )}
       </button>
 
       <p
-        className={`text-center text-sm mt-6 ${isDark ? "text-gray-400" : "text-[#6B7280]"}`}
+        className={`text-center text-sm mt-6 ${
+          isDark ? "text-gray-400" : "text-[#6B7280]"
+        }`}
       >
         Don&apos;t have an account?{" "}
         <Link
           href="/register"
-          className={`font-semibold transition-colors duration-200 ${isDark ? "text-[#3D5EF6] hover:text-[#2E4FE0]" : "text-[#3D5EF6] hover:text-[#2E4FE0]"}`}
+          className={`font-semibold transition-colors duration-200 ${
+            isDark
+              ? "text-[#3D5EF6] hover:text-[#2E4FE0]"
+              : "text-[#3D5EF6] hover:text-[#2E4FE0]"
+          }`}
         >
           Sign Up
         </Link>

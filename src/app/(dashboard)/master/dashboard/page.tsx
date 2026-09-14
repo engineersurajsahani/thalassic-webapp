@@ -55,18 +55,18 @@ interface DashboardData {
 }
 
 const DEFAULT_DASHBOARD: DashboardData = {
-  seafarersCount: 5,
-  coursesCount: 4,
-  institutesCount: 3,
-  partnersCount: 4,
-  companiesCount: 1,
-  adminsCount: 4,
-  totalBookings: 3,
-  invoicesCount: 3,
-  pendingInquiries: 1,
-  totalRevenue: "₹24.5L",
-  receivedRevenue: "₹14.2L",
-  pendingRevenue: "₹2.6L",
+  seafarersCount: 0,
+  coursesCount: 0,
+  institutesCount: 0,
+  partnersCount: 0,
+  companiesCount: 0,
+  adminsCount: 0,
+  totalBookings: 0,
+  invoicesCount: 0,
+  pendingInquiries: 0,
+  totalRevenue: "₹0",
+  receivedRevenue: "₹0",
+  pendingRevenue: "₹0",
   ledger: [],
 };
 
