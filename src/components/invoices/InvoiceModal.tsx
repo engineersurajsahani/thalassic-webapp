@@ -38,6 +38,8 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
   const printRef = useRef<HTMLDivElement>(null);
+  const [selectedIndex, setSelectedIndex] = React.useState(0);
+
   if (!pdfData) return null;
 
   const company = pdfData?.company || {
@@ -57,7 +59,14 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
   ];
 
   const rawInvoice = pdfData?.invoice;
-  const invoice = rawInvoice || {
+  const relatedItems = rawInvoice?.related_items || [];
+
+  const activeItem =
+    Array.isArray(relatedItems) && relatedItems.length > 0
+      ? relatedItems[selectedIndex]
+      : null;
+
+  const baseInvoice = rawInvoice || {
     invoice_number: "INV-2026-SETTLEMENT",
     invoice_type: "HAC",
     status: "Paid",
@@ -76,6 +85,54 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
     agent_name: "Rajesh Kumar (Partner)",
     hariom_payable_amount: 10500,
     final_amount: 10500,
+  };
+
+  const cName = activeItem
+    ? activeItem.seafarerName ||
+      activeItem.customer_name ||
+      activeItem.seafarer_name ||
+      baseInvoice.customer_name
+    : baseInvoice.customer_name;
+  const cEmail = activeItem
+    ? activeItem.customer_email ||
+      `${cName.toLowerCase().replace(/\s+/g, ".")}@maritime.com`
+    : baseInvoice.customer_email;
+  const cPhone = activeItem
+    ? activeItem.customer_phone || "+91 98765 43210"
+    : baseInvoice.customer_phone;
+  const crsName = activeItem
+    ? activeItem.courseName ||
+      activeItem.course_name ||
+      activeItem.course ||
+      baseInvoice.course_name
+    : baseInvoice.course_name;
+  const amtVal = activeItem
+    ? Number(
+        activeItem.payableAmount ??
+          activeItem.paidNow ??
+          activeItem.hariom_payable ??
+          activeItem.amount ??
+          baseInvoice.course_fee ??
+          4500,
+      )
+    : Number(baseInvoice.course_fee || baseInvoice.final_amount || 10500);
+
+  const invoice: any = {
+    ...baseInvoice,
+    customer_name: cName,
+    customer_email: cEmail,
+    customer_phone: cPhone,
+    course_name: crsName,
+    course_fee: amtVal,
+    final_amount: amtVal,
+    hariom_payable_amount: amtVal,
+    invoice_number: activeItem
+      ? activeItem.invoice_number ||
+        activeItem.hac_invoice_number ||
+        (activeItem.id?.startsWith("HAC-")
+          ? activeItem.id
+          : `HAC-2026-${(activeItem.purchaseId || activeItem.id || "000000").substring(0, 6).toUpperCase()}`)
+      : baseInvoice.invoice_number,
   };
 
   const isHac =
@@ -161,6 +218,41 @@ export function InvoiceModal({ pdfData, onClose }: InvoiceModalProps) {
             </button>
           </div>
         </div>
+
+        {/* Batch Settlement Candidate Selector Tabs */}
+        {relatedItems.length > 1 && (
+          <div className="px-6 py-2.5 bg-slate-50 border-b border-slate-200 flex items-center gap-2 overflow-x-auto">
+            <span className="text-[10px] font-bold text-slate-500 uppercase shrink-0">
+              Candidates ({relatedItems.length}):
+            </span>
+            {relatedItems.map((item: any, idx: number) => {
+              const nameStr =
+                item.seafarerName ||
+                item.customer_name ||
+                item.seafarer_name ||
+                `Candidate ${idx + 1}`;
+              const amtNum = Number(
+                item.payableAmount ?? item.paidNow ?? item.amount ?? 0,
+              );
+              const isSelected = idx === selectedIndex;
+
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={() => setSelectedIndex(idx)}
+                  className={`px-3 py-1 rounded-lg text-xs font-bold transition cursor-pointer whitespace-nowrap border ${
+                    isSelected
+                      ? "bg-[#3D5EF6] text-white border-[#3D5EF6] shadow-sm"
+                      : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+                  }`}
+                >
+                  {nameStr} (₹{amtNum.toLocaleString("en-IN")})
+                </button>
+              );
+            })}
+          </div>
+        )}
 
         {/* Scrollable Invoice Body */}
         <div className="overflow-y-auto flex-1 p-6">

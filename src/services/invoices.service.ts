@@ -23,9 +23,12 @@ export const invoicesService = {
     try {
       const queryParams = new URLSearchParams();
       if (params?.search) queryParams.append("search", params.search);
-      if (params?.type && params.type !== "all") queryParams.append("type", params.type);
-      if (params?.status && params.status !== "all") queryParams.append("status", params.status);
-      if (params?.course && params.course !== "all") queryParams.append("course", params.course);
+      if (params?.type && params.type !== "all")
+        queryParams.append("type", params.type);
+      if (params?.status && params.status !== "all")
+        queryParams.append("status", params.status);
+      if (params?.course && params.course !== "all")
+        queryParams.append("course", params.course);
       if (params?.startDate) queryParams.append("startDate", params.startDate);
       if (params?.endDate) queryParams.append("endDate", params.endDate);
       const query = queryParams.toString();
@@ -40,12 +43,20 @@ export const invoicesService = {
     // Combine localSaved, apiData, and MOCK_PARTNER_INVOICES cleanly without duplicates
     const combined = [...localSaved];
     for (const item of apiData) {
-      if (!combined.some((i) => i.id === item.id || i.invoice_number === item.invoice_number)) {
+      if (
+        !combined.some(
+          (i) => i.id === item.id || i.invoice_number === item.invoice_number,
+        )
+      ) {
         combined.push(item);
       }
     }
     for (const item of MOCK_PARTNER_INVOICES) {
-      if (!combined.some((i) => i.id === item.id || i.invoice_number === item.invoice_number)) {
+      if (
+        !combined.some(
+          (i) => i.id === item.id || i.invoice_number === item.invoice_number,
+        )
+      ) {
         combined.push(item);
       }
     }
@@ -58,14 +69,22 @@ export const invoicesService = {
           i.invoice_number?.toLowerCase().includes(q) ||
           i.customer_name?.toLowerCase().includes(q) ||
           i.course_name?.toLowerCase().includes(q) ||
-          i.transaction_id?.toLowerCase().includes(q)
+          i.transaction_id?.toLowerCase().includes(q),
       );
     }
     if (params?.status && params.status !== "all") {
-      list = list.filter((i) => (i.status || i.payment_status)?.toLowerCase() === params.status?.toLowerCase());
+      list = list.filter(
+        (i) =>
+          (i.status || i.payment_status)?.toLowerCase() ===
+          params.status?.toLowerCase(),
+      );
     }
     if (params?.type && params.type !== "all") {
-      list = list.filter((i) => (i.invoice_type || i.type)?.toLowerCase() === params.type?.toLowerCase());
+      list = list.filter(
+        (i) =>
+          (i.invoice_type || i.type)?.toLowerCase() ===
+          params.type?.toLowerCase(),
+      );
     }
     return list;
   },
@@ -86,9 +105,19 @@ export const invoicesService = {
     customer_name?: string;
     course_name?: string;
   }) {
-    const custName = data.customerName || data.customer_name || data.seafarerName || data.seafarer_name || "Seafarer Candidate";
-    const crsName = data.courseName || data.course_name || "STCW Maritime Course";
-    const invNo = data.invoiceNumber || (data.id && data.id.startsWith("HAC-") ? data.id : `HAC-2026-${(data.id || "").substring(0, 6).toUpperCase()}`);
+    const custName =
+      data.customerName ||
+      data.customer_name ||
+      data.seafarerName ||
+      data.seafarer_name ||
+      "Seafarer Candidate";
+    const crsName =
+      data.courseName || data.course_name || "STCW Maritime Course";
+    const invNo =
+      data.invoiceNumber ||
+      (data.id && data.id.startsWith("HAC-")
+        ? data.id
+        : `HAC-2026-${(data.id || "").substring(0, 6).toUpperCase()}`);
     const amt = Number(data.finalAmount || data.hariomPayable || 10500);
 
     const newInvoice = {
@@ -96,7 +125,9 @@ export const invoicesService = {
       purchase_id: data.purchaseId || data.id,
       invoice_number: invNo,
       customer_name: custName,
-      customer_email: data.customerEmail || `${custName.toLowerCase().replace(/\s+/g, ".")}@maritime.com`,
+      customer_email:
+        data.customerEmail ||
+        `${custName.toLowerCase().replace(/\s+/g, ".")}@maritime.com`,
       customer_phone: "+91 98765 43210",
       course_name: crsName,
       institute_name: "Hari Om Maritime Institute, Mumbai",
@@ -118,7 +149,10 @@ export const invoicesService = {
     };
 
     const existingIdx = MOCK_PARTNER_INVOICES.findIndex(
-      (i) => i.id === newInvoice.id || i.invoice_number === newInvoice.invoice_number || (data.purchaseId && i.purchase_id === data.purchaseId)
+      (i) =>
+        i.id === newInvoice.id ||
+        i.invoice_number === newInvoice.invoice_number ||
+        (data.purchaseId && i.purchase_id === data.purchaseId),
     );
     if (existingIdx >= 0) {
       MOCK_PARTNER_INVOICES[existingIdx] = newInvoice;
@@ -128,15 +162,23 @@ export const invoicesService = {
 
     if (typeof window !== "undefined") {
       try {
-        const stored = localStorage.getItem("thalassic_saved_invoices_list") || "[]";
+        const stored =
+          localStorage.getItem("thalassic_saved_invoices_list") || "[]";
         let list: any[] = JSON.parse(stored);
-        const idx = list.findIndex((i) => i.id === newInvoice.id || i.invoice_number === newInvoice.invoice_number);
+        const idx = list.findIndex(
+          (i) =>
+            i.id === newInvoice.id ||
+            i.invoice_number === newInvoice.invoice_number,
+        );
         if (idx >= 0) {
           list[idx] = newInvoice;
         } else {
           list.unshift(newInvoice);
         }
-        localStorage.setItem("thalassic_saved_invoices_list", JSON.stringify(list));
+        localStorage.setItem(
+          "thalassic_saved_invoices_list",
+          JSON.stringify(list),
+        );
       } catch (e) {
         console.warn("Error persisting invoice in localStorage:", e);
       }
@@ -151,7 +193,10 @@ export const invoicesService = {
       const response = await api.post("/invoices/generate", newInvoice);
       if (response.data) return response.data;
     } catch (e) {
-      console.warn("Failed to generate invoice via API, saved to local store:", e);
+      console.warn(
+        "Failed to generate invoice via API, saved to local store:",
+        e,
+      );
     }
     return newInvoice;
   },
@@ -159,7 +204,8 @@ export const invoicesService = {
   markInvoiceAsGenerated(key: string, data?: any) {
     if (typeof window === "undefined" || !key) return;
     try {
-      const stored = localStorage.getItem("thalassic_generated_invoices") || "{}";
+      const stored =
+        localStorage.getItem("thalassic_generated_invoices") || "{}";
       const map = JSON.parse(stored);
       map[key] = true;
       if (data?.invoiceNumber) map[data.invoiceNumber] = true;
@@ -182,13 +228,17 @@ export const invoicesService = {
           "HAC-2026-PUR-88": true,
           "pur-88201": true,
         };
-        localStorage.setItem("thalassic_generated_invoices", JSON.stringify(initialSeed));
+        localStorage.setItem(
+          "thalassic_generated_invoices",
+          JSON.stringify(initialSeed),
+        );
         stored = JSON.stringify(initialSeed);
       }
       const map = JSON.parse(stored);
       if (map[key]) return true;
       const inMock = MOCK_PARTNER_INVOICES.some(
-        (i) => i.id === key || i.invoice_number === key || i.purchase_id === key
+        (i) =>
+          i.id === key || i.invoice_number === key || i.purchase_id === key,
       );
       return inMock;
     } catch (e) {
@@ -203,7 +253,11 @@ export const invoicesService = {
     } catch (e) {
       console.warn("Failed to fetch invoice by ID from API, using fallback", e);
     }
-    return MOCK_PARTNER_INVOICES.find((i) => i.id === id || i.invoice_number === id || i.purchase_id === id) || null;
+    return (
+      MOCK_PARTNER_INVOICES.find(
+        (i) => i.id === id || i.invoice_number === id || i.purchase_id === id,
+      ) || null
+    );
   },
 
   async getInvoicePdfData(id: string, overrideData?: any) {
@@ -211,21 +265,46 @@ export const invoicesService = {
       const response = await api.get(`/invoices/${id}/pdf`);
       if (response.data) return response.data;
     } catch (e) {
-      console.warn("Failed to fetch invoice PDF from API, using dynamic data", e);
+      console.warn(
+        "Failed to fetch invoice PDF from API, using dynamic data",
+        e,
+      );
     }
 
-    let inv = MOCK_PARTNER_INVOICES.find((i) => i.id === id || i.invoice_number === id || i.purchase_id === id);
+    let inv = MOCK_PARTNER_INVOICES.find(
+      (i) => i.id === id || i.invoice_number === id || i.purchase_id === id,
+    );
 
     if (!inv && overrideData) {
-      const custName = overrideData.customer_name || overrideData.seafarerName || overrideData.seafarer_name || overrideData.name;
-      const crsName = overrideData.course_name || overrideData.courseName || overrideData.course;
-      const amt = Number(overrideData.hariom_payable || overrideData.payableAmount || overrideData.final_amount || overrideData.amount || 0);
+      const custName =
+        overrideData.customer_name ||
+        overrideData.seafarerName ||
+        overrideData.seafarer_name ||
+        overrideData.name;
+      const crsName =
+        overrideData.course_name ||
+        overrideData.courseName ||
+        overrideData.course;
+      const amt = Number(
+        overrideData.hariom_payable ||
+          overrideData.payableAmount ||
+          overrideData.final_amount ||
+          overrideData.amount ||
+          0,
+      );
 
       inv = {
         id: id || overrideData.id || "INV-2026-001",
-        invoice_number: id?.startsWith("HAC-") || id?.startsWith("INV-") ? id : (overrideData.invoice_number || overrideData.invoiceNumber || `INV-2026-${id || "001"}`),
+        invoice_number:
+          id?.startsWith("HAC-") || id?.startsWith("INV-")
+            ? id
+            : overrideData.invoice_number ||
+              overrideData.invoiceNumber ||
+              `INV-2026-${id || "001"}`,
         customer_name: custName || "Rajesh Kumar",
-        customer_email: overrideData.customer_email || `${(custName || "seafarer").toLowerCase().replace(/\s+/g, ".")}@maritime.com`,
+        customer_email:
+          overrideData.customer_email ||
+          `${(custName || "seafarer").toLowerCase().replace(/\s+/g, ".")}@maritime.com`,
         customer_phone: overrideData.customer_phone || "+91 98765 43210",
         course_name: crsName || "Advanced Fire Fighting",
         institute_name: "Hari Om Maritime Institute, Mumbai",
@@ -238,14 +317,29 @@ export const invoicesService = {
         transaction_id: overrideData.transaction_id || `TXN-${id}`,
         status: "Paid",
         invoice_type: "HAC",
-        created_at: overrideData.date || overrideData.created_at || new Date().toISOString(),
-        payment_date: overrideData.date || overrideData.created_at || new Date().toISOString(),
+        created_at:
+          overrideData.date ||
+          overrideData.created_at ||
+          new Date().toISOString(),
+        payment_date:
+          overrideData.date ||
+          overrideData.created_at ||
+          new Date().toISOString(),
         agent_name: overrideData.agent_name || "Rajesh Kumar (Partner)",
+        items:
+          overrideData.items ||
+          overrideData.allocations ||
+          overrideData.related_purchases ||
+          [],
+        allocations: overrideData.allocations || overrideData.items || [],
       };
     } else if (!inv) {
       inv = {
         id: id || "INV-2026-001",
-        invoice_number: id?.startsWith("HAC-") || id?.startsWith("INV-") ? id : `INV-2026-${id || "001"}`,
+        invoice_number:
+          id?.startsWith("HAC-") || id?.startsWith("INV-")
+            ? id
+            : `INV-2026-${id || "001"}`,
         customer_name: "Rajesh Kumar",
         customer_email: "rajesh.kumar@maritime.com",
         customer_phone: "+91 98765 43210",
@@ -270,7 +364,8 @@ export const invoicesService = {
       invoice: inv,
       company: {
         name: "Hari Om Thalassic Maritime Training Institute",
-        address: "Suite 404, Marine Trade Tower, Ballard Estate, Mumbai, Maharashtra 400001",
+        address:
+          "Suite 404, Marine Trade Tower, Ballard Estate, Mumbai, Maharashtra 400001",
         email: "support@hariomthalassic.com",
         phone: "+91 22 12345678",
         dgsAccreditationId: "DGS-MTI-10294",
@@ -295,24 +390,33 @@ export const invoicesService = {
     try {
       const queryParams = new URLSearchParams();
       if (params?.search) queryParams.append("search", params.search);
-      if (params?.type && params.type !== "all") queryParams.append("type", params.type);
-      if (params?.status && params.status !== "all") queryParams.append("status", params.status);
-      if (params?.course && params.course !== "all") queryParams.append("course", params.course);
+      if (params?.type && params.type !== "all")
+        queryParams.append("type", params.type);
+      if (params?.status && params.status !== "all")
+        queryParams.append("status", params.status);
+      if (params?.course && params.course !== "all")
+        queryParams.append("course", params.course);
       if (params?.startDate) queryParams.append("startDate", params.startDate);
       if (params?.endDate) queryParams.append("endDate", params.endDate);
       const query = queryParams.toString();
-      const response = await api.post(`/invoices/export${query ? `?${query}` : ""}`, {});
+      const response = await api.post(
+        `/invoices/export${query ? `?${query}` : ""}`,
+        {},
+      );
       if (response.data) return response.data;
     } catch (e) {
-      console.warn("Failed to export invoices from API, using fallback data", e);
+      console.warn(
+        "Failed to export invoices from API, using fallback data",
+        e,
+      );
     }
 
     const list = await this.getInvoices(params);
     return list.map((inv: any) => ({
       "Invoice Number": inv.invoice_number,
-      "Seafarer": inv.customer_name,
-      "Course": inv.course_name,
-      "Institute": inv.institute_name || "Hari Om Maritime Institute",
+      Seafarer: inv.customer_name,
+      Course: inv.course_name,
+      Institute: inv.institute_name || "Hari Om Maritime Institute",
       "Amount Applicable to Hari Om": `₹${(inv.hariom_payable_amount ?? inv.final_amount ?? 0).toLocaleString("en-IN")}`,
       "Total Amount": `₹${(inv.final_amount ?? 0).toLocaleString("en-IN")}`,
       "Invoice Date": new Date(inv.created_at).toLocaleDateString("en-IN"),
@@ -321,4 +425,3 @@ export const invoicesService = {
     }));
   },
 };
-
