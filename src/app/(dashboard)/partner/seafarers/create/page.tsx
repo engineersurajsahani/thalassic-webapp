@@ -497,6 +497,7 @@ export default function CreateSeafarerPage() {
                 type="date"
                 name="dob"
                 value={formData.dob}
+                max={new Date().toISOString().split("T")[0]}
                 onChange={handlePersonalFormChange}
                 className={`w-full px-3.5 py-2.5 rounded-xl outline-none font-semibold ${inputStyle}`}
               />
