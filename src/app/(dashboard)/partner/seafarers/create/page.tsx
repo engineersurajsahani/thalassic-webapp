@@ -234,6 +234,24 @@ export default function CreateSeafarerPage() {
       errorMsg: "",
     };
 
+    if (!input.docNum.trim()) {
+      updateRowInput(docType, "errorMsg", "Document Number is required.");
+      return;
+    }
+
+    if (!input.expiry) {
+      updateRowInput(docType, "errorMsg", "Expiry Date is required.");
+      return;
+    }
+
+    if (!input.file) {
+      updateRowInput(
+        docType,
+        "errorMsg",
+        "Please attach the required document file.",
+      );
+      return;
+    }
     updateRowInput(docType, "uploading", true);
     updateRowInput(docType, "errorMsg", "");
 
